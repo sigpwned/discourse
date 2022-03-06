@@ -1,28 +1,28 @@
 package com.sigpwned.discourse.core.property;
 
+import static java.util.Collections.unmodifiableSet;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import com.sigpwned.discourse.core.ConfigurationClass;
 import com.sigpwned.discourse.core.ConfigurationProperty;
+import com.sigpwned.discourse.core.Coordinate;
 import com.sigpwned.discourse.core.ValueStorer;
-import com.sigpwned.discourse.core.exception.configuration.InvalidLongNameConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.InvalidShortNameConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.NoNameConfigurationException;
-import com.sigpwned.discourse.core.util.Parameters;
+import com.sigpwned.discourse.core.coordinate.NameCoordinate;
+import com.sigpwned.discourse.core.coordinate.name.switches.LongSwitchNameCoordinate;
+import com.sigpwned.discourse.core.coordinate.name.switches.ShortSwitchNameCoordinate;
 import com.sigpwned.espresso.BeanProperty;
 
 public class OptionConfigurationProperty extends ConfigurationProperty {
-  private final String shortName;
-  private final String longName;
+  private final ShortSwitchNameCoordinate shortName;
+  private final LongSwitchNameCoordinate longName;
 
   public OptionConfigurationProperty(ConfigurationClass configurationClass, BeanProperty property,
-      ValueStorer storer, String description, String shortName, String longName, boolean required) {
+      ValueStorer storer, String description, ShortSwitchNameCoordinate shortName, LongSwitchNameCoordinate longName,
+      boolean required) {
     super(configurationClass, property, storer, description, required);
     if (shortName == null && longName == null)
-      throw new NoNameConfigurationException(property.getName());
-    if (shortName != null && !Parameters.SHORT_NAME_PATTERN.matcher(shortName).matches())
-      throw new InvalidShortNameConfigurationException(shortName);
-    if (longName != null && !Parameters.LONG_NAME_PATTERN.matcher(longName).matches())
-      throw new InvalidLongNameConfigurationException(longName);
+      throw new IllegalArgumentException("no names");
     this.shortName = shortName;
     this.longName = longName;
   }
@@ -30,20 +30,32 @@ public class OptionConfigurationProperty extends ConfigurationProperty {
   /**
    * @return the shortName
    */
-  public String getShortName() {
+  public ShortSwitchNameCoordinate getShortName() {
     return shortName;
   }
 
   /**
    * @return the longName
    */
-  public String getLongName() {
+  public LongSwitchNameCoordinate getLongName() {
     return longName;
   }
-  
+
   @Override
   public boolean isValued() {
     return true;
+  }
+  
+  
+
+  @Override
+  public Set<Coordinate> getCoordinates() {
+    Set<NameCoordinate> result = new HashSet<>(2);
+    if (getShortName() != null)
+      result.add(getShortName());
+    if (getLongName() != null)
+      result.add(getLongName());
+    return unmodifiableSet(result);
   }
 
   @Override

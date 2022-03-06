@@ -1,31 +1,38 @@
 package com.sigpwned.discourse.core.property;
 
+import static java.util.Collections.singleton;
+import static java.util.Collections.unmodifiableSet;
 import java.util.Objects;
+import java.util.Set;
 import com.sigpwned.discourse.core.ConfigurationClass;
 import com.sigpwned.discourse.core.ConfigurationProperty;
+import com.sigpwned.discourse.core.Coordinate;
 import com.sigpwned.discourse.core.ValueStorer;
-import com.sigpwned.discourse.core.exception.configuration.InvalidVariableNameConfigurationException;
+import com.sigpwned.discourse.core.coordinate.name.VariableNameCoordinate;
 import com.sigpwned.espresso.BeanProperty;
 
 public class EnvironmentConfigurationProperty extends ConfigurationProperty {
-  private final String variableName;
+  private final VariableNameCoordinate variableName;
 
   public EnvironmentConfigurationProperty(ConfigurationClass configurationClass,
-      BeanProperty property, ValueStorer storer, String description, String variableName,
+      BeanProperty property, ValueStorer storer, String description, VariableNameCoordinate variableName,
       boolean required) {
     super(configurationClass, property, storer, description, required);
     if (variableName == null)
       throw new NullPointerException();
-    if (variableName.isBlank())
-      throw new InvalidVariableNameConfigurationException(variableName);
     this.variableName = variableName;
   }
 
   /**
    * @return the variableName
    */
-  public String getVariableName() {
+  public VariableNameCoordinate getVariableName() {
     return variableName;
+  }
+
+  @Override
+  public Set<Coordinate> getCoordinates() {
+    return unmodifiableSet(singleton(getVariableName()));
   }
 
   @Override

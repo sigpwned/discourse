@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import com.sigpwned.discourse.core.ArgumentToken;
-import com.sigpwned.discourse.core.util.Parameters;
+import com.sigpwned.discourse.core.coordinate.name.switches.ShortSwitchNameCoordinate;
 
 public class BundleArgumentToken extends ArgumentToken {
   private final List<String> shortNames;
@@ -17,9 +17,9 @@ public class BundleArgumentToken extends ArgumentToken {
       throw new NullPointerException();
     if (shortNames.isEmpty())
       throw new IllegalArgumentException("empty bundle");
-    if (!shortNames.stream().allMatch(Parameters.SHORT_NAME_PATTERN.asMatchPredicate()))
+    if (!shortNames.stream().allMatch(ShortSwitchNameCoordinate.PATTERN.asMatchPredicate()))
       throw new IllegalArgumentException("invalid short names: " + shortNames.stream()
-          .filter(Predicate.not(Parameters.SHORT_NAME_PATTERN.asMatchPredicate()))
+          .filter(Predicate.not(ShortSwitchNameCoordinate.PATTERN.asMatchPredicate()))
           .collect(joining(", ")));
     this.shortNames = unmodifiableList(shortNames);
   }

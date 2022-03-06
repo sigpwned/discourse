@@ -2,7 +2,7 @@ package com.sigpwned.discourse.core.token;
 
 import java.util.Objects;
 import com.sigpwned.discourse.core.ArgumentToken;
-import com.sigpwned.discourse.core.util.Parameters;
+import com.sigpwned.discourse.core.coordinate.name.switches.ShortSwitchNameCoordinate;
 
 public class ShortNameArgumentToken extends ArgumentToken {
   private final String shortName;
@@ -11,7 +11,7 @@ public class ShortNameArgumentToken extends ArgumentToken {
     super(Type.SHORT_NAME, text);
     if (shortName == null)
       throw new NullPointerException();
-    if (!Parameters.SHORT_NAME_PATTERN.matcher(shortName).matches())
+    if (!ShortSwitchNameCoordinate.PATTERN.matcher(shortName).matches())
       throw new IllegalArgumentException("invalid short name: " + shortName);
     this.shortName = shortName;
   }

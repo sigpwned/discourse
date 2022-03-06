@@ -1,32 +1,39 @@
 package com.sigpwned.discourse.core.property;
 
+import static java.util.Collections.singleton;
+import static java.util.Collections.unmodifiableSet;
 import java.util.Objects;
+import java.util.Set;
 import com.sigpwned.discourse.core.ConfigurationClass;
 import com.sigpwned.discourse.core.ConfigurationProperty;
+import com.sigpwned.discourse.core.Coordinate;
 import com.sigpwned.discourse.core.ValueStorer;
-import com.sigpwned.discourse.core.exception.configuration.InvalidPropertyNameConfigurationException;
+import com.sigpwned.discourse.core.coordinate.name.PropertyNameCoordinate;
 import com.sigpwned.espresso.BeanProperty;
 
 public class PropertyConfigurationProperty extends ConfigurationProperty {
-  private final String propertyName;
+  private final PropertyNameCoordinate propertyName;
 
   public PropertyConfigurationProperty(ConfigurationClass configurationClass, BeanProperty property,
-      ValueStorer storer, String description, String propertyName, boolean required) {
+      ValueStorer storer, String description, PropertyNameCoordinate propertyName, boolean required) {
     super(configurationClass, property, storer, description, required);
     if (propertyName == null)
       throw new NullPointerException();
-    if (propertyName.isBlank())
-      throw new InvalidPropertyNameConfigurationException(propertyName);
     this.propertyName = propertyName;
   }
 
   /**
    * @return the propertyName
    */
-  public String getPropertyName() {
+  public PropertyNameCoordinate getPropertyName() {
     return propertyName;
   }
-
+  
+  @Override
+  public Set<Coordinate> getCoordinates() {
+    return unmodifiableSet(singleton(getPropertyName()));
+  }
+  
   @Override
   public boolean isValued() {
     return false;
@@ -54,6 +61,6 @@ public class PropertyConfigurationProperty extends ConfigurationProperty {
 
   @Override
   public String toString() {
-    return "PropertyConfigurationProperty [variableName=" + propertyName + "]";
+    return "PropertyConfigurationProperty [propertyName=" + propertyName + "]";
   }
 }

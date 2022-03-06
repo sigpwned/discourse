@@ -2,7 +2,7 @@ package com.sigpwned.discourse.core.token;
 
 import java.util.Objects;
 import com.sigpwned.discourse.core.ArgumentToken;
-import com.sigpwned.discourse.core.util.Parameters;
+import com.sigpwned.discourse.core.coordinate.name.switches.LongSwitchNameCoordinate;
 
 public class LongNameArgumentToken extends ArgumentToken {
   private final String longName;
@@ -11,7 +11,7 @@ public class LongNameArgumentToken extends ArgumentToken {
     super(Type.LONG_NAME, text);
     if (longName == null)
       throw new NullPointerException();
-    if (!Parameters.LONG_NAME_PATTERN.matcher(longName).matches())
+    if (!LongSwitchNameCoordinate.PATTERN.matcher(longName).matches())
       throw new IllegalArgumentException("invalid long name: " + longName);
     this.longName = longName;
   }
