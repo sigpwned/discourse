@@ -1,14 +1,14 @@
 package com.sigpwned.discourse.core.exception.argument;
 
 import static java.lang.String.format;
-import com.sigpwned.discourse.core.ArgumentException;
+import com.sigpwned.discourse.core.SyntaxException;
 
-public class UnrecognizedLongNameArgumentException extends ArgumentException {
+public class UnrecognizedLongNameSyntaxException extends SyntaxException {
   private static final long serialVersionUID = -3711732780268301154L;
   
   private final String longName;
 
-  public UnrecognizedLongNameArgumentException(String longName) {
+  public UnrecognizedLongNameSyntaxException(String longName) {
     super(format("Unrecognized long name --%s", longName));
     this.longName = longName;
   }

@@ -1,15 +1,15 @@
 package com.sigpwned.discourse.core.exception.argument;
 
 import static java.lang.String.format;
-import com.sigpwned.discourse.core.ArgumentException;
+import com.sigpwned.discourse.core.SyntaxException;
 
-public class MissingLongNameValueArgumentException extends ArgumentException {
+public class MissingLongNameValueSyntaxException extends SyntaxException {
   private static final long serialVersionUID = -2672367856116656178L;
   
   private final String parameterName;
   private final String longName;
 
-  public MissingLongNameValueArgumentException(String parameterName, String longName) {
+  public MissingLongNameValueSyntaxException(String parameterName, String longName) {
     super(format("Parameter '%s' reference --%s requires value", parameterName, longName));
     this.parameterName = parameterName;
     this.longName = longName;

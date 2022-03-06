@@ -6,11 +6,11 @@ import java.util.ListIterator;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import com.sigpwned.discourse.core.coordinate.name.switches.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.name.switches.ShortSwitchNameCoordinate;
-import com.sigpwned.discourse.core.exception.argument.InvalidLongNameValueArgumentException;
-import com.sigpwned.discourse.core.exception.argument.MissingLongNameValueArgumentException;
-import com.sigpwned.discourse.core.exception.argument.MissingShortNameValueArgumentException;
-import com.sigpwned.discourse.core.exception.argument.UnrecognizedLongNameArgumentException;
-import com.sigpwned.discourse.core.exception.argument.UnrecognizedShortNameArgumentException;
+import com.sigpwned.discourse.core.exception.argument.InvalidLongNameValueSyntaxException;
+import com.sigpwned.discourse.core.exception.argument.MissingLongNameValueSyntaxException;
+import com.sigpwned.discourse.core.exception.argument.MissingShortNameValueSyntaxException;
+import com.sigpwned.discourse.core.exception.argument.UnrecognizedLongNameSyntaxException;
+import com.sigpwned.discourse.core.exception.argument.UnrecognizedShortNameSyntaxException;
 import com.sigpwned.discourse.core.exception.configuration.MissingPositionConfigurationException;
 import com.sigpwned.discourse.core.property.FlagConfigurationProperty;
 import com.sigpwned.discourse.core.property.OptionConfigurationProperty;
@@ -101,16 +101,16 @@ public class ArgsParser {
           ShortSwitchNameCoordinate.fromString(bundle.getShortNames().get(index));
 
       ConfigurationProperty shortNameProperty = getConfigurationClass().resolve(shortName)
-          .orElseThrow(() -> new UnrecognizedShortNameArgumentException(shortName.toString()));
+          .orElseThrow(() -> new UnrecognizedShortNameSyntaxException(shortName.toString()));
 
       if (shortNameProperty.isValued()) {
         OptionConfigurationProperty optionProperty =
             (OptionConfigurationProperty) shortNameProperty;
         if (!lastIndex)
-          throw new MissingShortNameValueArgumentException(shortNameProperty.getName(),
+          throw new MissingShortNameValueSyntaxException(shortNameProperty.getName(),
               shortName.toString());
         if (peek() == null)
-          throw new MissingShortNameValueArgumentException(shortNameProperty.getName(),
+          throw new MissingShortNameValueSyntaxException(shortNameProperty.getName(),
               shortName.toString());
         String value = next();
         getHandler().option(optionProperty, value);
@@ -126,12 +126,12 @@ public class ArgsParser {
         ShortSwitchNameCoordinate.fromString(token.getShortName());
 
     ConfigurationProperty shortNameProperty = getConfigurationClass().resolve(shortName)
-        .orElseThrow(() -> new UnrecognizedShortNameArgumentException(shortName.toString()));
+        .orElseThrow(() -> new UnrecognizedShortNameSyntaxException(shortName.toString()));
 
     if (shortNameProperty.isValued()) {
       OptionConfigurationProperty optionProperty = (OptionConfigurationProperty) shortNameProperty;
       if (peek() == null)
-        throw new MissingShortNameValueArgumentException(optionProperty.getName(),
+        throw new MissingShortNameValueSyntaxException(optionProperty.getName(),
             shortName.toString());
       String value = next();
       getHandler().option(optionProperty, value);
@@ -145,12 +145,12 @@ public class ArgsParser {
     LongSwitchNameCoordinate longName = LongSwitchNameCoordinate.fromString(token.getLongName());
 
     ConfigurationProperty longNameProperty = getConfigurationClass().resolve(longName)
-        .orElseThrow(() -> new UnrecognizedLongNameArgumentException(longName.toString()));
+        .orElseThrow(() -> new UnrecognizedLongNameSyntaxException(longName.toString()));
 
     if (longNameProperty.isValued()) {
       OptionConfigurationProperty optionProperty = (OptionConfigurationProperty) longNameProperty;
       if (peek() == null)
-        throw new MissingLongNameValueArgumentException(optionProperty.getName(),
+        throw new MissingLongNameValueSyntaxException(optionProperty.getName(),
             longName.toString());
       String value = next();
       getHandler().option(optionProperty, value);
@@ -165,14 +165,14 @@ public class ArgsParser {
     String value = token.getValue();
 
     ConfigurationProperty longNameValueProperty = getConfigurationClass().resolve(longName)
-        .orElseThrow(() -> new UnrecognizedLongNameArgumentException(longName.toString()));
+        .orElseThrow(() -> new UnrecognizedLongNameSyntaxException(longName.toString()));
 
     if (longNameValueProperty.isValued()) {
       OptionConfigurationProperty optionProperty =
           (OptionConfigurationProperty) longNameValueProperty;
       getHandler().option(optionProperty, value);
     } else {
-      throw new InvalidLongNameValueArgumentException(longNameValueProperty.getName(),
+      throw new InvalidLongNameValueSyntaxException(longNameValueProperty.getName(),
           longName.toString());
     }
   }

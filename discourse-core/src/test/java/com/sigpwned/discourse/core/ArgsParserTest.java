@@ -9,7 +9,7 @@ import org.junit.Test;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
-import com.sigpwned.discourse.core.exception.argument.UnrecognizedShortNameArgumentException;
+import com.sigpwned.discourse.core.exception.argument.UnrecognizedShortNameSyntaxException;
 import com.sigpwned.discourse.core.property.FlagConfigurationProperty;
 import com.sigpwned.discourse.core.property.OptionConfigurationProperty;
 import com.sigpwned.discourse.core.property.PositionalConfigurationProperty;
@@ -135,7 +135,7 @@ public class ArgsParserTest {
   /**
    * unrecognized option
    */
-  @Test(expected = UnrecognizedShortNameArgumentException.class)
+  @Test(expected = UnrecognizedShortNameSyntaxException.class)
   public void test4() {
     ConfigurationClass cc = ConfigurationClass.scan(new StorageContext(), Example.class);
 
