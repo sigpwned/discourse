@@ -7,17 +7,17 @@ import java.util.Set;
 import com.sigpwned.discourse.core.ConfigurationClass;
 import com.sigpwned.discourse.core.ConfigurationProperty;
 import com.sigpwned.discourse.core.Coordinate;
-import com.sigpwned.discourse.core.ValueStorer;
+import com.sigpwned.discourse.core.ValueDeserializer;
+import com.sigpwned.discourse.core.ValueSink;
 import com.sigpwned.discourse.core.coordinate.name.VariableNameCoordinate;
-import com.sigpwned.espresso.BeanProperty;
 
 public class EnvironmentConfigurationProperty extends ConfigurationProperty {
   private final VariableNameCoordinate variableName;
 
-  public EnvironmentConfigurationProperty(ConfigurationClass configurationClass,
-      BeanProperty property, ValueStorer storer, String description, VariableNameCoordinate variableName,
-      boolean required) {
-    super(configurationClass, property, storer, description, required);
+  public EnvironmentConfigurationProperty(ConfigurationClass configurationClass, String name,
+      String description, boolean required, ValueDeserializer<?> deserializer, ValueSink sink,
+      VariableNameCoordinate variableName) {
+    super(configurationClass, name, description, required, deserializer, sink);
     if (variableName == null)
       throw new NullPointerException();
     this.variableName = variableName;

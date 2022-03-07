@@ -12,7 +12,14 @@ import java.util.Set;
 
 public final class Types {
   private Types() {}
-  
+
+  public static boolean isPrimitive(Type genericType) {
+    return genericType.equals(byte.class) || genericType.equals(short.class)
+        || genericType.equals(int.class) || genericType.equals(long.class)
+        || genericType.equals(float.class) || genericType.equals(double.class)
+        || genericType.equals(char.class) || genericType.equals(boolean.class);
+  }
+
   /**
    * Returns true if the given type is a fully-resolved array type.
    * 
@@ -84,9 +91,9 @@ public final class Types {
   public static final TypeVariable<?> COLLECTION_ELEMENT_TYPE_VARIABLE =
       Collection.class.getTypeParameters()[0];
 
-//  public static Optional<Type> getConcreteCollectionElementType(Type genericType) {
-//    return resolveTypeVariable(genericType, COLLECTION_ELEMENT_TYPE_VARIABLE);
-//  }
+  // public static Optional<Type> getConcreteCollectionElementType(Type genericType) {
+  // return resolveTypeVariable(genericType, COLLECTION_ELEMENT_TYPE_VARIABLE);
+  // }
 
   public static boolean implementsInterface(Type genericType, Class<?> iface) {
     if (genericType instanceof Class<?>) {
@@ -130,49 +137,51 @@ public final class Types {
     return false;
   }
 
-//  /**
-//   * Inspired by joda beans
-//   * 
-//   * @see https://github.com/JodaOrg/joda-beans/blob/72bb2614194a88807cb3e2dd5ea02a47a2f01026/src/main/java/org/joda/beans/JodaBeanUtils.java#L811
-//   */
-//  public static Optional<Type> resolveTypeVariable(Type genericType, TypeVariable<?> typevar) {
-//    Map<Type, Type> resolved = new HashMap<>(getTypeVariableAssignments(genericType));
-//
-//    Type result = typevar;
-//    while (resolved.containsKey(result)) {
-//      result = resolved.get(result);
-//    }
-//
-//    return Optional.ofNullable(result).filter(Types::isConcrete);
-//  }
+  // /**
+  // * Inspired by joda beans
+  // *
+  // * @see
+  // https://github.com/JodaOrg/joda-beans/blob/72bb2614194a88807cb3e2dd5ea02a47a2f01026/src/main/java/org/joda/beans/JodaBeanUtils.java#L811
+  // */
+  // public static Optional<Type> resolveTypeVariable(Type genericType, TypeVariable<?> typevar) {
+  // Map<Type, Type> resolved = new HashMap<>(getTypeVariableAssignments(genericType));
+  //
+  // Type result = typevar;
+  // while (resolved.containsKey(result)) {
+  // result = resolved.get(result);
+  // }
+  //
+  // return Optional.ofNullable(result).filter(Types::isConcrete);
+  // }
 
-//  /**
-//   * Inspired by joda beans.
-//   * 
-//   * @see https://github.com/JodaOrg/joda-beans/blob/72bb2614194a88807cb3e2dd5ea02a47a2f01026/src/main/java/org/joda/beans/JodaBeanUtils.java#L811
-//   */
-//  private static Map<TypeVariable<?>, Type> getTypeVariableAssignments(Type genericType) {
-//    Map<TypeVariable<?>, Type> result = new HashMap<>();
-//    while (genericType != null) {
-//      if (genericType instanceof Class) {
-//        Class<?> classType = (Class<?>) genericType;
-//        for (Type interfaceType : classType.getGenericInterfaces())
-//          result.putAll(getTypeVariableAssignments(interfaceType));
-//        genericType = ((Class<?>) genericType).getGenericSuperclass();
-//      } else if (genericType instanceof ParameterizedType) {
-//        ParameterizedType parameterizedType = (ParameterizedType) genericType;
-//        Type[] arguments = parameterizedType.getActualTypeArguments();
-//        Class<?> erasedType = JodaBeanUtils.eraseToClass(parameterizedType.getRawType());
-//        if (erasedType == null)
-//          return emptyMap();
-//        TypeVariable<?>[] typeParameters = erasedType.getTypeParameters();
-//        for (int i = 0; i < arguments.length; i++)
-//          result.put(typeParameters[i], arguments[i]);
-//        for (Type interfaceType : erasedType.getGenericInterfaces())
-//          result.putAll(getTypeVariableAssignments(interfaceType));
-//        genericType = erasedType.getGenericSuperclass();
-//      }
-//    }
-//    return result;
-//  }
+  // /**
+  // * Inspired by joda beans.
+  // *
+  // * @see
+  // https://github.com/JodaOrg/joda-beans/blob/72bb2614194a88807cb3e2dd5ea02a47a2f01026/src/main/java/org/joda/beans/JodaBeanUtils.java#L811
+  // */
+  // private static Map<TypeVariable<?>, Type> getTypeVariableAssignments(Type genericType) {
+  // Map<TypeVariable<?>, Type> result = new HashMap<>();
+  // while (genericType != null) {
+  // if (genericType instanceof Class) {
+  // Class<?> classType = (Class<?>) genericType;
+  // for (Type interfaceType : classType.getGenericInterfaces())
+  // result.putAll(getTypeVariableAssignments(interfaceType));
+  // genericType = ((Class<?>) genericType).getGenericSuperclass();
+  // } else if (genericType instanceof ParameterizedType) {
+  // ParameterizedType parameterizedType = (ParameterizedType) genericType;
+  // Type[] arguments = parameterizedType.getActualTypeArguments();
+  // Class<?> erasedType = JodaBeanUtils.eraseToClass(parameterizedType.getRawType());
+  // if (erasedType == null)
+  // return emptyMap();
+  // TypeVariable<?>[] typeParameters = erasedType.getTypeParameters();
+  // for (int i = 0; i < arguments.length; i++)
+  // result.put(typeParameters[i], arguments[i]);
+  // for (Type interfaceType : erasedType.getGenericInterfaces())
+  // result.putAll(getTypeVariableAssignments(interfaceType));
+  // genericType = erasedType.getGenericSuperclass();
+  // }
+  // }
+  // return result;
+  // }
 }

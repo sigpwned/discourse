@@ -46,7 +46,8 @@ import com.sigpwned.espresso.BeanInstance;
 import com.sigpwned.espresso.BeanProperty;
 
 public class ConfigurationClass {
-  public static ConfigurationClass scan(StorageContext storage, Class<?> rawType) {
+  public static ConfigurationClass scan(SinkContext storage, SerializationContext serialization,
+      Class<?> rawType) {
     BeanClass beanClass = BeanClass.scan(rawType);
 
     ConfigurationClass result = new ConfigurationClass(beanClass);
@@ -71,7 +72,13 @@ public class ConfigurationClass {
         throw new TooManyAnnotationsConfigurationException(beanProperty.getName());
       }
 
-      var storer = storage.getStorer(beanProperty);
+      var parameterName = beanProperty.getName();
+
+      var sink = storage.getSink(beanProperty);
+
+      var deserializer = serialization
+          .getDeserializer(sink.getGenericType(), beanProperty.getAnnotations())
+          .orElseThrow(() -> new RuntimeException("No deserializer for property " + parameterName));
 
       var parameterAnnotation = parameterAnnotations.get(0);
 
@@ -86,8 +93,8 @@ public class ConfigurationClass {
           throw new InvalidVariableNameConfigurationException(environment.variableName());
         }
 
-        configurationProperty = new EnvironmentConfigurationProperty(result, beanProperty, storer,
-            environment.description(), variableName, environment.required());
+        configurationProperty = new EnvironmentConfigurationProperty(result, parameterName,
+            environment.description(), environment.required(), deserializer, sink, variableName);
       } else if (parameterAnnotation instanceof FlagParameter) {
         FlagParameter flag = (FlagParameter) parameterAnnotation;
 
@@ -116,8 +123,8 @@ public class ConfigurationClass {
         if (shortName == null && longName == null)
           throw new NoNameConfigurationException(beanProperty.getName());
 
-        configurationProperty = new FlagConfigurationProperty(result, beanProperty, storer,
-            flag.description(), shortName, longName);
+        configurationProperty = new FlagConfigurationProperty(result, parameterName,
+            flag.description(), deserializer, sink, shortName, longName);
       } else if (parameterAnnotation instanceof OptionParameter) {
         OptionParameter option = (OptionParameter) parameterAnnotation;
 
@@ -146,8 +153,8 @@ public class ConfigurationClass {
         if (shortName == null && longName == null)
           throw new NoNameConfigurationException(beanProperty.getName());
 
-        configurationProperty = new OptionConfigurationProperty(result, beanProperty, storer,
-            option.description(), shortName, longName, option.required());
+        configurationProperty = new OptionConfigurationProperty(result, parameterName,
+            option.description(), option.required(), deserializer, sink, shortName, longName);
       } else if (parameterAnnotation instanceof PositionalParameter) {
         PositionalParameter positional = (PositionalParameter) parameterAnnotation;
 
@@ -158,8 +165,8 @@ public class ConfigurationClass {
           throw new InvalidPositionConfigurationException(positional.position());
         }
 
-        configurationProperty = new PositionalConfigurationProperty(result, beanProperty, storer,
-            positional.description(), position, positional.required());
+        configurationProperty = new PositionalConfigurationProperty(result, parameterName,
+            positional.description(), positional.required(), deserializer, sink, position);
       } else if (parameterAnnotation instanceof PropertyParameter) {
         PropertyParameter property = (PropertyParameter) parameterAnnotation;
 
@@ -170,8 +177,8 @@ public class ConfigurationClass {
           throw new InvalidPropertyNameConfigurationException(property.propertyName());
         }
 
-        configurationProperty = new PropertyConfigurationProperty(result, beanProperty, storer,
-            property.description(), propertyName, property.required());
+        configurationProperty = new PropertyConfigurationProperty(result, parameterName,
+            property.description(), property.required(), deserializer, sink, propertyName);
       } else {
         throw new AssertionError(
             format("Failed to recognize Configuration class %s property %s parameter type",

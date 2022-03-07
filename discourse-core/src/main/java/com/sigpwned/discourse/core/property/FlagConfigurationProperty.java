@@ -7,19 +7,20 @@ import java.util.Set;
 import com.sigpwned.discourse.core.ConfigurationClass;
 import com.sigpwned.discourse.core.ConfigurationProperty;
 import com.sigpwned.discourse.core.Coordinate;
-import com.sigpwned.discourse.core.ValueStorer;
+import com.sigpwned.discourse.core.ValueDeserializer;
+import com.sigpwned.discourse.core.ValueSink;
 import com.sigpwned.discourse.core.coordinate.NameCoordinate;
 import com.sigpwned.discourse.core.coordinate.name.switches.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.name.switches.ShortSwitchNameCoordinate;
-import com.sigpwned.espresso.BeanProperty;
 
 public class FlagConfigurationProperty extends ConfigurationProperty {
   private final ShortSwitchNameCoordinate shortName;
   private final LongSwitchNameCoordinate longName;
 
-  public FlagConfigurationProperty(ConfigurationClass configurationClass, BeanProperty property,
-      ValueStorer storer, String description, ShortSwitchNameCoordinate shortName, LongSwitchNameCoordinate longName) {
-    super(configurationClass, property, storer, description, false);
+  public FlagConfigurationProperty(ConfigurationClass configurationClass, String name,
+      String description, ValueDeserializer<?> deserializer, ValueSink sink,
+      ShortSwitchNameCoordinate shortName, LongSwitchNameCoordinate longName) {
+    super(configurationClass, name, description, false, deserializer, sink);
     if (shortName == null && longName == null)
       throw new IllegalArgumentException("no names");
     this.shortName = shortName;

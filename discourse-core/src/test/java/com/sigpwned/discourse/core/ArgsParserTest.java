@@ -31,7 +31,7 @@ public class ArgsParserTest {
    */
   @Test
   public void test1() {
-    ConfigurationClass cc = ConfigurationClass.scan(new StorageContext(), Example.class);
+    ConfigurationClass cc = ConfigurationClass.scan(new SinkContext(), new SerializationContext(), Example.class);
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -67,7 +67,7 @@ public class ArgsParserTest {
    */
   @Test
   public void test2() {
-    ConfigurationClass cc = ConfigurationClass.scan(new StorageContext(), Example.class);
+    ConfigurationClass cc = ConfigurationClass.scan(new SinkContext(), new SerializationContext(), Example.class);
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -102,7 +102,7 @@ public class ArgsParserTest {
    */
   @Test
   public void test3() {
-    ConfigurationClass cc = ConfigurationClass.scan(new StorageContext(), Example.class);
+    ConfigurationClass cc = ConfigurationClass.scan(new SinkContext(), new SerializationContext(), Example.class);
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -137,7 +137,7 @@ public class ArgsParserTest {
    */
   @Test(expected = UnrecognizedShortNameSyntaxException.class)
   public void test4() {
-    ConfigurationClass cc = ConfigurationClass.scan(new StorageContext(), Example.class);
+    ConfigurationClass cc = ConfigurationClass.scan(new SinkContext(), new SerializationContext(), Example.class);
 
     new ArgsParser(cc, new ArgsParser.Handler() {}).parse(asList("-x"));
   }

@@ -11,19 +11,19 @@ import java.util.Set;
 import com.sigpwned.discourse.core.property.FlagConfigurationProperty;
 import com.sigpwned.discourse.core.property.OptionConfigurationProperty;
 import com.sigpwned.discourse.core.property.PositionalConfigurationProperty;
-import com.sigpwned.discourse.core.value.storer.AssignValueStorer;
+import com.sigpwned.discourse.core.value.sink.AssignValueSinkFactory;
 import com.sigpwned.espresso.BeanInstance;
 
 public class Configurator<T> {
   private final Class<T> rawType;
   private final SerializationContext serializationContext;
-  private final StorageContext storageContext;
+  private final SinkContext storageContext;
   private final List<String> args;
 
   public Configurator(Class<T> rawType) {
     this.rawType = rawType;
     this.serializationContext = new SerializationContext();
-    this.storageContext = new StorageContext(AssignValueStorer.INSTANCE);
+    this.storageContext = new SinkContext(AssignValueSinkFactory.INSTANCE);
     this.args = new ArrayList<>();
   }
 
@@ -31,12 +31,12 @@ public class Configurator<T> {
     return rawType;
   }
 
-  public Configurator<T> registerDeserializer(ValueDeserializer<?> deserializer) {
+  public Configurator<T> registerDeserializer(ValueDeserializerFactory<?> deserializer) {
     getSerializationContext().addFirst(deserializer);
     return this;
   }
 
-  public Configurator<T> registerStorer(ValueStorer storer) {
+  public Configurator<T> registerSink(ValueSinkFactory storer) {
     getStorageContext().addFirst(storer);
     return this;
   }
@@ -56,10 +56,10 @@ public class Configurator<T> {
     return this;
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
+  @SuppressWarnings({"unchecked"})
   public T done() {
     ConfigurationClass configurationClass =
-        ConfigurationClass.scan(getStorageContext(), getRawType());
+        ConfigurationClass.scan(getStorageContext(), getSerializationContext(), getRawType());
 
     BeanInstance instance;
     try {
@@ -77,7 +77,7 @@ public class Configurator<T> {
       @Override
       public void flag(FlagConfigurationProperty property) {
         try {
-          property.set(instance.getInstance(), true);
+          property.set(instance.getInstance(), "true");
         }
         catch(InvocationTargetException e) {
           throw new RuntimeException("Failed to set property", e);
@@ -87,39 +87,23 @@ public class Configurator<T> {
 
       @Override
       public void option(OptionConfigurationProperty property, String text) {
-        ValueDeserializer deserializer =
-            getSerializationContext().getDeserializer(property.getGenericType(), null)
-                .orElseThrow(() -> new IllegalArgumentException(
-                    format("no deserializer for type %s", property.getGenericType())));
-
-        Object value = deserializer.deserialize(property.getGenericType(), null, text);
-
         try {
-          property.set(instance.getInstance(), value);
+          property.set(instance.getInstance(), text);
         }
         catch(InvocationTargetException e) {
           throw new RuntimeException("Failed to set property", e);
         }
-
         required.remove(property.getName());
       }
 
       @Override
       public void positional(PositionalConfigurationProperty property, String text) {
-        ValueDeserializer deserializer =
-            getSerializationContext().getDeserializer(property.getGenericType(), null)
-                .orElseThrow(() -> new IllegalArgumentException(
-                    format("no deserializer for type %s", property.getGenericType())));
-
-        Object value = deserializer.deserialize(property.getGenericType(), null, text);
-
         try {
-          property.set(instance.getInstance(), value);
+          property.set(instance.getInstance(), text);
         }
         catch(InvocationTargetException e) {
           throw new RuntimeException("Failed to set property", e);
         }
-
         required.remove(property.getName());
       }
     }).parse(getArgs());
@@ -148,7 +132,7 @@ public class Configurator<T> {
   /**
    * @return the storageContext
    */
-  private StorageContext getStorageContext() {
+  private SinkContext getStorageContext() {
     return storageContext;
   }
 

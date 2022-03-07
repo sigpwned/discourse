@@ -7,17 +7,17 @@ import java.util.Set;
 import com.sigpwned.discourse.core.ConfigurationClass;
 import com.sigpwned.discourse.core.ConfigurationProperty;
 import com.sigpwned.discourse.core.Coordinate;
-import com.sigpwned.discourse.core.ValueStorer;
+import com.sigpwned.discourse.core.ValueDeserializer;
+import com.sigpwned.discourse.core.ValueSink;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
-import com.sigpwned.espresso.BeanProperty;
 
 public class PositionalConfigurationProperty extends ConfigurationProperty {
   private final PositionCoordinate position;
-
-  public PositionalConfigurationProperty(ConfigurationClass configurationClass,
-      BeanProperty property, ValueStorer storer, String description, PositionCoordinate position,
-      boolean required) {
-    super(configurationClass, property, storer, description, required);
+  
+  public PositionalConfigurationProperty(ConfigurationClass configurationClass, String name,
+      String description, boolean required, ValueDeserializer<?> deserializer, ValueSink sink,
+      PositionCoordinate position) {
+    super(configurationClass, name, description, required, deserializer, sink);
     this.position = position;
   }
 

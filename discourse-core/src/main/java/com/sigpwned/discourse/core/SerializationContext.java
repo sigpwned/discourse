@@ -6,57 +6,57 @@ import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import com.sigpwned.discourse.core.value.deserializer.BooleanValueDeserializer;
-import com.sigpwned.discourse.core.value.deserializer.ByteValueDeserializer;
-import com.sigpwned.discourse.core.value.deserializer.CharValueDeserializer;
-import com.sigpwned.discourse.core.value.deserializer.DoubleValueDeserializer;
-import com.sigpwned.discourse.core.value.deserializer.FloatValueDeserializer;
-import com.sigpwned.discourse.core.value.deserializer.InstantValueDeserializer;
-import com.sigpwned.discourse.core.value.deserializer.IntValueDeserializer;
-import com.sigpwned.discourse.core.value.deserializer.LocalDateTimeValueDeserializer;
-import com.sigpwned.discourse.core.value.deserializer.LocalDateValueDeserializer;
-import com.sigpwned.discourse.core.value.deserializer.LocalTimeValueDeserializer;
-import com.sigpwned.discourse.core.value.deserializer.LongValueDeserializer;
-import com.sigpwned.discourse.core.value.deserializer.ShortValueDeserializer;
-import com.sigpwned.discourse.core.value.deserializer.StringValueDeserializer;
+import com.sigpwned.discourse.core.value.deserializer.BooleanValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.ByteValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.CharValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.DoubleValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.FloatValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.InstantValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.IntValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.LocalDateTimeValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.LocalDateValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.LocalTimeValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.LongValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.ShortValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.StringValueDeserializerFactory;
 
 public class SerializationContext {
-  private final LinkedList<ValueDeserializer<?>> deserializers;
+  private final LinkedList<ValueDeserializerFactory<?>> deserializers;
 
   public SerializationContext() {
     deserializers = new LinkedList<>();
-    addLast(StringValueDeserializer.INSTANCE);
-    addLast(LongValueDeserializer.INSTANCE);
-    addLast(IntValueDeserializer.INSTANCE);
-    addLast(CharValueDeserializer.INSTANCE);
-    addLast(ShortValueDeserializer.INSTANCE);
-    addLast(ByteValueDeserializer.INSTANCE);
-    addLast(DoubleValueDeserializer.INSTANCE);
-    addLast(FloatValueDeserializer.INSTANCE);
-    addLast(BooleanValueDeserializer.INSTANCE);
-    addLast(InstantValueDeserializer.INSTANCE);
-    addLast(LocalDateTimeValueDeserializer.INSTANCE);
-    addLast(LocalDateValueDeserializer.INSTANCE);
-    addLast(LocalTimeValueDeserializer.INSTANCE);
+    addLast(StringValueDeserializerFactory.INSTANCE);
+    addLast(LongValueDeserializerFactory.INSTANCE);
+    addLast(IntValueDeserializerFactory.INSTANCE);
+    addLast(CharValueDeserializerFactory.INSTANCE);
+    addLast(ShortValueDeserializerFactory.INSTANCE);
+    addLast(ByteValueDeserializerFactory.INSTANCE);
+    addLast(DoubleValueDeserializerFactory.INSTANCE);
+    addLast(FloatValueDeserializerFactory.INSTANCE);
+    addLast(BooleanValueDeserializerFactory.INSTANCE);
+    addLast(InstantValueDeserializerFactory.INSTANCE);
+    addLast(LocalDateTimeValueDeserializerFactory.INSTANCE);
+    addLast(LocalDateValueDeserializerFactory.INSTANCE);
+    addLast(LocalTimeValueDeserializerFactory.INSTANCE);
   }
 
   public Optional<ValueDeserializer<?>> getDeserializer(Type genericType,
-      Annotation[] annotations) {
+      List<Annotation> annotations) {
     return deserializers.stream().filter(d -> d.isDeserializable(genericType, annotations))
-        .findFirst();
+        .findFirst().map(f -> f.getDeserializer(genericType, annotations));
   }
 
-  public void addFirst(ValueDeserializer<?> deserializer) {
+  public void addFirst(ValueDeserializerFactory<?> deserializer) {
     deserializers.remove(deserializer);
     deserializers.addFirst(deserializer);
   }
 
-  public void addLast(ValueDeserializer<?> deserializer) {
+  public void addLast(ValueDeserializerFactory<?> deserializer) {
     deserializers.remove(deserializer);
     deserializers.addLast(deserializer);
   }
 
-  public List<ValueDeserializer<?>> getDeserializers() {
+  public List<ValueDeserializerFactory<?>> getDeserializers() {
     return unmodifiableList(deserializers);
   }
 }

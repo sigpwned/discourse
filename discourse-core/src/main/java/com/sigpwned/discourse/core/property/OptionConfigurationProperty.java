@@ -7,20 +7,20 @@ import java.util.Set;
 import com.sigpwned.discourse.core.ConfigurationClass;
 import com.sigpwned.discourse.core.ConfigurationProperty;
 import com.sigpwned.discourse.core.Coordinate;
-import com.sigpwned.discourse.core.ValueStorer;
+import com.sigpwned.discourse.core.ValueDeserializer;
+import com.sigpwned.discourse.core.ValueSink;
 import com.sigpwned.discourse.core.coordinate.NameCoordinate;
 import com.sigpwned.discourse.core.coordinate.name.switches.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.name.switches.ShortSwitchNameCoordinate;
-import com.sigpwned.espresso.BeanProperty;
 
 public class OptionConfigurationProperty extends ConfigurationProperty {
   private final ShortSwitchNameCoordinate shortName;
   private final LongSwitchNameCoordinate longName;
 
-  public OptionConfigurationProperty(ConfigurationClass configurationClass, BeanProperty property,
-      ValueStorer storer, String description, ShortSwitchNameCoordinate shortName, LongSwitchNameCoordinate longName,
-      boolean required) {
-    super(configurationClass, property, storer, description, required);
+  public OptionConfigurationProperty(ConfigurationClass configurationClass, String name,
+      String description, boolean required, ValueDeserializer<?> deserializer, ValueSink sink,
+      ShortSwitchNameCoordinate shortName, LongSwitchNameCoordinate longName) {
+    super(configurationClass, name, description, required, deserializer, sink);
     if (shortName == null && longName == null)
       throw new IllegalArgumentException("no names");
     this.shortName = shortName;
@@ -45,8 +45,8 @@ public class OptionConfigurationProperty extends ConfigurationProperty {
   public boolean isValued() {
     return true;
   }
-  
-  
+
+
 
   @Override
   public Set<Coordinate> getCoordinates() {
