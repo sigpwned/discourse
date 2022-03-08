@@ -6,7 +6,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import com.sigpwned.discourse.core.ValueSink;
 import com.sigpwned.discourse.core.ValueSinkFactory;
-import com.sigpwned.discourse.core.util.GenericSortedSetType;
+import com.sigpwned.discourse.core.util.SortedSetType;
 import com.sigpwned.espresso.BeanProperty;
 
 public class SortedSetAddValueSinkFactory implements ValueSinkFactory {
@@ -15,7 +15,7 @@ public class SortedSetAddValueSinkFactory implements ValueSinkFactory {
   @Override
   public boolean isSinkable(BeanProperty property) {
     try {
-      GenericSortedSetType.parse(property.getGenericType());
+      SortedSetType.parse(property.getGenericType());
     } catch (IllegalArgumentException e) {
       return false;
     }
@@ -24,7 +24,7 @@ public class SortedSetAddValueSinkFactory implements ValueSinkFactory {
 
   @Override
   public ValueSink getSink(BeanProperty property) {
-    final GenericSortedSetType sortedSetType=GenericSortedSetType.parse(property.getGenericType());
+    final SortedSetType sortedSetType=SortedSetType.parse(property.getGenericType());
     return new ValueSink() {
       @Override
       public boolean isCollection() {

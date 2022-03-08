@@ -3,6 +3,7 @@ package com.sigpwned.discourse.core.token;
 import java.util.Objects;
 import com.sigpwned.discourse.core.ArgumentToken;
 import com.sigpwned.discourse.core.coordinate.name.switches.LongSwitchNameCoordinate;
+import com.sigpwned.discourse.core.util.Generated;
 
 public class LongNameValueArgumentToken extends ArgumentToken {
   private final String longName;
@@ -35,6 +36,7 @@ public class LongNameValueArgumentToken extends ArgumentToken {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -43,6 +45,7 @@ public class LongNameValueArgumentToken extends ArgumentToken {
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;

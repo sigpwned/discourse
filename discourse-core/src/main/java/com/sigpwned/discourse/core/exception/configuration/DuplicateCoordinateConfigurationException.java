@@ -5,8 +5,6 @@ import com.sigpwned.discourse.core.ConfigurationException;
 import com.sigpwned.discourse.core.Coordinate;
 
 public class DuplicateCoordinateConfigurationException extends ConfigurationException {
-  private static final long serialVersionUID = -830372790631637350L;
-
   private final Coordinate coordinate;
 
   public DuplicateCoordinateConfigurationException(Coordinate coordinate) {

@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import com.sigpwned.discourse.core.value.deserializer.BigDecimalValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.BooleanValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.ByteValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.CharValueDeserializerFactory;
@@ -33,6 +34,7 @@ public class SerializationContext {
     addLast(ByteValueDeserializerFactory.INSTANCE);
     addLast(DoubleValueDeserializerFactory.INSTANCE);
     addLast(FloatValueDeserializerFactory.INSTANCE);
+    addLast(BigDecimalValueDeserializerFactory.INSTANCE);
     addLast(BooleanValueDeserializerFactory.INSTANCE);
     addLast(InstantValueDeserializerFactory.INSTANCE);
     addLast(LocalDateTimeValueDeserializerFactory.INSTANCE);

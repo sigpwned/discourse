@@ -4,8 +4,6 @@ import static java.lang.String.format;
 import com.sigpwned.discourse.core.ConfigurationException;
 
 public class TooManyAnnotationsConfigurationException extends ConfigurationException {
-  private static final long serialVersionUID = -8269034662552482993L;
-
   private final String parameterName;
 
   public TooManyAnnotationsConfigurationException(String parameterName) {

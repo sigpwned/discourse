@@ -1,6 +1,5 @@
 package com.sigpwned.discourse.core;
 
-import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import java.lang.reflect.InvocationTargetException;
@@ -8,9 +7,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import com.sigpwned.discourse.core.property.FlagConfigurationProperty;
-import com.sigpwned.discourse.core.property.OptionConfigurationProperty;
-import com.sigpwned.discourse.core.property.PositionalConfigurationProperty;
+import com.sigpwned.discourse.core.exception.argument.AssignmentFailureArgumentException;
+import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgumentException;
+import com.sigpwned.discourse.core.exception.argument.UnassignedRequiredParametersArgumentException;
+import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
 import com.sigpwned.discourse.core.value.sink.AssignValueSinkFactory;
 import com.sigpwned.espresso.BeanInstance;
 
@@ -66,53 +68,103 @@ public class Configurator<T> {
       instance = configurationClass.newInstance();
     }
     catch(InvocationTargetException e) {
-      throw new RuntimeException("Failed to create new instance", e);
+      throw new NewInstanceFailureArgumentException(e);
     }
 
     Set<String> required = new HashSet<>(
-        configurationClass.getProperties().stream().filter(ConfigurationProperty::isRequired)
-            .map(ConfigurationProperty::getName).collect(toList()));
+        configurationClass.getProperties().stream().filter(ConfigurationParameter::isRequired)
+            .map(ConfigurationParameter::getName).collect(toList()));
 
-    new ArgsParser(configurationClass, new ArgsParser.Handler() {
+    // Handle CLI arguments
+    new ArgumentsParser(configurationClass, new ArgumentsParser.Handler() {
       @Override
-      public void flag(FlagConfigurationProperty property) {
+      public void flag(FlagConfigurationParameter property) {
         try {
           property.set(instance.getInstance(), "true");
         }
         catch(InvocationTargetException e) {
-          throw new RuntimeException("Failed to set property", e);
+          throw new AssignmentFailureArgumentException(property.getName(), e);
         }
         required.remove(property.getName());
       }
 
       @Override
-      public void option(OptionConfigurationProperty property, String text) {
+      public void option(OptionConfigurationParameter property, String text) {
         try {
           property.set(instance.getInstance(), text);
         }
         catch(InvocationTargetException e) {
-          throw new RuntimeException("Failed to set property", e);
+          throw new AssignmentFailureArgumentException(property.getName(), e);
         }
         required.remove(property.getName());
       }
 
       @Override
-      public void positional(PositionalConfigurationProperty property, String text) {
+      public void positional(PositionalConfigurationParameter property, String text) {
         try {
           property.set(instance.getInstance(), text);
         }
         catch(InvocationTargetException e) {
-          throw new RuntimeException("Failed to set property", e);
+          throw new AssignmentFailureArgumentException(property.getName(), e);
         }
         required.remove(property.getName());
       }
     }).parse(getArgs());
+    
+    // Handle environment variable arguments
+    configurationClass.getProperties().stream()
+      .filter(p -> p.getType() == ConfigurationParameter.Type.ENVIRONMENT)
+      .map(ConfigurationParameter::asEnvironment)
+      .forEach(property -> {
+        String variableName=property.getVariableName().toString();
+        String text=systemGetenv(variableName);
+        if(text != null) {
+          try {
+            property.set(instance.getInstance(), text);
+          }
+          catch(InvocationTargetException e) {
+            throw new AssignmentFailureArgumentException(property.getName(), e);
+          }
+          required.remove(property.getName());
+        }
+      });
+    
+    // Handle system property arguments
+    configurationClass.getProperties().stream()
+      .filter(p -> p.getType() == ConfigurationParameter.Type.PROPERTY)
+      .map(ConfigurationParameter::asProperty)
+      .forEach(property -> {
+        String propertyName=property.getPropertyName().toString();
+        String text=systemGetProperty(propertyName);
+        if(text != null) {
+          try {
+            property.set(instance.getInstance(), text);
+          }
+          catch(InvocationTargetException e) {
+            throw new AssignmentFailureArgumentException(property.getName(), e);
+          }
+          required.remove(property.getName());
+        }
+      });
 
     if (!required.isEmpty())
-      throw new IllegalArgumentException(
-          format("The following required properties were not configured: %s", required));
+      throw new UnassignedRequiredParametersArgumentException(required);
 
     return (T) instance.getInstance();
+  }
+
+  /**
+   * test hook
+   */
+  protected String systemGetenv(String name) {
+    return System.getenv(name);
+  }
+  
+  /**
+   * test hook
+   */
+  protected String systemGetProperty(String key) {
+    return System.getProperty(key);
   }
 
   /**

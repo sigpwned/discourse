@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.sigpwned.discourse.core.ValueSink;
 import com.sigpwned.discourse.core.ValueSinkFactory;
-import com.sigpwned.discourse.core.util.GenericListType;
+import com.sigpwned.discourse.core.util.ListType;
 import com.sigpwned.espresso.BeanProperty;
 
 public class ListAddValueSinkFactory implements ValueSinkFactory {
@@ -15,7 +15,7 @@ public class ListAddValueSinkFactory implements ValueSinkFactory {
   @Override
   public boolean isSinkable(BeanProperty property) {
     try {
-      GenericListType.parse(property.getGenericType());
+      ListType.parse(property.getGenericType());
     } catch (IllegalArgumentException e) {
       return false;
     }
@@ -24,7 +24,7 @@ public class ListAddValueSinkFactory implements ValueSinkFactory {
 
   @Override
   public ValueSink getSink(BeanProperty property) {
-    final GenericListType listType=GenericListType.parse(property.getGenericType());
+    final ListType listType=ListType.parse(property.getGenericType());
     return new ValueSink() {
       @Override
       public boolean isCollection() {

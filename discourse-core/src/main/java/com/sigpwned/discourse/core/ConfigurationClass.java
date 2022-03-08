@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
@@ -35,12 +36,14 @@ import com.sigpwned.discourse.core.exception.configuration.InvalidShortNameConfi
 import com.sigpwned.discourse.core.exception.configuration.InvalidVariableNameConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.MissingPositionConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NoNameConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.TooManyAnnotationsConfigurationException;
-import com.sigpwned.discourse.core.property.EnvironmentConfigurationProperty;
-import com.sigpwned.discourse.core.property.FlagConfigurationProperty;
-import com.sigpwned.discourse.core.property.OptionConfigurationProperty;
-import com.sigpwned.discourse.core.property.PositionalConfigurationProperty;
-import com.sigpwned.discourse.core.property.PropertyConfigurationProperty;
+import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
+import com.sigpwned.discourse.core.util.Generated;
 import com.sigpwned.espresso.BeanClass;
 import com.sigpwned.espresso.BeanInstance;
 import com.sigpwned.espresso.BeanProperty;
@@ -48,6 +51,9 @@ import com.sigpwned.espresso.BeanProperty;
 public class ConfigurationClass {
   public static ConfigurationClass scan(SinkContext storage, SerializationContext serialization,
       Class<?> rawType) {
+    if (rawType.getAnnotation(Configurable.class) == null)
+      throw new NotConfigurableConfigurationException(rawType);
+
     BeanClass beanClass = BeanClass.scan(rawType);
 
     ConfigurationClass result = new ConfigurationClass(beanClass);
@@ -82,7 +88,7 @@ public class ConfigurationClass {
 
       var parameterAnnotation = parameterAnnotations.get(0);
 
-      ConfigurationProperty configurationProperty;
+      ConfigurationParameter configurationProperty;
       if (parameterAnnotation instanceof EnvironmentParameter) {
         EnvironmentParameter environment = (EnvironmentParameter) parameterAnnotation;
 
@@ -93,7 +99,7 @@ public class ConfigurationClass {
           throw new InvalidVariableNameConfigurationException(environment.variableName());
         }
 
-        configurationProperty = new EnvironmentConfigurationProperty(result, parameterName,
+        configurationProperty = new EnvironmentConfigurationParameter(result, parameterName,
             environment.description(), environment.required(), deserializer, sink, variableName);
       } else if (parameterAnnotation instanceof FlagParameter) {
         FlagParameter flag = (FlagParameter) parameterAnnotation;
@@ -123,7 +129,7 @@ public class ConfigurationClass {
         if (shortName == null && longName == null)
           throw new NoNameConfigurationException(beanProperty.getName());
 
-        configurationProperty = new FlagConfigurationProperty(result, parameterName,
+        configurationProperty = new FlagConfigurationParameter(result, parameterName,
             flag.description(), deserializer, sink, shortName, longName);
       } else if (parameterAnnotation instanceof OptionParameter) {
         OptionParameter option = (OptionParameter) parameterAnnotation;
@@ -153,7 +159,7 @@ public class ConfigurationClass {
         if (shortName == null && longName == null)
           throw new NoNameConfigurationException(beanProperty.getName());
 
-        configurationProperty = new OptionConfigurationProperty(result, parameterName,
+        configurationProperty = new OptionConfigurationParameter(result, parameterName,
             option.description(), option.required(), deserializer, sink, shortName, longName);
       } else if (parameterAnnotation instanceof PositionalParameter) {
         PositionalParameter positional = (PositionalParameter) parameterAnnotation;
@@ -165,7 +171,7 @@ public class ConfigurationClass {
           throw new InvalidPositionConfigurationException(positional.position());
         }
 
-        configurationProperty = new PositionalConfigurationProperty(result, parameterName,
+        configurationProperty = new PositionalConfigurationParameter(result, parameterName,
             positional.description(), positional.required(), deserializer, sink, position);
       } else if (parameterAnnotation instanceof PropertyParameter) {
         PropertyParameter property = (PropertyParameter) parameterAnnotation;
@@ -177,7 +183,7 @@ public class ConfigurationClass {
           throw new InvalidPropertyNameConfigurationException(property.propertyName());
         }
 
-        configurationProperty = new PropertyConfigurationProperty(result, parameterName,
+        configurationProperty = new PropertyConfigurationParameter(result, parameterName,
             property.description(), property.required(), deserializer, sink, propertyName);
       } else {
         throw new AssertionError(
@@ -196,7 +202,7 @@ public class ConfigurationClass {
 
     SortedSet<PositionCoordinate> positions =
         result.getProperties().stream().flatMap(p -> p.getCoordinates().stream())
-            .filter(c -> c.getFlavor() == Coordinate.Flavor.POSITION).map(Coordinate::asPosition)
+            .filter(c -> c.getFamily() == Coordinate.Family.POSITION).map(Coordinate::asPosition)
             .collect(toCollection(TreeSet::new));
     if (positions.isEmpty()) {
       // No positional arguments. That's a-OK.
@@ -214,7 +220,7 @@ public class ConfigurationClass {
           throw new MissingPositionConfigurationException(0);
 
         final int index = currentPosition.getIndex();
-        PositionalConfigurationProperty positional = (PositionalConfigurationProperty) result
+        PositionalConfigurationParameter positional = (PositionalConfigurationParameter) result
             .resolve(currentPosition).orElseThrow(() -> new AssertionError(
                 format("Failed to retrieve parameter for position %d", index)));
 
@@ -236,7 +242,7 @@ public class ConfigurationClass {
   }
 
   private final BeanClass beanClass;
-  private final List<ConfigurationProperty> properties;
+  private final List<ConfigurationParameter> properties;
 
   private ConfigurationClass(BeanClass beanClass) {
     this.beanClass = beanClass;
@@ -250,7 +256,7 @@ public class ConfigurationClass {
     return beanClass;
   }
 
-  private void addProperty(ConfigurationProperty property) {
+  private void addProperty(ConfigurationParameter property) {
     // If we have a short name, make sure it isn't a duplicate
     Set<Coordinate> coordinates =
         getProperties().stream().flatMap(p -> p.getCoordinates().stream()).collect(toSet());
@@ -263,14 +269,14 @@ public class ConfigurationClass {
     properties.add(property);
   }
 
-  public Optional<ConfigurationProperty> resolve(Coordinate coordinate) {
+  public Optional<ConfigurationParameter> resolve(Coordinate coordinate) {
     if (coordinate == null)
       throw new NullPointerException();
     return getProperties().stream().filter(p -> p.getCoordinates().contains(coordinate))
         .findFirst();
   }
 
-  public List<ConfigurationProperty> getProperties() {
+  public List<ConfigurationParameter> getProperties() {
     return unmodifiableList(properties);
   }
 
@@ -279,11 +285,13 @@ public class ConfigurationClass {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(beanClass);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;

@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import com.sigpwned.discourse.core.ArgumentToken;
 import com.sigpwned.discourse.core.coordinate.name.switches.ShortSwitchNameCoordinate;
+import com.sigpwned.discourse.core.util.Generated;
 
 public class BundleArgumentToken extends ArgumentToken {
   private final List<String> shortNames;
@@ -32,6 +33,7 @@ public class BundleArgumentToken extends ArgumentToken {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -40,6 +42,7 @@ public class BundleArgumentToken extends ArgumentToken {
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;

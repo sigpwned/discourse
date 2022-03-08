@@ -15,7 +15,7 @@ public class PositionCoordinate extends Coordinate implements Comparable<Positio
   private final int index;
 
   public PositionCoordinate(int index) {
-    super(Flavor.POSITION);
+    super(Family.POSITION);
     if (index < 0)
       throw new IllegalArgumentException("index is negative");
     this.index = index;

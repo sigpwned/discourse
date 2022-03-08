@@ -3,23 +3,24 @@ package com.sigpwned.discourse.core;
 import java.util.Objects;
 import com.sigpwned.discourse.core.coordinate.NameCoordinate;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
+import com.sigpwned.discourse.core.util.Generated;
 
 public abstract class Coordinate {
-  public static enum Flavor {
+  public static enum Family {
     NAME, POSITION;
   }
   
-  private final Flavor flavor;
+  private final Family family;
 
-  public Coordinate(Flavor flavor) {
-    this.flavor = flavor;
+  public Coordinate(Family family) {
+    this.family = family;
   }
 
   /**
    * @return the flavor
    */
-  public Flavor getFlavor() {
-    return flavor;
+  public Family getFamily() {
+    return family;
   }
   
   public NameCoordinate asName() {
@@ -31,11 +32,13 @@ public abstract class Coordinate {
   }
 
   @Override
+  @Generated
   public int hashCode() {
-    return Objects.hash(flavor);
+    return Objects.hash(family);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -44,6 +47,6 @@ public abstract class Coordinate {
     if (getClass() != obj.getClass())
       return false;
     Coordinate other = (Coordinate) obj;
-    return flavor == other.flavor;
+    return family == other.family;
   }
 }

@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import com.sigpwned.discourse.core.ValueSink;
 import com.sigpwned.discourse.core.ValueSinkFactory;
-import com.sigpwned.discourse.core.util.GenericArrayType;
+import com.sigpwned.discourse.core.util.ArrayType;
 import com.sigpwned.discourse.core.util.Types;
 import com.sigpwned.espresso.BeanProperty;
 
@@ -15,7 +15,7 @@ public class ArrayAppendValueSinkFactory implements ValueSinkFactory {
   @Override
   public boolean isSinkable(BeanProperty property) {
     try {
-      GenericArrayType.parse(property.getGenericType());
+      ArrayType.parse(property.getGenericType());
     } catch (IllegalArgumentException e) {
       return false;
     }
@@ -24,7 +24,7 @@ public class ArrayAppendValueSinkFactory implements ValueSinkFactory {
 
   @Override
   public ValueSink getSink(BeanProperty property) {
-    final GenericArrayType arrayType=GenericArrayType.parse(property.getGenericType());
+    final ArrayType arrayType=ArrayType.parse(property.getGenericType());
     return new ValueSink() {
       @Override
       public boolean isCollection() {

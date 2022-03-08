@@ -4,8 +4,6 @@ import static java.lang.String.format;
 import com.sigpwned.discourse.core.ConfigurationException;
 
 public class InvalidVariableNameConfigurationException extends ConfigurationException {
-  private static final long serialVersionUID = 7675088423164446574L;
-
   private final String variableName;
 
   public InvalidVariableNameConfigurationException(String variableName) {

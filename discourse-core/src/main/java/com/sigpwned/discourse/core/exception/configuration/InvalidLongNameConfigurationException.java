@@ -4,8 +4,6 @@ import static java.lang.String.format;
 import com.sigpwned.discourse.core.ConfigurationException;
 
 public class InvalidLongNameConfigurationException extends ConfigurationException {
-  private static final long serialVersionUID = 4201192039737663808L;
-  
   private final String longName;
 
   public InvalidLongNameConfigurationException(String longName) {

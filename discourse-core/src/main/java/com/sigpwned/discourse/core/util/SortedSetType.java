@@ -1,20 +1,16 @@
 package com.sigpwned.discourse.core.util;
 
-import static java.lang.String.format;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.List;
 import java.util.Objects;
+import java.util.SortedSet;
 
-public class GenericListType {
-  public static GenericListType parse(Type genericType) {
+public class SortedSetType {
+  public static SortedSetType parse(Type genericType) {
     if (genericType instanceof ParameterizedType) {
       ParameterizedType parameterizedType = (ParameterizedType) genericType;
-      if (!parameterizedType.getRawType().equals(List.class))
-        throw new IllegalArgumentException("Not a List type");
-      if (parameterizedType.getActualTypeArguments().length != 1)
-        throw new AssertionError(format("List type unexpectedly has %d type arguments",
-            parameterizedType.getActualTypeArguments().length));
+      if (!parameterizedType.getRawType().equals(SortedSet.class))
+        throw new IllegalArgumentException("Not a SortedSet type");
       Type elementType = parameterizedType.getActualTypeArguments()[0];
       return of(elementType);
     } else {
@@ -22,17 +18,13 @@ public class GenericListType {
     }
   }
 
-  public static GenericListType of(Type elementType) {
-    return new GenericListType(elementType);
+  public static SortedSetType of(Type elementType) {
+    return new SortedSetType(elementType);
   }
 
   private final Type elementType;
 
-  public GenericListType(Type elementType) {
-    if (elementType.equals(void.class))
-      throw new IllegalArgumentException("elementType cannot be void");
-    if (Types.isPrimitive(elementType))
-      throw new IllegalArgumentException("elementType cannot be primitive");
+  public SortedSetType(Type elementType) {
     if(!Types.isConcrete(elementType))
       throw new IllegalArgumentException("elementType must be concrete");
     this.elementType = elementType;
@@ -46,11 +38,13 @@ public class GenericListType {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(elementType);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -58,12 +52,13 @@ public class GenericListType {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    GenericListType other = (GenericListType) obj;
+    SortedSetType other = (SortedSetType) obj;
     return Objects.equals(elementType, other.elementType);
   }
 
   @Override
+  @Generated
   public String toString() {
-    return "GenericListType [elementType=" + elementType + "]";
+    return "GenericSortedSetType [elementType=" + elementType + "]";
   }
 }

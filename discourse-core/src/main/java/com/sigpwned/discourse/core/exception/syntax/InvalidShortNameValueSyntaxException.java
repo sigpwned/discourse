@@ -1,11 +1,9 @@
-package com.sigpwned.discourse.core.exception.argument;
+package com.sigpwned.discourse.core.exception.syntax;
 
 import static java.lang.String.format;
 import com.sigpwned.discourse.core.SyntaxException;
 
 public class InvalidShortNameValueSyntaxException extends SyntaxException {
-  private static final long serialVersionUID = 6719664438205029286L;
-  
   private final String parameterName;
   private final String shortName;
 

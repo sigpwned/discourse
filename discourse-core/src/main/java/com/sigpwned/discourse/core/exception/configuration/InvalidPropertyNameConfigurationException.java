@@ -4,8 +4,6 @@ import static java.lang.String.format;
 import com.sigpwned.discourse.core.ConfigurationException;
 
 public class InvalidPropertyNameConfigurationException extends ConfigurationException {
-  private static final long serialVersionUID = -1411830502045292697L;
-
   private final String propertyName;
 
   public InvalidPropertyNameConfigurationException(String propertyName) {

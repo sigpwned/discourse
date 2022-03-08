@@ -1,11 +1,10 @@
-package com.sigpwned.discourse.core.property;
+package com.sigpwned.discourse.core.parameter;
 
 import static java.util.Collections.unmodifiableSet;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import com.sigpwned.discourse.core.ConfigurationClass;
-import com.sigpwned.discourse.core.ConfigurationProperty;
+import com.sigpwned.discourse.core.ConfigurationParameter;
 import com.sigpwned.discourse.core.Coordinate;
 import com.sigpwned.discourse.core.ValueDeserializer;
 import com.sigpwned.discourse.core.ValueSink;
@@ -13,14 +12,14 @@ import com.sigpwned.discourse.core.coordinate.NameCoordinate;
 import com.sigpwned.discourse.core.coordinate.name.switches.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.name.switches.ShortSwitchNameCoordinate;
 
-public class OptionConfigurationProperty extends ConfigurationProperty {
+public class FlagConfigurationParameter extends ConfigurationParameter {
   private final ShortSwitchNameCoordinate shortName;
   private final LongSwitchNameCoordinate longName;
 
-  public OptionConfigurationProperty(ConfigurationClass configurationClass, String name,
-      String description, boolean required, ValueDeserializer<?> deserializer, ValueSink sink,
+  public FlagConfigurationParameter(ConfigurationClass configurationClass, String name,
+      String description, ValueDeserializer<?> deserializer, ValueSink sink,
       ShortSwitchNameCoordinate shortName, LongSwitchNameCoordinate longName) {
-    super(configurationClass, name, description, required, deserializer, sink);
+    super(configurationClass, Type.FLAG, name, description, false, deserializer, sink);
     if (shortName == null && longName == null)
       throw new IllegalArgumentException("no names");
     this.shortName = shortName;
@@ -43,10 +42,8 @@ public class OptionConfigurationProperty extends ConfigurationProperty {
 
   @Override
   public boolean isValued() {
-    return true;
+    return false;
   }
-
-
 
   @Override
   public Set<Coordinate> getCoordinates() {
@@ -56,30 +53,5 @@ public class OptionConfigurationProperty extends ConfigurationProperty {
     if (getLongName() != null)
       result.add(getLongName());
     return unmodifiableSet(result);
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + Objects.hash(longName, shortName);
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (!super.equals(obj))
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    OptionConfigurationProperty other = (OptionConfigurationProperty) obj;
-    return Objects.equals(longName, other.longName) && Objects.equals(shortName, other.shortName);
-  }
-
-  @Override
-  public String toString() {
-    return "OptionConfigurationProperty [shortName=" + shortName + ", longName=" + longName + "]";
   }
 }

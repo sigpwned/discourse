@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import com.sigpwned.discourse.core.ValueSink;
 import com.sigpwned.discourse.core.ValueSinkFactory;
-import com.sigpwned.discourse.core.util.GenericSetType;
+import com.sigpwned.discourse.core.util.SetType;
 import com.sigpwned.espresso.BeanProperty;
 
 public class SetAddValueSinkFactory implements ValueSinkFactory {
@@ -15,7 +15,7 @@ public class SetAddValueSinkFactory implements ValueSinkFactory {
   @Override
   public boolean isSinkable(BeanProperty property) {
     try {
-      GenericSetType.parse(property.getGenericType());
+      SetType.parse(property.getGenericType());
     } catch (IllegalArgumentException e) {
       return false;
     }
@@ -24,7 +24,7 @@ public class SetAddValueSinkFactory implements ValueSinkFactory {
 
   @Override
   public ValueSink getSink(BeanProperty property) {
-    final GenericSetType setType=GenericSetType.parse(property.getGenericType());
+    final SetType setType=SetType.parse(property.getGenericType());
     return new ValueSink() {
       @Override
       public boolean isCollection() {

@@ -1,11 +1,9 @@
-package com.sigpwned.discourse.core.exception.argument;
+package com.sigpwned.discourse.core.exception.syntax;
 
 import static java.lang.String.format;
 import com.sigpwned.discourse.core.SyntaxException;
 
 public class InvalidLongNameValueSyntaxException extends SyntaxException {
-  private static final long serialVersionUID = -9047407425654170368L;
-  
   private final String parameterName;
   private final String longName;
 

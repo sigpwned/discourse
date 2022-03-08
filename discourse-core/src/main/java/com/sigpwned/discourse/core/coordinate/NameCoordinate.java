@@ -15,7 +15,7 @@ public abstract class NameCoordinate extends Coordinate {
   private final String text;
 
   protected NameCoordinate(Type type, String text) {
-    super(Flavor.NAME);
+    super(Family.NAME);
     if (type == null)
       throw new NullPointerException();
     if (text == null)

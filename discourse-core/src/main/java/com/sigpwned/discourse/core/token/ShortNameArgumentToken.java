@@ -3,6 +3,7 @@ package com.sigpwned.discourse.core.token;
 import java.util.Objects;
 import com.sigpwned.discourse.core.ArgumentToken;
 import com.sigpwned.discourse.core.coordinate.name.switches.ShortSwitchNameCoordinate;
+import com.sigpwned.discourse.core.util.Generated;
 
 public class ShortNameArgumentToken extends ArgumentToken {
   private final String shortName;
@@ -24,6 +25,7 @@ public class ShortNameArgumentToken extends ArgumentToken {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -32,6 +34,7 @@ public class ShortNameArgumentToken extends ArgumentToken {
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;

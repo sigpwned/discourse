@@ -4,8 +4,6 @@ import static java.lang.String.format;
 import com.sigpwned.discourse.core.ConfigurationException;
 
 public class InvalidCollectionParameterPlacementConfigurationException extends ConfigurationException {
-  private static final long serialVersionUID = 555209972825158658L;
-  
   private final int collectionPosition;
 
   public InvalidCollectionParameterPlacementConfigurationException(int collectionPosition) {
