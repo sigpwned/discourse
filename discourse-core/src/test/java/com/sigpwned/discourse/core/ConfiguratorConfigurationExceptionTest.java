@@ -20,6 +20,8 @@ import com.sigpwned.discourse.core.exception.configuration.InvalidRequiredParame
 import com.sigpwned.discourse.core.exception.configuration.InvalidShortNameConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.InvalidVariableNameConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.MissingPositionConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.MultipleHelpFlagsConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.MultipleVersionFlagsConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NoDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NoNameConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
@@ -69,7 +71,7 @@ public class ConfiguratorConfigurationExceptionTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
-  
+
   // Note that this is not marked @Configurable
   public static class NotConfigurableExample {
     @OptionParameter(shortName = "o", longName = "option")
@@ -78,7 +80,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = NotConfigurableConfigurationException.class)
   public void notConfigurableTest() {
-    new Configurator<>(NotConfigurableExample.class).done().build();
+    new Configurator<>(NotConfigurableExample.class).done().args();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -505,5 +507,39 @@ public class ConfiguratorConfigurationExceptionTest {
   @Test(expected = RootCommandNotAbstractConfigurationException.class)
   public void notAbstractDiscriminatorExample() {
     new Configurator<>(NotAbstractCommandExample.class).done();
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  @Configurable
+  public static class MultipleHelpExample {
+    @FlagParameter(longName = "help1", help = true)
+    public boolean help1;
+
+    @FlagParameter(longName = "help2", help = true)
+    public boolean help2;
+  }
+
+  @Test(expected = MultipleHelpFlagsConfigurationException.class)
+  public void multipleHelpExample() {
+    new Configurator<>(MultipleHelpExample.class).done();
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  @Configurable
+  public static class MultipleVersionExample {
+    @FlagParameter(longName = "version1", version = true)
+    public boolean version1;
+
+    @FlagParameter(longName = "version2", version = true)
+    public boolean version2;
+  }
+
+  @Test(expected = MultipleVersionFlagsConfigurationException.class)
+  public void multipleVersionExample() {
+    new Configurator<>(MultipleVersionExample.class).done();
   }
 }

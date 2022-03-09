@@ -44,7 +44,7 @@ public class SingleCommand<T> extends Command<T> {
     return configurationClass;
   }
 
-  public T build(List<String> args) {
+  public T args(List<String> args) {
     return args(getConfigurationClass(), args);
   }
 }

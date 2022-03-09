@@ -36,7 +36,7 @@ public class ConfiguratorArgumentExceptionTest {
 
   @Test(expected = NewInstanceFailureArgumentException.class)
   public void constructorFailureExample() {
-    new Configurator<>(ConstructorFailureExample.class).done().build("hello");
+    new Configurator<>(ConstructorFailureExample.class).done().args("hello");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ public class ConfiguratorArgumentExceptionTest {
 
   @Test(expected = AssignmentFailureArgumentException.class)
   public void positionalAssignmentFailureExample() {
-    new Configurator<>(PositionalAssignmentFailureExample.class).done().build("hello");
+    new Configurator<>(PositionalAssignmentFailureExample.class).done().args("hello");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ public class ConfiguratorArgumentExceptionTest {
 
   @Test(expected = AssignmentFailureArgumentException.class)
   public void optionAssignmentFailureExample() {
-    new Configurator<>(OptionAssignmentFailureExample.class).done().build("-x", "hello");
+    new Configurator<>(OptionAssignmentFailureExample.class).done().args("-x", "hello");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ public class ConfiguratorArgumentExceptionTest {
 
   @Test(expected = AssignmentFailureArgumentException.class)
   public void flagAssignmentFailureExample() {
-    new Configurator<>(FlagAssignmentFailureExample.class).done().build("-x");
+    new Configurator<>(FlagAssignmentFailureExample.class).done().args("-x");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -131,7 +131,7 @@ public class ConfiguratorArgumentExceptionTest {
 
     command.setGetEnv(name -> name.equals("HELLO") ? hello : System.getenv(name));
 
-    command.build();
+    command.args();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -160,7 +160,7 @@ public class ConfiguratorArgumentExceptionTest {
 
     command.setGetProperty(name -> name.equals("hello") ? hello : System.getProperty(name));
 
-    command.build();
+    command.args();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,7 +174,7 @@ public class ConfiguratorArgumentExceptionTest {
 
   @Test(expected = UnassignedRequiredParametersArgumentException.class)
   public void missingRequiredExample() {
-    new Configurator<>(MissingRequiredExample.class).done().build();
+    new Configurator<>(MissingRequiredExample.class).done().args();
   }
   
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -262,7 +262,7 @@ public class ConfiguratorArgumentExceptionTest {
    */
   @Test(expected = NoSubcommandArgumentException.class)
   public void multiExampleNoSubcommands() {
-    new Configurator<>(MultiExample.class).done().build();
+    new Configurator<>(MultiExample.class).done().args();
   }
 
   /**
@@ -270,7 +270,7 @@ public class ConfiguratorArgumentExceptionTest {
    */
   @Test(expected = UnrecognizedSubcommandArgumentException.class)
   public void multiExampleUnknownSubcommand() {
-    new Configurator<>(MultiExample.class).done().build("charlie");
+    new Configurator<>(MultiExample.class).done().args("charlie");
   }
 
   /**
@@ -278,6 +278,6 @@ public class ConfiguratorArgumentExceptionTest {
    */
   @Test(expected = InvalidDiscriminatorArgumentException.class)
   public void multiExampleInvalidSubcommand() {
-    new Configurator<>(MultiExample.class).done().build("-");
+    new Configurator<>(MultiExample.class).done().args("-");
   }
 }

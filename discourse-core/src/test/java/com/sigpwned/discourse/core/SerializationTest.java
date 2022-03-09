@@ -231,6 +231,6 @@ public class SerializationTest {
   
   @Test
   public void serializationTest() {
-    new Configurator<>(SerializationExample.class).done().build();
+    new Configurator<>(SerializationExample.class).done().args();
   }
 }

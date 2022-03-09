@@ -145,7 +145,7 @@ public class ConfiguratorMultiCommandTest {
 
 
     MultiExample observed =
-        new Configurator<>(MultiExample.class).done().build("alpha", "-o", hello, world);
+        new Configurator<>(MultiExample.class).done().args("alpha", "-o", hello, world);
 
     AlphaMultiExample expected = new AlphaMultiExample();
     expected.option = hello;
@@ -164,7 +164,7 @@ public class ConfiguratorMultiCommandTest {
 
 
     MultiExample observed =
-        new Configurator<>(MultiExample.class).done().build("bravo", "-o", hello, world);
+        new Configurator<>(MultiExample.class).done().args("bravo", "-o", hello, world);
 
     BravoMultiExample expected = new BravoMultiExample();
     expected.option = hello;

@@ -56,7 +56,7 @@ public class ConfiguratorSingleCommandTest {
     final String alpha = "alpha";
     final String bravo = "bravo";
 
-    Example1 observed = new Configurator<>(Example1.class).done().build("-f", "-o", alpha, bravo);
+    Example1 observed = new Configurator<>(Example1.class).done().args("-f", "-o", alpha, bravo);
 
     Example1 expected = new Example1();
     expected.flag = true;
@@ -109,7 +109,7 @@ public class ConfiguratorSingleCommandTest {
     final String charlie = "charlie";
 
     Example2 observed =
-        new Configurator<>(Example2.class).done().build("-f", "-o", alpha, bravo, charlie);
+        new Configurator<>(Example2.class).done().args("-f", "-o", alpha, bravo, charlie);
 
     Example2 expected = new Example2();
     expected.flag = true;
@@ -153,7 +153,7 @@ public class ConfiguratorSingleCommandTest {
     final String hello = "hello";
 
     AllowUnconfiguredFieldExample observed =
-        new Configurator<>(AllowUnconfiguredFieldExample.class).done().build(hello);
+        new Configurator<>(AllowUnconfiguredFieldExample.class).done().args(hello);
 
     AllowUnconfiguredFieldExample expected = new AllowUnconfiguredFieldExample();
     expected.example2 = hello;
@@ -199,7 +199,7 @@ public class ConfiguratorSingleCommandTest {
   public void accessorExample() {
     final String hello = "hello";
 
-    AccessorExample observed = new Configurator<>(AccessorExample.class).done().build(hello);
+    AccessorExample observed = new Configurator<>(AccessorExample.class).done().args(hello);
 
     AccessorExample expected = new AccessorExample();
     expected.example = hello;
@@ -243,7 +243,7 @@ public class ConfiguratorSingleCommandTest {
   @Test
   public void primitivesExample() {
     PrimitivesExample observed =
-        new Configurator<>(PrimitivesExample.class).done().build("-x", "1", "2", "3");
+        new Configurator<>(PrimitivesExample.class).done().args("-x", "1", "2", "3");
 
     PrimitivesExample expected = new PrimitivesExample();
     expected.x = 1;
@@ -286,7 +286,7 @@ public class ConfiguratorSingleCommandTest {
 
     command.setGetEnv(name -> name.equals("HELLO") ? hello : System.getenv(name));
 
-    EnvironmentExample observed = command.build();
+    EnvironmentExample observed = command.args();
 
     EnvironmentExample expected = new EnvironmentExample();
     expected.hello = hello;
@@ -328,7 +328,7 @@ public class ConfiguratorSingleCommandTest {
 
     command.setGetProperty(name -> name.equals("hello") ? hello : System.getProperty(name));
 
-    PropertyExample observed = command.build();
+    PropertyExample observed = command.args();
 
     PropertyExample expected = new PropertyExample();
     expected.hello = hello;

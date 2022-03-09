@@ -39,6 +39,8 @@ import com.sigpwned.discourse.core.exception.configuration.InvalidRequiredParame
 import com.sigpwned.discourse.core.exception.configuration.InvalidShortNameConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.InvalidVariableNameConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.MissingPositionConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.MultipleHelpFlagsConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.MultipleVersionFlagsConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NoNameConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.TooManyAnnotationsConfigurationException;
@@ -58,11 +60,12 @@ public class ConfigurationClass {
     Configurable configurable = rawType.getAnnotation(Configurable.class);
     if (configurable == null)
       throw new NotConfigurableConfigurationException(rawType);
-    
+
     // TODO throw multi configuration exceptions here
-    
+
     BeanClass beanClass = BeanClass.scan(rawType);
 
+    boolean seenHelp = false, seenVersion = false;
     List<ConfigurationParameter> parameters = new ArrayList<>();
     Set<Coordinate> seenCoordinates = new HashSet<>();
     for (BeanProperty beanProperty : beanClass) {
@@ -135,8 +138,18 @@ public class ConfigurationClass {
         if (shortName == null && longName == null)
           throw new NoNameConfigurationException(beanProperty.getName());
 
+        if (seenHelp && flag.help())
+          throw new MultipleHelpFlagsConfigurationException(rawType);
+        
+        seenHelp = seenHelp || flag.help();
+
+        if (seenVersion && flag.version())
+          throw new MultipleVersionFlagsConfigurationException(rawType);
+        
+        seenVersion = seenVersion || flag.version();
+
         configurationProperty = new FlagConfigurationParameter(parameterName, flag.description(),
-            deserializer, sink, shortName, longName);
+            deserializer, sink, shortName, longName, flag.help(), flag.version());
       } else if (parameterAnnotation instanceof OptionParameter) {
         OptionParameter option = (OptionParameter) parameterAnnotation;
 
@@ -226,12 +239,11 @@ public class ConfigurationClass {
           throw new MissingPositionConfigurationException(0);
 
         final int index = currentPosition.getIndex();
-        PositionalConfigurationParameter positional = parameters.stream()
-            .filter(p -> p.getCoordinates().contains(currentPosition))
-            .map(ConfigurationParameter::asPositional)
-            .findFirst()
-            .orElseThrow(() -> new AssertionError(
-                format("Failed to retrieve parameter for position %d", index)));
+        PositionalConfigurationParameter positional =
+            parameters.stream().filter(p -> p.getCoordinates().contains(currentPosition))
+                .map(ConfigurationParameter::asPositional).findFirst()
+                .orElseThrow(() -> new AssertionError(
+                    format("Failed to retrieve parameter for position %d", index)));
 
         if (positional.isRequired() && seenOptionalParameter)
           throw new InvalidRequiredParameterPlacementConfigurationException(
@@ -246,7 +258,7 @@ public class ConfigurationClass {
         previousPosition = currentPosition;
       }
     }
-    
+
     return new ConfigurationClass(beanClass, parameters);
   }
 
@@ -263,6 +275,18 @@ public class ConfigurationClass {
     if (!duplicateCoordinates.isEmpty())
       throw new IllegalArgumentException(
           format("following coordinates defined more than once", duplicateCoordinates));
+
+    if (parameters.stream().filter(p -> p.getType() == ConfigurationParameter.Type.FLAG)
+        .map(ConfigurationParameter::asFlag).filter(FlagConfigurationParameter::isHelp)
+        .count() > 1L) {
+      throw new IllegalArgumentException("multiple help flags");
+    }
+
+    if (parameters.stream().filter(p -> p.getType() == ConfigurationParameter.Type.FLAG)
+        .map(ConfigurationParameter::asFlag).filter(FlagConfigurationParameter::isVersion)
+        .count() > 1L) {
+      throw new IllegalArgumentException("multiple version flags");
+    }
 
     this.beanClass = beanClass;
     this.parameters = unmodifiableList(parameters);

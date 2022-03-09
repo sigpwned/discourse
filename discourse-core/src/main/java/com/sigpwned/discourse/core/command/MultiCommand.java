@@ -139,7 +139,7 @@ public class MultiCommand<T> extends Command<T> {
   }
 
   @Override
-  public T build(List<String> args) {
+  public T args(List<String> args) {
     if (args.isEmpty())
       throw new NoSubcommandArgumentException();
 

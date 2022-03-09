@@ -19,4 +19,8 @@ public @interface FlagParameter {
   public String longName() default "";
 
   public String description() default "";
+  
+  public boolean help() default false;
+  
+  public boolean version() default false;
 }

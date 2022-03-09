@@ -77,8 +77,8 @@ public abstract class Command<T> {
     return (MultiCommand<T>) this;
   }
 
-  public T build(String... args) {
-    return build(asList(args));
+  public T args(String... args) {
+    return args(asList(args));
   }
   
   /**
@@ -109,7 +109,7 @@ public abstract class Command<T> {
     this.getProperty = getProperty;
   }
 
-  public abstract T build(List<String> args);
+  public abstract T args(List<String> args);
 
   @SuppressWarnings("unchecked")
   protected T args(ConfigurationClass configurationClass, List<String> args) {

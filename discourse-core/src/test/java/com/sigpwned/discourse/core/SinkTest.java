@@ -71,7 +71,7 @@ public class SinkTest {
   @Test
   public void sinkTest() {
     SinkExample observed = new Configurator<>(SinkExample.class).done()
-        .build(asList("--assign", "alpha", "--list", "bravo", "--list", "charlie", "--set", "delta",
+        .args(asList("--assign", "alpha", "--list", "bravo", "--list", "charlie", "--set", "delta",
             "--set", "echo", "--sortedSet", "foxtrot", "--sortedSet", "golf", "--array", "hotel",
             "--array", "india"));
 
