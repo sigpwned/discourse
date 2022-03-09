@@ -109,7 +109,7 @@ public class ConfiguratorMultiCommandTest {
   @Test
   public void multiExampleAllParameters() {
     Set<String> allParameters = new Configurator<>(MultiExample.class).done().asMulti()
-        .getAllParameters().stream().map(ConfigurationParameter::getName)
+        .getParameters().stream().map(ConfigurationParameter::getName)
         .collect(toSet());
     
     Set<String> names=new HashSet<>();

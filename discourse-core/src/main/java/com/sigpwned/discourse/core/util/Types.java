@@ -15,6 +15,26 @@ public final class Types {
         || genericType.equals(float.class) || genericType.equals(double.class)
         || genericType.equals(char.class) || genericType.equals(boolean.class);
   }
+  
+  public static Class<?> boxed(Class<?> primitiveType) {
+    if(primitiveType.equals(boolean.class))
+      return Boolean.class;
+    if(primitiveType.equals(byte.class))
+      return Byte.class;
+    if(primitiveType.equals(short.class))
+      return Short.class;
+    if(primitiveType.equals(int.class))
+      return Integer.class;
+    if(primitiveType.equals(long.class))
+      return Long.class;
+    if(primitiveType.equals(float.class))
+      return Float.class;
+    if(primitiveType.equals(double.class))
+      return Double.class;
+    if(primitiveType.equals(char.class))
+      return Character.class;
+    throw new IllegalArgumentException("not a primitive type");
+  }
 
   /**
    * Returns a new instance of the given fully-resolved array type.

@@ -1,8 +1,11 @@
 package com.sigpwned.discourse.core.command;
 
+import static java.util.stream.Collectors.toSet;
 import java.util.List;
+import java.util.Set;
 import com.sigpwned.discourse.core.Command;
 import com.sigpwned.discourse.core.ConfigurationClass;
+import com.sigpwned.discourse.core.ConfigurationParameter;
 import com.sigpwned.discourse.core.SerializationContext;
 import com.sigpwned.discourse.core.SinkContext;
 import com.sigpwned.discourse.core.annotation.Configurable;
@@ -46,5 +49,25 @@ public class SingleCommand<T> extends Command<T> {
 
   public T args(List<String> args) {
     return args(getConfigurationClass(), args);
+  }
+
+  @Override
+  public String getName() {
+    return getConfigurationClass().getName();
+  }
+
+  @Override
+  public String getDescription() {
+    return getConfigurationClass().getDescription();
+  }
+  
+  @Override
+  public String getVersion() {
+    return getConfigurationClass().getVersion();
+  }
+
+  @Override
+  public Set<ConfigurationParameter> getParameters() {
+    return getConfigurationClass().getParameters().stream().distinct().collect(toSet());
   }
 }

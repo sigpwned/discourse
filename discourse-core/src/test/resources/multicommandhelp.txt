@@ -1,0 +1,24 @@
+test: This is a test. This is only a test.
+
+Common Flags:
+-f, --flag                          This is a test flag. It is only a test flag. Lorem ipsum dolore
+    sit amet.
+
+Common Options:
+-o, --option <string>               This is a test option. It is only a test flag. Lorem ipsum
+    dolore sit amet.
+
+First parameter must be a subcommand specifier: alpha, bravo
+
+Usage: test alpha [ flags | options ] <alpha>
+
+Usage: test bravo [ flags | options ] <bravo>
+
+All Environment Variables:
+VARIABLE_NAME                       This is a test variable. It is only a test flag. Lorem ipsum
+    dolore sit amet.
+
+All System Properties:
+property.name                       This is a test property. It is only a test flag. Lorem ipsum
+    dolore sit amet.
+

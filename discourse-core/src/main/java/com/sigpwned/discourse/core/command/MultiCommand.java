@@ -39,6 +39,12 @@ public class MultiCommand<T> extends Command<T> {
 
     if (configurable == null)
       throw new NotConfigurableConfigurationException(rawCommandType);
+
+    final String name = configurable.name().isEmpty() ? null : configurable.name();
+    final String description =
+        configurable.description().isEmpty() ? null : configurable.description();
+    final String version = configurable.version().isEmpty() ? null : configurable.version();
+
     if (configurable.subcommands().length == 0)
       throw new IllegalArgumentException(
           format("Configurable %s has no subcommands", rawCommandType.getName()));
@@ -94,14 +100,46 @@ public class MultiCommand<T> extends Command<T> {
       configurationClasses.put(commandDiscriminator, configurationClass);
     }
 
-    return new MultiCommand<T>(configurationClasses);
+    return new MultiCommand<T>(name, description, version, configurationClasses);
   }
 
+  private final String name;
+  private final String description;
+  private final String version;
   private final Map<Discriminator, ConfigurationClass> subcommands;
 
-  public MultiCommand(Map<Discriminator, ConfigurationClass> subcommands) {
+  public MultiCommand(String name, String description, String version,
+      Map<Discriminator, ConfigurationClass> subcommands) {
     super(Type.MULTI);
+    if (subcommands.isEmpty())
+      throw new IllegalArgumentException("no subcommands");
+    this.name = name;
+    this.description = description;
+    this.version = version;
     this.subcommands = unmodifiableMap(subcommands);
+  }
+
+  /**
+   * @return the name
+   */
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * @return the description
+   */
+  @Override
+  public String getDescription() {
+    return description;
+  }
+
+  /**
+   * @return the version
+   */
+  public String getVersion() {
+    return version;
   }
 
   public Set<Discriminator> listSubcommands() {
@@ -115,7 +153,8 @@ public class MultiCommand<T> extends Command<T> {
   /**
    * Returns all unique parameters from any subcommand
    */
-  public Set<ConfigurationParameter> getAllParameters() {
+  @Override
+  public Set<ConfigurationParameter> getParameters() {
     return getSubcommands().values().stream().flatMap(c -> c.getParameters().stream()).distinct()
         .collect(toSet());
   }

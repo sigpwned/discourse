@@ -1,12 +1,13 @@
 package com.sigpwned.discourse.core.coordinate;
 
+import java.util.Comparator;
 import java.util.Objects;
 import com.sigpwned.discourse.core.Coordinate;
 import com.sigpwned.discourse.core.coordinate.name.PropertyNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.name.SwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.name.VariableNameCoordinate;
 
-public abstract class NameCoordinate extends Coordinate {
+public abstract class NameCoordinate extends Coordinate implements Comparable<NameCoordinate> {
   public static enum Type {
     VARIABLE, PROPERTY, SWITCH;
   }
@@ -70,5 +71,12 @@ public abstract class NameCoordinate extends Coordinate {
   @Override
   public String toString() {
     return getText();
+  }
+  
+  public static final Comparator<NameCoordinate> COMPARATOR=Comparator.comparing(NameCoordinate::getText);
+
+  @Override
+  public int compareTo(NameCoordinate that) {
+    return COMPARATOR.compare(this, that);
   }
 }

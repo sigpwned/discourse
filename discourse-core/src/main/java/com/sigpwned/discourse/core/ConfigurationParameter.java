@@ -79,6 +79,10 @@ public abstract class ConfigurationParameter {
   public boolean isRequired() {
     return required;
   }
+  
+  public java.lang.reflect.Type getGenericType() {
+    return getSink().getGenericType();
+  }
 
   public abstract Set<Coordinate> getCoordinates();
 

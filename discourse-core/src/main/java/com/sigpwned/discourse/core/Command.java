@@ -37,12 +37,12 @@ public abstract class Command<T> {
       return MultiCommand.scan(storage, serialization, rawType);
     }
   }
-  
+
   @FunctionalInterface
   /* default */ static interface EnvironmentVariables {
     public String get(String name);
   }
-  
+
   @FunctionalInterface
   /* default */ static interface SystemProperties {
     public String get(String name);
@@ -80,7 +80,27 @@ public abstract class Command<T> {
   public T args(String... args) {
     return args(asList(args));
   }
-  
+
+  /**
+   * Returns the name for this command, suitable for printing in a help message.
+   */
+  public abstract String getName();
+
+  /**
+   * Returns the description for this command, suitable for printing in a help message.
+   */
+  public abstract String getDescription();
+
+  /**
+   * Returns the version for this command, suitable for printing in a version message.
+   */
+  public abstract String getVersion();
+
+  /**
+   * Returns all unique parameters from this command and any subcommands
+   */
+  public abstract Set<ConfigurationParameter> getParameters();
+
   /**
    * @return the getEnv
    */

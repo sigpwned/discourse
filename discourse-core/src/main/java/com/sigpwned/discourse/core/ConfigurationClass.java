@@ -49,7 +49,6 @@ import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
-import com.sigpwned.discourse.core.util.Generated;
 import com.sigpwned.espresso.BeanClass;
 import com.sigpwned.espresso.BeanInstance;
 import com.sigpwned.espresso.BeanProperty;
@@ -62,6 +61,13 @@ public class ConfigurationClass {
       throw new NotConfigurableConfigurationException(rawType);
 
     // TODO throw multi configuration exceptions here
+
+    final String name = configurable.name().isEmpty() ? null : configurable.name();
+
+    final String description =
+        configurable.description().isEmpty() ? null : configurable.description();
+
+    final String version = configurable.version().isEmpty() ? null : configurable.version();
 
     BeanClass beanClass = BeanClass.scan(rawType);
 
@@ -140,12 +146,12 @@ public class ConfigurationClass {
 
         if (seenHelp && flag.help())
           throw new MultipleHelpFlagsConfigurationException(rawType);
-        
+
         seenHelp = seenHelp || flag.help();
 
         if (seenVersion && flag.version())
           throw new MultipleVersionFlagsConfigurationException(rawType);
-        
+
         seenVersion = seenVersion || flag.version();
 
         configurationProperty = new FlagConfigurationParameter(parameterName, flag.description(),
@@ -259,13 +265,17 @@ public class ConfigurationClass {
       }
     }
 
-    return new ConfigurationClass(beanClass, parameters);
+    return new ConfigurationClass(beanClass, name, description, version, parameters);
   }
 
   private final BeanClass beanClass;
+  private final String name;
+  private final String description;
+  private final String version;
   private final List<ConfigurationParameter> parameters;
 
-  private ConfigurationClass(BeanClass beanClass, List<ConfigurationParameter> parameters) {
+  private ConfigurationClass(BeanClass beanClass, String name, String description, String version,
+      List<ConfigurationParameter> parameters) {
     Map<Coordinate, List<String>> coordinates = parameters.stream()
         .flatMap(p -> p.getCoordinates().stream()
             .map(c -> new SimpleImmutableEntry<Coordinate, String>(c, p.getName())))
@@ -289,6 +299,9 @@ public class ConfigurationClass {
     }
 
     this.beanClass = beanClass;
+    this.name = name;
+    this.description = description;
+    this.version = version;
     this.parameters = unmodifiableList(parameters);
   }
 
@@ -299,6 +312,27 @@ public class ConfigurationClass {
     return beanClass;
   }
 
+  /**
+   * @return the name
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * @return the description
+   */
+  public String getDescription() {
+    return description;
+  }
+
+  /**
+   * @return the version
+   */
+  public String getVersion() {
+    return version;
+  }
+
   public Optional<ConfigurationParameter> resolve(Coordinate coordinate) {
     if (coordinate == null)
       throw new NullPointerException();
@@ -307,7 +341,7 @@ public class ConfigurationClass {
   }
 
   public List<ConfigurationParameter> getParameters() {
-    return unmodifiableList(parameters);
+    return parameters;
   }
 
   public BeanInstance newInstance() throws InvocationTargetException {
@@ -315,13 +349,11 @@ public class ConfigurationClass {
   }
 
   @Override
-  @Generated
   public int hashCode() {
-    return Objects.hash(beanClass);
+    return Objects.hash(beanClass, description, name, parameters, version);
   }
 
   @Override
-  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -330,6 +362,14 @@ public class ConfigurationClass {
     if (getClass() != obj.getClass())
       return false;
     ConfigurationClass other = (ConfigurationClass) obj;
-    return Objects.equals(beanClass, other.beanClass);
+    return Objects.equals(beanClass, other.beanClass)
+        && Objects.equals(description, other.description) && Objects.equals(name, other.name)
+        && Objects.equals(parameters, other.parameters) && Objects.equals(version, other.version);
+  }
+
+  @Override
+  public String toString() {
+    return "ConfigurationClass [beanClass=" + beanClass + ", name=" + name + ", description="
+        + description + ", version=" + version + ", parameters=" + parameters + "]";
   }
 }
