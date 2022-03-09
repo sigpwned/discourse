@@ -1,6 +1,5 @@
 package com.sigpwned.discourse.core;
 
-import static java.util.Collections.emptyList;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -232,6 +231,6 @@ public class SerializationTest {
   
   @Test
   public void serializationTest() {
-    new Configurator<>(SerializationExample.class).args(emptyList()).done();
+    new Configurator<>(SerializationExample.class).done().build();
   }
 }

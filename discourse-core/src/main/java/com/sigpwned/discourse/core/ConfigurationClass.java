@@ -2,14 +2,18 @@ package com.sigpwned.discourse.core;
 
 import static java.lang.String.format;
 import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -51,13 +55,15 @@ import com.sigpwned.espresso.BeanProperty;
 public class ConfigurationClass {
   public static ConfigurationClass scan(SinkContext storage, SerializationContext serialization,
       Class<?> rawType) {
-    if (rawType.getAnnotation(Configurable.class) == null)
+    Configurable configurable = rawType.getAnnotation(Configurable.class);
+    if (configurable == null)
       throw new NotConfigurableConfigurationException(rawType);
-
+    
+    // TODO throw multi configuration exceptions here
+    
     BeanClass beanClass = BeanClass.scan(rawType);
 
-    ConfigurationClass result = new ConfigurationClass(beanClass);
-
+    List<ConfigurationParameter> parameters = new ArrayList<>();
     Set<Coordinate> seenCoordinates = new HashSet<>();
     for (BeanProperty beanProperty : beanClass) {
       List<Annotation> annotations = beanProperty.getAnnotations();
@@ -99,7 +105,7 @@ public class ConfigurationClass {
           throw new InvalidVariableNameConfigurationException(environment.variableName());
         }
 
-        configurationProperty = new EnvironmentConfigurationParameter(result, parameterName,
+        configurationProperty = new EnvironmentConfigurationParameter(parameterName,
             environment.description(), environment.required(), deserializer, sink, variableName);
       } else if (parameterAnnotation instanceof FlagParameter) {
         FlagParameter flag = (FlagParameter) parameterAnnotation;
@@ -129,8 +135,8 @@ public class ConfigurationClass {
         if (shortName == null && longName == null)
           throw new NoNameConfigurationException(beanProperty.getName());
 
-        configurationProperty = new FlagConfigurationParameter(result, parameterName,
-            flag.description(), deserializer, sink, shortName, longName);
+        configurationProperty = new FlagConfigurationParameter(parameterName, flag.description(),
+            deserializer, sink, shortName, longName);
       } else if (parameterAnnotation instanceof OptionParameter) {
         OptionParameter option = (OptionParameter) parameterAnnotation;
 
@@ -159,7 +165,7 @@ public class ConfigurationClass {
         if (shortName == null && longName == null)
           throw new NoNameConfigurationException(beanProperty.getName());
 
-        configurationProperty = new OptionConfigurationParameter(result, parameterName,
+        configurationProperty = new OptionConfigurationParameter(parameterName,
             option.description(), option.required(), deserializer, sink, shortName, longName);
       } else if (parameterAnnotation instanceof PositionalParameter) {
         PositionalParameter positional = (PositionalParameter) parameterAnnotation;
@@ -171,7 +177,7 @@ public class ConfigurationClass {
           throw new InvalidPositionConfigurationException(positional.position());
         }
 
-        configurationProperty = new PositionalConfigurationParameter(result, parameterName,
+        configurationProperty = new PositionalConfigurationParameter(parameterName,
             positional.description(), positional.required(), deserializer, sink, position);
       } else if (parameterAnnotation instanceof PropertyParameter) {
         PropertyParameter property = (PropertyParameter) parameterAnnotation;
@@ -183,7 +189,7 @@ public class ConfigurationClass {
           throw new InvalidPropertyNameConfigurationException(property.propertyName());
         }
 
-        configurationProperty = new PropertyConfigurationParameter(result, parameterName,
+        configurationProperty = new PropertyConfigurationParameter(parameterName,
             property.description(), property.required(), deserializer, sink, propertyName);
       } else {
         throw new AssertionError(
@@ -197,11 +203,11 @@ public class ConfigurationClass {
         seenCoordinates.add(coordinate);
       }
 
-      result.addProperty(configurationProperty);
+      parameters.add(configurationProperty);
     }
 
     SortedSet<PositionCoordinate> positions =
-        result.getProperties().stream().flatMap(p -> p.getCoordinates().stream())
+        parameters.stream().flatMap(p -> p.getCoordinates().stream())
             .filter(c -> c.getFamily() == Coordinate.Family.POSITION).map(Coordinate::asPosition)
             .collect(toCollection(TreeSet::new));
     if (positions.isEmpty()) {
@@ -220,8 +226,11 @@ public class ConfigurationClass {
           throw new MissingPositionConfigurationException(0);
 
         final int index = currentPosition.getIndex();
-        PositionalConfigurationParameter positional = (PositionalConfigurationParameter) result
-            .resolve(currentPosition).orElseThrow(() -> new AssertionError(
+        PositionalConfigurationParameter positional = parameters.stream()
+            .filter(p -> p.getCoordinates().contains(currentPosition))
+            .map(ConfigurationParameter::asPositional)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError(
                 format("Failed to retrieve parameter for position %d", index)));
 
         if (positional.isRequired() && seenOptionalParameter)
@@ -237,16 +246,26 @@ public class ConfigurationClass {
         previousPosition = currentPosition;
       }
     }
-
-    return result;
+    
+    return new ConfigurationClass(beanClass, parameters);
   }
 
   private final BeanClass beanClass;
-  private final List<ConfigurationParameter> properties;
+  private final List<ConfigurationParameter> parameters;
 
-  private ConfigurationClass(BeanClass beanClass) {
+  private ConfigurationClass(BeanClass beanClass, List<ConfigurationParameter> parameters) {
+    Map<Coordinate, List<String>> coordinates = parameters.stream()
+        .flatMap(p -> p.getCoordinates().stream()
+            .map(c -> new SimpleImmutableEntry<Coordinate, String>(c, p.getName())))
+        .collect(groupingBy(e -> e.getKey(), mapping(e -> e.getValue(), toList())));
+    Set<Coordinate> duplicateCoordinates = coordinates.entrySet().stream()
+        .filter(e -> e.getValue().size() > 1).map(e -> e.getKey()).collect(toSet());
+    if (!duplicateCoordinates.isEmpty())
+      throw new IllegalArgumentException(
+          format("following coordinates defined more than once", duplicateCoordinates));
+
     this.beanClass = beanClass;
-    this.properties = new ArrayList<>();
+    this.parameters = unmodifiableList(parameters);
   }
 
   /**
@@ -256,28 +275,15 @@ public class ConfigurationClass {
     return beanClass;
   }
 
-  private void addProperty(ConfigurationParameter property) {
-    // If we have a short name, make sure it isn't a duplicate
-    Set<Coordinate> coordinates =
-        getProperties().stream().flatMap(p -> p.getCoordinates().stream()).collect(toSet());
-
-    for (Coordinate coordinate : property.getCoordinates())
-      if (coordinates.contains(coordinate))
-        throw new IllegalArgumentException(
-            format("Coordinate %s is defined more than once", coordinate));
-
-    properties.add(property);
-  }
-
   public Optional<ConfigurationParameter> resolve(Coordinate coordinate) {
     if (coordinate == null)
       throw new NullPointerException();
-    return getProperties().stream().filter(p -> p.getCoordinates().contains(coordinate))
+    return getParameters().stream().filter(p -> p.getCoordinates().contains(coordinate))
         .findFirst();
   }
 
-  public List<ConfigurationParameter> getProperties() {
-    return unmodifiableList(properties);
+  public List<ConfigurationParameter> getParameters() {
+    return unmodifiableList(parameters);
   }
 
   public BeanInstance newInstance() throws InvocationTargetException {

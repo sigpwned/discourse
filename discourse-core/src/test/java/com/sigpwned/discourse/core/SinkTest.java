@@ -32,9 +32,8 @@ public class SinkTest {
 
     @OptionParameter(longName = "array")
     public String[] array;
-    
-    public SinkExample() {
-    }
+
+    public SinkExample() {}
 
     public SinkExample(String assign, List<String> list, Set<String> set,
         SortedSet<String> sortedSet, String[] array) {
@@ -71,10 +70,14 @@ public class SinkTest {
 
   @Test
   public void sinkTest() {
-    SinkExample observed=new Configurator<>(SinkExample.class).args(asList("--assign", "alpha", "--list",
-        "bravo", "--list", "charlie", "--set", "delta", "--set", "echo", "--sortedSet", "foxtrot",
-        "--sortedSet", "golf", "--array", "hotel", "--array", "india")).done();
-    
-    assertThat(observed, is(new SinkExample("alpha", ImmutableList.of("bravo", "charlie"), ImmutableSet.of("delta", "echo"), ImmutableSortedSet.of("foxtrot", "golf"), new String[] {"hotel", "india"})));
+    SinkExample observed = new Configurator<>(SinkExample.class).done()
+        .build(asList("--assign", "alpha", "--list", "bravo", "--list", "charlie", "--set", "delta",
+            "--set", "echo", "--sortedSet", "foxtrot", "--sortedSet", "golf", "--array", "hotel",
+            "--array", "india"));
+
+    assertThat(observed,
+        is(new SinkExample("alpha", ImmutableList.of("bravo", "charlie"),
+            ImmutableSet.of("delta", "echo"), ImmutableSortedSet.of("foxtrot", "golf"),
+            new String[] {"hotel", "india"})));
   }
 }

@@ -2,8 +2,10 @@ package com.sigpwned.discourse.core.value.sink;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.util.Objects;
 import com.sigpwned.discourse.core.ValueSink;
 import com.sigpwned.discourse.core.ValueSinkFactory;
+import com.sigpwned.discourse.core.util.Generated;
 import com.sigpwned.espresso.BeanProperty;
 
 public class AssignValueSinkFactory implements ValueSinkFactory {
@@ -32,22 +34,26 @@ public class AssignValueSinkFactory implements ValueSinkFactory {
       public void write(Object instance, Object value) throws InvocationTargetException {
         property.set(instance, value);
       }
+
+      @Override
+      @Generated
+      public int hashCode() {
+        return 13;
+      }
+
+      @Override
+      @Generated
+      public boolean equals(Object other) {
+        if (other == null)
+          return false;
+        if (this == other)
+          return true;
+        if (getClass() != other.getClass())
+          return false;
+        ValueSink that = (ValueSink) other;
+        return isCollection() == that.isCollection()
+            && Objects.equals(getGenericType(), that.getGenericType());
+      }
     };
-  }
-
-  @Override
-  public int hashCode() {
-    return 17;
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (this == other)
-      return true;
-    if (other == null)
-      return false;
-    if (getClass() != other.getClass())
-      return false;
-    return true;
   }
 }

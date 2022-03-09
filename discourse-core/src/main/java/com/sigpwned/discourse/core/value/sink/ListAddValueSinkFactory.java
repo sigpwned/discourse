@@ -4,8 +4,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import com.sigpwned.discourse.core.ValueSink;
 import com.sigpwned.discourse.core.ValueSinkFactory;
+import com.sigpwned.discourse.core.util.Generated;
 import com.sigpwned.discourse.core.util.ListType;
 import com.sigpwned.espresso.BeanProperty;
 
@@ -43,6 +45,26 @@ public class ListAddValueSinkFactory implements ValueSinkFactory {
         if (propertyValue == null)
           property.set(instance, propertyValue = new ArrayList());
         propertyValue.add(value);
+      }
+
+      @Override
+      @Generated
+      public int hashCode() {
+        return 17;
+      }
+
+      @Override
+      @Generated
+      public boolean equals(Object other) {
+        if (other == null)
+          return false;
+        if (this == other)
+          return true;
+        if (getClass() != other.getClass())
+          return false;
+        ValueSink that = (ValueSink) other;
+        return isCollection() == that.isCollection()
+            && Objects.equals(getGenericType(), that.getGenericType());
       }
     };
   }

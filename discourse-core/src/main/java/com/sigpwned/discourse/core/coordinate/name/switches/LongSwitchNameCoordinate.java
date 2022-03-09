@@ -6,7 +6,7 @@ import com.sigpwned.discourse.core.coordinate.name.SwitchNameCoordinate;
 public class LongSwitchNameCoordinate extends SwitchNameCoordinate {
   public static final String PREFIX = "--";
 
-  public static final Pattern PATTERN = Pattern.compile("[a-zA-Z0-9][-a-zA-Z0-9]*");
+  public static final Pattern PATTERN = Pattern.compile("[a-zA-Z0-9][-a-zA-Z0-9_]*");
   
   public static LongSwitchNameCoordinate fromString(String s) {
     return new LongSwitchNameCoordinate(s);

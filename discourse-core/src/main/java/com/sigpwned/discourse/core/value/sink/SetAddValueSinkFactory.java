@@ -3,9 +3,11 @@ package com.sigpwned.discourse.core.value.sink;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import com.sigpwned.discourse.core.ValueSink;
 import com.sigpwned.discourse.core.ValueSinkFactory;
+import com.sigpwned.discourse.core.util.Generated;
 import com.sigpwned.discourse.core.util.SetType;
 import com.sigpwned.espresso.BeanProperty;
 
@@ -36,13 +38,33 @@ public class SetAddValueSinkFactory implements ValueSinkFactory {
         return setType.getElementType();
       }
 
-      @SuppressWarnings({"unchecked", "rawtypes"})
       @Override
+      @SuppressWarnings({"unchecked", "rawtypes"})
       public void write(Object instance, Object value) throws InvocationTargetException {
         Set propertyValue = (Set) property.get(instance);
         if (propertyValue == null)
           property.set(instance, propertyValue = new HashSet());
         propertyValue.add(value);
+      }
+
+      @Override
+      @Generated
+      public int hashCode() {
+        return 19;
+      }
+
+      @Override
+      @Generated
+      public boolean equals(Object other) {
+        if (other == null)
+          return false;
+        if (this == other)
+          return true;
+        if (getClass() != other.getClass())
+          return false;
+        ValueSink that = (ValueSink) other;
+        return isCollection() == that.isCollection()
+            && Objects.equals(getGenericType(), that.getGenericType());
       }
     };
   }

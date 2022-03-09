@@ -8,5 +8,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target({TYPE})
 public @interface Configurable {
-
+  public String discriminator() default "";
+  
+  public Subcommand[] subcommands() default {};
 }

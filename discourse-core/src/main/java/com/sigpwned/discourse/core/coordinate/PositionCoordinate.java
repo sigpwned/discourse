@@ -1,5 +1,6 @@
 package com.sigpwned.discourse.core.coordinate;
 
+import java.util.Comparator;
 import java.util.Objects;
 import com.sigpwned.discourse.core.Coordinate;
 
@@ -54,8 +55,11 @@ public class PositionCoordinate extends Coordinate implements Comparable<Positio
     return "Position [index=" + index + "]";
   }
 
+  public static final Comparator<PositionCoordinate> COMPARATOR =
+      Comparator.comparingInt(PositionCoordinate::getIndex);
+
   @Override
   public int compareTo(PositionCoordinate that) {
-    return this.getIndex() - that.getIndex();
+    return COMPARATOR.compare(this, that);
   }
 }
