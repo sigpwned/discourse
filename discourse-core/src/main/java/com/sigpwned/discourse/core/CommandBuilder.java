@@ -4,35 +4,29 @@ import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
 import com.sigpwned.discourse.core.value.sink.AssignValueSinkFactory;
 
-public class Configurator<T> {
-  private final Class<T> rawType;
+public class CommandBuilder {
   private final SerializationContext serializationContext;
   private final SinkContext storageContext;
 
-  public Configurator(Class<T> rawType) {
-    this.rawType = rawType;
+  public CommandBuilder() {
     this.serializationContext = new SerializationContext();
     this.storageContext = new SinkContext(AssignValueSinkFactory.INSTANCE);
   }
 
-  public Class<T> getRawType() {
-    return rawType;
-  }
-
-  public Configurator<T> registerDeserializer(ValueDeserializerFactory<?> deserializer) {
+  public CommandBuilder registerDeserializer(ValueDeserializerFactory<?> deserializer) {
     getSerializationContext().addFirst(deserializer);
     return this;
   }
 
-  public Configurator<T> registerSink(ValueSinkFactory storer) {
+  public CommandBuilder registerSink(ValueSinkFactory storer) {
     getStorageContext().addFirst(storer);
     return this;
   }
 
-  public Command<T> done() {
-    if(getRawType().getAnnotation(Configurable.class) == null)
-      throw new NotConfigurableConfigurationException(getRawType());
-    return Command.scan(getStorageContext(), getSerializationContext(), getRawType());
+  public <T> Command<T> build(Class<T> rawType) {
+    if(rawType.getAnnotation(Configurable.class) == null)
+      throw new NotConfigurableConfigurationException(rawType);
+    return Command.scan(getStorageContext(), getSerializationContext(), rawType);
   }
 
   /**

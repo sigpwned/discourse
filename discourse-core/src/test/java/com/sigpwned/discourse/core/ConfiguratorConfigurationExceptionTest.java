@@ -49,7 +49,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = MissingPositionConfigurationException.class)
   public void missingPositionTest() {
-    new Configurator<>(GapInPositionsExample.class).done();
+    new CommandBuilder().build(GapInPositionsExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = TooManyAnnotationsConfigurationException.class)
   public void tooManyAnnotationsTest() {
-    new Configurator<>(TooManyAnnotationsExample.class).done();
+    new CommandBuilder().build(TooManyAnnotationsExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = NotConfigurableConfigurationException.class)
   public void notConfigurableTest() {
-    new Configurator<>(NotConfigurableExample.class).done().args();
+    new CommandBuilder().build(NotConfigurableExample.class).args();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = InvalidShortNameConfigurationException.class)
   public void invalidOptionShortNameExample() {
-    new Configurator<>(InvalidOptionShortNameExample.class).done();
+    new CommandBuilder().build(InvalidOptionShortNameExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,7 +108,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = InvalidLongNameConfigurationException.class)
   public void invalidOptionLongNameExample() {
-    new Configurator<>(InvalidOptionLongNameExample.class).done();
+    new CommandBuilder().build(InvalidOptionLongNameExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = NoNameConfigurationException.class)
   public void optionNoNameExample() {
-    new Configurator<>(NoNameOptionExample.class).done();
+    new CommandBuilder().build(NoNameOptionExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +136,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = InvalidShortNameConfigurationException.class)
   public void invalidFlagShortNameExample() {
-    new Configurator<>(InvalidFlagShortNameExample.class).done();
+    new CommandBuilder().build(InvalidFlagShortNameExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +150,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = InvalidLongNameConfigurationException.class)
   public void invalidFlagLongNameExample() {
-    new Configurator<>(InvalidFlagLongNameExample.class).done();
+    new CommandBuilder().build(InvalidFlagLongNameExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -164,7 +164,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = NoNameConfigurationException.class)
   public void flagNoNameExample() {
-    new Configurator<>(NoNameFlagExample.class).done();
+    new CommandBuilder().build(NoNameFlagExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -178,7 +178,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = InvalidVariableNameConfigurationException.class)
   public void invalidVariableExample() {
-    new Configurator<>(InvalidVariableExample.class).done();
+    new CommandBuilder().build(InvalidVariableExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,7 +192,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = InvalidPropertyNameConfigurationException.class)
   public void invalidPropertyExample() {
-    new Configurator<>(InvalidPropertyExample.class).done();
+    new CommandBuilder().build(InvalidPropertyExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -209,7 +209,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = DuplicateCoordinateConfigurationException.class)
   public void duplicateShortNameExample() {
-    new Configurator<>(DuplicateCoordinateExample.class).done();
+    new CommandBuilder().build(DuplicateCoordinateExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -223,7 +223,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = InvalidPositionConfigurationException.class)
   public void invalidPositionExample() {
-    new Configurator<>(InvalidPositionExample.class).done();
+    new CommandBuilder().build(InvalidPositionExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -240,7 +240,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = MissingPositionConfigurationException.class)
   public void skipPositionExample() {
-    new Configurator<>(SkipPositionExample.class).done();
+    new CommandBuilder().build(SkipPositionExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -254,7 +254,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = MissingPositionConfigurationException.class)
   public void noZeroPositionExample() {
-    new Configurator<>(SkipPositionExample.class).done();
+    new CommandBuilder().build(SkipPositionExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -271,7 +271,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = InvalidCollectionParameterPlacementConfigurationException.class)
   public void invalidCollectionPositionExample() {
-    new Configurator<>(InvalidCollectionPositionExample.class).done();
+    new CommandBuilder().build(InvalidCollectionPositionExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -288,7 +288,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = InvalidRequiredParameterPlacementConfigurationException.class)
   public void invalidRequiredPositionExample() {
-    new Configurator<>(InvalidRequiredPositionExample.class).done();
+    new CommandBuilder().build(InvalidRequiredPositionExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -310,7 +310,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = DiscriminatorMismatchConfigurationException.class)
   public void discriminatorMismatchExample() {
-    new Configurator<>(DiscriminatorMismatchMultiCommandExample.class).done();
+    new CommandBuilder().build(DiscriminatorMismatchMultiCommandExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -331,7 +331,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = SubcommandDoesNotExtendRootCommandConfigurationException.class)
   public void noExtendExample() {
-    new Configurator<>(NoExtendMultiCommandExample.class).done();
+    new CommandBuilder().build(NoExtendMultiCommandExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -353,7 +353,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = InvalidDiscriminatorConfigurationException.class)
   public void invalidDiscriminatorCommandExample() {
-    new Configurator<>(InvalidDiscriminatorMultiCommandExample1.class).done();
+    new CommandBuilder().build(InvalidDiscriminatorMultiCommandExample1.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -375,7 +375,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = InvalidDiscriminatorConfigurationException.class)
   public void invalidDiscriminatorSubcommandExample() {
-    new Configurator<>(InvalidDiscriminatorMultiCommandExample2.class).done();
+    new CommandBuilder().build(InvalidDiscriminatorMultiCommandExample2.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -397,7 +397,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = NoDiscriminatorConfigurationException.class)
   public void noDiscriminatorCommandExample() {
-    new Configurator<>(NoDiscriminatorMultiCommandExample1.class).done();
+    new CommandBuilder().build(NoDiscriminatorMultiCommandExample1.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -419,7 +419,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = NoDiscriminatorConfigurationException.class)
   public void noDiscriminatorSubcommandExample() {
-    new Configurator<>(NoDiscriminatorMultiCommandExample2.class).done();
+    new CommandBuilder().build(NoDiscriminatorMultiCommandExample2.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -441,7 +441,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = UnexpectedDiscriminatorConfigurationException.class)
   public void unexpectedCommandDiscriminatorExample() {
-    new Configurator<>(UnexpectedDiscriminatorRootCommandExample.class).done();
+    new CommandBuilder().build(UnexpectedDiscriminatorRootCommandExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -455,7 +455,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = UnexpectedDiscriminatorConfigurationException.class)
   public void unexpectedDiscriminatorExample() {
-    new Configurator<>(UnexpectedDiscriminatorExample.class).done();
+    new CommandBuilder().build(UnexpectedDiscriminatorExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -485,7 +485,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = UnexpectedSubcommandsConfigurationException.class)
   public void unexpectedSubcommandsExample() {
-    new Configurator<>(UnexpectedSubcommandsRootCommandExample.class).done();
+    new CommandBuilder().build(UnexpectedSubcommandsRootCommandExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -506,7 +506,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = RootCommandNotAbstractConfigurationException.class)
   public void notAbstractDiscriminatorExample() {
-    new Configurator<>(NotAbstractCommandExample.class).done();
+    new CommandBuilder().build(NotAbstractCommandExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -523,7 +523,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = MultipleHelpFlagsConfigurationException.class)
   public void multipleHelpExample() {
-    new Configurator<>(MultipleHelpExample.class).done();
+    new CommandBuilder().build(MultipleHelpExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -540,6 +540,6 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = MultipleVersionFlagsConfigurationException.class)
   public void multipleVersionExample() {
-    new Configurator<>(MultipleVersionExample.class).done();
+    new CommandBuilder().build(MultipleVersionExample.class);
   }
 }

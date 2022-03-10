@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 import com.google.common.io.Resources;
 import com.sigpwned.discourse.core.Command;
-import com.sigpwned.discourse.core.Configurator;
+import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
@@ -42,7 +42,7 @@ public class DefaultHelpFormatterTest {
 
   @Test
   public void singleCommandTest() throws IOException {
-    Command<?> command = new Configurator<>(SingleExample.class).done();
+    Command<?> command = new CommandBuilder().build(SingleExample.class);
     String observed=new DefaultHelpFormatter().formatHelp(command);
     String expected=Resources.toString(Resources.getResource("singlecommandhelp.txt"), StandardCharsets.UTF_8);
     assertThat(observed, is(expected));
@@ -84,7 +84,7 @@ public class DefaultHelpFormatterTest {
 
   @Test
   public void multiCommandTest() throws IOException {
-    Command<?> command = new Configurator<>(MultiExample.class).done();
+    Command<?> command = new CommandBuilder().build(MultiExample.class);
     String observed=new DefaultHelpFormatter().formatHelp(command);
     String expected=Resources.toString(Resources.getResource("multicommandhelp.txt"), StandardCharsets.UTF_8);
     assertThat(observed, is(expected));

@@ -28,6 +28,8 @@ import com.sigpwned.discourse.core.util.Text;
 import com.sigpwned.discourse.core.util.Types;
 
 public class DefaultHelpFormatter implements HelpFormatter {
+  public static final DefaultHelpFormatter INSTANCE = new DefaultHelpFormatter();
+
   public static final int DEFAULT_WIDTH = 100;
 
   public static final int COLUMN_WIDTH = 32;
@@ -311,7 +313,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
             }
             out.println();
           }
-          
+
           out.println(Text.wrap(
               "First parameter must be a subcommand specifier: " + command.listSubcommands()
                   .stream().sorted().map(Objects::toString).collect(joining(", ")),

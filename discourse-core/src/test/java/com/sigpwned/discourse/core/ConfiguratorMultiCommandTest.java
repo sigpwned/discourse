@@ -96,10 +96,9 @@ public class ConfiguratorMultiCommandTest {
    */
   @Test
   public void multiExampleCommonParameters() {
-    Set<String> commonParameters = new Configurator<>(MultiExample.class).done().asMulti()
-        .getCommonParameters().stream().map(ConfigurationParameter::getName)
-        .collect(toSet());
-    
+    Set<String> commonParameters = new CommandBuilder().build(MultiExample.class).asMulti()
+        .getCommonParameters().stream().map(ConfigurationParameter::getName).collect(toSet());
+
     assertThat(commonParameters, is(singleton("option")));
   }
 
@@ -108,15 +107,14 @@ public class ConfiguratorMultiCommandTest {
    */
   @Test
   public void multiExampleAllParameters() {
-    Set<String> allParameters = new Configurator<>(MultiExample.class).done().asMulti()
-        .getParameters().stream().map(ConfigurationParameter::getName)
-        .collect(toSet());
-    
-    Set<String> names=new HashSet<>();
+    Set<String> allParameters = new CommandBuilder().build(MultiExample.class).asMulti()
+        .getParameters().stream().map(ConfigurationParameter::getName).collect(toSet());
+
+    Set<String> names = new HashSet<>();
     names.add("option");
     names.add("alpha");
     names.add("bravo");
-    
+
     assertThat(allParameters, is(names));
   }
 
@@ -125,13 +123,13 @@ public class ConfiguratorMultiCommandTest {
    */
   @Test
   public void multiExampleSubcommands() {
-    Set<Discriminator> subcommands = new Configurator<>(MultiExample.class).done().asMulti()
-        .listSubcommands();
-    
-    Set<Discriminator> discriminators=new HashSet<>();
+    Set<Discriminator> subcommands =
+        new CommandBuilder().build(MultiExample.class).asMulti().listSubcommands();
+
+    Set<Discriminator> discriminators = new HashSet<>();
     discriminators.add(Discriminator.fromString("alpha"));
     discriminators.add(Discriminator.fromString("bravo"));
-    
+
     assertThat(subcommands, is(discriminators));
   }
 
@@ -144,8 +142,8 @@ public class ConfiguratorMultiCommandTest {
     final String world = "world";
 
 
-    MultiExample observed =
-        new Configurator<>(MultiExample.class).done().args("alpha", "-o", hello, world);
+    MultiExample observed = new CommandBuilder().build(MultiExample.class)
+        .args("alpha", "-o", hello, world).configuration();
 
     AlphaMultiExample expected = new AlphaMultiExample();
     expected.option = hello;
@@ -163,8 +161,8 @@ public class ConfiguratorMultiCommandTest {
     final String world = "world";
 
 
-    MultiExample observed =
-        new Configurator<>(MultiExample.class).done().args("bravo", "-o", hello, world);
+    MultiExample observed = new CommandBuilder().build(MultiExample.class)
+        .args("bravo", "-o", hello, world).configuration();
 
     BravoMultiExample expected = new BravoMultiExample();
     expected.option = hello;

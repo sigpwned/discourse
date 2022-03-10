@@ -16,6 +16,7 @@ import com.sigpwned.discourse.core.Command;
 import com.sigpwned.discourse.core.ConfigurationClass;
 import com.sigpwned.discourse.core.ConfigurationParameter;
 import com.sigpwned.discourse.core.Discriminator;
+import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.SerializationContext;
 import com.sigpwned.discourse.core.SinkContext;
 import com.sigpwned.discourse.core.annotation.Configurable;
@@ -178,7 +179,7 @@ public class MultiCommand<T> extends Command<T> {
   }
 
   @Override
-  public T args(List<String> args) {
+  public Invocation<T> args(List<String> args) {
     if (args.isEmpty())
       throw new NoSubcommandArgumentException();
 
@@ -192,6 +193,6 @@ public class MultiCommand<T> extends Command<T> {
     ConfigurationClass configurationClass = getSubcommand(subcommand)
         .orElseThrow(() -> new UnrecognizedSubcommandArgumentException(subcommand));
 
-    return args(configurationClass, args.subList(1, args.size()));
+    return new Invocation<T>(this, configurationClass, args.subList(1, args.size()));
   }
 }

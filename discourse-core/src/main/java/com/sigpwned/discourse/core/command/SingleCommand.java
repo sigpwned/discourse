@@ -6,6 +6,7 @@ import java.util.Set;
 import com.sigpwned.discourse.core.Command;
 import com.sigpwned.discourse.core.ConfigurationClass;
 import com.sigpwned.discourse.core.ConfigurationParameter;
+import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.SerializationContext;
 import com.sigpwned.discourse.core.SinkContext;
 import com.sigpwned.discourse.core.annotation.Configurable;
@@ -47,8 +48,8 @@ public class SingleCommand<T> extends Command<T> {
     return configurationClass;
   }
 
-  public T args(List<String> args) {
-    return args(getConfigurationClass(), args);
+  public Invocation<T> args(List<String> args) {
+    return new Invocation<T>(this, getConfigurationClass(), args);
   }
 
   @Override

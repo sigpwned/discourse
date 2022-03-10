@@ -70,10 +70,10 @@ public class SinkTest {
 
   @Test
   public void sinkTest() {
-    SinkExample observed = new Configurator<>(SinkExample.class).done()
+    SinkExample observed = new CommandBuilder().build(SinkExample.class)
         .args(asList("--assign", "alpha", "--list", "bravo", "--list", "charlie", "--set", "delta",
             "--set", "echo", "--sortedSet", "foxtrot", "--sortedSet", "golf", "--array", "hotel",
-            "--array", "india"));
+            "--array", "india")).configuration();
 
     assertThat(observed,
         is(new SinkExample("alpha", ImmutableList.of("bravo", "charlie"),
