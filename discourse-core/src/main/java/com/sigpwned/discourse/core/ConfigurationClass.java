@@ -49,6 +49,7 @@ import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
+import com.sigpwned.discourse.core.util.Generated;
 import com.sigpwned.espresso.BeanClass;
 import com.sigpwned.espresso.BeanInstance;
 import com.sigpwned.espresso.BeanProperty;
@@ -349,11 +350,13 @@ public class ConfigurationClass {
   }
 
   @Override
+  @Generated
   public int hashCode() {
     return Objects.hash(beanClass, description, name, parameters, version);
   }
 
   @Override
+  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
