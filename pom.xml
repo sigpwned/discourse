@@ -33,6 +33,7 @@
 
     <modules>
         <module>discourse-core</module>
+        <module>discourse-examples</module>
     </modules>
 
     <dependencyManagement>

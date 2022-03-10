@@ -18,7 +18,7 @@ import com.sigpwned.discourse.core.token.BundleArgumentToken;
 import com.sigpwned.discourse.core.token.LongNameArgumentToken;
 import com.sigpwned.discourse.core.token.ShortNameArgumentToken;
 
-public class Configurations {
+public class Discourse {
   public static <T> T configure(Class<T> rawType, String[] args) {
     return configure(rawType, asList(args));
   }
