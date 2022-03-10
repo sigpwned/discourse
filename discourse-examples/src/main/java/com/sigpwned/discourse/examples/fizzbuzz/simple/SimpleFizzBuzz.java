@@ -5,7 +5,7 @@ import com.sigpwned.discourse.core.util.Discourse;
 public class SimpleFizzBuzz {
   public static void main(String[] args) {
     SimpleFizzBuzzConfiguration configuration =
-        Discourse.configure(SimpleFizzBuzzConfiguration.class, args);
+        Discourse.configuration(SimpleFizzBuzzConfiguration.class, args);
     if (configuration.count < 1)
       throw new IllegalArgumentException("count must be at least 1");
     for (int i = 1; i <= configuration.count; i++) {

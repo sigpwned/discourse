@@ -12,11 +12,11 @@ import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 public final class Discourse {
   private Discourse() {}
   
-  public static <T> T configure(Class<T> rawType, String[] args) {
-    return configure(rawType, asList(args));
+  public static <T> T configuration(Class<T> rawType, String[] args) {
+    return configuration(rawType, asList(args));
   }
 
-  public static <T> T configure(Class<T> rawType, List<String> args) {
+  public static <T> T configuration(Class<T> rawType, List<String> args) {
     Command<T> command;
     try {
       command = new CommandBuilder().build(rawType);

@@ -50,7 +50,7 @@ public class ConfigurationsTest {
     final String alpha = "alpha";
     final String bravo = "bravo";
     
-    Example observed=Discourse.configure(Example.class, asList("-f", "-o", alpha, bravo));
+    Example observed=Discourse.configuration(Example.class, asList("-f", "-o", alpha, bravo));
 
     Example expected = new Example();
     expected.flag = true;

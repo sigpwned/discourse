@@ -32,7 +32,7 @@ public class SelfContainedFizzBuzz extends StandardConfigurationBase {
   }
 
   public static void main(String[] args) {
-    Discourse.configure(SelfContainedFizzBuzz.class, args).validate().run();
+    Discourse.configuration(SelfContainedFizzBuzz.class, args).validate().run();
   }
 
   public void run() {

@@ -6,7 +6,7 @@ import com.sigpwned.discourse.core.util.Discourse;
 public class AdvancedFizzBuzz extends StandardConfigurationBase {
   public static void main(String[] args) {
     AdvancedFizzBuzzConfiguration configuration =
-        Discourse.configure(AdvancedFizzBuzzConfiguration.class, args).validate();
+        Discourse.configuration(AdvancedFizzBuzzConfiguration.class, args).validate();
     for (int i = 1; i <= configuration.getCount(); i++) {
       boolean mod3 = (i % 3) == 0;
       boolean mod5 = (i % 5) == 0;

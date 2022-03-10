@@ -25,24 +25,30 @@ For example, a simple command line for [FizzBuzz](https://en.wikipedia.org/wiki/
     public class FizzBuzzConfiguration {
         @PositionalParameter(position=0, required=true)
         public int count;
+        
+        @OptionParameter(shortName="f", longName="fizz")
+        public String fizz = "fizz";
+        
+        @OptionParameter(shortName="b", longName="buzz")
+        public String buzz = "buzz";
     }
     
 The program could then parse the command line arguments into this configuration object like this:
 
     public class FizzBuzz {
         public static void main(String[] args) {
-            FizzBuzzConfiguration configuration=Configurations.parse(FizzBuzzConfiguration.class, args);
+            FizzBuzzConfiguration configuration=Discourse.configuration(FizzBuzzConfiguration.class, args);
             if(count < 1)
                 throw new IllegalArgumentException("count must be at least 1);
             for(int i=1;i<=configuration.count;i++) {
                 boolean mod3=(i % 3) == 0;
                 boolean mod5=(i % 5) == 0;
                 if(mod3 && mod5)
-                    System.out.println("fizz buzz");
+                    System.out.println(configuration.fizz+" "+configuration.buzz);
                 else if(mod3)
-                    System.out.println("fizz");
+                    System.out.println(configuration.fizz);
                 else if(mod5)
-                    System.out.println("buzz");
+                    System.out.println(configuration.buzz);
                 else
                     System.out.println(i);
             }
@@ -51,7 +57,8 @@ The program could then parse the command line arguments into this configuration 
     
 Notice that Discourse focuses entirely on parsing command line arguments into a configuration object. It makes no other demands on program structure.
 
-Example command line: `java -jar fizzbuzz.jar 10`
+Example command lines:
+* `java -jar fizzbuzz.jar 10`
 
 ### FizzBuzz with Options
 
@@ -71,7 +78,7 @@ Discourse also allows users include switches (e.g., `-e`, or `--example`) in the
     
     public class FizzBuzz {
         public static void main(String[] args) {
-            FizzBuzzConfiguration configuration=Configurations.parse(FizzBuzzConfiguration.class, args);
+            FizzBuzzConfiguration configuration=Discourse.configuration(FizzBuzzConfiguration.class, args);
             if(count < 1)
                 throw new IllegalArgumentException("count must be at least 1);
             for(int i=1;i<=configuration.count;i++) {
@@ -120,7 +127,7 @@ Because configuration objects are just POJOs, users can implement a variety of p
     
     public class FizzBuzz {
         public static void main(String[] args) {
-            FizzBuzzConfiguration configuration=Configurations.parse(FizzBuzzConfiguration.class, args)
+            FizzBuzzConfiguration configuration=Discourse.configuration(FizzBuzzConfiguration.class, args)
                 .validate();
             for(int i=1;i<=configuration.count;i++) {
                 boolean mod3=(i % 3) == 0;
@@ -164,7 +171,7 @@ Users can also implement the program inside the configuration object if they lik
         }
     
         public static void main(String[] args) {
-            Configurations.parse(FizzBuzz.class, args)
+            Discourse.configuration(FizzBuzz.class, args)
                 .validate()
                 .run();
         }
@@ -214,7 +221,7 @@ By default, Discourse will print a help message if the program is invoked withou
     
     public class FizzBuzz {
         public static void main(String[] args) {
-            FizzBuzzConfiguration configuration=Configurations.parse(FizzBuzzConfiguration.class, args)
+            FizzBuzzConfiguration configuration=Discourse.configuration(FizzBuzzConfiguration.class, args)
                 .validate();
             for(int i=1;i<=configuration.count;i++) {
                 boolean mod3=(i % 3) == 0;
