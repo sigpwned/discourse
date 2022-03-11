@@ -11,15 +11,20 @@ import com.sigpwned.discourse.core.value.deserializer.BooleanValueDeserializerFa
 import com.sigpwned.discourse.core.value.deserializer.ByteValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.CharValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.DoubleValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.EnumValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.FileValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.FloatValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.FromStringValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.InstantValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.IntValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.LocalDateTimeValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.LocalDateValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.LocalTimeValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.LongValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.PathValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.ShortValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.StringValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.UrlValueDeserializerFactory;
 
 public class SerializationContext {
   private final LinkedList<ValueDeserializerFactory<?>> deserializers;
@@ -40,6 +45,13 @@ public class SerializationContext {
     addLast(LocalDateTimeValueDeserializerFactory.INSTANCE);
     addLast(LocalDateValueDeserializerFactory.INSTANCE);
     addLast(LocalTimeValueDeserializerFactory.INSTANCE);
+    addLast(UrlValueDeserializerFactory.INSTANCE);
+    addLast(EnumValueDeserializerFactory.INSTANCE);
+    addLast(FileValueDeserializerFactory.INSTANCE);
+    addLast(PathValueDeserializerFactory.INSTANCE);
+    
+    // This should be the last resort.
+    addLast(FromStringValueDeserializerFactory.INSTANCE);
   }
 
   public Optional<ValueDeserializer<?>> getDeserializer(Type genericType,

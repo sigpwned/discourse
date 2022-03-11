@@ -1,6 +1,7 @@
 package com.sigpwned.discourse.core.util;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.List;
 import org.junit.Test;
@@ -19,6 +20,18 @@ public class TypesTest {
     assertThat(Types.isPrimitive(boolean.class), is(true));
 
     assertThat(Types.isPrimitive(String.class), is(false));
+  }
+  
+  @Test
+  public void boxedTest() {
+    assertThat(Types.boxed(byte.class), sameInstance(Byte.class));
+    assertThat(Types.boxed(short.class), sameInstance(Short.class));
+    assertThat(Types.boxed(int.class), sameInstance(Integer.class));
+    assertThat(Types.boxed(long.class), sameInstance(Long.class));
+    assertThat(Types.boxed(float.class), sameInstance(Float.class));
+    assertThat(Types.boxed(double.class), sameInstance(Double.class));
+    assertThat(Types.boxed(char.class), sameInstance(Character.class));
+    assertThat(Types.boxed(boolean.class), sameInstance(Boolean.class));
   }
   
   public static final TypeToken<List<String>> LIST_OF_STRING = new TypeToken<List<String>>() {};
