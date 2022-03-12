@@ -78,7 +78,7 @@ public class ConfigurationClass {
     for (BeanProperty beanProperty : beanClass) {
       List<Annotation> annotations = beanProperty.getAnnotations();
 
-      var parameterAnnotations = annotations.stream()
+      List<Annotation> parameterAnnotations = annotations.stream()
           .filter(a -> a instanceof EnvironmentParameter || a instanceof FlagParameter
               || a instanceof OptionParameter || a instanceof PositionalParameter
               || a instanceof PropertyParameter)
@@ -94,15 +94,15 @@ public class ConfigurationClass {
         throw new TooManyAnnotationsConfigurationException(beanProperty.getName());
       }
 
-      var parameterName = beanProperty.getName();
+      String parameterName = beanProperty.getName();
 
-      var sink = storage.getSink(beanProperty);
+      ValueSink sink = storage.getSink(beanProperty);
 
-      var deserializer = serialization
+      ValueDeserializer<?> deserializer = serialization
           .getDeserializer(sink.getGenericType(), beanProperty.getAnnotations())
           .orElseThrow(() -> new RuntimeException("No deserializer for property " + parameterName));
 
-      var parameterAnnotation = parameterAnnotations.get(0);
+      Annotation parameterAnnotation = parameterAnnotations.get(0);
 
       ConfigurationParameter configurationProperty;
       if (parameterAnnotation instanceof EnvironmentParameter) {

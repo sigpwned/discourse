@@ -66,9 +66,9 @@ public class ArgumentsParserTest {
     final String alpha = "alpha";
     final String foo = "foo";
 
-    final var flag = new AtomicBoolean(false);
-    final var option = new AtomicReference<>();
-    final var position0 = new AtomicReference<>();
+    final AtomicBoolean flag = new AtomicBoolean(false);
+    final AtomicReference<String> option = new AtomicReference<>();
+    final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
@@ -103,9 +103,9 @@ public class ArgumentsParserTest {
     final String alpha = "alpha";
     final String foo = "foo";
 
-    final var flag = new AtomicBoolean(false);
-    final var option = new AtomicReference<>();
-    final var position0 = new AtomicReference<>();
+    final AtomicBoolean flag = new AtomicBoolean(false);
+    final AtomicReference<String> option = new AtomicReference<>();
+    final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
       @Override
       public void flag(FlagConfigurationParameter property) {
@@ -139,9 +139,9 @@ public class ArgumentsParserTest {
     final String alpha = "alpha";
     final String foo = "foo";
 
-    final var flag = new AtomicBoolean(false);
-    final var option = new AtomicReference<>();
-    final var position0 = new AtomicReference<>();
+    final AtomicBoolean flag = new AtomicBoolean(false);
+    final AtomicReference<String> option = new AtomicReference<>();
+    final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
       @Override
       public void flag(FlagConfigurationParameter property) {
@@ -186,9 +186,9 @@ public class ArgumentsParserTest {
     final String alpha = "alpha";
     final String foo = "foo";
 
-    final var flag = new AtomicBoolean(false);
-    final var option = new AtomicReference<>();
-    final var position0 = new AtomicReference<>();
+    final AtomicBoolean flag = new AtomicBoolean(false);
+    final AtomicReference<String> option = new AtomicReference<>();
+    final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
@@ -223,9 +223,9 @@ public class ArgumentsParserTest {
     final String alpha = "alpha";
     final String foo = "foo";
 
-    final var flag = new AtomicBoolean(false);
-    final var option = new AtomicReference<>();
-    final var position0 = new AtomicReference<>();
+    final AtomicBoolean flag = new AtomicBoolean(false);
+    final AtomicReference<String> option = new AtomicReference<>();
+    final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
@@ -260,9 +260,9 @@ public class ArgumentsParserTest {
     final String alpha = "alpha";
     final String foo = "foo";
 
-    final var flag = new AtomicBoolean(false);
-    final var option = new AtomicReference<>();
-    final var position0 = new AtomicReference<>();
+    final AtomicBoolean flag = new AtomicBoolean(false);
+    final AtomicReference<String> option = new AtomicReference<>();
+    final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
@@ -297,9 +297,9 @@ public class ArgumentsParserTest {
     final String alpha = "alpha";
     final String foo = "foo";
 
-    final var flag = new AtomicBoolean(false);
-    final var option = new AtomicReference<>();
-    final var position0 = new AtomicReference<>();
+    final AtomicBoolean flag = new AtomicBoolean(false);
+    final AtomicReference<String> option = new AtomicReference<>();
+    final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
@@ -334,9 +334,9 @@ public class ArgumentsParserTest {
     final String alpha = "alpha";
     final String foo = "foo";
 
-    final var flag = new AtomicBoolean(false);
-    final var option = new AtomicReference<>();
-    final var position0 = new AtomicReference<>();
+    final AtomicBoolean flag = new AtomicBoolean(false);
+    final AtomicReference<String> option = new AtomicReference<>();
+    final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
@@ -371,9 +371,9 @@ public class ArgumentsParserTest {
     final String alpha = "alpha";
     final String foo = "foo";
 
-    final var flag = new AtomicBoolean(false);
-    final var option = new AtomicReference<>();
-    final var position0 = new AtomicReference<>();
+    final AtomicBoolean flag = new AtomicBoolean(false);
+    final AtomicReference<String> option = new AtomicReference<>();
+    final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
@@ -408,9 +408,9 @@ public class ArgumentsParserTest {
     final String alpha = "alpha";
     final String foo = "foo";
 
-    final var flag = new AtomicBoolean(false);
-    final var option = new AtomicReference<>();
-    final var position0 = new AtomicReference<>();
+    final AtomicBoolean flag = new AtomicBoolean(false);
+    final AtomicReference<String> option = new AtomicReference<>();
+    final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
@@ -445,9 +445,9 @@ public class ArgumentsParserTest {
     final String alpha = "alpha";
     final String foo = "foo";
 
-    final var flag = new AtomicBoolean(false);
-    final var option = new AtomicReference<>();
-    final var position0 = new AtomicReference<>();
+    final AtomicBoolean flag = new AtomicBoolean(false);
+    final AtomicReference<String> option = new AtomicReference<>();
+    final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
@@ -482,9 +482,9 @@ public class ArgumentsParserTest {
     final String alpha = "alpha";
     final String foo = "foo";
 
-    final var flag = new AtomicBoolean(false);
-    final var option = new AtomicReference<>();
-    final var position0 = new AtomicReference<>();
+    final AtomicBoolean flag = new AtomicBoolean(false);
+    final AtomicReference<String> option = new AtomicReference<>();
+    final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
@@ -519,9 +519,9 @@ public class ArgumentsParserTest {
     final String alpha = "alpha";
     final String foo = "foo";
 
-    final var flag = new AtomicBoolean(false);
-    final var option = new AtomicReference<>();
-    final var position0 = new AtomicReference<>();
+    final AtomicBoolean flag = new AtomicBoolean(false);
+    final AtomicReference<String> option = new AtomicReference<>();
+    final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
       @Override
       public void flag(FlagConfigurationParameter property) {
