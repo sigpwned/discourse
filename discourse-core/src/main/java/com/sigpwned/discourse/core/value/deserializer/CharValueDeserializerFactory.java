@@ -16,15 +16,12 @@ public class CharValueDeserializerFactory implements ValueDeserializerFactory<Ch
 
   @Override
   public ValueDeserializer<Character> getDeserializer(Type genericType, List<Annotation> annotations) {
-    return new ValueDeserializer<Character>() {
-      @Override
-      public Character deserialize(String value) {
-        if (value.length() == 0)
-          throw new IllegalArgumentException("no character");
-        if (value.length() != 1)
-          throw new IllegalArgumentException("too many characters");
-        return Character.valueOf(value.charAt(0));
-      }
+    return value -> {
+      if (value.length() == 0)
+        throw new IllegalArgumentException("no character");
+      if (value.length() != 1)
+        throw new IllegalArgumentException("too many characters");
+      return Character.valueOf(value.charAt(0));
     };
   }
 }

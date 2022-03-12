@@ -42,8 +42,10 @@ public class ListAddValueSinkFactory implements ValueSinkFactory {
       @Override
       public void write(Object instance, Object value) throws InvocationTargetException {
         List propertyValue = (List) property.get(instance);
-        if (propertyValue == null)
-          property.set(instance, propertyValue = new ArrayList());
+        if (propertyValue == null) {
+          propertyValue = new ArrayList();          
+          property.set(instance, propertyValue);
+        }
         propertyValue.add(value);
       }
 

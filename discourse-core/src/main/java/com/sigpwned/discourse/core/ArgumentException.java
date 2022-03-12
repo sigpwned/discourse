@@ -1,11 +1,11 @@
 package com.sigpwned.discourse.core;
 
 public abstract class ArgumentException extends RuntimeException {
-  public ArgumentException(String message) {
+  protected ArgumentException(String message) {
     super(message);
   }
 
-  public ArgumentException(String message, Throwable cause) {
+  protected ArgumentException(String message, Throwable cause) {
     super(message, cause);
   }
 }

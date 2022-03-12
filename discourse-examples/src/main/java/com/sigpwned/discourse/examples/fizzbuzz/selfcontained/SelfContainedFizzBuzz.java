@@ -1,5 +1,6 @@
 package com.sigpwned.discourse.examples.fizzbuzz.selfcontained;
 
+import java.util.Objects;
 import com.sigpwned.discourse.core.StandardConfigurationBase;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
@@ -48,5 +49,26 @@ public class SelfContainedFizzBuzz extends StandardConfigurationBase {
       else
         System.out.println(i);
     }
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + Objects.hash(buzz, count, fizz);
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!super.equals(obj))
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    SelfContainedFizzBuzz other = (SelfContainedFizzBuzz) obj;
+    return Objects.equals(buzz, other.buzz) && count == other.count
+        && Objects.equals(fizz, other.fizz);
   }
 }

@@ -1,18 +1,19 @@
 package com.sigpwned.discourse.core;
 
+import java.io.Serializable;
 import java.util.Objects;
 import com.sigpwned.discourse.core.coordinate.NameCoordinate;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import com.sigpwned.discourse.core.util.Generated;
 
-public abstract class Coordinate {
+public abstract class Coordinate implements Serializable {
   public static enum Family {
     NAME, POSITION;
   }
   
   private final Family family;
 
-  public Coordinate(Family family) {
+  protected Coordinate(Family family) {
     this.family = family;
   }
 

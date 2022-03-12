@@ -9,7 +9,7 @@ import com.sigpwned.discourse.core.annotation.OptionParameter;
 public abstract class ConfigurationException extends RuntimeException {
   private static final long serialVersionUID = 5876904542901684647L;
 
-  public ConfigurationException(String message) {
+  protected ConfigurationException(String message) {
     super(message);
   }
 }

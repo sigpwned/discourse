@@ -72,7 +72,8 @@ public class ConfigurationClass {
 
     BeanClass beanClass = BeanClass.scan(rawType);
 
-    boolean seenHelp = false, seenVersion = false;
+    boolean seenHelp = false;
+    boolean seenVersion = false;
     List<ConfigurationParameter> parameters = new ArrayList<>();
     Set<Coordinate> seenCoordinates = new HashSet<>();
     for (BeanProperty beanProperty : beanClass) {
@@ -239,7 +240,8 @@ public class ConfigurationClass {
         boolean firstPosition = currentPosition.equals(positions.first());
         boolean lastPosition = currentPosition.equals(positions.last());
 
-        if (!firstPosition && previousPosition!=null && !currentPosition.equals(previousPosition.next()))
+        if (!firstPosition && previousPosition != null
+            && !currentPosition.equals(previousPosition.next()))
           throw new MissingPositionConfigurationException(previousPosition.next().getIndex());
 
         if (firstPosition && !currentPosition.equals(PositionCoordinate.ZERO))
@@ -280,12 +282,12 @@ public class ConfigurationClass {
     Map<Coordinate, List<String>> coordinates = parameters.stream()
         .flatMap(p -> p.getCoordinates().stream()
             .map(c -> new SimpleImmutableEntry<Coordinate, String>(c, p.getName())))
-        .collect(groupingBy(e -> e.getKey(), mapping(e -> e.getValue(), toList())));
+        .collect(groupingBy(Map.Entry::getKey, mapping(Map.Entry::getValue, toList())));
     Set<Coordinate> duplicateCoordinates = coordinates.entrySet().stream()
-        .filter(e -> e.getValue().size() > 1).map(e -> e.getKey()).collect(toSet());
+        .filter(e -> e.getValue().size() > 1).map(Map.Entry::getKey).collect(toSet());
     if (!duplicateCoordinates.isEmpty())
       throw new IllegalArgumentException(
-          format("following coordinates defined more than once", duplicateCoordinates));
+          format("following coordinates defined more than once: %s", duplicateCoordinates));
 
     if (parameters.stream().filter(p -> p.getType() == ConfigurationParameter.Type.FLAG)
         .map(ConfigurationParameter::asFlag).filter(FlagConfigurationParameter::isHelp)

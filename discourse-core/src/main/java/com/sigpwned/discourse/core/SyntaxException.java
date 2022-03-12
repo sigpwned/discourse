@@ -9,7 +9,7 @@ import com.sigpwned.discourse.core.annotation.OptionParameter;
 public abstract class SyntaxException extends RuntimeException {
   private static final long serialVersionUID = 4695449917045882716L;
   
-  public SyntaxException(String message) {
+  protected SyntaxException(String message) {
     super(message);
   }
 }

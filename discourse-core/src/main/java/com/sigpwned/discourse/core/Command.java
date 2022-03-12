@@ -34,7 +34,7 @@ public abstract class Command<T> {
 
   private final Type type;
 
-  public Command(Type type) {
+  protected Command(Type type) {
     this.type = type;
   }
 

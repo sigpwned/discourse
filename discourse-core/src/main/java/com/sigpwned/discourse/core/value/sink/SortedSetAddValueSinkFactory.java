@@ -42,8 +42,10 @@ public class SortedSetAddValueSinkFactory implements ValueSinkFactory {
       @Override
       public void write(Object instance, Object value) throws InvocationTargetException {
         SortedSet propertyValue = (SortedSet) property.get(instance);
-        if (propertyValue == null)
-          property.set(instance, propertyValue = new TreeSet());
+        if (propertyValue == null) {
+          propertyValue = new TreeSet();
+          property.set(instance, propertyValue);
+        }
         propertyValue.add(value);
       }
 

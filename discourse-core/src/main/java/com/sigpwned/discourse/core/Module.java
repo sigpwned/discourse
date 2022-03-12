@@ -8,13 +8,13 @@ public abstract class Module {
    * Override me with calls to register new functionality
    */
   public void register(SerializationContext context) {
-    // b.registerDeserializer(...);
+    // EXAMPLE: b.registerDeserializer(...);
   }
 
   /**
    * Override me with calls to register new functionality
    */
   public void register(SinkContext context) {
-    // b.registerSink(...);
+    // EXAMPLE: b.registerSink(...);
   }
 }

@@ -1,12 +1,13 @@
 package com.sigpwned.discourse.core;
 
 import static java.lang.String.format;
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import com.sigpwned.discourse.core.util.Generated;
 
-public class Discriminator implements Comparable<Discriminator> {
+public class Discriminator implements Comparable<Discriminator>, Serializable {
   public static final Pattern PATTERN=Pattern.compile("[a-zA-Z0-9][-a-zA-Z0-9_]*");
   
   public static Discriminator fromString(String s) {

@@ -101,7 +101,7 @@ public class MultiCommand<T> extends Command<T> {
       configurationClasses.put(commandDiscriminator, configurationClass);
     }
 
-    return new MultiCommand<T>(name, description, version, configurationClasses);
+    return new MultiCommand<>(name, description, version, configurationClasses);
   }
 
   private final String name;
@@ -168,7 +168,8 @@ public class MultiCommand<T> extends Command<T> {
         .filter(p -> p.getType() == ConfigurationParameter.Type.OPTION
             || p.getType() == ConfigurationParameter.Type.FLAG)
         .collect(groupingBy(p -> p, counting())).entrySet().stream()
-        .filter(e -> e.getValue() == getSubcommands().size()).map(e -> e.getKey()).collect(toSet());
+        .filter(e -> e.getValue() == getSubcommands().size()).map(Map.Entry::getKey)
+        .collect(toSet());
   }
 
   /**
@@ -195,11 +196,11 @@ public class MultiCommand<T> extends Command<T> {
 
     return newInvocation(configurationClass, args);
   }
-  
+
   /**
    * extension hook factory method
    */
   protected Invocation<T> newInvocation(ConfigurationClass configurationClass, List<String> args) {
-    return new Invocation<T>(this, configurationClass, args.subList(1, args.size()));
+    return new Invocation<>(this, configurationClass, args.subList(1, args.size()));
   }
 }

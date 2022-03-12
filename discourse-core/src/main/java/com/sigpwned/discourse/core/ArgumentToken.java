@@ -78,7 +78,7 @@ public abstract class ArgumentToken {
   private final Type type;
   private final String text;
 
-  public ArgumentToken(Type type, String text) {
+  protected ArgumentToken(Type type, String text) {
     this.type = type;
     this.text = text;
   }

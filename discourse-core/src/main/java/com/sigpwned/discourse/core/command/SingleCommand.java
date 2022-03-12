@@ -29,7 +29,7 @@ public class SingleCommand<T> extends Command<T> {
     ConfigurationClass configurationClass =
         ConfigurationClass.scan(storage, serialization, rawType);
 
-    return new SingleCommand<T>(configurationClass);
+    return new SingleCommand<>(configurationClass);
   }
 
   private final ConfigurationClass configurationClass;
@@ -56,7 +56,7 @@ public class SingleCommand<T> extends Command<T> {
    * extension hook factory method
    */
   protected Invocation<T> newInvocation(ConfigurationClass configurationClass, List<String> args) {
-    return new Invocation<T>(this, getConfigurationClass(), args);
+    return new Invocation<>(this, getConfigurationClass(), args);
   }
 
   @Override

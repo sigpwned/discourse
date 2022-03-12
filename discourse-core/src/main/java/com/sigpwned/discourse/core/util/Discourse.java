@@ -53,7 +53,7 @@ public final class Discourse {
       result = command.args(args).printHelp().printVersion().configuration();
     } catch (SyntaxException e) {
       System.err.println("ERROR: " + e.getMessage());
-      if (args.size() == 0)
+      if (args.isEmpty())
         System.err.println(DefaultHelpFormatter.INSTANCE);
       System.exit(2);
       throw new AssertionError("exit");

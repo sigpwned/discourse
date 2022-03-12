@@ -42,8 +42,10 @@ public class SetAddValueSinkFactory implements ValueSinkFactory {
       @SuppressWarnings({"unchecked", "rawtypes"})
       public void write(Object instance, Object value) throws InvocationTargetException {
         Set propertyValue = (Set) property.get(instance);
-        if (propertyValue == null)
-          property.set(instance, propertyValue = new HashSet());
+        if (propertyValue == null) {
+          propertyValue = new HashSet();
+          property.set(instance, propertyValue);
+        }
         propertyValue.add(value);
       }
 

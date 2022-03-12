@@ -2,7 +2,8 @@ package com.sigpwned.discourse.core.util;
 
 import static java.util.Arrays.asList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.IntUnaryOperator;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 public final class Text {
@@ -24,15 +25,15 @@ public final class Text {
   /**
    * Apply word wrap to the given length, computed from each line number
    */
-  public static String wrap(String s, Function<Integer, Integer> widthFunction) {
+  public static String wrap(String s, IntUnaryOperator widthFunction) {
     return wrap(s, widthFunction, line -> line);
   }
 
   /**
    * Apply word wrap to the given length, computed from each line number
    */
-  public static String wrap(String s, Function<Integer, Integer> widthFunction,
-      Function<String, String> indentFunction) {
+  public static String wrap(String s, IntUnaryOperator widthFunction,
+      UnaryOperator<String> indentFunction) {
     if (s == null)
       throw new NullPointerException();
     if (widthFunction == null)
@@ -51,7 +52,7 @@ public final class Text {
     StringBuilder result = new StringBuilder();
     for (String token : tokens) {
       if (width == null) {
-        width = widthFunction.apply(lineNumber);
+        width = widthFunction.applyAsInt(lineNumber);
         if (width <= 0)
           throw new IllegalArgumentException("width must be positive");
       }

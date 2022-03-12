@@ -6,7 +6,14 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
-public class JodaBeanUtils {
+/**
+ * From joda-beans.
+ * 
+ * @see https://github.com/JodaOrg/joda-beans/blob/master/src/main/java/org/joda/beans/JodaBeanUtils.java
+ */
+public final class JodaBeanUtils {
+  private JodaBeanUtils() {}
+  
   public static Class<?> eraseToClass(Type type) {
     if (type instanceof Class) {
       return (Class<?>) type;

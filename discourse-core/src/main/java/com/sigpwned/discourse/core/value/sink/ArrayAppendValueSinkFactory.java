@@ -44,14 +44,15 @@ public class ArrayAppendValueSinkFactory implements ValueSinkFactory {
 
         // Make sure our property value has exactly one empty new value at the top of the array
         if (propertyValue == null) {
-          property.set(instance,
-              propertyValue = Types.newConcreteArrayInstance(property.getGenericType(), 1));
+          propertyValue = Types.newConcreteArrayInstance(property.getGenericType(), 1);
+          property.set(instance, propertyValue);
         } else {
           int length = Array.getLength(propertyValue);
           Object newPropertyValue =
               Types.newConcreteArrayInstance(property.getGenericType(), length + 1);
           System.arraycopy(propertyValue, 0, newPropertyValue, 0, length);
-          property.set(instance, propertyValue = newPropertyValue);
+          propertyValue = newPropertyValue;
+          property.set(instance, propertyValue);
         }
 
         Array.set(propertyValue, Array.getLength(propertyValue) - 1, value);
