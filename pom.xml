@@ -3,7 +3,7 @@
 
     <groupId>com.sigpwned</groupId>
     <artifactId>discourse</artifactId>
-    <version>0.0.0-SNAPSHOT</version>
+    <version>0.0.0-b1</version>
     <name>discourse</name>
     <description>Civilized arguments for Java</description>
     <url>https://github.com/sigpwned/discourse</url>
@@ -13,7 +13,8 @@
         <connection>scm:git:ssh://git@github.com/sigpwned/discourse.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/sigpwned/discourse.git</developerConnection>
         <url>https://github.com/sigpwned/discourse/tree/main</url>
-    </scm>
+      <tag>discourse-0.0.0-b1</tag>
+  </scm>
 
     <licenses>
         <license>
