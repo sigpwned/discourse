@@ -40,7 +40,6 @@ public final class Types {
    * Returns a new instance of the given fully-resolved array type.
    * 
    * @throws IllegalArgumentException if the given type is not a fully-resolved array type
-   * @see #isConcreteArrayType(Type)
    */
   public static Object newConcreteArrayInstance(Type genericType, int length) {
     Class<?> classType = JodaBeanUtils.eraseToClass(genericType);

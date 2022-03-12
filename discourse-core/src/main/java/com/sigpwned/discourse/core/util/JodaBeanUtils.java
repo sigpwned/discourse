@@ -9,7 +9,7 @@ import java.lang.reflect.TypeVariable;
 /**
  * From joda-beans.
  * 
- * @see https://github.com/JodaOrg/joda-beans/blob/master/src/main/java/org/joda/beans/JodaBeanUtils.java
+ * @see <a href="https://github.com/JodaOrg/joda-beans/blob/master/src/main/java/org/joda/beans/JodaBeanUtils.java">https://github.com/JodaOrg/joda-beans/blob/master/src/main/java/org/joda/beans/JodaBeanUtils.java</a>
  */
 public final class JodaBeanUtils {
   private JodaBeanUtils() {}
