@@ -2,6 +2,10 @@
 
 Civilized arguments for modern Java.
 
+## Motivation
+
+The command line is a simple, elegant interface for configuring programs. In this modern era of cloud and containers, the command line is especially important for configuring backend programs. There are many good libraries for handling command line arguments in Java, but they generally suffer from an outmoded approach (e.g., [Apache Commons CLI](https://commons.apache.org/proper/commons-cli/)), too much complexity (e.g., [picocli](https://picocli.info/)), or make demands on application structure. Discourse is a [new library](https://xkcd.com/927/) that provides a simple, easy-to-use, modern approach to handling the most important command line idioms.
+
 ## Goals
 
 * To provide an easy-to-use library for the most common CLI program configuration idioms
