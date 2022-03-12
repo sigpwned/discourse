@@ -3,8 +3,7 @@ package com.sigpwned.discourse.validation;
 import static java.util.stream.Collectors.toMap;
 import com.sigpwned.discourse.core.Command;
 import com.sigpwned.discourse.core.CommandBuilder;
-import com.sigpwned.discourse.core.ValueDeserializerFactory;
-import com.sigpwned.discourse.core.ValueSinkFactory;
+import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.validation.command.ValidatingMultiCommand;
@@ -12,13 +11,8 @@ import com.sigpwned.discourse.validation.command.ValidatingSingleCommand;
 
 public class ValidatingCommandBuilder extends CommandBuilder {
   @Override
-  public ValidatingCommandBuilder registerDeserializer(ValueDeserializerFactory<?> deserializer) {
-    return (ValidatingCommandBuilder) super.registerDeserializer(deserializer);
-  }
-
-  @Override
-  public ValidatingCommandBuilder registerSink(ValueSinkFactory storer) {
-    return (ValidatingCommandBuilder) super.registerSink(storer);
+  public ValidatingCommandBuilder register(Module module) {
+    return (ValidatingCommandBuilder) super.register(module);
   }
 
   @Override
