@@ -52,6 +52,8 @@ public class ArgumentsParser {
     boolean positionals = false;
     while (peek() != null) {
       String next = next();
+      if(next == null)
+        throw new AssertionError("no next token");
       if (positionals || !next.startsWith("-")) {
         final int index = position.getIndex();
 

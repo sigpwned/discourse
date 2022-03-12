@@ -26,6 +26,8 @@ public class FromStringValueDeserializerFactory implements ValueDeserializerFact
       return false;
 
     Method fromString = getFromStringMethod(classType);
+    if (fromString == null)
+      return false;
 
     if (!Modifier.isPublic(fromString.getModifiers()))
       return false;
@@ -40,6 +42,8 @@ public class FromStringValueDeserializerFactory implements ValueDeserializerFact
   @Override
   public ValueDeserializer<Object> getDeserializer(Type genericType, List<Annotation> annotations) {
     Class<?> classType = getClassType(genericType);
+    if (classType == null)
+      throw new IllegalArgumentException("Not a valid concrete class: " + genericType);
     Method fromString = getFromStringMethod(classType);
     return s -> {
       try {

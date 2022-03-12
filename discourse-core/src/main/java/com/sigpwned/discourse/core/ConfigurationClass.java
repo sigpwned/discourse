@@ -239,7 +239,7 @@ public class ConfigurationClass {
         boolean firstPosition = currentPosition.equals(positions.first());
         boolean lastPosition = currentPosition.equals(positions.last());
 
-        if (!firstPosition && !currentPosition.equals(previousPosition.next()))
+        if (!firstPosition && previousPosition!=null && !currentPosition.equals(previousPosition.next()))
           throw new MissingPositionConfigurationException(previousPosition.next().getIndex());
 
         if (firstPosition && !currentPosition.equals(PositionCoordinate.ZERO))
