@@ -16,6 +16,9 @@ import com.sigpwned.discourse.core.ValueDeserializerFactory;
  * Returns a ByteSource.
  */
 public class ByteSourceValueDeserializerFactory implements ValueDeserializerFactory<ByteSource> {
+  public static final ByteSourceValueDeserializerFactory INSTANCE =
+      new ByteSourceValueDeserializerFactory();
+
   @Override
   public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
     return genericType.equals(ByteSource.class);
