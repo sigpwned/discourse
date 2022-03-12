@@ -10,8 +10,8 @@
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:git:git://github.com/sigpwned/discourse.git</connection>
-        <developerConnection>scm:git:ssh://github.com/sigpwned/discourse.git</developerConnection>
+        <connection>scm:git:ssh://git@github.com/sigpwned/discourse.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/sigpwned/discourse.git</developerConnection>
         <url>https://github.com/sigpwned/discourse/tree/main</url>
     </scm>
 
