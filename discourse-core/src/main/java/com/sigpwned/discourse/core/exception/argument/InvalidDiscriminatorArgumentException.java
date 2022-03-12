@@ -7,7 +7,7 @@ public class InvalidDiscriminatorArgumentException extends ConfigurationExceptio
   private final String invalidDiscriminator;
 
   public InvalidDiscriminatorArgumentException(String invalidDiscriminator) {
-    super(format("The string '%s' is not a valid discriminator", invalidDiscriminator));
+    super(format("The string '%s' is not a valid subcommand", invalidDiscriminator));
     this.invalidDiscriminator = invalidDiscriminator;
   }
 

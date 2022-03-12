@@ -11,7 +11,7 @@ import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 
 public final class Discourse {
   private Discourse() {}
-  
+
   public static <T> T configuration(Class<T> rawType, String[] args) {
     return configuration(rawType, asList(args));
   }
@@ -28,17 +28,20 @@ public final class Discourse {
 
     T result;
     try {
-      result = command.args(args).printHelp(DefaultHelpFormatter.INSTANCE).printVersion()
-          .configuration();
+      result = command.args(args).printHelp().printVersion().configuration();
     } catch (SyntaxException e) {
-      System.err.println(e.getMessage());
+      System.err.println("ERROR: " + e.getMessage());
       if (args.size() == 0)
         System.err.println(DefaultHelpFormatter.INSTANCE);
       System.exit(2);
       throw new AssertionError("exit");
     } catch (ArgumentException e) {
-      System.err.println(e.getMessage());
+      System.err.println("ERROR: " + e.getMessage());
       System.exit(3);
+      throw new AssertionError("exit");
+    } catch (RuntimeException e) {
+      System.err.println("ERROR: " + e.getMessage());
+      System.exit(4);
       throw new AssertionError("exit");
     }
 

@@ -9,7 +9,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 import com.sigpwned.discourse.core.ValueDeserializer;
 import com.sigpwned.discourse.core.ValueDeserializerFactory;
-import com.sigpwned.discourse.core.exception.argument.DeserializationArgumentException;
 
 public class FromStringValueDeserializerFactory implements ValueDeserializerFactory<Object> {
   public static final FromStringValueDeserializerFactory INSTANCE =
@@ -52,7 +51,8 @@ public class FromStringValueDeserializerFactory implements ValueDeserializerFact
         // This is fine. Let it through.
         throw e;
       } catch (InvocationTargetException e) {
-        throw new DeserializationArgumentException(e);
+        // TODO Should we use a better exception here?
+        throw new RuntimeException("Failed to deserialize object", e);
       }
     };
   }

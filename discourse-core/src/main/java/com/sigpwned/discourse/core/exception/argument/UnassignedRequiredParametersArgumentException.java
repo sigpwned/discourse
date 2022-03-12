@@ -9,7 +9,7 @@ public class UnassignedRequiredParametersArgumentException extends ArgumentExcep
   private final Set<String> parameterNames;
 
   public UnassignedRequiredParametersArgumentException(Set<String> parameterNames) {
-    super(format("The following required parameters were not assigned: %s", parameterNames));
+    super(format("The following required parameters were not given: %s", parameterNames));
     if (parameterNames.isEmpty())
       throw new IllegalArgumentException("parameterNames is empty");
     this.parameterNames = unmodifiableSet(parameterNames);
