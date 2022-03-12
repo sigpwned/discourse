@@ -49,6 +49,13 @@ public class SingleCommand<T> extends Command<T> {
   }
 
   public Invocation<T> args(List<String> args) {
+    return newInvocation(getConfigurationClass(), args);
+  }
+  
+  /**
+   * extension hook factory method
+   */
+  protected Invocation<T> newInvocation(ConfigurationClass configurationClass, List<String> args) {
     return new Invocation<T>(this, getConfigurationClass(), args);
   }
 

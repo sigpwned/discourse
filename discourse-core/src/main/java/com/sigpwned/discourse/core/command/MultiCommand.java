@@ -193,6 +193,13 @@ public class MultiCommand<T> extends Command<T> {
     ConfigurationClass configurationClass = getSubcommand(subcommand)
         .orElseThrow(() -> new UnrecognizedSubcommandArgumentException(subcommand));
 
+    return newInvocation(configurationClass, args);
+  }
+  
+  /**
+   * extension hook factory method
+   */
+  protected Invocation<T> newInvocation(ConfigurationClass configurationClass, List<String> args) {
     return new Invocation<T>(this, configurationClass, args.subList(1, args.size()));
   }
 }

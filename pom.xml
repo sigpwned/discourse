@@ -35,6 +35,7 @@
         <module>discourse-core</module>
         <module>discourse-examples</module>
         <module>discourse-guava</module>
+        <module>discourse-validation</module>
     </modules>
 
     <dependencyManagement>
