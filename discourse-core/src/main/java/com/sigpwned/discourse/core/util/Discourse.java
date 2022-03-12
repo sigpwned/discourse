@@ -12,14 +12,36 @@ import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 public final class Discourse {
   private Discourse() {}
 
+  /**
+   * Create a configuration object of the given type from the given arguments.
+   */
   public static <T> T configuration(Class<T> rawType, String[] args) {
     return configuration(rawType, asList(args));
   }
 
+  /**
+   * Create a configuration object of the given type from the given arguments using the given
+   * command builder.
+   */
+  public static <T> T configuration(Class<T> rawType, CommandBuilder b, String[] args) {
+    return configuration(rawType, b, asList(args));
+  }
+
+  /**
+   * Create a configuration object of the given type from the given arguments.
+   */
   public static <T> T configuration(Class<T> rawType, List<String> args) {
+    return configuration(rawType, new CommandBuilder(), args);
+  }
+
+  /**
+   * Create a configuration object of the given type from the given arguments using the given
+   * command builder.
+   */
+  public static <T> T configuration(Class<T> rawType, CommandBuilder b, List<String> args) {
     Command<T> command;
     try {
-      command = new CommandBuilder().build(rawType);
+      command = b.build(rawType);
     } catch (ConfigurationException e) {
       e.printStackTrace(System.err);
       System.exit(1);
