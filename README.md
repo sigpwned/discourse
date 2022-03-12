@@ -1,4 +1,4 @@
-# DISCOURSE
+# DISCOURSE [![tests](https://github.com/sigpwned/espresso/actions/workflows/tests.yml/badge.svg)](https://github.com/sigpwned/espresso/actions/workflows/tests.yml) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=sigpwned_discourse&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=sigpwned_discourse) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=sigpwned_discourse&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=sigpwned_discourse) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=sigpwned_discourse&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=sigpwned_discourse)
 
 Civilized arguments for modern Java.
 
