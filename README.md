@@ -103,7 +103,7 @@ Example command lines:
 * `java -jar fizzbuzz.jar -f foo -b bar 10`
 * `java -jar fizzbuzz.jar --fizz foo --buzz bar 10`
 
-### FizzBuzz with Validation
+### FizzBuzz with Validation Method
 
 Because configuration objects are just POJOs, users can implement a variety of patterns. For example, users can move validation into the configuration object:
 
@@ -298,7 +298,7 @@ Also note that Option parameters in long form can be given values using a connec
 Flag and Option short forms can also be "bundled":
 
     -abc delta --echo
-    
+
 It defines the following parameters:
 
 * `-a` -- A flag parameter in switch form
@@ -308,7 +308,7 @@ It defines the following parameters:
 
 ## Advanced Usage
 
-### Other Supported Configuration Parameters
+### Environment Variables and System Properties
 
 Discourse also supports two additional parameter types for users who wish to offload all configuration tasks to the library:
 
@@ -316,6 +316,63 @@ Discourse also supports two additional parameter types for users who wish to off
 * `PropertyParameter` -- A named [system property](https://docs.oracle.com/javase/8/docs/api/java/lang/System.html#getProperty-java.lang.String-) pulled from Java system properties
 
 Environment and Property parameters can both be optional or required.
+
+### Collections
+
+Discourse allows users to capture multiple values for some parameter types. In the default configuration, any option or positional parameter with a type of `List<T>`, `Set<T>`, `SortedSet<T>`, or `T[]` will automatically capture multiple values of type `T`. For example, this configuration captures multiple values of type `String` for option `-o`:
+
+    @Configurable
+    public String CollectionsExample {
+        @OptionParameter(shortName="o")
+        public List<String> options;
+    }
+    
+For positional parameters, only the last position is allowed to be a collection type. Otherwise, the configuration will generate a `InvalidCollectionParameterPlacementConfigurationException`.
+
+Users can specify their own collection types by registering a new `ValueSinkFactory` in the `CommandBuilder` instance using a `Module`.
+
+### Custom Types
+
+Discourse allows users to deserialize values of any type from command arguments. The built-in deserializers support all primitive, boxed, and enum types, as well as Java 8 date types, `File`, `Path`, and any class with a `fromString` deserialization method.
+
+Users can deserialize custom types by registering a new `ValueDeserializerFactory` in the `CommandBuilder` instance using a `Module`, or by implementing a `fromString` deserialization method in the custom type.
+
+### Subcommands
+
+Discourse allows users to structure the CLI interface with subcommands. For example:
+
+    @Configurable(
+        subcommands = {
+            @Subcommand(discriminator = "foo", configurable = FooMultiExample.class),
+            @Subcommand(discriminator = "bar", configurable = BarMultiExample.class)})
+    public abstract static class MultiExample {
+        @OptionParameter(shortName = "o", longName = "option")
+        public String option;
+    }
+    
+    @Configurable(discriminator = "foo")
+    public static class FooMultiExample extends MultiExample {
+        @OptionParameter(shortName = "a", longName = "alpha")
+        public String alpha;
+        
+        @PositionalParameter(position = 0, required = true)
+        public int position0;
+    }
+    
+    @Configurable(discriminator = "bravo")
+    public static class BarMultiExample extends MultiExample {
+        @OptionParameter(shortName = "b", longName = "bravo")
+        public String bravo;
+    }
+
+This example configuration would accept the following valid commands:
+
+* `foo -o value -a value 10` -- Returns an instance of `FooMultiExample`
+* `bar -o value -b value` -- Returns an instance of `BarMultiExample`
+
+Note that the first value on either command line is the "discriminator" value that selects the appropriate "subcommand" object. All subsequent values are used to populate the selected subcommand object.
+
+The subcommand types (here, `FooMultiExample` and `BarMultiExample`) must extend the "root" configuration type (here, `MultiExample`). The parameters of each subcommand object are the union of all the parameters in the subcommand object and in the root configuration object.
 
 ## Unsupported Command Line Styles
 
