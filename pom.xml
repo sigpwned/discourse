@@ -5,16 +5,22 @@
     <artifactId>discourse</artifactId>
     <version>0.0.0-SNAPSHOT</version>
     <name>discourse</name>
+    <inceptionYear>2022</inceptionYear>
     <description>Civilized arguments for Java</description>
     <url>https://github.com/sigpwned/discourse</url>
     <packaging>pom</packaging>
+
+    <organization>
+        <name>Andy Boothe</name>
+        <url>https://www.sigpwned.com/</url>
+    </organization>
 
     <scm>
         <connection>scm:git:ssh://git@github.com/sigpwned/discourse.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/sigpwned/discourse.git</developerConnection>
         <url>https://github.com/sigpwned/discourse/tree/main</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <licenses>
         <license>
@@ -47,7 +53,7 @@
         <system>GitHub</system>
         <url>https://github.com/sigpwned/discourse</url>
     </issueManagement>
-    
+
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
@@ -59,6 +65,39 @@
         <slf4j.version>1.7.36</slf4j.version>
         <junit.version>4.13.2</junit.version>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>2.0.0</version>
+                <configuration>
+                    <verbose>false</verbose>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>update-file-header</id>
+                        <goals>
+                            <goal>update-file-header</goal>
+                        </goals>
+                        <phase>process-sources</phase>
+                        <configuration>
+                            <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
+                            <processStartTag>=================================LICENSE_START==================================</processStartTag>
+                            <processEndTag>==================================LICENSE_END===================================</processEndTag>
+                            <sectionDelimiter>====================================SECTION=====================================</sectionDelimiter>
+                            <licenseName>apache_v2</licenseName>
+                            <roots>
+                                <root>src/main/java</root>
+                                <root>src/test/java</root>
+                            </roots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <modules>
         <module>discourse-core</module>
