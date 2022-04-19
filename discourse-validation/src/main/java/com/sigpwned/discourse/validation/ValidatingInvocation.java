@@ -21,14 +21,14 @@ package com.sigpwned.discourse.validation;
 
 import java.util.List;
 import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import com.sigpwned.discourse.core.Command;
 import com.sigpwned.discourse.core.ConfigurationClass;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.validation.exception.argument.ValidationArgumentException;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 
 public class ValidatingInvocation<T> extends Invocation<T> {
   public static final ValidatorFactory DEFAULT_VALIDATOR_FACTORY =

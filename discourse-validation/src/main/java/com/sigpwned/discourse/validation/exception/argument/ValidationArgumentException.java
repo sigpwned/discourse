@@ -22,9 +22,11 @@ package com.sigpwned.discourse.validation.exception.argument;
 import static java.lang.String.format;
 import static java.util.Collections.unmodifiableSet;
 import java.util.Set;
-import jakarta.validation.ConstraintViolation;
+import javax.validation.ConstraintViolation;
 
 public class ValidationArgumentException extends RuntimeException {
+  private static final long serialVersionUID = 1401800639425793753L;
+
   public static String message(Set<ConstraintViolation<?>> violations) {
     if (violations.isEmpty())
       throw new IllegalArgumentException("no violations");

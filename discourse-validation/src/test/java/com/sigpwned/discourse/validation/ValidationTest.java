@@ -21,13 +21,13 @@ package com.sigpwned.discourse.validation;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import javax.validation.ConstraintViolation;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import org.junit.Test;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.validation.exception.argument.ValidationArgumentException;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 
 public class ValidationTest {
   @Configurable
