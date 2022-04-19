@@ -30,12 +30,6 @@ For example, a simple command line for [FizzBuzz](https://en.wikipedia.org/wiki/
     public class FizzBuzzConfiguration {
         @PositionalParameter(position=0, required=true)
         public int count;
-        
-        @OptionParameter(shortName="f", longName="fizz")
-        public String fizz = "fizz";
-        
-        @OptionParameter(shortName="b", longName="buzz")
-        public String buzz = "buzz";
     }
     
 The program could then parse the command line arguments into this configuration object like this:
@@ -49,11 +43,11 @@ The program could then parse the command line arguments into this configuration 
                 boolean mod3=(i % 3) == 0;
                 boolean mod5=(i % 5) == 0;
                 if(mod3 && mod5)
-                    System.out.println(configuration.fizz+" "+configuration.buzz);
+                    System.out.println("fizz buzz");
                 else if(mod3)
-                    System.out.println(configuration.fizz);
+                    System.out.println("fizz");
                 else if(mod5)
-                    System.out.println(configuration.buzz);
+                    System.out.println("buzz");
                 else
                     System.out.println(i);
             }
