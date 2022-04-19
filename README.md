@@ -358,7 +358,7 @@ Discourse allows users to structure the CLI interface with subcommands. For exam
         public int position0;
     }
     
-    @Configurable(discriminator = "bravo")
+    @Configurable(discriminator = "bar")
     public static class BarMultiExample extends MultiExample {
         @OptionParameter(shortName = "b", longName = "bravo")
         public String bravo;
