@@ -13,7 +13,7 @@
     <properties>
         <!-- These versions align with dropwizard BOM 3.0.0-beta.1 -->
         <hibernate.validator.version>6.2.3.Final</hibernate.validator.version>
-        <jakarta.el.version>3.0.4</jakarta.el.version>
+        <jakarta.el.version>4.0.2</jakarta.el.version>
     </properties>
 
     <dependencies>
