@@ -47,7 +47,11 @@ public class ValidatingCommandBuilder extends CommandBuilder {
   // startup that didn't involve so many assumptions about JBOSS and application logging choices and
   // implementations.
   //
-  // This is currently untested, which is also unfortunate.
+  // This is currently untested, which is also unfortunate. Because the logging happens at class
+  // load, there is no good way to capture that in a test. There might be some solution using custom
+  // class loaders, but I was not able to quickly come up with a good, reliable solution quickly.
+  // 
+  // TODO Create test for hibernate validator logging
   static {
     boolean configureLogging =
         Optional.ofNullable(System.getProperty(CONFIGURE_LOGGING_PROPERTY_NAME))
