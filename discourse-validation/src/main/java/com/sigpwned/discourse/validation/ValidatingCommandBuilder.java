@@ -20,6 +20,7 @@
 package com.sigpwned.discourse.validation;
 
 import static java.util.stream.Collectors.toMap;
+import java.util.Optional;
 import com.sigpwned.discourse.core.Command;
 import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.Module;
@@ -29,6 +30,45 @@ import com.sigpwned.discourse.validation.command.ValidatingMultiCommand;
 import com.sigpwned.discourse.validation.command.ValidatingSingleCommand;
 
 public class ValidatingCommandBuilder extends CommandBuilder {
+  /**
+   * discourse-validation performs some logging configuration by default to suppress logging
+   * messages from hibernate-validator. Use this system property to disable this configuration.
+   */
+  public static final String CONFIGURE_LOGGING_PROPERTY_NAME =
+      "com.sigpwned.discourse.validation.configureLogging";
+
+  // This code attempts to suppress some default logging messages from Hibernate Validation. If we
+  // don't suppress, then we get messages like the following in logs at program startup:
+  //
+  // May 09, 2022 9:31:28 AM org.hibernate.validator.internal.util.Version <clinit>
+  // INFO: HV000001: Hibernate Validator null
+  //
+  // It would be really nice if there was a way to suppress these default logging messages at
+  // startup that didn't involve so many assumptions about JBOSS and application logging choices and
+  // implementations.
+  //
+  // This is currently untested, which is also unfortunate.
+  static {
+    boolean configureLogging =
+        Optional.ofNullable(System.getProperty(CONFIGURE_LOGGING_PROPERTY_NAME))
+            .map(Boolean::parseBoolean).orElse(true);
+    if (configureLogging) {
+      // Hibernate Validation uses JBOSS logging, which uses log4j by default.
+      // We want to tell JBOSS to use slf4j instead.
+      // https://stackoverflow.com/a/14742191/2103602
+      // https://stackoverflow.com/a/19488546/2103602
+      System.setProperty("org.jboss.logging.provider", "slf4j");
+
+      // We want to suppress a couple of messages that print out by default at
+      // INFO log level. We'll set the log level for these classes to WARN. This only works if the
+      // underlying log binding is slf4j-simple. We may want to add additional configuration here
+      // later, for example for logback.
+      // https://stackoverflow.com/a/23391374/2103602
+      System.setProperty("org.slf4j.simpleLogger.log.org.hibernate.validator.internal.util.Version",
+          "warn");
+    }
+  }
+
   @Override
   public ValidatingCommandBuilder register(Module module) {
     return (ValidatingCommandBuilder) super.register(module);
