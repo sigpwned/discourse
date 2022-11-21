@@ -23,8 +23,10 @@ import com.sigpwned.discourse.core.util.Discourse;
 
 public class SimpleFizzBuzz {
   public static void main(String[] args) {
-    SimpleFizzBuzzConfiguration configuration =
-        Discourse.configuration(SimpleFizzBuzzConfiguration.class, args);
+    main(Discourse.configuration(SimpleFizzBuzzConfiguration.class, args));
+  }
+
+  public static void main(SimpleFizzBuzzConfiguration configuration) {
     if (configuration.count < 1)
       throw new IllegalArgumentException("count must be at least 1");
     for (int i = 1; i <= configuration.count; i++) {

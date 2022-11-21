@@ -27,9 +27,11 @@ import com.sigpwned.discourse.core.coordinate.name.switches.ShortSwitchNameCoord
 public abstract class SwitchNameCoordinate extends NameCoordinate {
   public static SwitchNameCoordinate fromSwitchString(String s) {
     if (s.startsWith(LongSwitchNameCoordinate.PREFIX)) {
-      return new LongSwitchNameCoordinate(s.substring(LongSwitchNameCoordinate.PREFIX.length(), s.length()));
+      return new LongSwitchNameCoordinate(
+          s.substring(LongSwitchNameCoordinate.PREFIX.length(), s.length()));
     } else if (s.startsWith(ShortSwitchNameCoordinate.PREFIX)) {
-      return new LongSwitchNameCoordinate(s.substring(ShortSwitchNameCoordinate.PREFIX.length(), s.length()));
+      return new ShortSwitchNameCoordinate(
+          s.substring(ShortSwitchNameCoordinate.PREFIX.length(), s.length()));
     } else {
       throw new IllegalArgumentException("invalid switch string: " + s);
     }

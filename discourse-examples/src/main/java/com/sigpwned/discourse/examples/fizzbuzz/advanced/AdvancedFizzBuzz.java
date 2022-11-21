@@ -24,8 +24,10 @@ import com.sigpwned.discourse.core.util.Discourse;
 
 public class AdvancedFizzBuzz extends StandardConfigurationBase {
   public static void main(String[] args) {
-    AdvancedFizzBuzzConfiguration configuration =
-        Discourse.configuration(AdvancedFizzBuzzConfiguration.class, args).validate();
+    main(Discourse.configuration(AdvancedFizzBuzzConfiguration.class, args).validate());
+  }
+
+  public static void main(AdvancedFizzBuzzConfiguration configuration) {
     for (int i = 1; i <= configuration.getCount(); i++) {
       boolean mod3 = (i % 3) == 0;
       boolean mod5 = (i % 5) == 0;
