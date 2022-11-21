@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.sigpwned</groupId>
         <artifactId>discourse</artifactId>
-        <version>0.0.0-b4-SNAPSHOT</version>
+        <version>0.0.0</version>
     </parent>
 
     <artifactId>discourse-validation</artifactId>
