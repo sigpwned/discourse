@@ -40,6 +40,7 @@ import com.sigpwned.discourse.core.value.deserializer.LongValueDeserializerFacto
 import com.sigpwned.discourse.core.value.deserializer.PathValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.ShortValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.StringValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.UriValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.UrlValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.sink.ArrayAppendValueSinkFactory;
 import com.sigpwned.discourse.core.value.sink.ListAddValueSinkFactory;
@@ -63,6 +64,7 @@ public class DefaultModule extends Module {
     context.addLast(LocalDateTimeValueDeserializerFactory.INSTANCE);
     context.addLast(LocalDateValueDeserializerFactory.INSTANCE);
     context.addLast(LocalTimeValueDeserializerFactory.INSTANCE);
+    context.addLast(UriValueDeserializerFactory.INSTANCE);
     context.addLast(UrlValueDeserializerFactory.INSTANCE);
     context.addLast(EnumValueDeserializerFactory.INSTANCE);
     context.addLast(FileValueDeserializerFactory.INSTANCE);
