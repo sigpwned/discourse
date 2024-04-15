@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,6 +38,7 @@ import com.sigpwned.discourse.core.value.deserializer.LocalDateValueDeserializer
 import com.sigpwned.discourse.core.value.deserializer.LocalTimeValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.LongValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.PathValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.PatternValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.ShortValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.StringValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.UriValueDeserializerFactory;
@@ -48,6 +49,7 @@ import com.sigpwned.discourse.core.value.sink.SetAddValueSinkFactory;
 import com.sigpwned.discourse.core.value.sink.SortedSetAddValueSinkFactory;
 
 public class DefaultModule extends Module {
+
   @Override
   public void register(SerializationContext context) {
     context.addLast(StringValueDeserializerFactory.INSTANCE);
@@ -69,6 +71,7 @@ public class DefaultModule extends Module {
     context.addLast(EnumValueDeserializerFactory.INSTANCE);
     context.addLast(FileValueDeserializerFactory.INSTANCE);
     context.addLast(PathValueDeserializerFactory.INSTANCE);
+    context.addLast(PatternValueDeserializerFactory.INSTANCE);
 
     // This should be the last resort.
     context.addLast(FromStringValueDeserializerFactory.INSTANCE);
