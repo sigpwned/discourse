@@ -3,7 +3,7 @@
 
     <groupId>com.sigpwned</groupId>
     <artifactId>discourse</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>discourse</name>
     <inceptionYear>2022</inceptionYear>
     <description>Civilized arguments for Java</description>
