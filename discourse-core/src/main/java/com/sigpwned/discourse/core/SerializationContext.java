@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,14 +19,23 @@
  */
 package com.sigpwned.discourse.core;
 
-import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.*;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * A context for deserializing values from strings, typically from environment variables, system
+ * properties, or command line arguments. By default, there are deserializers defined for primitive
+ * types, boxed primitive types, Java 8 time components, Strings, enums, BigDecimal, URI, URL, File,
+ * Path, Pattern, and any class that defines a static fromString(String) method. Users can add
+ * additional deserializers to handle other types.
+ */
 public class SerializationContext {
+
   private final LinkedList<ValueDeserializerFactory<?>> deserializers;
 
   public SerializationContext() {

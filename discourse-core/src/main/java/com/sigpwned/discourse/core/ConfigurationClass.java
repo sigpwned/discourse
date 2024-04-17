@@ -37,7 +37,7 @@ import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import com.sigpwned.discourse.core.coordinate.PropertyNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.VariableNameCoordinate;
-import com.sigpwned.discourse.core.exception.configuration.DiscriminatorMismatchConfigurationException;
+import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgumentException;
 import com.sigpwned.discourse.core.exception.configuration.DuplicateCoordinateConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.DuplicateDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.InvalidCollectionParameterPlacementConfigurationException;
@@ -50,12 +50,10 @@ import com.sigpwned.discourse.core.exception.configuration.InvalidVariableNameCo
 import com.sigpwned.discourse.core.exception.configuration.MissingPositionConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.MultipleHelpFlagsConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.MultipleVersionFlagsConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.NoDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NoNameConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.SealedSubcommandsConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.TooManyAnnotationsConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.UnexpectedDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
@@ -79,19 +77,20 @@ import java.util.stream.Stream;
 
 public class ConfigurationClass {
 
-  public static ConfigurationClass scan(SinkContext storage, SerializationContext serialization,
-      Class<?> rawType) {
-    return subscan(null, storage, serialization, rawType);
+  public static record SubcommandClass(Optional<Discriminator> discriminator, Class<?> rawType) {
+
+    public SubcommandClass {
+      discriminator = requireNonNull(discriminator);
+      rawType = requireNonNull(rawType);
+    }
   }
 
-  private static ConfigurationClass subscan(Class<?> parentType, SinkContext storage,
-      SerializationContext serialization, Class<?> rawType) {
+  public static ConfigurationClass scan(SinkContext storage, SerializationContext serialization,
+      Class<?> rawType) {
     final Configurable configurable = rawType.getAnnotation(Configurable.class);
     if (configurable == null) {
       throw new NotConfigurableConfigurationException(rawType);
     }
-
-    final boolean isRoot = parentType == null;
 
     final String name = Optional.of(configurable.name()).filter(s -> !s.isEmpty()).orElse(null);
 
@@ -113,15 +112,8 @@ public class ConfigurationClass {
 
     final Discriminator discriminator = Optional.of(configurable.discriminator())
         .filter(s -> !s.isEmpty()).map(Discriminator::fromString).orElse(null);
-    if (isRoot && discriminator != null) {
-      throw new UnexpectedDiscriminatorConfigurationException(rawType);
-    }
-    if (!isRoot && discriminator == null) {
-      throw new NoDiscriminatorConfigurationException(rawType);
-    }
 
-    final List<ConfigurationClass> subcommands = subcommands(rawType, configurable, storage,
-        serialization);
+    final List<SubcommandClass> subcommands = subcommands(rawType, configurable);
 
     validateSubcommands(rawType, subcommands).ifPresent(e -> {
       throw e;
@@ -137,11 +129,11 @@ public class ConfigurationClass {
   private final String description;
   private final String version;
   private final List<ConfigurationParameter> parameters;
-  private final List<ConfigurationClass> subcommands;
+  private final List<SubcommandClass> subcommands;
 
   private ConfigurationClass(BeanClass beanClass, Discriminator discriminator, String name,
       String description, String version, List<ConfigurationParameter> parameters,
-      List<ConfigurationClass> subcommands) {
+      List<SubcommandClass> subcommands) {
     Streams.duplicates(parameters.stream()
             .map(p -> p.getCoordinates().stream().map(c -> Map.entry(c, p.getName())))).findFirst()
         .ifPresent(c -> {
@@ -158,11 +150,8 @@ public class ConfigurationClass {
       throw new IllegalArgumentException("multiple version flags");
     }
 
-    if (subcommands.stream().anyMatch(c -> c.getDiscriminator() == null)) {
-      throw new IllegalArgumentException("subcommands must have discriminators");
-    }
-
-    if (Streams.duplicates(subcommands.stream().map(ConfigurationClass::getDiscriminator))
+    if (Streams.duplicates(
+            subcommands.stream().map(SubcommandClass::discriminator).flatMap(Optional::stream))
         .findFirst().isPresent()) {
       throw new IllegalArgumentException("duplicate discriminators");
     }
@@ -176,6 +165,10 @@ public class ConfigurationClass {
     this.subcommands = unmodifiableList(subcommands);
   }
 
+  public Class<?> getRawType() {
+    return getBeanClass().getRawType();
+  }
+
   /**
    * @return the beanClass
    */
@@ -186,8 +179,8 @@ public class ConfigurationClass {
   /**
    * @return the discriminator
    */
-  public Discriminator getDiscriminator() {
-    return discriminator;
+  public Optional<Discriminator> getDiscriminator() {
+    return Optional.ofNullable(discriminator);
   }
 
   /**
@@ -223,13 +216,18 @@ public class ConfigurationClass {
     return parameters;
   }
 
-  public List<ConfigurationClass> getSubcommands() {
+  public List<SubcommandClass> getSubcommands() {
     return subcommands;
   }
 
-  public BeanInstance newInstance() throws InvocationTargetException {
-    return getBeanClass().newInstance();
+  public BeanInstance newInstance() {
+    try {
+      return getBeanClass().newInstance();
+    } catch (InvocationTargetException e) {
+      throw new NewInstanceFailureArgumentException(e);
+    }
   }
+
 
   @Override
   public boolean equals(Object o) {
@@ -259,13 +257,12 @@ public class ConfigurationClass {
   }
 
   // SUBCOMMANDS ///////////////////////////////////////////////////////////////////////////////////
-  private static List<ConfigurationClass> subcommands(Class<?> rawType, Configurable configurable,
-      SinkContext storage, SerializationContext serialization) {
-    final List<ConfigurationClass> result;
+  private static List<SubcommandClass> subcommands(Class<?> rawType, Configurable configurable) {
+    final List<SubcommandClass> result;
     if (configurable.subcommands().length > 0) {
-      result = subcommandsFromAnnotations(rawType, configurable, storage, serialization);
+      result = subcommandsFromAnnotations(rawType, configurable);
     } else if (rawType.isSealed()) {
-      result = subcommandsFromPermittedSubclasses(rawType, configurable, storage, serialization);
+      result = subcommandsFromPermittedSubclasses(rawType, configurable);
     } else {
       result = List.of();
     }
@@ -273,48 +270,33 @@ public class ConfigurationClass {
       return result;
     }
 
-    Streams.duplicates(result.stream().map(ConfigurationClass::getDiscriminator)).findFirst()
-        .ifPresent(d -> {
-          throw new DuplicateDiscriminatorConfigurationException(d);
-        });
-
     return result;
   }
 
-  private static List<ConfigurationClass> subcommandsFromAnnotations(Class<?> rawType,
-      Configurable configurable, SinkContext storage, SerializationContext serialization) {
+  private static List<SubcommandClass> subcommandsFromAnnotations(Class<?> rawType,
+      Configurable configurable) {
     if (rawType.isSealed()) {
       throw new SealedSubcommandsConfigurationException(rawType);
     }
-    return Stream.of(configurable.subcommands()).map(
-        subcommand -> Map.entry(Discriminator.fromString(subcommand.discriminator()),
-            subscan(rawType, storage, serialization, subcommand.configurable()))).peek(e -> {
-      if (!Objects.equals(e.getKey(), e.getValue().getDiscriminator())) {
-        throw new DiscriminatorMismatchConfigurationException(rawType, e.getKey(),
-            e.getValue().getDiscriminator());
-      }
-    }).map(Map.Entry::getValue).toList();
+    return Stream.of(configurable.subcommands()).map(subcommand -> new SubcommandClass(
+        Optional.of(Discriminator.fromString(subcommand.discriminator())), rawType)).toList();
   }
 
-  private static List<ConfigurationClass> subcommandsFromPermittedSubclasses(Class<?> rawType,
-      Configurable configurable, SinkContext storage, SerializationContext serialization) {
+  private static List<SubcommandClass> subcommandsFromPermittedSubclasses(Class<?> rawType,
+      Configurable configurable) {
     if (configurable.subcommands().length > 0) {
       throw new SealedSubcommandsConfigurationException(rawType);
     }
     return Stream.of(rawType.getPermittedSubclasses())
-        .map(permittedSubclass -> subscan(rawType, storage, serialization, permittedSubclass))
-        .peek(subcommand -> {
-          if (subcommand.getDiscriminator() == null) {
-            throw new NoDiscriminatorConfigurationException(subcommand.getBeanClass().getRawType());
-          }
-        }).toList();
+        .map(permittedSubclass -> new SubcommandClass(Optional.empty(), permittedSubclass))
+        .toList();
   }
 
   private static Optional<RuntimeException> validateSubcommands(Class<?> rawType,
-      List<ConfigurationClass> subcommands) {
+      List<SubcommandClass> subcommands) {
     RuntimeException duplicateDiscriminatorException = Streams.duplicates(
-            subcommands.stream().map(ConfigurationClass::getDiscriminator)).findFirst()
-        .map(DuplicateDiscriminatorConfigurationException::new).orElse(null);
+            subcommands.stream().map(SubcommandClass::discriminator).flatMap(Optional::stream))
+        .findFirst().map(DuplicateDiscriminatorConfigurationException::new).orElse(null);
     if (duplicateDiscriminatorException != null) {
       return Optional.of(duplicateDiscriminatorException);
     }

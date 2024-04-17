@@ -26,23 +26,19 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toSet;
 
 import com.sigpwned.discourse.core.ConfigurationClass;
+import com.sigpwned.discourse.core.ConfigurationClass.SubcommandClass;
 import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.SerializationContext;
 import com.sigpwned.discourse.core.SinkContext;
-import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.annotation.Subcommand;
 import com.sigpwned.discourse.core.exception.argument.InvalidDiscriminatorArgumentException;
 import com.sigpwned.discourse.core.exception.argument.NoSubcommandArgumentException;
 import com.sigpwned.discourse.core.exception.argument.UnrecognizedSubcommandArgumentException;
 import com.sigpwned.discourse.core.exception.configuration.DiscriminatorMismatchConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.InvalidDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NoDiscriminatorConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.RootCommandNotAbstractConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.SubcommandDoesNotExtendRootCommandConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.UnexpectedDiscriminatorConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.UnexpectedSubcommandsConfigurationException;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
@@ -57,129 +53,65 @@ import java.util.Set;
 public final class MultiCommand<T> extends Command<T> {
 
   public static <T> MultiCommand<T> scan(SinkContext storage, SerializationContext serialization,
-      Class<T> rawCommandType) {
-    Configurable configurable = rawCommandType.getAnnotation(Configurable.class);
-
-    if (configurable == null) {
-      throw new NotConfigurableConfigurationException(rawCommandType);
-    }
-
-    final String name = configurable.name().isEmpty() ? null : configurable.name();
-    final String description =
-        configurable.description().isEmpty() ? null : configurable.description();
-    final String version = configurable.version().isEmpty() ? null : configurable.version();
-
-    if (configurable.subcommands().length == 0) {
+      ConfigurationClass configurationClass) {
+    if (configurationClass.getSubcommands().isEmpty()) {
+      // TODO This should be a configuration exception
       throw new IllegalArgumentException(
-          format("Configurable %s has no subcommands", rawCommandType.getName()));
+          format("Configurable %s has no subcommands", configurationClass.getRawType().getName()));
     }
-    if (!configurable.discriminator().isEmpty()) {
-      throw new UnexpectedDiscriminatorConfigurationException(rawCommandType);
+    if (configurationClass.getDiscriminator().isPresent()) {
+      throw new UnexpectedDiscriminatorConfigurationException(configurationClass.getRawType());
     }
-    if (!Modifier.isAbstract(rawCommandType.getModifiers())) {
-      throw new RootCommandNotAbstractConfigurationException(rawCommandType);
-    }
-
-    Map<Discriminator, ConfigurationClass> configurationClasses = new LinkedHashMap<>();
-    for (Subcommand subcommand : configurable.subcommands()) {
-      if (subcommand.discriminator().isEmpty()) {
-        throw new NoDiscriminatorConfigurationException(rawCommandType);
-      }
-
-      Discriminator commandDiscriminator;
-      try {
-        commandDiscriminator = Discriminator.fromString(subcommand.discriminator());
-      } catch (IllegalArgumentException e) {
-        throw new InvalidDiscriminatorConfigurationException(rawCommandType,
-            subcommand.discriminator());
-      }
-
-      Class<?> rawSubcommandType = subcommand.configurable();
-
-      Configurable subconfigurable = rawSubcommandType.getAnnotation(Configurable.class);
-      if (subconfigurable == null) {
-        throw new NotConfigurableConfigurationException(rawSubcommandType);
-      }
-
-      if (!Objects.equals(rawSubcommandType.getSuperclass(), rawCommandType)) {
-        throw new SubcommandDoesNotExtendRootCommandConfigurationException(rawCommandType,
-            rawSubcommandType);
-      }
-
-      if (subconfigurable.discriminator().isEmpty()) {
-        throw new NoDiscriminatorConfigurationException(rawSubcommandType);
-      }
-
-      Discriminator subcommandDiscriminator;
-      try {
-        subcommandDiscriminator = Discriminator.fromString(subconfigurable.discriminator());
-      } catch (IllegalArgumentException e) {
-        throw new InvalidDiscriminatorConfigurationException(rawSubcommandType,
-            subconfigurable.discriminator());
-      }
-
-      if (!subcommandDiscriminator.equals(commandDiscriminator)) {
-        throw new DiscriminatorMismatchConfigurationException(rawSubcommandType,
-            commandDiscriminator, subcommandDiscriminator);
-      }
-
-      if (subconfigurable.subcommands().length != 0) {
-        throw new UnexpectedSubcommandsConfigurationException(rawSubcommandType);
-      }
-
-      ConfigurationClass configurationClass = ConfigurationClass.scan(storage, serialization,
-          rawSubcommandType);
-
-      configurationClasses.put(commandDiscriminator, configurationClass);
+    if (!Modifier.isAbstract(configurationClass.getRawType().getModifiers())) {
+      throw new RootCommandNotAbstractConfigurationException(configurationClass.getRawType());
     }
 
-    return new MultiCommand<>(name, description, version, configurationClasses);
+    Map<Discriminator, Command<? extends T>> subcommands = new LinkedHashMap<>();
+    for (SubcommandClass subcommand : configurationClass.getSubcommands()) {
+      ConfigurationClass subcommandClass = ConfigurationClass.scan(storage, serialization,
+          subcommand.rawType());
+
+      if (subcommandClass.getDiscriminator().isEmpty()) {
+        throw new NoDiscriminatorConfigurationException(subcommandClass.getRawType());
+      }
+      Discriminator subcommandDiscriminator = subcommandClass.getDiscriminator().orElseThrow();
+
+      if (subcommand.discriminator().isPresent() && !subcommand.discriminator().orElseThrow()
+          .equals(subcommandDiscriminator)) {
+        throw new DiscriminatorMismatchConfigurationException(subcommandClass.getRawType(),
+            subcommandDiscriminator, subcommand.discriminator().orElseThrow());
+      }
+
+      if (!Objects.equals(subcommandClass.getRawType().getSuperclass(),
+          configurationClass.getRawType())) {
+        throw new SubcommandDoesNotExtendRootCommandConfigurationException(
+            configurationClass.getRawType(), subcommandClass.getRawType());
+      }
+
+      subcommands.put(subcommandDiscriminator,
+          Command.subscan(storage, serialization, subcommandClass));
+    }
+
+    return new MultiCommand<>(configurationClass.getName(), configurationClass.getDescription(),
+        configurationClass.getVersion(), subcommands);
   }
 
-  private final String name;
-  private final String description;
-  private final String version;
-  private final Map<Discriminator, Command<T>> subcommands;
+  private final Map<Discriminator, Command<? extends T>> subcommands;
 
   public MultiCommand(String name, String description, String version,
-      Map<Discriminator, ConfigurationClass> subcommands) {
+      Map<Discriminator, Command<T>> subcommands) {
+    super(name, description, version);
     if (subcommands.isEmpty()) {
       throw new IllegalArgumentException("no subcommands");
     }
-    this.name = name;
-    this.description = description;
-    this.version = version;
     this.subcommands = unmodifiableMap(subcommands);
-  }
-
-  /**
-   * @return the name
-   */
-  @Override
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @return the description
-   */
-  @Override
-  public String getDescription() {
-    return description;
-  }
-
-  /**
-   * @return the version
-   */
-  public String getVersion() {
-    return version;
   }
 
   public Set<Discriminator> listSubcommands() {
     return getSubcommands().keySet();
   }
 
-  public Optional<ConfigurationClass> getSubcommand(Discriminator discriminator) {
+  public Optional<Command<? extends T>> getSubcommand(Discriminator discriminator) {
     return Optional.ofNullable(getSubcommands().get(discriminator));
   }
 
@@ -188,7 +120,7 @@ public final class MultiCommand<T> extends Command<T> {
    */
   @Override
   public Set<ConfigurationParameter> getParameters() {
-    return getSubcommands().values().stream().flatMap(c -> c.getParameters().stream()).distinct()
+    return getSubcommands().values().stream().flatMap(c -> c.getParameters().stream())
         .collect(toSet());
   }
 
@@ -206,33 +138,26 @@ public final class MultiCommand<T> extends Command<T> {
   /**
    * @return the subcommands
    */
-  private Map<Discriminator, ConfigurationClass> getSubcommands() {
+  private Map<Discriminator, Command<? extends T>> getSubcommands() {
     return subcommands;
   }
 
   @Override
-  public Invocation<T> args(List<String> args) {
+  public Invocation<? extends T> args(List<String> args) {
     if (args.isEmpty()) {
       throw new NoSubcommandArgumentException();
     }
 
-    Discriminator subcommand;
+    Discriminator discriminator;
     try {
-      subcommand = Discriminator.fromString(args.get(0));
+      discriminator = Discriminator.fromString(args.get(0));
     } catch (IllegalArgumentException e) {
       throw new InvalidDiscriminatorArgumentException(args.get(0));
     }
 
-    ConfigurationClass configurationClass = getSubcommand(subcommand).orElseThrow(
-        () -> new UnrecognizedSubcommandArgumentException(subcommand));
+    Command<? extends T> subcommand = getSubcommand(discriminator).orElseThrow(
+        () -> new UnrecognizedSubcommandArgumentException(discriminator));
 
-    return newInvocation(configurationClass, args);
-  }
-
-  /**
-   * extension hook factory method
-   */
-  protected Invocation<T> newInvocation(ConfigurationClass configurationClass, List<String> args) {
-    return new Invocation<>(this, configurationClass, args.subList(1, args.size()));
+    return subcommand.args(args.subList(1, args.size()));
   }
 }

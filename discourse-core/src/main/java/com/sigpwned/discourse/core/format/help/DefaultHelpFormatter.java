@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,34 +19,38 @@
  */
 package com.sigpwned.discourse.core.format.help;
 
+import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UncheckedIOException;
-import java.lang.reflect.Type;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import com.sigpwned.discourse.core.command.Command;
+
 import com.sigpwned.discourse.core.ConfigurationClass;
-import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.HelpFormatter;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
 import com.sigpwned.discourse.core.util.JodaBeanUtils;
+import com.sigpwned.discourse.core.util.Streams;
 import com.sigpwned.discourse.core.util.Text;
 import com.sigpwned.discourse.core.util.Types;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UncheckedIOException;
+import java.lang.reflect.Type;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 public class DefaultHelpFormatter implements HelpFormatter {
+
   public static final DefaultHelpFormatter INSTANCE = new DefaultHelpFormatter();
 
   public static final int DEFAULT_WIDTH = 100;
@@ -67,14 +71,13 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
   @Override
   public String formatHelp(Command<?> command) {
-    switch (command.getType()) {
-      case MULTI:
-        return formatHelp(command.asMulti());
-      case SINGLE:
-        return formatHelp(command.asSingle());
-      default:
-        throw new AssertionError("unrecognized command type " + command.getType());
+    // JAVA21 Use pattern matching here and get rid of AssertionError
+    if (command instanceof SingleCommand<?> single) {
+      return formatHelp(single);
+    } else if (command instanceof MultiCommand<?> multi) {
+      return formatHelp(multi);
     }
+    throw new AssertionError("Unknown command type: " + command.getClass());
   }
 
   public String formatHelp(SingleCommand<?> command) {
@@ -85,27 +88,23 @@ public class DefaultHelpFormatter implements HelpFormatter {
       try {
         try (PrintWriter out = new PrintWriter(result)) {
           List<FlagConfigurationParameter> flags = configurationClass.getParameters().stream()
-              .filter(p -> p.getType() == ConfigurationParameter.Type.FLAG)
-              .map(ConfigurationParameter::asFlag)
-              .sorted(Comparator.comparing(FlagConfigurationParameter::getName)).collect(toList());
+              .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
+              .sorted(Comparator.comparing(FlagConfigurationParameter::getName)).toList();
 
           List<OptionConfigurationParameter> options = configurationClass.getParameters().stream()
-              .filter(p -> p.getType() == ConfigurationParameter.Type.OPTION)
-              .map(ConfigurationParameter::asOption)
-              .sorted(Comparator.comparing(OptionConfigurationParameter::getName))
-              .collect(toList());
+              .mapMulti(Streams.filterAndCast(OptionConfigurationParameter.class))
+              .sorted(Comparator.comparing(OptionConfigurationParameter::getName)).toList();
 
-          List<PositionalConfigurationParameter> positionals =
-              command.getConfigurationClass().getParameters().stream()
-                  .filter(p -> p.getType() == ConfigurationParameter.Type.POSITIONAL)
-                  .map(ConfigurationParameter::asPositional)
-                  .sorted(Comparator.comparing(PositionalConfigurationParameter::getPosition))
-                  .collect(toList());
+          List<PositionalConfigurationParameter> positionals = command.getConfigurationClass()
+              .getParameters().stream()
+              .mapMulti(Streams.filterAndCast(PositionalConfigurationParameter.class))
+              .sorted(Comparator.comparing(PositionalConfigurationParameter::getPosition)).toList();
 
           out.print("Usage:");
 
-          if (command.getName() != null)
+          if (command.getName() != null) {
             out.printf(" %s", command.getName());
+          }
 
           if (!flags.isEmpty() && !options.isEmpty()) {
             out.print(" [ flags | options ]");
@@ -117,12 +116,13 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
           if (!positionals.isEmpty()) {
             for (PositionalConfigurationParameter positional : positionals) {
-              if (positional.isRequired())
+              if (positional.isRequired()) {
                 out.printf(" <%s>", positional.getName());
-              else if (positional.isCollection())
+              } else if (positional.isCollection()) {
                 out.printf(" [%s ...]", positional.getName());
-              else
+              } else {
                 out.printf(" [%s]", positional.getName());
+              }
             }
           }
 
@@ -138,22 +138,24 @@ public class DefaultHelpFormatter implements HelpFormatter {
             out.println("Flags:");
             for (FlagConfigurationParameter flag : flags) {
               StringBuilder buf = new StringBuilder();
-              if (flag.getShortName() != null)
+              if (flag.getShortName() != null) {
                 buf.append(flag.getShortName().toSwitchString());
-              if (flag.getShortName() != null && flag.getLongName() != null)
+              }
+              if (flag.getShortName() != null && flag.getLongName() != null) {
                 buf.append(", ");
-              if (flag.getLongName() != null)
+              }
+              if (flag.getLongName() != null) {
                 buf.append(flag.getLongName().toSwitchString());
+              }
               out.print(buf);
               if (flag.getDescription().isEmpty()) {
                 out.println();
               } else {
-                if (buf.length() < COLUMN_WIDTH)
+                if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
-                out.println(Text.wrap(flag.getDescription(),
-                    n -> n == 0
-                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
-                        : getWidth(),
+                }
+                out.println(Text.wrap(flag.getDescription(), n -> n == 0 ? Math.max(
+                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }
@@ -164,35 +166,36 @@ public class DefaultHelpFormatter implements HelpFormatter {
             out.println("Options:");
             for (OptionConfigurationParameter option : options) {
               StringBuilder buf = new StringBuilder();
-              if (option.getShortName() != null)
+              if (option.getShortName() != null) {
                 buf.append(option.getShortName().toSwitchString());
-              if (option.getShortName() != null && option.getLongName() != null)
+              }
+              if (option.getShortName() != null && option.getLongName() != null) {
                 buf.append(", ");
-              if (option.getLongName() != null)
+              }
+              if (option.getLongName() != null) {
                 buf.append(option.getLongName().toSwitchString());
+              }
               buf.append(" <").append(toString(option.getGenericType())).append(">");
               out.print(buf);
               if (option.getDescription().isEmpty()) {
                 out.println();
               } else {
-                if (buf.length() < COLUMN_WIDTH)
+                if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
-                out.println(Text.wrap(option.getDescription(),
-                    n -> n == 0
-                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
-                        : getWidth(),
+                }
+                out.println(Text.wrap(option.getDescription(), n -> n == 0 ? Math.max(
+                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }
             out.println();
           }
 
-          List<EnvironmentConfigurationParameter> variables =
-              command.getConfigurationClass().getParameters().stream()
-                  .filter(p -> p.getType() == ConfigurationParameter.Type.ENVIRONMENT)
-                  .map(ConfigurationParameter::asEnvironment)
-                  .sorted(Comparator.comparing(EnvironmentConfigurationParameter::getVariableName))
-                  .collect(toList());
+          List<EnvironmentConfigurationParameter> variables = command.getConfigurationClass()
+              .getParameters().stream()
+              .mapMulti(Streams.filterAndCast(EnvironmentConfigurationParameter.class))
+              .sorted(Comparator.comparing(EnvironmentConfigurationParameter::getVariableName))
+              .toList();
 
           if (!variables.isEmpty()) {
             out.println("Environment Variables:");
@@ -203,24 +206,22 @@ public class DefaultHelpFormatter implements HelpFormatter {
               if (variable.getDescription().isEmpty()) {
                 out.println();
               } else {
-                if (buf.length() < COLUMN_WIDTH)
+                if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
-                out.println(Text.wrap(variable.getDescription(),
-                    n -> n == 0
-                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
-                        : getWidth(),
+                }
+                out.println(Text.wrap(variable.getDescription(), n -> n == 0 ? Math.max(
+                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }
             out.println();
           }
 
-          List<PropertyConfigurationParameter> properties =
-              command.getConfigurationClass().getParameters().stream()
-                  .filter(p -> p.getType() == ConfigurationParameter.Type.PROPERTY)
-                  .map(ConfigurationParameter::asProperty)
-                  .sorted(Comparator.comparing(PropertyConfigurationParameter::getPropertyName))
-                  .collect(toList());
+          List<PropertyConfigurationParameter> properties = command.getConfigurationClass()
+              .getParameters().stream()
+              .mapMulti(Streams.filterAndCast(PropertyConfigurationParameter.class))
+              .sorted(Comparator.comparing(PropertyConfigurationParameter::getPropertyName))
+              .toList();
 
           if (!properties.isEmpty()) {
             out.println("System Properties:");
@@ -231,12 +232,11 @@ public class DefaultHelpFormatter implements HelpFormatter {
               if (property.getDescription().isEmpty()) {
                 out.println();
               } else {
-                if (buf.length() < COLUMN_WIDTH)
+                if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
-                out.println(Text.wrap(property.getDescription(),
-                    n -> n == 0
-                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
-                        : getWidth(),
+                }
+                out.println(Text.wrap(property.getDescription(), n -> n == 0 ? Math.max(
+                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }
@@ -272,34 +272,34 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
           Set<ConfigurationParameter> commonParameters = command.getCommonParameters();
 
-          List<FlagConfigurationParameter> commonFlags =
-              commonParameters.stream().filter(p -> p.getType() == ConfigurationParameter.Type.FLAG)
-                  .map(ConfigurationParameter::asFlag).collect(toList());
+          List<FlagConfigurationParameter> commonFlags = commonParameters.stream()
+              .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class)).toList();
 
           List<OptionConfigurationParameter> commonOptions = commonParameters.stream()
-              .filter(p -> p.getType() == ConfigurationParameter.Type.OPTION)
-              .map(ConfigurationParameter::asOption).collect(toList());
+              .mapMulti(Streams.filterAndCast(OptionConfigurationParameter.class)).toList();
 
           if (!commonFlags.isEmpty()) {
             out.println("Common Flags:");
             for (FlagConfigurationParameter flag : commonFlags) {
               StringBuilder buf = new StringBuilder();
-              if (flag.getShortName() != null)
+              if (flag.getShortName() != null) {
                 buf.append(flag.getShortName().toSwitchString());
-              if (flag.getShortName() != null && flag.getLongName() != null)
+              }
+              if (flag.getShortName() != null && flag.getLongName() != null) {
                 buf.append(", ");
-              if (flag.getLongName() != null)
+              }
+              if (flag.getLongName() != null) {
                 buf.append(flag.getLongName().toSwitchString());
+              }
               out.print(buf);
               if (flag.getDescription().isEmpty()) {
                 out.println();
               } else {
-                if (buf.length() < COLUMN_WIDTH)
+                if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
-                out.println(Text.wrap(flag.getDescription(),
-                    n -> n == 0
-                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
-                        : getWidth(),
+                }
+                out.println(Text.wrap(flag.getDescription(), n -> n == 0 ? Math.max(
+                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }
@@ -310,23 +310,25 @@ public class DefaultHelpFormatter implements HelpFormatter {
             out.println("Common Options:");
             for (OptionConfigurationParameter option : commonOptions) {
               StringBuilder buf = new StringBuilder();
-              if (option.getShortName() != null)
+              if (option.getShortName() != null) {
                 buf.append(option.getShortName().toSwitchString());
-              if (option.getShortName() != null && option.getLongName() != null)
+              }
+              if (option.getShortName() != null && option.getLongName() != null) {
                 buf.append(", ");
-              if (option.getLongName() != null)
+              }
+              if (option.getLongName() != null) {
                 buf.append(option.getLongName().toSwitchString());
+              }
               buf.append(" <").append(toString(option.getGenericType())).append(">");
               out.print(buf);
               if (option.getDescription().isEmpty()) {
                 out.println();
               } else {
-                if (buf.length() < COLUMN_WIDTH)
+                if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
-                out.println(Text.wrap(option.getDescription(),
-                    n -> n == 0
-                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
-                        : getWidth(),
+                }
+                out.println(Text.wrap(option.getDescription(), n -> n == 0 ? Math.max(
+                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }
@@ -340,38 +342,39 @@ public class DefaultHelpFormatter implements HelpFormatter {
               l -> l.startsWith("First ") ? l : "    " + l));
           out.println();
 
-          for (Discriminator subcommand : command.listSubcommands().stream().sorted()
-              .collect(toList())) {
-            ConfigurationClass configurationClass = command.getSubcommand(subcommand).orElseThrow(
-                () -> new AssertionError("Failed to retrieve subcommand: " + subcommand));
+          Iterator<Discriminator> subcommandIterator = command.listSubcommands().stream().sorted()
+              .iterator();
+          while (subcommandIterator.hasNext()) {
+            Discriminator subdiscriminator = subcommandIterator.next();
 
-            List<FlagConfigurationParameter> flags = configurationClass.getParameters().stream()
-                .filter(p -> p.getType() == ConfigurationParameter.Type.FLAG)
-                .filter(p -> !commonFlags.contains(p)).map(ConfigurationParameter::asFlag)
-                .sorted(Comparator.comparing(FlagConfigurationParameter::getName))
-                .collect(toList());
+            Command<?> subcommand = command.getSubcommand(subdiscriminator).orElseThrow(
+                () -> new AssertionError("Failed to retrieve subcommand: " + subdiscriminator));
 
-            List<OptionConfigurationParameter> options = configurationClass.getParameters().stream()
-                .filter(p -> p.getType() == ConfigurationParameter.Type.OPTION)
-                .filter(p -> !commonOptions.contains(p)).map(ConfigurationParameter::asOption)
-                .sorted(Comparator.comparing(OptionConfigurationParameter::getName))
-                .collect(toList());
+            List<FlagConfigurationParameter> flags = subcommand.getParameters().stream()
+                .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
+                .filter(not(commonFlags::contains))
+                .sorted(Comparator.comparing(FlagConfigurationParameter::getName)).toList();
 
-            List<PositionalConfigurationParameter> positionals = configurationClass.getParameters()
-                .stream().filter(p -> p.getType() == ConfigurationParameter.Type.POSITIONAL)
-                .map(ConfigurationParameter::asPositional)
+            List<OptionConfigurationParameter> options = subcommand.getParameters().stream()
+                .mapMulti(Streams.filterAndCast(OptionConfigurationParameter.class))
+                .filter(not(commonOptions::contains))
+                .sorted(Comparator.comparing(OptionConfigurationParameter::getName)).toList();
+
+            List<PositionalConfigurationParameter> positionals = subcommand.getParameters().stream()
+                .mapMulti(Streams.filterAndCast(PositionalConfigurationParameter.class))
                 .sorted(Comparator.comparing(PositionalConfigurationParameter::getPosition))
-                .collect(toList());
+                .toList();
 
             out.print("Usage:");
 
-            if (command.getName() != null)
+            if (command.getName() != null) {
               out.printf(" %s", command.getName());
+            }
 
-            out.printf(" %s", subcommand);
+            out.printf(" %s", subdiscriminator);
 
-            if ((!commonFlags.isEmpty() || !flags.isEmpty())
-                && (!commonOptions.isEmpty() || !options.isEmpty())) {
+            if ((!commonFlags.isEmpty() || !flags.isEmpty()) && (!commonOptions.isEmpty()
+                || !options.isEmpty())) {
               out.print(" [ flags | options ]");
             } else if (!commonFlags.isEmpty() || !flags.isEmpty()) {
               out.print(" [ flags ]");
@@ -381,12 +384,13 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
             if (!positionals.isEmpty()) {
               for (PositionalConfigurationParameter positional : positionals) {
-                if (positional.isRequired())
+                if (positional.isRequired()) {
                   out.printf(" <%s>", positional.getName());
-                else if (positional.isCollection())
+                } else if (positional.isCollection()) {
                   out.printf(" [%s ...]", positional.getName());
-                else
+                } else {
                   out.printf(" [%s]", positional.getName());
+                }
               }
             }
 
@@ -395,10 +399,9 @@ public class DefaultHelpFormatter implements HelpFormatter {
           }
 
           List<EnvironmentConfigurationParameter> variables = command.getParameters().stream()
-              .filter(p -> p.getType() == ConfigurationParameter.Type.ENVIRONMENT)
-              .map(ConfigurationParameter::asEnvironment)
+              .mapMulti(Streams.filterAndCast(EnvironmentConfigurationParameter.class))
               .sorted(Comparator.comparing(EnvironmentConfigurationParameter::getVariableName))
-              .collect(toList());
+              .toList();
 
           if (!variables.isEmpty()) {
             out.println("All Environment Variables:");
@@ -409,12 +412,11 @@ public class DefaultHelpFormatter implements HelpFormatter {
               if (variable.getDescription().isEmpty()) {
                 out.println();
               } else {
-                if (buf.length() < COLUMN_WIDTH)
+                if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
-                out.println(Text.wrap(variable.getDescription(),
-                    n -> n == 0
-                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
-                        : getWidth(),
+                }
+                out.println(Text.wrap(variable.getDescription(), n -> n == 0 ? Math.max(
+                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }
@@ -422,10 +424,9 @@ public class DefaultHelpFormatter implements HelpFormatter {
           }
 
           List<PropertyConfigurationParameter> properties = command.getParameters().stream()
-              .filter(p -> p.getType() == ConfigurationParameter.Type.PROPERTY)
-              .map(ConfigurationParameter::asProperty)
+              .mapMulti(Streams.filterAndCast(PropertyConfigurationParameter.class))
               .sorted(Comparator.comparing(PropertyConfigurationParameter::getPropertyName))
-              .collect(toList());
+              .toList();
 
           if (!properties.isEmpty()) {
             out.println("All System Properties:");
@@ -436,12 +437,11 @@ public class DefaultHelpFormatter implements HelpFormatter {
               if (property.getDescription().isEmpty()) {
                 out.println();
               } else {
-                if (buf.length() < COLUMN_WIDTH)
+                if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
-                out.println(Text.wrap(property.getDescription(),
-                    n -> n == 0
-                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
-                        : getWidth(),
+                }
+                out.println(Text.wrap(property.getDescription(), n -> n == 0 ? Math.max(
+                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }
@@ -465,7 +465,8 @@ public class DefaultHelpFormatter implements HelpFormatter {
     return width;
   }
 
-  /* default */ static String toString(Type genericType) {
+  /* default */
+  static String toString(Type genericType) {
     Class<?> erased = JodaBeanUtils.eraseToClass(genericType);
     Class<?> boxed = Types.isPrimitive(erased) ? Types.boxed(erased) : erased;
     return boxed.getSimpleName().toLowerCase();

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,13 +19,11 @@
  */
 package com.sigpwned.discourse.core;
 
-import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.*;
+import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
-import java.util.List;
-import java.util.ListIterator;
-import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
+import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.exception.configuration.MissingPositionConfigurationException;
 import com.sigpwned.discourse.core.exception.syntax.InvalidLongNameValueSyntaxException;
@@ -33,6 +31,7 @@ import com.sigpwned.discourse.core.exception.syntax.MissingLongNameValueSyntaxEx
 import com.sigpwned.discourse.core.exception.syntax.MissingShortNameValueSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.UnrecognizedLongNameSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.UnrecognizedShortNameSyntaxException;
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
@@ -40,23 +39,30 @@ import com.sigpwned.discourse.core.token.BundleArgumentToken;
 import com.sigpwned.discourse.core.token.LongNameArgumentToken;
 import com.sigpwned.discourse.core.token.LongNameValueArgumentToken;
 import com.sigpwned.discourse.core.token.ShortNameArgumentToken;
+import java.util.List;
+import java.util.ListIterator;
 
 public class ArgumentsParser {
+
   public static interface Handler {
-    default void flag(FlagConfigurationParameter property) {}
 
-    default void option(OptionConfigurationParameter property, String value) {}
+    default void flag(FlagConfigurationParameter property) {
+    }
 
-    default void positional(PositionalConfigurationParameter property, String value) {}
+    default void option(OptionConfigurationParameter property, String value) {
+    }
+
+    default void positional(PositionalConfigurationParameter property, String value) {
+    }
   }
 
-  private final ConfigurationClass configurationClass;
+  private final ConfigurationParameterResolver parameterResolver;
   private final Handler handler;
   private ListIterator<String> iterator;
 
-  public ArgumentsParser(ConfigurationClass configurationClass, Handler handler) {
-    this.configurationClass = configurationClass;
-    this.handler = handler;
+  public ArgumentsParser(ConfigurationParameterResolver parameterResolver, Handler handler) {
+    this.parameterResolver = requireNonNull(parameterResolver);
+    this.handler = requireNonNull(handler);
   }
 
   public void parse(List<String> args) {
@@ -73,21 +79,22 @@ public class ArgumentsParser {
     boolean positionals = false;
     while (peek() != null) {
       String next = next();
-      if(next == null)
+      if (next == null) {
         throw new AssertionError("no next token");
+      }
       if (positionals || !next.startsWith("-")) {
         final int index = position.getIndex();
 
-        PositionalConfigurationParameter positionalProperty =
-            (PositionalConfigurationParameter) getConfigurationClass().resolve(position)
-                .orElseThrow(() -> new MissingPositionConfigurationException(index));
+        PositionalConfigurationParameter positionalProperty = (PositionalConfigurationParameter) getParameterResolver().resolveConfigurationParameter(
+            position).orElseThrow(() -> new MissingPositionConfigurationException(index));
 
         getHandler().positional(positionalProperty, next);
 
         positionals = true;
 
-        if (!positionalProperty.isCollection())
+        if (!positionalProperty.isCollection()) {
           position = position.next();
+        }
       } else {
         ArgumentToken token = ArgumentToken.fromString(next);
         switch (token.getType()) {
@@ -120,21 +127,23 @@ public class ArgumentsParser {
     for (int index = 0; index < bundle.getShortNames().size(); index++) {
       boolean lastIndex = index == bundle.getShortNames().size() - 1;
 
-      ShortSwitchNameCoordinate shortName =
-          ShortSwitchNameCoordinate.fromString(bundle.getShortNames().get(index));
+      ShortSwitchNameCoordinate shortName = ShortSwitchNameCoordinate.fromString(
+          bundle.getShortNames().get(index));
 
-      ConfigurationParameter shortNameProperty = getConfigurationClass().resolve(shortName)
+      ConfigurationParameter shortNameProperty = getParameterResolver().resolveConfigurationParameter(
+              shortName)
           .orElseThrow(() -> new UnrecognizedShortNameSyntaxException(shortName.toString()));
 
       if (shortNameProperty.isValued()) {
-        OptionConfigurationParameter optionProperty =
-            (OptionConfigurationParameter) shortNameProperty;
-        if (!lastIndex)
+        OptionConfigurationParameter optionProperty = (OptionConfigurationParameter) shortNameProperty;
+        if (!lastIndex) {
           throw new MissingShortNameValueSyntaxException(shortNameProperty.getName(),
               shortName.toString());
-        if (peek() == null)
+        }
+        if (peek() == null) {
           throw new MissingShortNameValueSyntaxException(shortNameProperty.getName(),
               shortName.toString());
+        }
         String value = next();
         getHandler().option(optionProperty, value);
       } else {
@@ -145,17 +154,19 @@ public class ArgumentsParser {
   }
 
   private void handleShortName(ShortNameArgumentToken token) {
-    ShortSwitchNameCoordinate shortName =
-        ShortSwitchNameCoordinate.fromString(token.getShortName());
+    ShortSwitchNameCoordinate shortName = ShortSwitchNameCoordinate.fromString(
+        token.getShortName());
 
-    ConfigurationParameter shortNameProperty = getConfigurationClass().resolve(shortName)
+    ConfigurationParameter shortNameProperty = getParameterResolver().resolveConfigurationParameter(
+            shortName)
         .orElseThrow(() -> new UnrecognizedShortNameSyntaxException(shortName.toString()));
 
     if (shortNameProperty.isValued()) {
       OptionConfigurationParameter optionProperty = (OptionConfigurationParameter) shortNameProperty;
-      if (peek() == null)
+      if (peek() == null) {
         throw new MissingShortNameValueSyntaxException(optionProperty.getName(),
             shortName.toString());
+      }
       String value = next();
       getHandler().option(optionProperty, value);
     } else {
@@ -167,14 +178,15 @@ public class ArgumentsParser {
   private void handleLongName(LongNameArgumentToken token) {
     LongSwitchNameCoordinate longName = LongSwitchNameCoordinate.fromString(token.getLongName());
 
-    ConfigurationParameter longNameProperty = getConfigurationClass().resolve(longName)
-        .orElseThrow(() -> new UnrecognizedLongNameSyntaxException(longName.toString()));
+    ConfigurationParameter longNameProperty = getParameterResolver().resolveConfigurationParameter(
+        longName).orElseThrow(() -> new UnrecognizedLongNameSyntaxException(longName.toString()));
 
     if (longNameProperty.isValued()) {
       OptionConfigurationParameter optionProperty = (OptionConfigurationParameter) longNameProperty;
-      if (peek() == null)
+      if (peek() == null) {
         throw new MissingLongNameValueSyntaxException(optionProperty.getName(),
             longName.toString());
+      }
       String value = next();
       getHandler().option(optionProperty, value);
     } else {
@@ -187,12 +199,11 @@ public class ArgumentsParser {
     LongSwitchNameCoordinate longName = LongSwitchNameCoordinate.fromString(token.getLongName());
     String value = token.getValue();
 
-    ConfigurationParameter longNameValueProperty = getConfigurationClass().resolve(longName)
-        .orElseThrow(() -> new UnrecognizedLongNameSyntaxException(longName.toString()));
+    ConfigurationParameter longNameValueProperty = getParameterResolver().resolveConfigurationParameter(
+        longName).orElseThrow(() -> new UnrecognizedLongNameSyntaxException(longName.toString()));
 
     if (longNameValueProperty.isValued()) {
-      OptionConfigurationParameter optionProperty =
-          (OptionConfigurationParameter) longNameValueProperty;
+      OptionConfigurationParameter optionProperty = (OptionConfigurationParameter) longNameValueProperty;
       getHandler().option(optionProperty, value);
     } else {
       throw new InvalidLongNameValueSyntaxException(longNameValueProperty.getName(),
@@ -217,8 +228,8 @@ public class ArgumentsParser {
   /**
    * @return the configurationClass
    */
-  private ConfigurationClass getConfigurationClass() {
-    return configurationClass;
+  private ConfigurationParameterResolver getParameterResolver() {
+    return parameterResolver;
   }
 
   /**

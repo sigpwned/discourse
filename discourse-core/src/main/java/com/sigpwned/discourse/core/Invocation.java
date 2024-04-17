@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,47 +19,55 @@
  */
 package com.sigpwned.discourse.core;
 
-import static java.util.Collections.unmodifiableList;
-import static java.util.stream.Collectors.toList;
+import static java.util.Collections.*;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toUnmodifiableSet;
 
 import com.sigpwned.discourse.core.command.Command;
-import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.sigpwned.discourse.core.coordinate.Coordinate;
 import com.sigpwned.discourse.core.exception.argument.AssignmentFailureArgumentException;
-import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgumentException;
 import com.sigpwned.discourse.core.exception.argument.UnassignedRequiredParametersArgumentException;
 import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 import com.sigpwned.discourse.core.format.version.DefaultVersionFormatter;
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
 import com.sigpwned.discourse.core.util.Args;
+import com.sigpwned.discourse.core.util.Streams;
 import com.sigpwned.espresso.BeanInstance;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
 
 public class Invocation<T> {
+
   @FunctionalInterface
   /* default */ static interface EnvironmentVariables {
+
     public String get(String name);
   }
 
   @FunctionalInterface
   /* default */ static interface SystemProperties {
+
     public String get(String name);
   }
-  
+
   private final Command<T> command;
-  private final ConfigurationClass configurationClass;
+  private final Supplier<BeanInstance> newInstance;
   private final List<String> args;
   private EnvironmentVariables getEnv;
   private SystemProperties getProperty;
 
 
-  public Invocation(Command<T> command, ConfigurationClass configurationClass, List<String> args) {
-    this.command = command;
-    this.configurationClass = configurationClass;
+  public Invocation(Command<T> command, Supplier<BeanInstance> newInstance, List<String> args) {
+    this.command = requireNonNull(command);
+    this.newInstance = requireNonNull(newInstance);
     this.args = unmodifiableList(args);
     this.getEnv = System::getenv;
     this.getProperty = System::getProperty;
@@ -67,7 +75,7 @@ public class Invocation<T> {
 
   /**
    * Prints the help message using {@link DefaultHelpFormatter}.
-   * 
+   *
    * @see #printHelp(HelpFormatter)
    */
   public Invocation<T> printHelp() {
@@ -80,9 +88,8 @@ public class Invocation<T> {
    */
   public Invocation<T> printHelp(HelpFormatter formatter) {
     getCommand().getParameters().stream()
-        .filter(p -> p.getType() == ConfigurationParameter.Type.FLAG)
-        .map(ConfigurationParameter::asFlag).filter(FlagConfigurationParameter::isHelp).findFirst()
-        .ifPresent(helpFlag -> {
+        .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
+        .filter(FlagConfigurationParameter::isHelp).findFirst().ifPresent(helpFlag -> {
           if (Args.containsFlag(args, helpFlag.getShortName(), helpFlag.getLongName())) {
             System.err.println(formatter.formatHelp(command));
             System.exit(0);
@@ -93,7 +100,7 @@ public class Invocation<T> {
 
   /**
    * Prints the version message using {@link DefaultVersionFormatter}.
-   * 
+   *
    * @see #printVersion(VersionFormatter)
    */
   public Invocation<T> printVersion() {
@@ -106,9 +113,8 @@ public class Invocation<T> {
    */
   public Invocation<T> printVersion(VersionFormatter formatter) {
     getCommand().getParameters().stream()
-        .filter(p -> p.getType() == ConfigurationParameter.Type.FLAG)
-        .map(ConfigurationParameter::asFlag).filter(FlagConfigurationParameter::isVersion)
-        .findFirst().ifPresent(versionFlag -> {
+        .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
+        .filter(FlagConfigurationParameter::isVersion).findFirst().ifPresent(versionFlag -> {
           if (Args.containsFlag(args, versionFlag.getShortName(), versionFlag.getLongName())) {
             System.err.println(formatter.formatVersion(command));
             System.exit(0);
@@ -116,22 +122,17 @@ public class Invocation<T> {
         });
     return this;
   }
-  
+
   @SuppressWarnings("unchecked")
   public T configuration() {
-    BeanInstance instance;
-    try {
-      instance = getConfigurationClass().newInstance();
-    } catch (InvocationTargetException e) {
-      throw new NewInstanceFailureArgumentException(e);
-    }
+    BeanInstance instance = getNewInstance().get();
 
-    Set<String> required = new HashSet<>(
-        getConfigurationClass().getParameters().stream().filter(ConfigurationParameter::isRequired)
-            .map(ConfigurationParameter::getName).collect(toList()));
+    Set<String> required = getCommand().getParameters().stream()
+        .filter(ConfigurationParameter::isRequired).map(ConfigurationParameter::getName)
+        .collect(toUnmodifiableSet());
 
     // Handle CLI arguments
-    new ArgumentsParser(getConfigurationClass(), new ArgumentsParser.Handler() {
+    new ArgumentsParser(this::resolveConfigurationParameter, new ArgumentsParser.Handler() {
       @Override
       public void flag(FlagConfigurationParameter property) {
         try {
@@ -164,9 +165,9 @@ public class Invocation<T> {
     }).parse(args);
 
     // Handle environment variable arguments
-    getConfigurationClass().getParameters().stream()
-        .filter(p -> p.getType() == ConfigurationParameter.Type.ENVIRONMENT)
-        .map(ConfigurationParameter::asEnvironment).forEach(property -> {
+    getCommand().getParameters().stream()
+        .mapMulti(Streams.filterAndCast(EnvironmentConfigurationParameter.class))
+        .forEach(property -> {
           String variableName = property.getVariableName().toString();
           String text = getGetEnv().get(variableName);
           if (text != null) {
@@ -180,9 +181,8 @@ public class Invocation<T> {
         });
 
     // Handle system property arguments
-    getConfigurationClass().getParameters().stream()
-        .filter(p -> p.getType() == ConfigurationParameter.Type.PROPERTY)
-        .map(ConfigurationParameter::asProperty).forEach(property -> {
+    getCommand().getParameters().stream()
+        .mapMulti(Streams.filterAndCast(PropertyConfigurationParameter.class)).forEach(property -> {
           String propertyName = property.getPropertyName().toString();
           String text = getGetProperty().get(propertyName);
           if (text != null) {
@@ -195,8 +195,9 @@ public class Invocation<T> {
           }
         });
 
-    if (!required.isEmpty())
+    if (!required.isEmpty()) {
       throw new UnassignedRequiredParametersArgumentException(required);
+    }
 
     return (T) instance.getInstance();
   }
@@ -207,13 +208,17 @@ public class Invocation<T> {
   public Command<T> getCommand() {
     return command;
   }
-  
-  /**
-   * @return the configurationClass
-   */
-  private ConfigurationClass getConfigurationClass() {
-    return configurationClass;
+
+  public Supplier<BeanInstance> getNewInstance() {
+    return newInstance;
   }
+
+  //  /**
+//   * @return the configurationClass
+//   */
+//  private ConfigurationClass getConfigurationClass() {
+//    return configurationClass;
+//  }
 
   /**
    * @return the args
@@ -228,8 +233,10 @@ public class Invocation<T> {
   private EnvironmentVariables getGetEnv() {
     return getEnv;
   }
-  
+
   /**
+   * Test hook
+   *
    * @param getEnv the getEnv to set
    */
   /* default */ void setGetEnv(EnvironmentVariables getEnv) {
@@ -244,9 +251,16 @@ public class Invocation<T> {
   }
 
   /**
+   * Test hook
+   *
    * @param getProperty the getProperty to set
    */
   /* default */ void setGetProperty(SystemProperties getProperty) {
     this.getProperty = getProperty;
+  }
+
+  private Optional<ConfigurationParameter> resolveConfigurationParameter(Coordinate coordinate) {
+    return getCommand().getParameters().stream()
+        .filter(p -> p.getCoordinates().contains(coordinate)).findFirst();
   }
 }
