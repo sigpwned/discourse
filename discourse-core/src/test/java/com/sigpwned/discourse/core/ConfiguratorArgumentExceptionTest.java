@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,8 +19,6 @@
  */
 package com.sigpwned.discourse.core;
 
-import java.util.Objects;
-import org.junit.Test;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
@@ -34,18 +32,24 @@ import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgument
 import com.sigpwned.discourse.core.exception.argument.NoSubcommandArgumentException;
 import com.sigpwned.discourse.core.exception.argument.UnassignedRequiredParametersArgumentException;
 import com.sigpwned.discourse.core.exception.argument.UnrecognizedSubcommandArgumentException;
+import java.util.Objects;
+import org.junit.Test;
 
+@SuppressWarnings("ALL")
 public class ConfiguratorArgumentExceptionTest {
+
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   @Configurable
   public static class ConstructorFailureExample {
+
     private static boolean first = true;
 
     public ConstructorFailureExample() {
-      if (!first)
+      if (!first) {
         throw new RuntimeException("simulated failure");
+      }
       first = false;
     }
 
@@ -63,6 +67,7 @@ public class ConfiguratorArgumentExceptionTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   @Configurable
   public static class PositionalAssignmentFailureExample {
+
     @PositionalParameter(position = 0)
     private String example;
 
@@ -86,6 +91,7 @@ public class ConfiguratorArgumentExceptionTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   @Configurable
   public static class OptionAssignmentFailureExample {
+
     @OptionParameter(shortName = "x")
     private String example;
 
@@ -109,6 +115,7 @@ public class ConfiguratorArgumentExceptionTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   @Configurable
   public static class FlagAssignmentFailureExample {
+
     @FlagParameter(shortName = "x")
     private boolean example;
 
@@ -131,6 +138,7 @@ public class ConfiguratorArgumentExceptionTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   @Configurable
   public static class EnvironmentAssignmentFailureExample {
+
     @EnvironmentParameter(variableName = "HELLO")
     private String example;
 
@@ -147,7 +155,7 @@ public class ConfiguratorArgumentExceptionTest {
   public void environmentAssignmentFailureExample() {
     final String hello = "hello";
 
-    Invocation<EnvironmentAssignmentFailureExample> invocation =
+    Invocation<? extends EnvironmentAssignmentFailureExample> invocation =
         new CommandBuilder().build(EnvironmentAssignmentFailureExample.class).args();
 
     invocation.setGetEnv(name -> name.equals("HELLO") ? hello : System.getenv(name));
@@ -160,6 +168,7 @@ public class ConfiguratorArgumentExceptionTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   @Configurable
   public static class PropertyAssignmentFailureExample {
+
     @PropertyParameter(propertyName = "hello")
     private String example;
 
@@ -176,7 +185,7 @@ public class ConfiguratorArgumentExceptionTest {
   public void propertyAssignmentFailureExample() {
     final String hello = "hello";
 
-    Invocation<PropertyAssignmentFailureExample> invocation =
+    Invocation<? extends PropertyAssignmentFailureExample> invocation =
         new CommandBuilder().build(PropertyAssignmentFailureExample.class).args();
 
     invocation.setGetProperty(name -> name.equals("hello") ? hello : System.getProperty(name));
@@ -189,6 +198,7 @@ public class ConfiguratorArgumentExceptionTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   @Configurable
   public static class MissingRequiredExample {
+
     @PositionalParameter(position = 0, required = true)
     public String example;
   }
@@ -205,6 +215,7 @@ public class ConfiguratorArgumentExceptionTest {
       subcommands = {@Subcommand(discriminator = "alpha", configurable = AlphaMultiExample.class),
           @Subcommand(discriminator = "bravo", configurable = BravoMultiExample.class)})
   public abstract static class MultiExample {
+
     @OptionParameter(shortName = "o", longName = "option")
     public String option;
 
@@ -215,12 +226,15 @@ public class ConfiguratorArgumentExceptionTest {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (obj == null)
+      }
+      if (obj == null) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       MultiExample other = (MultiExample) obj;
       return Objects.equals(option, other.option);
     }
@@ -228,6 +242,7 @@ public class ConfiguratorArgumentExceptionTest {
 
   @Configurable(discriminator = "alpha")
   public static class AlphaMultiExample extends MultiExample {
+
     @PositionalParameter(position = 0)
     public String alpha;
 
@@ -241,12 +256,15 @@ public class ConfiguratorArgumentExceptionTest {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       AlphaMultiExample other = (AlphaMultiExample) obj;
       return Objects.equals(alpha, other.alpha);
     }
@@ -254,6 +272,7 @@ public class ConfiguratorArgumentExceptionTest {
 
   @Configurable(discriminator = "bravo")
   public static class BravoMultiExample extends MultiExample {
+
     @PositionalParameter(position = 0)
     public String bravo;
 
@@ -267,12 +286,15 @@ public class ConfiguratorArgumentExceptionTest {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       BravoMultiExample other = (BravoMultiExample) obj;
       return Objects.equals(bravo, other.bravo);
     }

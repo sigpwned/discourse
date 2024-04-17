@@ -22,7 +22,6 @@ package com.sigpwned.discourse.core.format.help;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.joining;
 
-import com.sigpwned.discourse.core.ConfigurationClass;
 import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.HelpFormatter;
 import com.sigpwned.discourse.core.command.Command;
@@ -81,22 +80,19 @@ public class DefaultHelpFormatter implements HelpFormatter {
   }
 
   public String formatHelp(SingleCommand<?> command) {
-    ConfigurationClass configurationClass = command.getConfigurationClass();
-
     StringWriter result = new StringWriter();
     try {
       try {
         try (PrintWriter out = new PrintWriter(result)) {
-          List<FlagConfigurationParameter> flags = configurationClass.getParameters().stream()
+          List<FlagConfigurationParameter> flags = command.getParameters().stream()
               .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
               .sorted(Comparator.comparing(FlagConfigurationParameter::getName)).toList();
 
-          List<OptionConfigurationParameter> options = configurationClass.getParameters().stream()
+          List<OptionConfigurationParameter> options = command.getParameters().stream()
               .mapMulti(Streams.filterAndCast(OptionConfigurationParameter.class))
               .sorted(Comparator.comparing(OptionConfigurationParameter::getName)).toList();
 
-          List<PositionalConfigurationParameter> positionals = command.getConfigurationClass()
-              .getParameters().stream()
+          List<PositionalConfigurationParameter> positionals = command.getParameters().stream()
               .mapMulti(Streams.filterAndCast(PositionalConfigurationParameter.class))
               .sorted(Comparator.comparing(PositionalConfigurationParameter::getPosition)).toList();
 
@@ -191,8 +187,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
             out.println();
           }
 
-          List<EnvironmentConfigurationParameter> variables = command.getConfigurationClass()
-              .getParameters().stream()
+          List<EnvironmentConfigurationParameter> variables = command.getParameters().stream()
               .mapMulti(Streams.filterAndCast(EnvironmentConfigurationParameter.class))
               .sorted(Comparator.comparing(EnvironmentConfigurationParameter::getVariableName))
               .toList();
@@ -217,8 +212,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
             out.println();
           }
 
-          List<PropertyConfigurationParameter> properties = command.getConfigurationClass()
-              .getParameters().stream()
+          List<PropertyConfigurationParameter> properties = command.getParameters().stream()
               .mapMulti(Streams.filterAndCast(PropertyConfigurationParameter.class))
               .sorted(Comparator.comparing(PropertyConfigurationParameter::getPropertyName))
               .toList();

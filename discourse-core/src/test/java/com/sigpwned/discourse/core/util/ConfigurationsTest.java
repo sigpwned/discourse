@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,20 +19,23 @@
  */
 package com.sigpwned.discourse.core.util;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import java.util.Objects;
-import org.junit.Test;
+
 import com.sigpwned.discourse.core.StandardConfigurationBase;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
+import java.util.List;
+import java.util.Objects;
+import org.junit.Test;
 
 public class ConfigurationsTest {
+
   @Configurable
   public static class Example extends StandardConfigurationBase {
+
     @FlagParameter(shortName = "f", longName = "flag")
     public boolean flag;
 
@@ -52,15 +55,18 @@ public class ConfigurationsTest {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       Example other = (Example) obj;
-      return flag == other.flag && Objects.equals(option, other.option)
-          && Objects.equals(position0, other.position0);
+      return flag == other.flag && Objects.equals(option, other.option) && Objects.equals(position0,
+          other.position0);
     }
   }
 
@@ -68,8 +74,8 @@ public class ConfigurationsTest {
   public void test() {
     final String alpha = "alpha";
     final String bravo = "bravo";
-    
-    Example observed=Discourse.configuration(Example.class, asList("-f", "-o", alpha, bravo));
+
+    Example observed = Discourse.configuration(Example.class, List.of("-f", "-o", alpha, bravo));
 
     Example expected = new Example();
     expected.flag = true;

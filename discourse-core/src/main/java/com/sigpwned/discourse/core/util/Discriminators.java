@@ -1,8 +1,8 @@
 /*-
  * =================================LICENSE_START==================================
- * discourse-validation
+ * discourse-core
  * ====================================SECTION=====================================
- * Copyright (C) 2022 Andy Boothe
+ * Copyright (C) 2022 - 2024 Andy Boothe
  * ====================================SECTION=====================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,27 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.validation.command;
+package com.sigpwned.discourse.core.util;
 
-import java.util.List;
-import com.sigpwned.discourse.core.ConfigurationClass;
-import com.sigpwned.discourse.core.Invocation;
-import com.sigpwned.discourse.core.command.SingleCommand;
-import com.sigpwned.discourse.validation.ValidatingInvocation;
+import com.sigpwned.discourse.core.Discriminator;
+import com.sigpwned.discourse.core.annotation.Configurable;
+import java.util.Optional;
 
-public class ValidatingSingleCommand<T> extends SingleCommand<T> {
+public final class Discriminators {
 
-  public ValidatingSingleCommand(ConfigurationClass configurationClass) {
-    super(configurationClass);
+  private Discriminators() {
   }
 
-  @Override
-  protected Invocation<T> newInvocation(ConfigurationClass configurationClass, List<String> args) {
-    return new ValidatingInvocation<T>(this, configurationClass, args);
+  /**
+   * Extracts the discriminator from a configurable.
+   *
+   * @param configurable the configurable
+   * @return the discriminator
+   */
+  public static Optional<Discriminator> fromConfigurable(Configurable configurable) {
+    if (configurable.discriminator().isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(Discriminator.fromString(configurable.discriminator()));
   }
 }

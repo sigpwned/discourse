@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,26 +22,29 @@ package com.sigpwned.discourse.core;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import org.junit.Test;
+
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.PropertyParameter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import org.junit.Test;
 
 public class ConfiguratorSingleCommandTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
+
   /**
    * Bog standard
    */
   @Configurable
   public static class Example1 {
+
     @FlagParameter(shortName = "f", longName = "flag")
     public boolean flag;
 
@@ -58,15 +61,18 @@ public class ConfiguratorSingleCommandTest {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (obj == null)
+      }
+      if (obj == null) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       Example1 other = (Example1) obj;
-      return flag == other.flag && Objects.equals(option, other.option)
-          && Objects.equals(position0, other.position0);
+      return flag == other.flag && Objects.equals(option, other.option) && Objects.equals(position0,
+          other.position0);
     }
   }
 
@@ -75,8 +81,8 @@ public class ConfiguratorSingleCommandTest {
     final String alpha = "alpha";
     final String bravo = "bravo";
 
-    Example1 observed =
-        new CommandBuilder().build(Example1.class).args("-f", "-o", alpha, bravo).configuration();
+    Example1 observed = new CommandBuilder().build(Example1.class).args("-f", "-o", alpha, bravo)
+        .configuration();
 
     Example1 expected = new Example1();
     expected.flag = true;
@@ -89,11 +95,13 @@ public class ConfiguratorSingleCommandTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
+
   /**
    * Collection positional arguments
    */
   @Configurable
   public static class Example2 {
+
     @FlagParameter(shortName = "f", longName = "flag")
     public boolean flag;
 
@@ -110,15 +118,18 @@ public class ConfiguratorSingleCommandTest {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (obj == null)
+      }
+      if (obj == null) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       Example2 other = (Example2) obj;
-      return flag == other.flag && Objects.equals(option, other.option)
-          && Objects.equals(positions, other.positions);
+      return flag == other.flag && Objects.equals(option, other.option) && Objects.equals(positions,
+          other.positions);
     }
   }
 
@@ -144,6 +155,7 @@ public class ConfiguratorSingleCommandTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   @Configurable
   public static class AllowUnconfiguredFieldExample {
+
     // Note that there is no parameter here
     public String example1;
 
@@ -157,12 +169,15 @@ public class ConfiguratorSingleCommandTest {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (obj == null)
+      }
+      if (obj == null) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       AllowUnconfiguredFieldExample other = (AllowUnconfiguredFieldExample) obj;
       return Objects.equals(example1, other.example1) && Objects.equals(example2, other.example2);
     }
@@ -172,8 +187,8 @@ public class ConfiguratorSingleCommandTest {
   public void allowUnconfiguredFieldExample() {
     final String hello = "hello";
 
-    AllowUnconfiguredFieldExample observed =
-        new CommandBuilder().build(AllowUnconfiguredFieldExample.class).args(hello).configuration();
+    AllowUnconfiguredFieldExample observed = new CommandBuilder().build(
+        AllowUnconfiguredFieldExample.class).args(hello).configuration();
 
     AllowUnconfiguredFieldExample expected = new AllowUnconfiguredFieldExample();
     expected.example2 = hello;
@@ -186,6 +201,7 @@ public class ConfiguratorSingleCommandTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   @Configurable
   public static class AccessorExample {
+
     @PositionalParameter(position = 0)
     private String example;
 
@@ -204,12 +220,15 @@ public class ConfiguratorSingleCommandTest {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (obj == null)
+      }
+      if (obj == null) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       AccessorExample other = (AccessorExample) obj;
       return Objects.equals(example, other.example);
     }
@@ -219,8 +238,8 @@ public class ConfiguratorSingleCommandTest {
   public void accessorExample() {
     final String hello = "hello";
 
-    AccessorExample observed =
-        new CommandBuilder().build(AccessorExample.class).args(hello).configuration();
+    AccessorExample observed = new CommandBuilder().build(AccessorExample.class).args(hello)
+        .configuration();
 
     AccessorExample expected = new AccessorExample();
     expected.example = hello;
@@ -233,6 +252,7 @@ public class ConfiguratorSingleCommandTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   @Configurable
   public static class PrimitivesExample {
+
     @OptionParameter(shortName = "x")
     public int x;
 
@@ -250,12 +270,15 @@ public class ConfiguratorSingleCommandTest {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (obj == null)
+      }
+      if (obj == null) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       PrimitivesExample other = (PrimitivesExample) obj;
       return Arrays.equals(examples, other.examples) && x == other.x;
     }
@@ -268,7 +291,7 @@ public class ConfiguratorSingleCommandTest {
 
     PrimitivesExample expected = new PrimitivesExample();
     expected.x = 1;
-    expected.examples = new int[] {2, 3};
+    expected.examples = new int[]{2, 3};
 
     assertThat(observed, is(expected));
   }
@@ -278,6 +301,7 @@ public class ConfiguratorSingleCommandTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   @Configurable
   public static class EnvironmentExample {
+
     @EnvironmentParameter(variableName = "HELLO")
     public String hello;
 
@@ -288,12 +312,15 @@ public class ConfiguratorSingleCommandTest {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (obj == null)
+      }
+      if (obj == null) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       EnvironmentExample other = (EnvironmentExample) obj;
       return Objects.equals(hello, other.hello);
     }
@@ -303,7 +330,8 @@ public class ConfiguratorSingleCommandTest {
   public void environmentExample() {
     final String hello = "hello";
 
-    Invocation<EnvironmentExample> invocation = new CommandBuilder().build(EnvironmentExample.class).args();
+    Invocation<? extends EnvironmentExample> invocation = new CommandBuilder().build(
+        EnvironmentExample.class).args();
 
     invocation.setGetEnv(name -> name.equals("HELLO") ? hello : System.getenv(name));
 
@@ -320,6 +348,7 @@ public class ConfiguratorSingleCommandTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   @Configurable
   public static class PropertyExample {
+
     @PropertyParameter(propertyName = "hello")
     public String hello;
 
@@ -330,12 +359,15 @@ public class ConfiguratorSingleCommandTest {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (obj == null)
+      }
+      if (obj == null) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       PropertyExample other = (PropertyExample) obj;
       return Objects.equals(hello, other.hello);
     }
@@ -345,7 +377,8 @@ public class ConfiguratorSingleCommandTest {
   public void propertyExample() {
     final String hello = "hello";
 
-    Invocation<PropertyExample> invocation = new CommandBuilder().build(PropertyExample.class).args();
+    Invocation<? extends PropertyExample> invocation = new CommandBuilder().build(
+        PropertyExample.class).args();
 
     invocation.setGetProperty(name -> name.equals("hello") ? hello : System.getProperty(name));
 

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,22 +20,23 @@
 package com.sigpwned.discourse.validation;
 
 import static java.util.stream.Collectors.toMap;
-import java.util.Optional;
-import com.sigpwned.discourse.core.command.Command;
+
 import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.Module;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.validation.command.ValidatingMultiCommand;
 import com.sigpwned.discourse.validation.command.ValidatingSingleCommand;
+import java.util.Optional;
 
 public class ValidatingCommandBuilder extends CommandBuilder {
+
   /**
    * discourse-validation performs some logging configuration by default to suppress logging
    * messages from hibernate-validator. Use this system property to disable this configuration.
    */
-  public static final String CONFIGURE_LOGGING_PROPERTY_NAME =
-      "com.sigpwned.discourse.validation.configureLogging";
+  public static final String CONFIGURE_LOGGING_PROPERTY_NAME = "com.sigpwned.discourse.validation.configureLogging";
 
   // This code attempts to suppress some default logging messages from Hibernate Validation. If we
   // don't suppress, then we get messages like the following in logs at program startup:
@@ -53,9 +54,9 @@ public class ValidatingCommandBuilder extends CommandBuilder {
   // 
   // TODO Create test for hibernate validator logging
   static {
-    boolean configureLogging =
-        Optional.ofNullable(System.getProperty(CONFIGURE_LOGGING_PROPERTY_NAME))
-            .map(Boolean::parseBoolean).orElse(true);
+    boolean configureLogging = Optional.ofNullable(
+            System.getProperty(CONFIGURE_LOGGING_PROPERTY_NAME)).map(Boolean::parseBoolean)
+        .orElse(true);
     if (configureLogging) {
       // Hibernate Validation uses JBOSS logging, which uses log4j by default.
       // We want to tell JBOSS to use slf4j instead.
@@ -81,17 +82,13 @@ public class ValidatingCommandBuilder extends CommandBuilder {
   @Override
   public <T> Command<T> build(Class<T> rawType) {
     Command<T> result = super.build(rawType);
-    switch (result.getType()) {
-      case MULTI:
-        MultiCommand<T> multi = (MultiCommand<T>) result;
-        return new ValidatingMultiCommand<T>(multi.getName(), multi.getDescription(),
-            multi.getVersion(), multi.listSubcommands().stream()
-                .collect(toMap(d -> d, d -> multi.getSubcommand(d).get())));
-      case SINGLE:
-        SingleCommand<T> single = (SingleCommand<T>) result;
-        return new ValidatingSingleCommand<T>(single.getConfigurationClass());
-      default:
-        throw new AssertionError("Unrecognized command type " + result.getType());
+    if (result instanceof SingleCommand<T> single) {
+      return new ValidatingSingleCommand<T>(single.getConfigurationClass());
+    } else if (result instanceof MultiCommand<T> multi) {
+      return new ValidatingMultiCommand<T>(multi.getName(), multi.getDescription(),
+          multi.getVersion(), multi.listSubcommands().stream()
+          .collect(toMap(d -> d, d -> multi.getSubcommand(d).get())));
     }
+    throw new AssertionError("unrecognized command type: " + result.getClass());
   }
 }

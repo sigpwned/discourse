@@ -21,7 +21,7 @@ package com.sigpwned.discourse.core;
 
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toUnmodifiableSet;
+import static java.util.stream.Collectors.toCollection;
 
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.coordinate.Coordinate;
@@ -39,6 +39,7 @@ import com.sigpwned.discourse.core.util.Args;
 import com.sigpwned.discourse.core.util.Streams;
 import com.sigpwned.espresso.BeanInstance;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -63,7 +64,6 @@ public class Invocation<T> {
   private final List<String> args;
   private EnvironmentVariables getEnv;
   private SystemProperties getProperty;
-
 
   public Invocation(Command<T> command, Supplier<BeanInstance> newInstance, List<String> args) {
     this.command = requireNonNull(command);
@@ -129,7 +129,7 @@ public class Invocation<T> {
 
     Set<String> required = getCommand().getParameters().stream()
         .filter(ConfigurationParameter::isRequired).map(ConfigurationParameter::getName)
-        .collect(toUnmodifiableSet());
+        .collect(toCollection(HashSet::new));
 
     // Handle CLI arguments
     new ArgumentsParser(this::resolveConfigurationParameter, new ArgumentsParser.Handler() {

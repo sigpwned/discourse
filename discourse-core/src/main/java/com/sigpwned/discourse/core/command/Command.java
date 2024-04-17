@@ -26,8 +26,11 @@ import com.sigpwned.discourse.core.ConfigurationException;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.SerializationContext;
 import com.sigpwned.discourse.core.SinkContext;
+import com.sigpwned.discourse.core.annotation.Configurable;
+import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.UnexpectedDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
+import com.sigpwned.discourse.core.util.Discriminators;
 import java.util.List;
 import java.util.Set;
 
@@ -47,16 +50,18 @@ public abstract sealed class Command<T> permits SingleCommand, MultiCommand {
    * @return The command.
    * @throws ConfigurationException If there is  configuration error on the command
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
   public static <T> Command<T> scan(SinkContext storage, SerializationContext serialization,
       Class<T> rawType) {
-    ConfigurationClass configurableClass = ConfigurationClass.scan(storage, serialization, rawType);
+    Configurable configurable = rawType.getAnnotation(Configurable.class);
+    if (configurable == null) {
+      throw new NotConfigurableConfigurationException(rawType);
+    }
 
-    if (configurableClass.getDiscriminator().isPresent()) {
+    if (Discriminators.fromConfigurable(configurable).isPresent()) {
       throw new UnexpectedDiscriminatorConfigurationException(rawType);
     }
 
-    return (Command) subscan(storage, serialization, configurableClass);
+    return subscan(storage, serialization, ConfigurationClass.scan(rawType));
   }
 
   /**
@@ -64,13 +69,13 @@ public abstract sealed class Command<T> permits SingleCommand, MultiCommand {
    *
    * @param storage            The storage context.
    * @param serialization      The serialization context.
-   * @param configurationClass The class to scan.
+   * @param configurationClass The configuration class to scan.
    * @return The command.
    * @throws ConfigurationException If there is  configuration error on the command
    */
   /* default */
-  static Command<?> subscan(SinkContext storage, SerializationContext serialization,
-      ConfigurationClass configurationClass) {
+  static <T> Command<T> subscan(SinkContext storage, SerializationContext serialization,
+      ConfigurationClass<T> configurationClass) {
     if (configurationClass.getSubcommands().isEmpty()) {
       // This is a single command.
       return SingleCommand.scan(storage, serialization, configurationClass);

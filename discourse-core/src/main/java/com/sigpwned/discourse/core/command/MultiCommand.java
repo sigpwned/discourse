@@ -35,10 +35,9 @@ import com.sigpwned.discourse.core.exception.argument.InvalidDiscriminatorArgume
 import com.sigpwned.discourse.core.exception.argument.NoSubcommandArgumentException;
 import com.sigpwned.discourse.core.exception.argument.UnrecognizedSubcommandArgumentException;
 import com.sigpwned.discourse.core.exception.configuration.DiscriminatorMismatchConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.MultiCommandNotAbstractConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NoDiscriminatorConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.RootCommandNotAbstractConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.SubcommandDoesNotExtendRootCommandConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.UnexpectedDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
@@ -53,28 +52,23 @@ import java.util.Set;
 public final class MultiCommand<T> extends Command<T> {
 
   public static <T> MultiCommand<T> scan(SinkContext storage, SerializationContext serialization,
-      ConfigurationClass configurationClass) {
+      ConfigurationClass<T> configurationClass) {
     if (configurationClass.getSubcommands().isEmpty()) {
       // TODO This should be a configuration exception
       throw new IllegalArgumentException(
           format("Configurable %s has no subcommands", configurationClass.getRawType().getName()));
     }
-    if (configurationClass.getDiscriminator().isPresent()) {
-      throw new UnexpectedDiscriminatorConfigurationException(configurationClass.getRawType());
-    }
     if (!Modifier.isAbstract(configurationClass.getRawType().getModifiers())) {
-      throw new RootCommandNotAbstractConfigurationException(configurationClass.getRawType());
+      throw new MultiCommandNotAbstractConfigurationException(configurationClass.getRawType());
     }
 
     Map<Discriminator, Command<? extends T>> subcommands = new LinkedHashMap<>();
-    for (SubcommandClass subcommand : configurationClass.getSubcommands()) {
-      ConfigurationClass subcommandClass = ConfigurationClass.scan(storage, serialization,
+    for (SubcommandClass<? extends T> subcommand : configurationClass.getSubcommands()) {
+      ConfigurationClass<? extends T> subcommandClass = ConfigurationClass.scan(
           subcommand.rawType());
 
-      if (subcommandClass.getDiscriminator().isEmpty()) {
-        throw new NoDiscriminatorConfigurationException(subcommandClass.getRawType());
-      }
-      Discriminator subcommandDiscriminator = subcommandClass.getDiscriminator().orElseThrow();
+      Discriminator subcommandDiscriminator = subcommandClass.getDiscriminator().orElseThrow(
+          () -> new NoDiscriminatorConfigurationException(subcommandClass.getRawType()));
 
       if (subcommand.discriminator().isPresent() && !subcommand.discriminator().orElseThrow()
           .equals(subcommandDiscriminator)) {
@@ -99,7 +93,7 @@ public final class MultiCommand<T> extends Command<T> {
   private final Map<Discriminator, Command<? extends T>> subcommands;
 
   public MultiCommand(String name, String description, String version,
-      Map<Discriminator, Command<T>> subcommands) {
+      Map<Discriminator, Command<? extends T>> subcommands) {
     super(name, description, version);
     if (subcommands.isEmpty()) {
       throw new IllegalArgumentException("no subcommands");

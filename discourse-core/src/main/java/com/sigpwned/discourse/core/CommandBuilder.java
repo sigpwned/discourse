@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,7 @@ import com.sigpwned.discourse.core.module.DefaultModule;
 import com.sigpwned.discourse.core.value.sink.AssignValueSinkFactory;
 
 public class CommandBuilder {
+
   private final SerializationContext serializationContext;
   private final SinkContext sinkContext;
 
@@ -34,16 +35,17 @@ public class CommandBuilder {
     this.sinkContext = new SinkContext(AssignValueSinkFactory.INSTANCE);
     register(new DefaultModule());
   }
-  
+
   public CommandBuilder register(Module module) {
     module.register(getSerializationContext());
     module.register(getSinkContext());
     return this;
   }
-  
+
   public <T> Command<T> build(Class<T> rawType) {
-    if(rawType.getAnnotation(Configurable.class) == null)
+    if (rawType.getAnnotation(Configurable.class) == null) {
       throw new NotConfigurableConfigurationException(rawType);
+    }
     return Command.scan(getSinkContext(), getSerializationContext(), rawType);
   }
 
