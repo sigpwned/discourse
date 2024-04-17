@@ -22,7 +22,7 @@ package com.sigpwned.discourse.core.util;
 import static java.util.Arrays.asList;
 import java.util.List;
 import com.sigpwned.discourse.core.ArgumentException;
-import com.sigpwned.discourse.core.Command;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.ConfigurationException;
 import com.sigpwned.discourse.core.SyntaxException;

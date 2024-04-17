@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,28 +17,21 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.coordinate.name.switches;
+package com.sigpwned.discourse.core.coordinate;
 
-import java.util.regex.Pattern;
-import com.sigpwned.discourse.core.coordinate.name.SwitchNameCoordinate;
+/**
+ * A coordinate that represents an environment variable name.
+ */
+public final class VariableNameCoordinate extends NameCoordinate {
 
-public class ShortSwitchNameCoordinate extends SwitchNameCoordinate {
-  public static final String PREFIX = "-";
-
-  public static final Pattern PATTERN = Pattern.compile("[a-zA-Z0-9]");
-
-  public static ShortSwitchNameCoordinate fromString(String s) {
-    return new ShortSwitchNameCoordinate(s);
+  public static VariableNameCoordinate fromString(String text) {
+    return new VariableNameCoordinate(text);
   }
 
-  public ShortSwitchNameCoordinate(String text) {
-    super(Style.SHORT, text);
-    if (!PATTERN.matcher(text).matches())
-      throw new IllegalArgumentException("invalid short name: " + text);
-  }
-
-  @Override
-  public String toSwitchString() {
-    return PREFIX + toString();
+  public VariableNameCoordinate(String text) {
+    super(text);
+    if (text.isEmpty()) {
+      throw new IllegalArgumentException("variable names must not be blank");
+    }
   }
 }

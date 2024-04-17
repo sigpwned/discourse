@@ -21,7 +21,7 @@ package com.sigpwned.discourse.core.token;
 
 import java.util.Objects;
 import com.sigpwned.discourse.core.ArgumentToken;
-import com.sigpwned.discourse.core.coordinate.name.switches.LongSwitchNameCoordinate;
+import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.util.Generated;
 
 public class LongNameValueArgumentToken extends ArgumentToken {

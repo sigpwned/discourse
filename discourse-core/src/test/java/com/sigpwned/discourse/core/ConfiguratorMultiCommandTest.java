@@ -23,6 +23,8 @@ import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;

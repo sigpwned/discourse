@@ -19,6 +19,8 @@
  */
 package com.sigpwned.discourse.core;
 
+import com.sigpwned.discourse.core.command.Command;
+
 @FunctionalInterface
 public interface HelpFormatter {
   public String formatHelp(Command<?> command);

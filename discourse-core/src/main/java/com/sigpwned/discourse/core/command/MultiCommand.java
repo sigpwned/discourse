@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,21 +19,13 @@
  */
 package com.sigpwned.discourse.core.command;
 
-import static java.lang.String.format;
-import static java.util.Collections.unmodifiableMap;
+import static java.lang.String.*;
+import static java.util.Collections.*;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toSet;
-import java.lang.reflect.Modifier;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import com.sigpwned.discourse.core.Command;
+
 import com.sigpwned.discourse.core.ConfigurationClass;
-import com.sigpwned.discourse.core.ConfigurationParameter;
 import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.SerializationContext;
@@ -51,32 +43,48 @@ import com.sigpwned.discourse.core.exception.configuration.RootCommandNotAbstrac
 import com.sigpwned.discourse.core.exception.configuration.SubcommandDoesNotExtendRootCommandConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.UnexpectedDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.UnexpectedSubcommandsConfigurationException;
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
+import java.lang.reflect.Modifier;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
-public class MultiCommand<T> extends Command<T> {
+public final class MultiCommand<T> extends Command<T> {
+
   public static <T> MultiCommand<T> scan(SinkContext storage, SerializationContext serialization,
       Class<T> rawCommandType) {
     Configurable configurable = rawCommandType.getAnnotation(Configurable.class);
 
-    if (configurable == null)
+    if (configurable == null) {
       throw new NotConfigurableConfigurationException(rawCommandType);
+    }
 
     final String name = configurable.name().isEmpty() ? null : configurable.name();
     final String description =
         configurable.description().isEmpty() ? null : configurable.description();
     final String version = configurable.version().isEmpty() ? null : configurable.version();
 
-    if (configurable.subcommands().length == 0)
+    if (configurable.subcommands().length == 0) {
       throw new IllegalArgumentException(
           format("Configurable %s has no subcommands", rawCommandType.getName()));
-    if (!configurable.discriminator().isEmpty())
+    }
+    if (!configurable.discriminator().isEmpty()) {
       throw new UnexpectedDiscriminatorConfigurationException(rawCommandType);
-    if (!Modifier.isAbstract(rawCommandType.getModifiers()))
+    }
+    if (!Modifier.isAbstract(rawCommandType.getModifiers())) {
       throw new RootCommandNotAbstractConfigurationException(rawCommandType);
+    }
 
     Map<Discriminator, ConfigurationClass> configurationClasses = new LinkedHashMap<>();
     for (Subcommand subcommand : configurable.subcommands()) {
-      if (subcommand.discriminator().isEmpty())
+      if (subcommand.discriminator().isEmpty()) {
         throw new NoDiscriminatorConfigurationException(rawCommandType);
+      }
 
       Discriminator commandDiscriminator;
       try {
@@ -89,15 +97,18 @@ public class MultiCommand<T> extends Command<T> {
       Class<?> rawSubcommandType = subcommand.configurable();
 
       Configurable subconfigurable = rawSubcommandType.getAnnotation(Configurable.class);
-      if (subconfigurable == null)
+      if (subconfigurable == null) {
         throw new NotConfigurableConfigurationException(rawSubcommandType);
+      }
 
-      if (!Objects.equals(rawSubcommandType.getSuperclass(), rawCommandType))
+      if (!Objects.equals(rawSubcommandType.getSuperclass(), rawCommandType)) {
         throw new SubcommandDoesNotExtendRootCommandConfigurationException(rawCommandType,
             rawSubcommandType);
+      }
 
-      if (subconfigurable.discriminator().isEmpty())
+      if (subconfigurable.discriminator().isEmpty()) {
         throw new NoDiscriminatorConfigurationException(rawSubcommandType);
+      }
 
       Discriminator subcommandDiscriminator;
       try {
@@ -107,15 +118,17 @@ public class MultiCommand<T> extends Command<T> {
             subconfigurable.discriminator());
       }
 
-      if (!subcommandDiscriminator.equals(commandDiscriminator))
+      if (!subcommandDiscriminator.equals(commandDiscriminator)) {
         throw new DiscriminatorMismatchConfigurationException(rawSubcommandType,
             commandDiscriminator, subcommandDiscriminator);
+      }
 
-      if (subconfigurable.subcommands().length != 0)
+      if (subconfigurable.subcommands().length != 0) {
         throw new UnexpectedSubcommandsConfigurationException(rawSubcommandType);
+      }
 
-      ConfigurationClass configurationClass =
-          ConfigurationClass.scan(storage, serialization, rawSubcommandType);
+      ConfigurationClass configurationClass = ConfigurationClass.scan(storage, serialization,
+          rawSubcommandType);
 
       configurationClasses.put(commandDiscriminator, configurationClass);
     }
@@ -126,13 +139,13 @@ public class MultiCommand<T> extends Command<T> {
   private final String name;
   private final String description;
   private final String version;
-  private final Map<Discriminator, ConfigurationClass> subcommands;
+  private final Map<Discriminator, Command<T>> subcommands;
 
   public MultiCommand(String name, String description, String version,
       Map<Discriminator, ConfigurationClass> subcommands) {
-    super(Type.MULTI);
-    if (subcommands.isEmpty())
+    if (subcommands.isEmpty()) {
       throw new IllegalArgumentException("no subcommands");
+    }
     this.name = name;
     this.description = description;
     this.version = version;
@@ -183,9 +196,8 @@ public class MultiCommand<T> extends Command<T> {
    * Returns all option and flag parameters shared by all subcommands
    */
   public Set<ConfigurationParameter> getCommonParameters() {
-    return getSubcommands().values().stream().flatMap(c -> c.getParameters().stream())
-        .filter(p -> p.getType() == ConfigurationParameter.Type.OPTION
-            || p.getType() == ConfigurationParameter.Type.FLAG)
+    return getSubcommands().values().stream().flatMap(c -> c.getParameters().stream()).filter(
+            p -> p instanceof OptionConfigurationParameter || p instanceof FlagConfigurationParameter)
         .collect(groupingBy(p -> p, counting())).entrySet().stream()
         .filter(e -> e.getValue() == getSubcommands().size()).map(Map.Entry::getKey)
         .collect(toSet());
@@ -200,8 +212,9 @@ public class MultiCommand<T> extends Command<T> {
 
   @Override
   public Invocation<T> args(List<String> args) {
-    if (args.isEmpty())
+    if (args.isEmpty()) {
       throw new NoSubcommandArgumentException();
+    }
 
     Discriminator subcommand;
     try {
@@ -210,8 +223,8 @@ public class MultiCommand<T> extends Command<T> {
       throw new InvalidDiscriminatorArgumentException(args.get(0));
     }
 
-    ConfigurationClass configurationClass = getSubcommand(subcommand)
-        .orElseThrow(() -> new UnrecognizedSubcommandArgumentException(subcommand));
+    ConfigurationClass configurationClass = getSubcommand(subcommand).orElseThrow(
+        () -> new UnrecognizedSubcommandArgumentException(subcommand));
 
     return newInvocation(configurationClass, args);
   }

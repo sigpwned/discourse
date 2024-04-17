@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import com.sigpwned.discourse.core.ArgumentToken;
-import com.sigpwned.discourse.core.coordinate.name.switches.ShortSwitchNameCoordinate;
+import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.util.Generated;
 
 public class BundleArgumentToken extends ArgumentToken {

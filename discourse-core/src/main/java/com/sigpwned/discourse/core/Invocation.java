@@ -21,6 +21,9 @@ package com.sigpwned.discourse.core;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
+
+import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.List;

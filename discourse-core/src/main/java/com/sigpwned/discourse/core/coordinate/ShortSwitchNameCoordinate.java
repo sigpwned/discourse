@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,18 +17,32 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.coordinate.name;
+package com.sigpwned.discourse.core.coordinate;
 
-import com.sigpwned.discourse.core.coordinate.NameCoordinate;
+import java.util.regex.Pattern;
 
-public class PropertyNameCoordinate extends NameCoordinate {
-  public static PropertyNameCoordinate fromString(String s) {
-    return new PropertyNameCoordinate(s);
+/**
+ * A coordinate that represents a short switch name, e.g., -x
+ */
+public final class ShortSwitchNameCoordinate extends SwitchNameCoordinate {
+
+  public static final String PREFIX = "-";
+
+  public static final Pattern PATTERN = Pattern.compile("[a-zA-Z0-9]");
+
+  public static ShortSwitchNameCoordinate fromString(String s) {
+    return new ShortSwitchNameCoordinate(s);
   }
-  
-  public PropertyNameCoordinate(String text) {
-    super(Type.PROPERTY, text);
-    if (text.isEmpty())
-      throw new IllegalArgumentException("property names must not be blank");
+
+  public ShortSwitchNameCoordinate(String text) {
+    super(text);
+    if (!PATTERN.matcher(text).matches()) {
+      throw new IllegalArgumentException("invalid short name: " + text);
+    }
+  }
+
+  @Override
+  public String toSwitchString() {
+    return PREFIX + toString();
   }
 }

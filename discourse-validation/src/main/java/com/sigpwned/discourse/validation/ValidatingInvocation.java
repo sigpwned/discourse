@@ -25,7 +25,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import com.sigpwned.discourse.core.Command;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.ConfigurationClass;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.validation.exception.argument.ValidationArgumentException;

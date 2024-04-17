@@ -21,8 +21,8 @@ package com.sigpwned.discourse.core.util;
 
 import java.util.List;
 import com.sigpwned.discourse.core.ArgumentToken;
-import com.sigpwned.discourse.core.coordinate.name.switches.LongSwitchNameCoordinate;
-import com.sigpwned.discourse.core.coordinate.name.switches.ShortSwitchNameCoordinate;
+import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
+import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.token.BundleArgumentToken;
 import com.sigpwned.discourse.core.token.LongNameArgumentToken;
 import com.sigpwned.discourse.core.token.ShortNameArgumentToken;

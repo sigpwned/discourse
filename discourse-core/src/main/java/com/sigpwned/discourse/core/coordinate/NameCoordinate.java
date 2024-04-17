@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,34 +21,18 @@ package com.sigpwned.discourse.core.coordinate;
 
 import java.util.Comparator;
 import java.util.Objects;
-import com.sigpwned.discourse.core.Coordinate;
-import com.sigpwned.discourse.core.coordinate.name.PropertyNameCoordinate;
-import com.sigpwned.discourse.core.coordinate.name.SwitchNameCoordinate;
-import com.sigpwned.discourse.core.coordinate.name.VariableNameCoordinate;
 
-public abstract class NameCoordinate extends Coordinate implements Comparable<NameCoordinate> {
-  public static enum Type {
-    VARIABLE, PROPERTY, SWITCH;
-  }
+public abstract sealed class NameCoordinate extends Coordinate implements
+    Comparable<NameCoordinate> permits PropertyNameCoordinate, SwitchNameCoordinate,
+    VariableNameCoordinate {
 
-  private final Type type;
   private final String text;
 
-  protected NameCoordinate(Type type, String text) {
-    super(Family.NAME);
-    if (type == null)
+  protected NameCoordinate(String text) {
+    if (text == null) {
       throw new NullPointerException();
-    if (text == null)
-      throw new NullPointerException();
-    this.type = type;
+    }
     this.text = text;
-  }
-
-  /**
-   * @return the type
-   */
-  public Type getType() {
-    return type;
   }
 
   /**
@@ -58,41 +42,33 @@ public abstract class NameCoordinate extends Coordinate implements Comparable<Na
     return text;
   }
 
-  public VariableNameCoordinate asVariable() {
-    return (VariableNameCoordinate) this;
-  }
-
-  public PropertyNameCoordinate asProperty() {
-    return (PropertyNameCoordinate) this;
-  }
-
-  public SwitchNameCoordinate asSwitch() {
-    return (SwitchNameCoordinate) this;
-  }
-
   @Override
   public int hashCode() {
-    return Objects.hash(text, type);
+    return Objects.hash(text);
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     NameCoordinate other = (NameCoordinate) obj;
-    return Objects.equals(text, other.text) && type == other.type;
+    return Objects.equals(text, other.text);
   }
 
   @Override
   public String toString() {
     return getText();
   }
-  
-  public static final Comparator<NameCoordinate> COMPARATOR=Comparator.comparing(NameCoordinate::getText);
+
+  public static final Comparator<NameCoordinate> COMPARATOR = Comparator.comparing(
+      NameCoordinate::getText);
 
   @Override
   public int compareTo(NameCoordinate that) {

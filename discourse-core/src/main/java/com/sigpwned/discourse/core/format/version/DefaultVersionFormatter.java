@@ -21,7 +21,7 @@ package com.sigpwned.discourse.core.format.version;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.sigpwned.discourse.core.Command;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.VersionFormatter;
 
 public class DefaultVersionFormatter implements VersionFormatter {

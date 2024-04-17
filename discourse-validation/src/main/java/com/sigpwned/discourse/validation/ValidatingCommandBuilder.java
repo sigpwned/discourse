@@ -21,7 +21,7 @@ package com.sigpwned.discourse.validation;
 
 import static java.util.stream.Collectors.toMap;
 import java.util.Optional;
-import com.sigpwned.discourse.core.Command;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.command.MultiCommand;

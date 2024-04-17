@@ -20,11 +20,13 @@
 package com.sigpwned.discourse.core;
 
 import static java.util.Collections.unmodifiableList;
+
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import java.util.List;
 import java.util.ListIterator;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
-import com.sigpwned.discourse.core.coordinate.name.switches.LongSwitchNameCoordinate;
-import com.sigpwned.discourse.core.coordinate.name.switches.ShortSwitchNameCoordinate;
+import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
+import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.exception.configuration.MissingPositionConfigurationException;
 import com.sigpwned.discourse.core.exception.syntax.InvalidLongNameValueSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.MissingLongNameValueSyntaxException;

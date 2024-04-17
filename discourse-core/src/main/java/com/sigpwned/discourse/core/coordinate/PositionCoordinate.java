@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,23 +21,27 @@ package com.sigpwned.discourse.core.coordinate;
 
 import java.util.Comparator;
 import java.util.Objects;
-import com.sigpwned.discourse.core.Coordinate;
 
-public class PositionCoordinate extends Coordinate implements Comparable<PositionCoordinate> {
+/**
+ * A coordinate that represents a position in a sequence.
+ */
+public final class PositionCoordinate extends Coordinate implements Comparable<PositionCoordinate> {
+
   public static final PositionCoordinate ZERO = new PositionCoordinate(0);
 
   public static PositionCoordinate of(int index) {
-    if (index == 0)
+    if (index == 0) {
       return ZERO;
+    }
     return new PositionCoordinate(index);
   }
 
   private final int index;
 
   public PositionCoordinate(int index) {
-    super(Family.POSITION);
-    if (index < 0)
+    if (index < 0) {
       throw new IllegalArgumentException("index is negative");
+    }
     this.index = index;
   }
 
@@ -59,12 +63,15 @@ public class PositionCoordinate extends Coordinate implements Comparable<Positio
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     PositionCoordinate other = (PositionCoordinate) obj;
     return index == other.index;
   }
@@ -74,8 +81,8 @@ public class PositionCoordinate extends Coordinate implements Comparable<Positio
     return "Position [index=" + index + "]";
   }
 
-  public static final Comparator<PositionCoordinate> COMPARATOR =
-      Comparator.comparingInt(PositionCoordinate::getIndex);
+  public static final Comparator<PositionCoordinate> COMPARATOR = Comparator.comparingInt(
+      PositionCoordinate::getIndex);
 
   @Override
   public int compareTo(PositionCoordinate that) {
