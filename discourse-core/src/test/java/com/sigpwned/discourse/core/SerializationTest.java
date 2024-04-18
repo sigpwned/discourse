@@ -23,6 +23,7 @@ import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PropertyParameter;
+import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
 import java.io.File;
 import java.math.BigDecimal;
@@ -319,6 +320,7 @@ public class SerializationTest {
   @Test
   public void serializationTest() {
     DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(SerializationExample.class), List.of());
+        new CommandBuilder().build(SerializationExample.class), new DefaultInvocationContext(),
+        List.of());
   }
 }

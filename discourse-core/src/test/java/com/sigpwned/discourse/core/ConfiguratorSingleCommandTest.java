@@ -27,6 +27,7 @@ import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
+import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
 import java.util.Arrays;
 import java.util.List;
@@ -37,6 +38,86 @@ public class ConfiguratorSingleCommandTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  @Test
+  public void test1() {
+    final String alpha = "alpha";
+    final String bravo = "bravo";
+
+    Example1 observed = DefaultInvocationStrategy.INSTANCE.invoke(
+        new CommandBuilder().build(Example1.class), new DefaultInvocationContext(),
+        List.of("-f", "-o", alpha, bravo)).getConfiguration();
+
+    Example1 expected = new Example1();
+    expected.flag = true;
+    expected.option = alpha;
+    expected.position0 = bravo;
+
+    assertThat(observed, is(expected));
+  }
+
+  @Test
+  public void test2() {
+    final String alpha = "alpha";
+    final String bravo = "bravo";
+    final String charlie = "charlie";
+
+    Example2 observed = DefaultInvocationStrategy.INSTANCE.invoke(
+        new CommandBuilder().build(Example2.class), new DefaultInvocationContext(),
+        List.of("-f", "-o", alpha, bravo, charlie)).getConfiguration();
+
+    Example2 expected = new Example2();
+    expected.flag = true;
+    expected.option = alpha;
+    expected.positions = asList(bravo, charlie);
+
+    assertThat(observed, is(expected));
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  @Test
+  public void allowUnconfiguredFieldExample() {
+    final String hello = "hello";
+
+    AllowUnconfiguredFieldExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
+        new CommandBuilder().build(AllowUnconfiguredFieldExample.class),
+        new DefaultInvocationContext(), List.of(hello)).getConfiguration();
+
+    AllowUnconfiguredFieldExample expected = new AllowUnconfiguredFieldExample();
+    expected.example2 = hello;
+
+    assertThat(observed, is(expected));
+  }
+
+  @Test
+  public void accessorExample() {
+    final String hello = "hello";
+
+    AccessorExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
+        new CommandBuilder().build(AccessorExample.class), new DefaultInvocationContext(),
+        List.of(hello)).getConfiguration();
+
+    AccessorExample expected = new AccessorExample();
+    expected.example = hello;
+
+    assertThat(observed, is(expected));
+  }
+
+  @Test
+  public void primitivesExample() {
+    PrimitivesExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
+        new CommandBuilder().build(PrimitivesExample.class), new DefaultInvocationContext(),
+        List.of("-x", "1", "2", "3")).getConfiguration();
+
+    PrimitivesExample expected = new PrimitivesExample();
+    expected.x = 1;
+    expected.examples = new int[]{2, 3};
+
+    assertThat(observed, is(expected));
+  }
 
   /**
    * Bog standard
@@ -75,27 +156,6 @@ public class ConfiguratorSingleCommandTest {
     }
   }
 
-  @Test
-  public void test1() {
-    final String alpha = "alpha";
-    final String bravo = "bravo";
-
-    Example1 observed = DefaultInvocationStrategy.INSTANCE.invoke(
-            new CommandBuilder().build(Example1.class), List.of("-f", "-o", alpha, bravo))
-        .getConfiguration();
-
-    Example1 expected = new Example1();
-    expected.flag = true;
-    expected.option = alpha;
-    expected.position0 = bravo;
-
-    assertThat(observed, is(expected));
-  }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-
   /**
    * Collection positional arguments
    */
@@ -133,24 +193,6 @@ public class ConfiguratorSingleCommandTest {
     }
   }
 
-  @Test
-  public void test2() {
-    final String alpha = "alpha";
-    final String bravo = "bravo";
-    final String charlie = "charlie";
-
-    Example2 observed = DefaultInvocationStrategy.INSTANCE.invoke(
-            new CommandBuilder().build(Example2.class), List.of("-f", "-o", alpha, bravo, charlie))
-        .getConfiguration();
-
-    Example2 expected = new Example2();
-    expected.flag = true;
-    expected.option = alpha;
-    expected.positions = asList(bravo, charlie);
-
-    assertThat(observed, is(expected));
-  }
-
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,20 +224,6 @@ public class ConfiguratorSingleCommandTest {
       AllowUnconfiguredFieldExample other = (AllowUnconfiguredFieldExample) obj;
       return Objects.equals(example1, other.example1) && Objects.equals(example2, other.example2);
     }
-  }
-
-  @Test
-  public void allowUnconfiguredFieldExample() {
-    final String hello = "hello";
-
-    AllowUnconfiguredFieldExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(
-            AllowUnconfiguredFieldExample.class), List.of(hello)).getConfiguration();
-
-    AllowUnconfiguredFieldExample expected = new AllowUnconfiguredFieldExample();
-    expected.example2 = hello;
-
-    assertThat(observed, is(expected));
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -236,19 +264,6 @@ public class ConfiguratorSingleCommandTest {
     }
   }
 
-  @Test
-  public void accessorExample() {
-    final String hello = "hello";
-
-    AccessorExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(AccessorExample.class), List.of(hello)).getConfiguration();
-
-    AccessorExample expected = new AccessorExample();
-    expected.example = hello;
-
-    assertThat(observed, is(expected));
-  }
-
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -284,18 +299,5 @@ public class ConfiguratorSingleCommandTest {
       PrimitivesExample other = (PrimitivesExample) obj;
       return Arrays.equals(examples, other.examples) && x == other.x;
     }
-  }
-
-  @Test
-  public void primitivesExample() {
-    PrimitivesExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
-            new CommandBuilder().build(PrimitivesExample.class), List.of("-x", "1", "2", "3"))
-        .getConfiguration();
-
-    PrimitivesExample expected = new PrimitivesExample();
-    expected.x = 1;
-    expected.examples = new int[]{2, 3};
-
-    assertThat(observed, is(expected));
   }
 }

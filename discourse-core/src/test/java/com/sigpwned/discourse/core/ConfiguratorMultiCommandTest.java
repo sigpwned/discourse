@@ -29,6 +29,7 @@ import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.Subcommand;
 import com.sigpwned.discourse.core.command.MultiCommand;
+import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.util.Commands;
@@ -184,8 +185,8 @@ public class ConfiguratorMultiCommandTest {
     final String world = "world";
 
     MultiExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
-            new CommandBuilder().build(MultiExample.class), List.of("alpha", "-o", hello, world))
-        .getConfiguration();
+        new CommandBuilder().build(MultiExample.class), new DefaultInvocationContext(),
+        List.of("alpha", "-o", hello, world)).getConfiguration();
 
     AlphaMultiExample expected = new AlphaMultiExample();
     expected.option = hello;
@@ -203,8 +204,8 @@ public class ConfiguratorMultiCommandTest {
     final String world = "world";
 
     MultiExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
-            new CommandBuilder().build(MultiExample.class), List.of("bravo", "-o", hello, world))
-        .getConfiguration();
+        new CommandBuilder().build(MultiExample.class), new DefaultInvocationContext(),
+        List.of("bravo", "-o", hello, world)).getConfiguration();
 
     BravoMultiExample expected = new BravoMultiExample();
     expected.option = hello;

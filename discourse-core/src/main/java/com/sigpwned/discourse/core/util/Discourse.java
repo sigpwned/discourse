@@ -24,11 +24,15 @@ import static java.util.Arrays.asList;
 import com.sigpwned.discourse.core.ArgumentException;
 import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.ConfigurationException;
+import com.sigpwned.discourse.core.HelpFormatter;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.InvocationStrategy;
 import com.sigpwned.discourse.core.SyntaxException;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
+import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.invocation.strategy.SingleCommandInvocationStrategy;
+import java.io.PrintStream;
 import java.util.List;
 
 public final class Discourse {
@@ -51,6 +55,13 @@ public final class Discourse {
   }
 
   /**
+   * Creates a default invocation context.
+   */
+  public static InvocationContext defaultInvocationContext() {
+    return new DefaultInvocationContext();
+  }
+
+  /**
    * Create a configuration object of the given type from the given arguments.
    */
   public static <T> T configuration(Class<T> rawType, String[] args) {
@@ -62,15 +73,16 @@ public final class Discourse {
    * command builder.
    */
   public static <T> T configuration(Class<T> rawType, CommandBuilder b, InvocationStrategy invoker,
-      String[] args) {
-    return configuration(rawType, b, invoker, List.of(args));
+      InvocationContext context, String[] args) {
+    return configuration(rawType, b, invoker, context, List.of(args));
   }
 
   /**
    * Create a configuration object of the given type from the given arguments.
    */
   public static <T> T configuration(Class<T> rawType, List<String> args) {
-    return configuration(rawType, defaultCommandBuilder(), defaultInvocationStrategy(), args);
+    return configuration(rawType, defaultCommandBuilder(), defaultInvocationStrategy(),
+        defaultInvocationContext(), args);
   }
 
   /**
@@ -78,35 +90,51 @@ public final class Discourse {
    * command builder.
    */
   public static <T> T configuration(Class<T> rawType, CommandBuilder b, InvocationStrategy invoker,
-      List<String> args) {
+      InvocationContext context, List<String> args) {
 
     Command<T> command;
     try {
       command = b.build(rawType);
     } catch (ConfigurationException e) {
-      System.err.println("There was a problem with the application configuration.");
-      System.err.println("You should reach out to the application developer for help.");
-      System.err.println("They may find the following information useful:");
-      System.err.println("ARGUMENTS: " + args);
-      System.err.println("STACK TRACE:");
-      e.printStackTrace(System.err);
+      PrintStream err = context.<PrintStream>get(InvocationContext.ERROR_STREAM_KEY)
+          .orElse(System.err);
+      err.println("There was a problem with the application configuration.");
+      err.println("You should reach out to the application developer for help.");
+      err.println("They may find the following information useful:");
+      err.println("ARGUMENTS: " + args);
+      err.println("STACK TRACE:");
+      e.printStackTrace(err);
       throw exit(1);
     }
 
     T result;
     try {
-      result = invoker.invoke(command, args).getConfiguration();
+      result = invoker.invoke(command, context, args).getConfiguration();
     } catch (SyntaxException e) {
-      System.err.println("ERROR: " + e.getMessage());
+      // In this case, the user has made a mistake in the command line syntax. The command line
+      // cannot be understood, so we do our best to figure out what the problem is and print a
+      // helpful error message.
+      PrintStream err = context.<PrintStream>get(InvocationContext.ERROR_STREAM_KEY)
+          .orElse(System.err);
       if (args.isEmpty()) {
-        System.err.println(DefaultHelpFormatter.INSTANCE.formatHelp(command));
+        HelpFormatter formatter = context.<HelpFormatter>get(InvocationContext.HELP_FORMATTER_KEY)
+            .orElse(DefaultHelpFormatter.INSTANCE);
+        err.println(formatter.formatHelp(command));
+      } else {
+        err.println("ERROR: " + e.getMessage());
       }
       throw exit(2);
     } catch (ArgumentException e) {
-      System.err.println("ERROR: " + e.getMessage());
+      // In this case, the user has made a mistake in the command line arguments. The command line
+      // is understood, but the arguments are not valid. We print a helpful error message.
+      PrintStream err = context.<PrintStream>get(InvocationContext.ERROR_STREAM_KEY)
+          .orElse(System.err);
+      err.println("ERROR: " + e.getMessage());
       throw exit(3);
     } catch (RuntimeException e) {
-      System.err.println("ERROR: " + e.getMessage());
+      PrintStream err = context.<PrintStream>get(InvocationContext.ERROR_STREAM_KEY)
+          .orElse(System.err);
+      err.println("ERROR: " + e.getMessage());
       throw exit(4);
     }
 

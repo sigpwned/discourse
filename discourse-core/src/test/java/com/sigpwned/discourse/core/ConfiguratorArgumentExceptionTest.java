@@ -30,7 +30,10 @@ import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgument
 import com.sigpwned.discourse.core.exception.argument.NoSubcommandArgumentException;
 import com.sigpwned.discourse.core.exception.argument.UnassignedRequiredParametersArgumentException;
 import com.sigpwned.discourse.core.exception.argument.UnrecognizedSubcommandArgumentException;
+import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
+import com.sigpwned.discourse.core.invocation.strategy.SingleCommandInvocationStrategy;
+import com.sigpwned.discourse.core.invocation.strategy.SubcommandDereferencingInvocationStrategy;
 import java.util.List;
 import java.util.Objects;
 import org.junit.Test;
@@ -60,8 +63,8 @@ public class ConfiguratorArgumentExceptionTest {
   @Test(expected = NewInstanceFailureArgumentException.class)
   public void constructorFailureExample() {
     DefaultInvocationStrategy.INSTANCE.invoke(
-            new CommandBuilder().build(ConstructorFailureExample.class), List.of("hello"))
-        .getConfiguration();
+        new CommandBuilder().build(ConstructorFailureExample.class), new DefaultInvocationContext(),
+        List.of("hello")).getConfiguration();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,8 +88,8 @@ public class ConfiguratorArgumentExceptionTest {
   @Test(expected = AssignmentFailureArgumentException.class)
   public void positionalAssignmentFailureExample() {
     DefaultInvocationStrategy.INSTANCE.invoke(
-            new CommandBuilder().build(PositionalAssignmentFailureExample.class), List.of("hello"))
-        .getConfiguration();
+        new CommandBuilder().build(PositionalAssignmentFailureExample.class),
+        new DefaultInvocationContext(), List.of("hello")).getConfiguration();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -110,8 +113,8 @@ public class ConfiguratorArgumentExceptionTest {
   @Test(expected = AssignmentFailureArgumentException.class)
   public void optionAssignmentFailureExample() {
     DefaultInvocationStrategy.INSTANCE.invoke(
-            new CommandBuilder().build(OptionAssignmentFailureExample.class), List.of("-x", "hello"))
-        .getConfiguration();
+        new CommandBuilder().build(OptionAssignmentFailureExample.class),
+        new DefaultInvocationContext(), List.of("-x", "hello")).getConfiguration();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,8 +138,8 @@ public class ConfiguratorArgumentExceptionTest {
   @Test(expected = AssignmentFailureArgumentException.class)
   public void flagAssignmentFailureExample() {
     DefaultInvocationStrategy.INSTANCE.invoke(
-            new CommandBuilder().build(FlagAssignmentFailureExample.class), List.of("-x"))
-        .getConfiguration();
+        new CommandBuilder().build(FlagAssignmentFailureExample.class),
+        new DefaultInvocationContext(), List.of("-x")).getConfiguration();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -151,8 +154,9 @@ public class ConfiguratorArgumentExceptionTest {
 
   @Test(expected = UnassignedRequiredParametersArgumentException.class)
   public void missingRequiredExample() {
-    DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(MissingRequiredExample.class), List.of()).getConfiguration();
+    new SingleCommandInvocationStrategy().invoke(
+        new CommandBuilder().build(MissingRequiredExample.class), new DefaultInvocationContext(),
+        List.of()).getConfiguration();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,8 +256,8 @@ public class ConfiguratorArgumentExceptionTest {
    */
   @Test(expected = NoSubcommandArgumentException.class)
   public void multiExampleNoSubcommands() {
-    DefaultInvocationStrategy.INSTANCE.invoke(new CommandBuilder().build(MultiExample.class),
-        List.of());
+    new SubcommandDereferencingInvocationStrategy(new SingleCommandInvocationStrategy()).invoke(
+        new CommandBuilder().build(MultiExample.class), new DefaultInvocationContext(), List.of());
   }
 
   /**
@@ -262,7 +266,7 @@ public class ConfiguratorArgumentExceptionTest {
   @Test(expected = UnrecognizedSubcommandArgumentException.class)
   public void multiExampleUnknownSubcommand() {
     DefaultInvocationStrategy.INSTANCE.invoke(new CommandBuilder().build(MultiExample.class),
-        List.of("charlie"));
+        new DefaultInvocationContext(), List.of("charlie"));
   }
 
   /**
@@ -271,6 +275,6 @@ public class ConfiguratorArgumentExceptionTest {
   @Test(expected = InvalidDiscriminatorArgumentException.class)
   public void multiExampleInvalidSubcommand() {
     DefaultInvocationStrategy.INSTANCE.invoke(new CommandBuilder().build(MultiExample.class),
-        List.of("-"));
+        new DefaultInvocationContext(), List.of("-"));
   }
 }

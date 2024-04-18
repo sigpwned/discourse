@@ -25,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
+import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.validation.exception.argument.ValidationArgumentException;
 import java.util.List;
 import javax.validation.ConstraintViolation;
@@ -46,7 +47,7 @@ public class ValidationTest {
   @Test
   public void goodTest() {
     new ValidatingInvocationStrategy().invoke(new CommandBuilder().build(Example.class),
-        List.of("5")).getConfiguration();
+        new DefaultInvocationContext(), List.of("5")).getConfiguration();
   }
 
   @Test
@@ -55,7 +56,7 @@ public class ValidationTest {
 
     try {
       new ValidatingInvocationStrategy().invoke(new CommandBuilder().build(Example.class),
-          List.of("15")).getConfiguration();
+          new DefaultInvocationContext(), List.of("15")).getConfiguration();
       throw new AssertionError("no exception");
     } catch (ValidationArgumentException e) {
       problem = e;

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.HelpFormatter;
 import com.sigpwned.discourse.core.Invocation;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.InvocationStrategy;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
@@ -39,31 +40,19 @@ import java.util.List;
  */
 public class HelpPrintingInvocationStrategy implements InvocationStrategy {
 
-  public static final HelpFormatter DEFAULT_FORMATTER = DefaultHelpFormatter.INSTANCE;
+  private static final HelpFormatter DEFAULT_FORMATTER = DefaultHelpFormatter.INSTANCE;
 
-  public static final PrintStream DEFAULT_OUTPUT = System.err;
+  private static final PrintStream DEFAULT_ERROR_STREAM = System.err;
 
   private final InvocationStrategy delegate;
-  private final HelpFormatter formatter;
-  private final PrintStream output;
 
   public HelpPrintingInvocationStrategy(InvocationStrategy delegate) {
-    this(delegate, DEFAULT_FORMATTER);
-  }
-
-  public HelpPrintingInvocationStrategy(InvocationStrategy delegate, HelpFormatter formatter) {
-    this(delegate, formatter, DEFAULT_OUTPUT);
-  }
-
-  public HelpPrintingInvocationStrategy(InvocationStrategy delegate, HelpFormatter formatter,
-      PrintStream output) {
     this.delegate = requireNonNull(delegate);
-    this.formatter = requireNonNull(formatter);
-    this.output = requireNonNull(output);
   }
 
   @Override
-  public <T> Invocation<? extends T> invoke(Command<T> command, List<String> args) {
+  public <T> Invocation<? extends T> invoke(Command<T> command, InvocationContext context,
+      List<String> args) {
     if (!(command instanceof SingleCommand<T> single)) {
       throw new IllegalArgumentException("Command is not a SingleCommand");
     }
@@ -72,23 +61,33 @@ public class HelpPrintingInvocationStrategy implements InvocationStrategy {
         .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
         .filter(FlagConfigurationParameter::isHelp).findFirst().ifPresent(helpFlag -> {
           if (Args.containsFlag(args, helpFlag.getShortName(), helpFlag.getLongName())) {
-            getOutput().println(getFormatter().formatHelp(single));
-            System.exit(0);
+            PrintStream err = getErrorStream(context);
+            HelpFormatter formatter = getHelpFormatter(context);
+            err.print(formatter.formatHelp(single));
+            err.flush();
+            throw exit(0);
           }
         });
 
-    return getDelegate().invoke(command, args);
+    return getDelegate().invoke(command, context, args);
   }
 
   private InvocationStrategy getDelegate() {
     return delegate;
   }
 
-  private HelpFormatter getFormatter() {
-    return formatter;
+  private HelpFormatter getHelpFormatter(InvocationContext context) {
+    return context.<HelpFormatter>get(InvocationContext.HELP_FORMATTER_KEY)
+        .orElse(DEFAULT_FORMATTER);
   }
 
-  private PrintStream getOutput() {
-    return output;
+  private PrintStream getErrorStream(InvocationContext context) {
+    return context.<PrintStream>get(InvocationContext.ERROR_STREAM_KEY)
+        .orElse(DEFAULT_ERROR_STREAM);
+  }
+
+  private AssertionError exit(int status) {
+    System.exit(status);
+    return new AssertionError("exit");
   }
 }

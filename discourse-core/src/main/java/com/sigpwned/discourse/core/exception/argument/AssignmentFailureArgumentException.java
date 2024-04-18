@@ -23,6 +23,8 @@ import static java.lang.String.format;
 import com.sigpwned.discourse.core.ArgumentException;
 
 public class AssignmentFailureArgumentException extends ArgumentException {
+  // TODO This is probably more of a runtime-type exception than an argument exception
+
   private final String propertyName;
   
   public AssignmentFailureArgumentException(String propertyName, Exception cause) {

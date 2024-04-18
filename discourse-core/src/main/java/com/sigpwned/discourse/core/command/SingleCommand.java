@@ -114,6 +114,11 @@ public final class SingleCommand<T> extends Command<T> {
     this.beanClass = requireNonNull(beanClass);
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public Class<T> getRawType() {
+    return (Class) beanClass.getRawType();
+  }
+
   public Set<ConfigurationParameter> getParameters() {
     return parameters;
   }

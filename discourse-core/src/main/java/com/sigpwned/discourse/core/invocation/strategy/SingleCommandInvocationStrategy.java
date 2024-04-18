@@ -24,6 +24,7 @@ import static java.util.stream.Collectors.toCollection;
 
 import com.sigpwned.discourse.core.ArgumentsParser;
 import com.sigpwned.discourse.core.Invocation;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.InvocationStrategy;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
@@ -68,7 +69,7 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
   }
 
   @Override
-  public <T> Invocation<? extends T> invoke(Command<T> command, List<String> args) {
+  public <T> Invocation<? extends T> invoke(Command<T> command, InvocationContext context, List<String> args) {
     if (!(command instanceof SingleCommand<T> single)) {
       throw new IllegalArgumentException("Command is not a SingleCommand");
     }

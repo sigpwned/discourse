@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,6 +22,7 @@ package com.sigpwned.discourse.core.invocation.strategy;
 import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.Invocation;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.InvocationStrategy;
 import com.sigpwned.discourse.core.VersionFormatter;
 import com.sigpwned.discourse.core.command.Command;
@@ -39,32 +40,19 @@ import java.util.List;
  */
 public class VersionPrintingInvocationStrategy implements InvocationStrategy {
 
-  public static final VersionFormatter DEFAULT_FORMATTER = DefaultVersionFormatter.INSTANCE;
+  private static final VersionFormatter DEFAULT_FORMATTER = DefaultVersionFormatter.INSTANCE;
 
-  public static final PrintStream DEFAULT_OUTPUT = System.err;
+  private static final PrintStream DEFAULT_ERROR_STREAM = System.err;
 
   private final InvocationStrategy delegate;
-  private final VersionFormatter formatter;
-  private final PrintStream output;
 
   public VersionPrintingInvocationStrategy(InvocationStrategy delegate) {
-    this(delegate, DEFAULT_FORMATTER);
-  }
-
-  public VersionPrintingInvocationStrategy(InvocationStrategy delegate,
-      VersionFormatter formatter) {
-    this(delegate, formatter, DEFAULT_OUTPUT);
-  }
-
-  public VersionPrintingInvocationStrategy(InvocationStrategy delegate, VersionFormatter formatter,
-      PrintStream output) {
     this.delegate = requireNonNull(delegate);
-    this.formatter = requireNonNull(formatter);
-    this.output = requireNonNull(output);
   }
 
   @Override
-  public <T> Invocation<? extends T> invoke(Command<T> command, List<String> args) {
+  public <T> Invocation<? extends T> invoke(Command<T> command, InvocationContext context,
+      List<String> args) {
     if (!(command instanceof SingleCommand<T> single)) {
       throw new IllegalArgumentException("Command is not a SingleCommand");
     }
@@ -73,23 +61,33 @@ public class VersionPrintingInvocationStrategy implements InvocationStrategy {
         .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
         .filter(FlagConfigurationParameter::isVersion).findFirst().ifPresent(versionFlag -> {
           if (Args.containsFlag(args, versionFlag.getShortName(), versionFlag.getLongName())) {
-            getOutput().println(getFormatter().formatVersion(command));
-            System.exit(0);
+            VersionFormatter formatter = getVersionFormatter(context);
+            PrintStream err = getErrorStream(context);
+            err.print(formatter.formatVersion(command));
+            err.flush();
+            throw exit(0);
           }
         });
 
-    return getDelegate().invoke(command, args);
+    return getDelegate().invoke(command, context, args);
   }
 
   private InvocationStrategy getDelegate() {
     return delegate;
   }
 
-  private VersionFormatter getFormatter() {
-    return formatter;
+  private VersionFormatter getVersionFormatter(InvocationContext context) {
+    return context.<VersionFormatter>get(InvocationContext.VERSION_FORMATTER_KEY)
+        .orElse(DEFAULT_FORMATTER);
   }
 
-  private PrintStream getOutput() {
-    return output;
+  private PrintStream getErrorStream(InvocationContext context) {
+    return context.<PrintStream>get(InvocationContext.ERROR_STREAM_KEY)
+        .orElse(DEFAULT_ERROR_STREAM);
+  }
+
+  private AssertionError exit(int status) {
+    System.exit(status);
+    return new AssertionError("exit");
   }
 }

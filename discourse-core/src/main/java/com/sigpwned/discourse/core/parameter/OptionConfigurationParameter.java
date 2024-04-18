@@ -19,16 +19,12 @@
  */
 package com.sigpwned.discourse.core.parameter;
 
-import static java.util.Collections.*;
-
-import com.sigpwned.discourse.core.coordinate.Coordinate;
 import com.sigpwned.discourse.core.ValueDeserializer;
 import com.sigpwned.discourse.core.ValueSink;
-import com.sigpwned.discourse.core.coordinate.NameCoordinate;
+import com.sigpwned.discourse.core.coordinate.Coordinate;
 import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.util.Generated;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -69,14 +65,13 @@ public final class OptionConfigurationParameter extends ConfigurationParameter {
 
   @Override
   public Set<Coordinate> getCoordinates() {
-    Set<NameCoordinate> result = new HashSet<>(2);
-    if (getShortName() != null) {
-      result.add(getShortName());
+    if (getShortName() == null) {
+      return Set.of(getLongName());
+    } else if (getLongName() == null) {
+      return Set.of(getShortName());
+    } else {
+      return Set.of(getShortName(), getLongName());
     }
-    if (getLongName() != null) {
-      result.add(getLongName());
-    }
-    return unmodifiableSet(result);
   }
 
   @Override

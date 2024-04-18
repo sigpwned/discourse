@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
+import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
 import java.util.Arrays;
 import java.util.List;
@@ -98,6 +99,7 @@ public class SinkTest {
   public void sinkTest() {
     SinkExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
         new CommandBuilder().build(SinkExample.class),
+        new DefaultInvocationContext(),
         List.of("--assign", "alpha", "--list", "bravo", "--list", "charlie", "--set", "delta",
             "--set", "echo", "--sortedSet", "foxtrot", "--sortedSet", "golf", "--array", "hotel",
             "--array", "india")).getConfiguration();

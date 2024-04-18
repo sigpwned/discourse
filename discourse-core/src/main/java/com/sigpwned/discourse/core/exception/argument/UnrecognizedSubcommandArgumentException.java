@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,16 +19,37 @@
  */
 package com.sigpwned.discourse.core.exception.argument;
 
-import static java.lang.String.format;
+import static java.lang.String.*;
+import static java.util.Objects.requireNonNull;
+
 import com.sigpwned.discourse.core.ConfigurationException;
 import com.sigpwned.discourse.core.Discriminator;
+import com.sigpwned.discourse.core.command.MultiCommand;
 
+/**
+ * Thrown when a user provides a discriminator that does not match any subcommand.
+ */
 public class UnrecognizedSubcommandArgumentException extends ConfigurationException {
+
+  private final MultiCommand<?> command;
   private final Discriminator discriminator;
 
-  public UnrecognizedSubcommandArgumentException(Discriminator discriminator) {
+  /**
+   * @param command       The context in which the unrecognized discriminator was provided.
+   * @param discriminator The discriminator that was provided.
+   */
+  public UnrecognizedSubcommandArgumentException(MultiCommand<?> command,
+      Discriminator discriminator) {
     super(format("There is no subcommand for discriminator '%s'", discriminator));
-    this.discriminator = discriminator;
+    this.command = requireNonNull(command);
+    this.discriminator = requireNonNull(discriminator);
+  }
+
+  /**
+   * @return the command
+   */
+  public MultiCommand<?> getCommand() {
+    return command;
   }
 
   /**

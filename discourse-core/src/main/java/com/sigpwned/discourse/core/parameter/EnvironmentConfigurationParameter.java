@@ -19,11 +19,9 @@
  */
 package com.sigpwned.discourse.core.parameter;
 
-import static java.util.Collections.*;
-
-import com.sigpwned.discourse.core.coordinate.Coordinate;
 import com.sigpwned.discourse.core.ValueDeserializer;
 import com.sigpwned.discourse.core.ValueSink;
+import com.sigpwned.discourse.core.coordinate.Coordinate;
 import com.sigpwned.discourse.core.coordinate.VariableNameCoordinate;
 import com.sigpwned.discourse.core.util.Generated;
 import java.util.Objects;
@@ -51,7 +49,7 @@ public final class EnvironmentConfigurationParameter extends ConfigurationParame
 
   @Override
   public Set<Coordinate> getCoordinates() {
-    return unmodifiableSet(singleton(getVariableName()));
+    return Set.of(getVariableName());
   }
 
   @Override

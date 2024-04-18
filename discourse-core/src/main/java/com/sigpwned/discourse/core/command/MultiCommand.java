@@ -21,6 +21,7 @@ package com.sigpwned.discourse.core.command;
 
 import static java.lang.String.*;
 import static java.util.Collections.*;
+import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.ConfigurableClass;
 import com.sigpwned.discourse.core.ConfigurableClass.SubcommandClass;
@@ -72,19 +73,25 @@ public final class MultiCommand<T> extends Command<T> {
           Command.subscan(storage, serialization, subcommandClass));
     }
 
-    return new MultiCommand<>(configurableClass.getName(), configurableClass.getDescription(),
-        configurableClass.getVersion(), subcommands);
+    return new MultiCommand<>(configurableClass.getRawType(), configurableClass.getName(),
+        configurableClass.getDescription(), configurableClass.getVersion(), subcommands);
   }
 
+  private final Class<T> rawType;
   private final Map<Discriminator, Command<? extends T>> subcommands;
 
-  public MultiCommand(String name, String description, String version,
+  public MultiCommand(Class<T> rawType, String name, String description, String version,
       Map<Discriminator, Command<? extends T>> subcommands) {
     super(name, description, version);
+    this.rawType = requireNonNull(rawType);
     if (subcommands.isEmpty()) {
       throw new IllegalArgumentException("no subcommands");
     }
     this.subcommands = unmodifiableMap(subcommands);
+  }
+
+  public Class<T> getRawType() {
+    return rawType;
   }
 
   /**

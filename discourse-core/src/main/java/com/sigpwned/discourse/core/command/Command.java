@@ -91,6 +91,8 @@ public abstract sealed class Command<T> permits SingleCommand, MultiCommand {
     this.version = version;
   }
 
+  public abstract Class<T> getRawType();
+
   public String getName() {
     return name;
   }
