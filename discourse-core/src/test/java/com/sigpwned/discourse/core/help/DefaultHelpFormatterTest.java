@@ -21,11 +21,12 @@ package com.sigpwned.discourse.core.help;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+
+import com.sigpwned.discourse.core.Command;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 import com.google.common.io.Resources;
-import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;

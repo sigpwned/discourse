@@ -19,6 +19,7 @@
  */
 package com.sigpwned.discourse.core.coordinate;
 
+import com.sigpwned.discourse.core.Coordinate;
 import java.util.Comparator;
 import java.util.Objects;
 

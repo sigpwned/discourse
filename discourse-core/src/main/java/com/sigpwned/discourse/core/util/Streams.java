@@ -21,7 +21,7 @@ package com.sigpwned.discourse.core.util;
 
 import static java.util.stream.Collectors.groupingBy;
 
-import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
+import com.sigpwned.discourse.core.ConfigurationParameter;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;

@@ -19,7 +19,7 @@
  */
 package com.sigpwned.discourse.core.util;
 
-import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
+import com.sigpwned.discourse.core.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;

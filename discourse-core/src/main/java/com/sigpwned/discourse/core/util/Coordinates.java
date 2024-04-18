@@ -19,7 +19,7 @@
  */
 package com.sigpwned.discourse.core.util;
 
-import com.sigpwned.discourse.core.coordinate.Coordinate;
+import com.sigpwned.discourse.core.Coordinate;
 import com.sigpwned.discourse.core.coordinate.NameCoordinate;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import java.util.function.BiConsumer;

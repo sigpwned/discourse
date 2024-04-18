@@ -1,8 +1,8 @@
 /*-
  * =================================LICENSE_START==================================
- * discourse-validation
+ * discourse-core
  * ====================================SECTION=====================================
- * Copyright (C) 2022 Andy Boothe
+ * Copyright (C) 2022 - 2024 Andy Boothe
  * ====================================SECTION=====================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,24 +17,7 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.validation.command;
-
-import java.util.List;
-import java.util.Map;
-import com.sigpwned.discourse.core.ConfigurationClass;
-import com.sigpwned.discourse.core.Discriminator;
-import com.sigpwned.discourse.core.Invocation;
-import com.sigpwned.discourse.core.command.MultiCommand;
-import com.sigpwned.discourse.validation.ValidatingInvocation;
-
-public class ValidatingMultiCommand<T> extends MultiCommand<T> {
-  public ValidatingMultiCommand(String name, String description, String version,
-      Map<Discriminator, ConfigurationClass> subcommands) {
-    super(name, description, version, subcommands);
-  }
-
-  @Override
-  protected Invocation<T> newInvocation(ConfigurationClass configurationClass, List<String> args) {
-    return new ValidatingInvocation<T>(this, configurationClass, args);
-  }
+module com.sigpwned.discourse {
+  requires espresso;
+  requires java.base;
 }

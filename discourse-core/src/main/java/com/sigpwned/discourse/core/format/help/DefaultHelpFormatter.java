@@ -22,17 +22,18 @@ package com.sigpwned.discourse.core.format.help;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.joining;
 
+import com.sigpwned.discourse.core.Command;
+import com.sigpwned.discourse.core.ConfigurationParameter;
 import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.HelpFormatter;
-import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
-import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
+import com.sigpwned.discourse.core.util.Commands;
 import com.sigpwned.discourse.core.util.JodaBeanUtils;
 import com.sigpwned.discourse.core.util.Streams;
 import com.sigpwned.discourse.core.util.Text;
@@ -45,6 +46,7 @@ import java.lang.reflect.Type;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -264,7 +266,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
             out.println();
           }
 
-          Set<ConfigurationParameter> commonParameters = command.getCommonParameters();
+          Set<ConfigurationParameter> commonParameters = Commands.commonParameters(command);
 
           List<FlagConfigurationParameter> commonFlags = commonParameters.stream()
               .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class)).toList();
@@ -330,31 +332,31 @@ public class DefaultHelpFormatter implements HelpFormatter {
           }
 
           out.println(Text.wrap(
-              "First parameter must be a subcommand specifier: " + command.listSubcommands()
+              "First parameter must be a subcommand specifier: " + command.getSubcommands().keySet()
                   .stream().sorted().map(Objects::toString).collect(joining(", ")),
               n -> n == 0 ? getWidth() : getWidth() - 4,
               l -> l.startsWith("First ") ? l : "    " + l));
           out.println();
 
-          Iterator<Discriminator> subcommandIterator = command.listSubcommands().stream().sorted()
-              .iterator();
+          @SuppressWarnings({"rawtypes",
+              "unchecked"}) Iterator<Map.Entry<Discriminator, Command<?>>> subcommandIterator = (Iterator) command.getSubcommands()
+              .entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).iterator();
           while (subcommandIterator.hasNext()) {
-            Discriminator subdiscriminator = subcommandIterator.next();
+            Map.Entry<Discriminator, Command<?>> subentry = subcommandIterator.next();
+            Discriminator subdiscriminator = subentry.getKey();
+            Command<?> subcommand = subentry.getValue();
 
-            Command<?> subcommand = command.getSubcommand(subdiscriminator).orElseThrow(
-                () -> new AssertionError("Failed to retrieve subcommand: " + subdiscriminator));
-
-            List<FlagConfigurationParameter> flags = subcommand.getParameters().stream()
+            List<FlagConfigurationParameter> flags = Commands.parameters(subcommand)
                 .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
                 .filter(not(commonFlags::contains))
                 .sorted(Comparator.comparing(FlagConfigurationParameter::getName)).toList();
 
-            List<OptionConfigurationParameter> options = subcommand.getParameters().stream()
+            List<OptionConfigurationParameter> options = Commands.parameters(subcommand)
                 .mapMulti(Streams.filterAndCast(OptionConfigurationParameter.class))
                 .filter(not(commonOptions::contains))
                 .sorted(Comparator.comparing(OptionConfigurationParameter::getName)).toList();
 
-            List<PositionalConfigurationParameter> positionals = subcommand.getParameters().stream()
+            List<PositionalConfigurationParameter> positionals = Commands.parameters(subcommand)
                 .mapMulti(Streams.filterAndCast(PositionalConfigurationParameter.class))
                 .sorted(Comparator.comparing(PositionalConfigurationParameter::getPosition))
                 .toList();
@@ -392,7 +394,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
             out.println();
           }
 
-          List<EnvironmentConfigurationParameter> variables = command.getParameters().stream()
+          List<EnvironmentConfigurationParameter> variables = Commands.parameters(command)
               .mapMulti(Streams.filterAndCast(EnvironmentConfigurationParameter.class))
               .sorted(Comparator.comparing(EnvironmentConfigurationParameter::getVariableName))
               .toList();
@@ -417,7 +419,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
             out.println();
           }
 
-          List<PropertyConfigurationParameter> properties = command.getParameters().stream()
+          List<PropertyConfigurationParameter> properties = Commands.parameters(command)
               .mapMulti(Streams.filterAndCast(PropertyConfigurationParameter.class))
               .sorted(Comparator.comparing(PropertyConfigurationParameter::getPropertyName))
               .toList();

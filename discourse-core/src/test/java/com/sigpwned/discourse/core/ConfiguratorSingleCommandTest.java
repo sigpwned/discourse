@@ -29,6 +29,7 @@ import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.PropertyParameter;
+import com.sigpwned.discourse.core.invocation.DefaultInvocation;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -330,7 +331,7 @@ public class ConfiguratorSingleCommandTest {
   public void environmentExample() {
     final String hello = "hello";
 
-    Invocation<? extends EnvironmentExample> invocation = new CommandBuilder().build(
+    DefaultInvocation<? extends EnvironmentExample> invocation = new CommandBuilder().build(
         EnvironmentExample.class).args();
 
     invocation.setGetEnv(name -> name.equals("HELLO") ? hello : System.getenv(name));
@@ -377,7 +378,7 @@ public class ConfiguratorSingleCommandTest {
   public void propertyExample() {
     final String hello = "hello";
 
-    Invocation<? extends PropertyExample> invocation = new CommandBuilder().build(
+    DefaultInvocation<? extends PropertyExample> invocation = new CommandBuilder().build(
         PropertyExample.class).args();
 
     invocation.setGetProperty(name -> name.equals("hello") ? hello : System.getProperty(name));

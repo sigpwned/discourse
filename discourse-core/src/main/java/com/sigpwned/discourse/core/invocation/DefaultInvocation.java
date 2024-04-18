@@ -1,6 +1,6 @@
 /*-
  * =================================LICENSE_START==================================
- * discourse-validation
+ * discourse-core
  * ====================================SECTION=====================================
  * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
@@ -17,68 +17,53 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.validation;
+package com.sigpwned.discourse.core.invocation;
 
+import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
-import com.sigpwned.discourse.validation.exception.argument.ValidationArgumentException;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 
-public class ValidatingInvocation<T> implements Invocation<T> {
+public class DefaultInvocation<T> implements Invocation<T> {
 
-  private final Invocation<T> delegate;
-  private final Validator validator;
+  private final List<Map.Entry<Discriminator, MultiCommand<? extends T>>> subcommands;
+  private final SingleCommand<? extends T> leafCommand;
+  private final List<String> leafArgs;
+  private final T configuration;
 
-  public ValidatingInvocation(Invocation<T> delegate, Validator validator) {
-    this.delegate = requireNonNull(delegate);
-    this.validator = requireNonNull(validator);
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public DefaultInvocation(List<Entry<Discriminator, MultiCommand<? extends T>>> subcommands,
+      SingleCommand<? extends T> leafCommand, List<String> leafArgs, T configuration) {
+    this.subcommands = (List) subcommands.stream().map(e -> Map.entry(e.getKey(), e.getValue()))
+        .toList();
+    this.leafCommand = requireNonNull(leafCommand);
+    this.leafArgs = unmodifiableList(leafArgs);
+    this.configuration = requireNonNull(configuration);
   }
 
   @Override
   public T getConfiguration() {
-    T result = getDelegate().getConfiguration();
-    @SuppressWarnings({"unchecked",
-        "rawtypes"}) Set<ConstraintViolation<?>> violations = (Set) getValidator().validate(result);
-    if (!violations.isEmpty()) {
-      throw new ValidationArgumentException(violations);
-    }
-    return result;
+    return configuration;
   }
 
   @Override
   public List<Entry<Discriminator, MultiCommand<? extends T>>> getSubcommands() {
-    return getDelegate().getSubcommands();
+    return subcommands;
   }
 
   @Override
   public SingleCommand<? extends T> getLeafCommand() {
-    return getDelegate().getLeafCommand();
+    return leafCommand;
   }
 
   @Override
   public List<String> getLeafArgs() {
-    return getDelegate().getLeafArgs();
-  }
-
-  /**
-   * @return the delegate
-   */
-  private Invocation<T> getDelegate() {
-    return delegate;
-  }
-
-  /**
-   * @return the validator
-   */
-  private Validator getValidator() {
-    return validator;
+    return List.of();
   }
 }

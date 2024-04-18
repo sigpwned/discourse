@@ -17,11 +17,13 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.parameter;
+package com.sigpwned.discourse.core;
 
-import com.sigpwned.discourse.core.coordinate.Coordinate;
-import com.sigpwned.discourse.core.ValueDeserializer;
-import com.sigpwned.discourse.core.ValueSink;
+import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
 import com.sigpwned.discourse.core.util.Generated;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;

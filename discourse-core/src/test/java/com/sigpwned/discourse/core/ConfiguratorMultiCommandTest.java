@@ -29,7 +29,6 @@ import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.Subcommand;
 import com.sigpwned.discourse.core.command.MultiCommand;
-import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;

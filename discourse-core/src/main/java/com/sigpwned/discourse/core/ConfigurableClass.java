@@ -35,8 +35,22 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class ConfigurationClass<T> {
+/**
+ * Represents a class that is annotated with {@link Configurable}. This class is used to scan a
+ * class and extract the configuration information from the annotation and the class itself. This
+ * class is immutable. It identifies pointers to subcommands, which are classes that extend the
+ * configurable class, but does not scan them. It does not load parameters.
+ *
+ * @param <T>
+ */
+public class ConfigurableClass<T> {
 
+  /**
+   * Represents a pointer to asubcommand class. This class is used to store the class of a
+   * subcommand and its discriminator. This class is immutable.
+   *
+   * @param <T>
+   */
   public static record SubcommandClass<T>(Optional<Discriminator> discriminator, Class<T> rawType) {
 
     public SubcommandClass {
@@ -45,7 +59,7 @@ public class ConfigurationClass<T> {
     }
   }
 
-  public static <T> ConfigurationClass<T> scan(Class<T> rawType) {
+  public static <T> ConfigurableClass<T> scan(Class<T> rawType) {
     final Configurable configurable = rawType.getAnnotation(Configurable.class);
     if (configurable == null) {
       throw new NotConfigurableConfigurationException(rawType);
@@ -73,8 +87,7 @@ public class ConfigurationClass<T> {
       throw new InvalidDiscriminatorConfigurationException(rawType, configurable.discriminator());
     }
 
-    return new ConfigurationClass<>(rawType, discriminator, name, description, version,
-        subcommands);
+    return new ConfigurableClass<>(rawType, discriminator, name, description, version, subcommands);
   }
 
   private final Class<T> rawType;
@@ -84,24 +97,8 @@ public class ConfigurationClass<T> {
   private final String version;
   private final List<SubcommandClass<? extends T>> subcommands;
 
-  private ConfigurationClass(Class<T> rawType, Discriminator discriminator, String name,
+  private ConfigurableClass(Class<T> rawType, Discriminator discriminator, String name,
       String description, String version, List<SubcommandClass<? extends T>> subcommands) {
-//    Streams.duplicates(parameters.stream()
-//            .map(p -> p.getCoordinates().stream().map(c -> Map.entry(c, p.getName())))).findFirst()
-//        .ifPresent(c -> {
-//          throw new IllegalArgumentException(format("coordinates defined more than once: %s", c));
-//        });
-//
-//    if (parameters.stream().mapMulti(ConfigurationParameters.mapMultiFlag())
-//        .filter(FlagConfigurationParameter::isHelp).count() > 1L) {
-//      throw new IllegalArgumentException("multiple help flags");
-//    }
-//
-//    if (parameters.stream().mapMulti(ConfigurationParameters.mapMultiFlag())
-//        .filter(FlagConfigurationParameter::isVersion).count() > 1L) {
-//      throw new IllegalArgumentException("multiple version flags");
-//    }
-
     if (Streams.duplicates(
             subcommands.stream().map(SubcommandClass::discriminator).flatMap(Optional::stream))
         .findFirst().isPresent()) {
@@ -157,7 +154,7 @@ public class ConfigurationClass<T> {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof ConfigurationClass<?> that)) {
+    if (!(o instanceof ConfigurableClass<?> that)) {
       return false;
     }
     return Objects.equals(getRawType(), that.getRawType()) && Objects.equals(getDiscriminator(),

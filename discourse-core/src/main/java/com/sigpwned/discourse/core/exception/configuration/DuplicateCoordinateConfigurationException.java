@@ -21,7 +21,7 @@ package com.sigpwned.discourse.core.exception.configuration;
 
 import static java.lang.String.format;
 import com.sigpwned.discourse.core.ConfigurationException;
-import com.sigpwned.discourse.core.coordinate.Coordinate;
+import com.sigpwned.discourse.core.Coordinate;
 
 public class DuplicateCoordinateConfigurationException extends ConfigurationException {
   private final Coordinate coordinate;

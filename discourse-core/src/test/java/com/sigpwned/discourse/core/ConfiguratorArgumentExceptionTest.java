@@ -32,6 +32,7 @@ import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgument
 import com.sigpwned.discourse.core.exception.argument.NoSubcommandArgumentException;
 import com.sigpwned.discourse.core.exception.argument.UnassignedRequiredParametersArgumentException;
 import com.sigpwned.discourse.core.exception.argument.UnrecognizedSubcommandArgumentException;
+import com.sigpwned.discourse.core.invocation.DefaultInvocation;
 import java.util.Objects;
 import org.junit.Test;
 
@@ -155,7 +156,7 @@ public class ConfiguratorArgumentExceptionTest {
   public void environmentAssignmentFailureExample() {
     final String hello = "hello";
 
-    Invocation<? extends EnvironmentAssignmentFailureExample> invocation =
+    DefaultInvocation<? extends EnvironmentAssignmentFailureExample> invocation =
         new CommandBuilder().build(EnvironmentAssignmentFailureExample.class).args();
 
     invocation.setGetEnv(name -> name.equals("HELLO") ? hello : System.getenv(name));
@@ -185,7 +186,7 @@ public class ConfiguratorArgumentExceptionTest {
   public void propertyAssignmentFailureExample() {
     final String hello = "hello";
 
-    Invocation<? extends PropertyAssignmentFailureExample> invocation =
+    DefaultInvocation<? extends PropertyAssignmentFailureExample> invocation =
         new CommandBuilder().build(PropertyAssignmentFailureExample.class).args();
 
     invocation.setGetProperty(name -> name.equals("hello") ? hello : System.getProperty(name));

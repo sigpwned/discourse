@@ -17,31 +17,19 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.command;
+package com.sigpwned.discourse.core;
 
-import static java.util.Arrays.asList;
-
-import com.sigpwned.discourse.core.ConfigurationClass;
-import com.sigpwned.discourse.core.ConfigurationException;
-import com.sigpwned.discourse.core.Invocation;
-import com.sigpwned.discourse.core.SerializationContext;
-import com.sigpwned.discourse.core.SinkContext;
 import com.sigpwned.discourse.core.annotation.Configurable;
+import com.sigpwned.discourse.core.command.MultiCommand;
+import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.UnexpectedDiscriminatorConfigurationException;
-import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.util.Discriminators;
-import java.util.List;
-import java.util.Set;
 
-/**
- * A command that can be populated by environment variables, system properties, and command line
- * arguments.
- */
 public abstract sealed class Command<T> permits SingleCommand, MultiCommand {
 
   /**
-   * Scans the given root class for a command.
+   * Scans the given root configuration class to create a command.
    *
    * @param storage       The storage context.
    * @param serialization The serialization context.
@@ -61,27 +49,26 @@ public abstract sealed class Command<T> permits SingleCommand, MultiCommand {
       throw new UnexpectedDiscriminatorConfigurationException(rawType);
     }
 
-    return subscan(storage, serialization, ConfigurationClass.scan(rawType));
+    return subscan(storage, serialization, ConfigurableClass.scan(rawType));
   }
 
   /**
    * Scans the given configuration class for a command. This method is for internal use only.
    *
-   * @param storage            The storage context.
-   * @param serialization      The serialization context.
-   * @param configurationClass The configuration class to scan.
+   * @param storage           The storage context.
+   * @param serialization     The serialization context.
+   * @param configurableClass The configuration class to scan.
    * @return The command.
    * @throws ConfigurationException If there is  configuration error on the command
    */
-  /* default */
-  static <T> Command<T> subscan(SinkContext storage, SerializationContext serialization,
-      ConfigurationClass<T> configurationClass) {
-    if (configurationClass.getSubcommands().isEmpty()) {
+  protected static <T> Command<T> subscan(SinkContext storage, SerializationContext serialization,
+      ConfigurableClass<T> configurableClass) {
+    if (configurableClass.getSubcommands().isEmpty()) {
       // This is a single command.
-      return SingleCommand.scan(storage, serialization, configurationClass);
+      return SingleCommand.scan(storage, serialization, configurableClass);
     } else {
       // This is a multi command.
-      return MultiCommand.scan(storage, serialization, configurationClass);
+      return MultiCommand.scan(storage, serialization, configurableClass);
     }
   }
 
@@ -102,36 +89,15 @@ public abstract sealed class Command<T> permits SingleCommand, MultiCommand {
     this.version = version;
   }
 
-  /**
-   * Returns the name for this command, suitable for printing in a help message. May be null.
-   */
   public String getName() {
     return name;
   }
 
-  /**
-   * Returns the description for this command, suitable for printing in a help message. May be
-   * null.
-   */
   public String getDescription() {
     return description;
   }
 
-  /**
-   * Returns the version for this command, suitable for printing in a version message. May be null.
-   */
   public String getVersion() {
     return version;
   }
-
-  /**
-   * Returns all unique parameters from this command and any subcommands
-   */
-  public abstract Set<ConfigurationParameter> getParameters();
-
-  public Invocation<? extends T> args(String... args) {
-    return args(asList(args));
-  }
-
-  public abstract Invocation<? extends T> args(List<String> args);
 }

@@ -19,11 +19,12 @@
  */
 package com.sigpwned.discourse.core.command;
 
+import static java.lang.String.*;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
 
-import com.sigpwned.discourse.core.ConfigurationClass;
-import com.sigpwned.discourse.core.Invocation;
+import com.sigpwned.discourse.core.Command;
+import com.sigpwned.discourse.core.ConfigurableClass;
 import com.sigpwned.discourse.core.SerializationContext;
 import com.sigpwned.discourse.core.SinkContext;
 import com.sigpwned.discourse.core.ValueDeserializer;
@@ -33,14 +34,13 @@ import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.PropertyParameter;
-import com.sigpwned.discourse.core.coordinate.Coordinate;
+import com.sigpwned.discourse.core.Coordinate;
 import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.NameCoordinate;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import com.sigpwned.discourse.core.coordinate.PropertyNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.VariableNameCoordinate;
-import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgumentException;
 import com.sigpwned.discourse.core.exception.configuration.DuplicateCoordinateConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.InvalidCollectionParameterPlacementConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.InvalidLongNameConfigurationException;
@@ -55,7 +55,7 @@ import com.sigpwned.discourse.core.exception.configuration.MultipleVersionFlagsC
 import com.sigpwned.discourse.core.exception.configuration.NoNameConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.TooManyAnnotationsConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.UnexpectedSubcommandsConfigurationException;
-import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
+import com.sigpwned.discourse.core.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
@@ -64,10 +64,8 @@ import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
 import com.sigpwned.discourse.core.util.ConfigurationParameters;
 import com.sigpwned.discourse.core.util.Streams;
 import com.sigpwned.espresso.BeanClass;
-import com.sigpwned.espresso.BeanInstance;
 import com.sigpwned.espresso.BeanProperty;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +74,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public final class SingleCommand<T> extends Command<T> {
@@ -84,60 +81,53 @@ public final class SingleCommand<T> extends Command<T> {
   private final Set<ConfigurationParameter> parameters;
 
   public static <T> SingleCommand<T> scan(SinkContext storage, SerializationContext serialization,
-      ConfigurationClass<T> configurationClass) {
-    if (!configurationClass.getSubcommands().isEmpty()) {
-      throw new UnexpectedSubcommandsConfigurationException(configurationClass.getRawType());
+      ConfigurableClass<T> configurableClass) {
+    if (!configurableClass.getSubcommands().isEmpty()) {
+      throw new UnexpectedSubcommandsConfigurationException(configurableClass.getRawType());
     }
 
-    BeanClass beanClass = BeanClass.scan(configurationClass.getRawType());
+    BeanClass beanClass = BeanClass.scan(configurableClass.getRawType());
 
-    List<ConfigurationParameter> parameters = beanClass.stream().flatMap(
-            p -> parameter(configurationClass.getRawType(), p, serialization, storage).stream())
+    List<ConfigurationParameter> parameters = beanClass.stream()
+        .flatMap(p -> parameter(configurableClass.getRawType(), p, serialization, storage).stream())
         .toList();
 
-    validateCoordinates(configurationClass.getRawType(), parameters.stream()
+    validateCoordinates(configurableClass.getRawType(), parameters.stream()
         .flatMap(p -> p.getCoordinates().stream().map(c -> Map.entry(c, p)))).ifPresent(e -> {
       throw e;
     });
 
-    return new SingleCommand<>(configurationClass.getName(), configurationClass.getDescription(),
-        configurationClass.getVersion(), new HashSet<>(parameters), () -> {
-      try {
-        return beanClass.newInstance();
-      } catch (InvocationTargetException e) {
-        throw new NewInstanceFailureArgumentException(e);
-      }
+    validateParameters(parameters.stream()
+        .flatMap(p -> p.getCoordinates().stream().map(c -> Map.entry(c, p)))).ifPresent(e -> {
+      throw e;
     });
+
+    return new SingleCommand<>(configurableClass.getName(), configurableClass.getDescription(),
+        configurableClass.getVersion(), new HashSet<>(parameters), beanClass);
   }
 
-  private final Supplier<BeanInstance> beanSupplier;
+  private final BeanClass beanClass;
 
   public SingleCommand(String name, String description, String version,
-      Set<ConfigurationParameter> parameters, Supplier<BeanInstance> beanSupplier) {
+      Set<ConfigurationParameter> parameters, BeanClass beanClass) {
     super(name, description, version);
     this.parameters = requireNonNull(parameters);
-    this.beanSupplier = requireNonNull(beanSupplier);
+    this.beanClass = requireNonNull(beanClass);
   }
 
-  public Invocation<T> args(List<String> args) {
-    return new Invocation<>(this, getBeanSupplier(), args);
-  }
-
-  @Override
   public Set<ConfigurationParameter> getParameters() {
     return parameters;
   }
 
   public Optional<ConfigurationParameter> findParameter(Coordinate coordinate) {
-    return getParameters().stream().filter(p -> p.getCoordinates().contains(coordinate))
-        .findFirst();
+    return parameters.stream().filter(p -> p.getCoordinates().contains(coordinate)).findFirst();
   }
 
-  private Supplier<BeanInstance> getBeanSupplier() {
-    return beanSupplier;
+  public BeanClass getBeanClass() {
+    return beanClass;
   }
 
-  // COORDINATES ///////////////////////////////////////////////////////////////////////////////////
+  // VALIDATE COORDINATES //////////////////////////////////////////////////////////////////////////
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   private static Optional<RuntimeException> validateCoordinates(Class<?> rawType,
@@ -251,7 +241,7 @@ public final class SingleCommand<T> extends Command<T> {
     return Optional.empty();
   }
 
-  // PARAMETERS ////////////////////////////////////////////////////////////////////////////////////
+  // LOAD PARAMETERS ///////////////////////////////////////////////////////////////////////////////
 
   private static Optional<ConfigurationParameter> parameter(Class<?> rawType,
       BeanProperty beanProperty, SerializationContext serialization, SinkContext storage) {
@@ -388,5 +378,29 @@ public final class SingleCommand<T> extends Command<T> {
 
     return new EnvironmentConfigurationParameter(property.getName(), parameter.description(),
         parameter.required(), deserializer, sink, variableName);
+  }
+
+  // VALIDATE PARAMETERS //////////////////////////////////////////////////////////////////////////
+  private static Optional<RuntimeException> validateParameters(
+      Stream<Map.Entry<Coordinate, ConfigurationParameter>> stream) {
+    List<ConfigurationParameter> parameters = stream.map(Map.Entry::getValue).toList();
+
+    Streams.duplicates(parameters.stream()
+            .map(p -> p.getCoordinates().stream().map(c -> Map.entry(c, p.getName())))).findFirst()
+        .ifPresent(c -> {
+          throw new IllegalArgumentException(format("coordinates defined more than once: %s", c));
+        });
+
+    if (parameters.stream().mapMulti(ConfigurationParameters.mapMultiFlag())
+        .filter(FlagConfigurationParameter::isHelp).count() > 1L) {
+      throw new IllegalArgumentException("multiple help flags");
+    }
+
+    if (parameters.stream().mapMulti(ConfigurationParameters.mapMultiFlag())
+        .filter(FlagConfigurationParameter::isVersion).count() > 1L) {
+      throw new IllegalArgumentException("multiple version flags");
+    }
+
+    return Optional.empty();
   }
 }

@@ -2,14 +2,14 @@
  * =================================LICENSE_START==================================
  * discourse-core
  * ====================================SECTION=====================================
- * Copyright (C) 2022 Andy Boothe
+ * Copyright (C) 2022 - 2024 Andy Boothe
  * ====================================SECTION=====================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,248 +19,102 @@
  */
 package com.sigpwned.discourse.core;
 
-import static java.util.Collections.*;
-import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toCollection;
-
-import com.sigpwned.discourse.core.command.Command;
-import com.sigpwned.discourse.core.coordinate.Coordinate;
-import com.sigpwned.discourse.core.exception.argument.AssignmentFailureArgumentException;
-import com.sigpwned.discourse.core.exception.argument.UnassignedRequiredParametersArgumentException;
-import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
-import com.sigpwned.discourse.core.format.version.DefaultVersionFormatter;
-import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
-import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
-import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
-import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
-import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
-import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
-import com.sigpwned.discourse.core.util.Args;
-import com.sigpwned.discourse.core.util.Streams;
-import com.sigpwned.espresso.BeanInstance;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
+import com.sigpwned.discourse.core.command.MultiCommand;
+import com.sigpwned.discourse.core.command.SingleCommand;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 
-public class Invocation<T> {
-
-  @FunctionalInterface
-  /* default */ static interface EnvironmentVariables {
-
-    public String get(String name);
-  }
-
-  @FunctionalInterface
-  /* default */ static interface SystemProperties {
-
-    public String get(String name);
-  }
-
-  private final Command<T> command;
-  private final Supplier<BeanInstance> newInstance;
-  private final List<String> args;
-  private EnvironmentVariables getEnv;
-  private SystemProperties getProperty;
-
-  public Invocation(Command<T> command, Supplier<BeanInstance> newInstance, List<String> args) {
-    this.command = requireNonNull(command);
-    this.newInstance = requireNonNull(newInstance);
-    this.args = unmodifiableList(args);
-    this.getEnv = System::getenv;
-    this.getProperty = System::getProperty;
-  }
+/**
+ * <p>
+ * Represents a {@link Command command} invocation. This is the result of parsing the command line
+ * arguments and using them to create a configuration object.
+ * </p>
+ *
+ * <p>
+ * Note that the leaf commandO is of type {@link SingleCommand}. In the case where the "root"
+ * command being executed is a {@link MultiCommand}, the {@link InvocationStrategy} is responsible
+ * for dereferencing the subcommands and invoking the underlying "leaf" {@code SingleCommand}.
+ * </p>
+ *
+ * <p>
+ * The {@link #getLeafArgs() leaf args} are the arguments that were passed to the command. In cases
+ * where the command has been dereferenced, the args will NOT contain the "discriminator" arguments
+ * that were used to dereference the subcommands to find the "leaf" {@code SingleCommand}. The
+ * verbatim command line arguments passed to the application are available as
+ * {@link #getAllArgs() all args}.
+ * </p>
+ *
+ * <p>
+ * The discriminators and the {@code MultiCommand}s they map to are available via
+ * {@link #getSubcommands()}.
+ * </p>
+ *
+ * <p>
+ * The configuration object constructed from the arguments is available via
+ * {@link #getConfiguration()}.
+ * </p>
+ *
+ * <p>
+ * The environment variables are available via {@link System#getenv()}, and the system properties
+ * are available via {@link System#getProperties()}.
+ * </p>
+ *
+ * @param <T> The type of the configuration object.
+ */
+public interface Invocation<T> {
 
   /**
-   * Prints the help message using {@link DefaultHelpFormatter}.
+   * The configuration object created from the command line arguments according to the command being
+   * executed.
    *
-   * @see #printHelp(HelpFormatter)
+   * @return the configuration
    */
-  public Invocation<T> printHelp() {
-    return printHelp(new DefaultHelpFormatter());
-  }
+  T getConfiguration();
 
   /**
-   * If a help flag is configured and given in the arguments, then print the help message produced
-   * by the given formatter and exit. Otherwise, do nothing. Returns this object.
-   */
-  public Invocation<T> printHelp(HelpFormatter formatter) {
-    getCommand().getParameters().stream()
-        .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
-        .filter(FlagConfigurationParameter::isHelp).findFirst().ifPresent(helpFlag -> {
-          if (Args.containsFlag(args, helpFlag.getShortName(), helpFlag.getLongName())) {
-            System.err.println(formatter.formatHelp(command));
-            System.exit(0);
-          }
-        });
-    return this;
-  }
-
-  /**
-   * Prints the version message using {@link DefaultVersionFormatter}.
+   * The discriminators and the {@link MultiCommand}s they map to. If the root command is of type
+   * {@link SingleCommand}, then this will be empty. Otherwise, this will contain the discriminators
+   * that were used to dereference the subcommands to find the "leaf" {@code SingleCommand}, and the
+   * {@code MultiCommand}s that were dereferenced.
    *
-   * @see #printVersion(VersionFormatter)
+   * @return the subcommands
    */
-  public Invocation<T> printVersion() {
-    return printVersion(new DefaultVersionFormatter());
-  }
+  List<Map.Entry<Discriminator, MultiCommand<? extends T>>> getSubcommands();
 
   /**
-   * If a version flag is configured and given in the arguments, then print the version message
-   * produced by the given formatter and exit. Otherwise, do nothing. Returns this object.
-   */
-  public Invocation<T> printVersion(VersionFormatter formatter) {
-    getCommand().getParameters().stream()
-        .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
-        .filter(FlagConfigurationParameter::isVersion).findFirst().ifPresent(versionFlag -> {
-          if (Args.containsFlag(args, versionFlag.getShortName(), versionFlag.getLongName())) {
-            System.err.println(formatter.formatVersion(command));
-            System.exit(0);
-          }
-        });
-    return this;
-  }
-
-  @SuppressWarnings("unchecked")
-  public T configuration() {
-    BeanInstance instance = getNewInstance().get();
-
-    Set<String> required = getCommand().getParameters().stream()
-        .filter(ConfigurationParameter::isRequired).map(ConfigurationParameter::getName)
-        .collect(toCollection(HashSet::new));
-
-    // Handle CLI arguments
-    new ArgumentsParser(this::resolveConfigurationParameter, new ArgumentsParser.Handler() {
-      @Override
-      public void flag(FlagConfigurationParameter property) {
-        try {
-          property.set(instance.getInstance(), "true");
-        } catch (InvocationTargetException e) {
-          throw new AssignmentFailureArgumentException(property.getName(), e);
-        }
-        required.remove(property.getName());
-      }
-
-      @Override
-      public void option(OptionConfigurationParameter property, String text) {
-        try {
-          property.set(instance.getInstance(), text);
-        } catch (InvocationTargetException e) {
-          throw new AssignmentFailureArgumentException(property.getName(), e);
-        }
-        required.remove(property.getName());
-      }
-
-      @Override
-      public void positional(PositionalConfigurationParameter property, String text) {
-        try {
-          property.set(instance.getInstance(), text);
-        } catch (InvocationTargetException e) {
-          throw new AssignmentFailureArgumentException(property.getName(), e);
-        }
-        required.remove(property.getName());
-      }
-    }).parse(args);
-
-    // Handle environment variable arguments
-    getCommand().getParameters().stream()
-        .mapMulti(Streams.filterAndCast(EnvironmentConfigurationParameter.class))
-        .forEach(property -> {
-          String variableName = property.getVariableName().toString();
-          String text = getGetEnv().get(variableName);
-          if (text != null) {
-            try {
-              property.set(instance.getInstance(), text);
-            } catch (InvocationTargetException e) {
-              throw new AssignmentFailureArgumentException(property.getName(), e);
-            }
-            required.remove(property.getName());
-          }
-        });
-
-    // Handle system property arguments
-    getCommand().getParameters().stream()
-        .mapMulti(Streams.filterAndCast(PropertyConfigurationParameter.class)).forEach(property -> {
-          String propertyName = property.getPropertyName().toString();
-          String text = getGetProperty().get(propertyName);
-          if (text != null) {
-            try {
-              property.set(instance.getInstance(), text);
-            } catch (InvocationTargetException e) {
-              throw new AssignmentFailureArgumentException(property.getName(), e);
-            }
-            required.remove(property.getName());
-          }
-        });
-
-    if (!required.isEmpty()) {
-      throw new UnassignedRequiredParametersArgumentException(required);
-    }
-
-    return (T) instance.getInstance();
-  }
-
-  /**
+   * The "leaf" {@link SingleCommand} that was invoked. If the root command is of type
+   * {@code SingleCommand}, then this will be the same as the root command. Otherwise, this will be
+   * the "leaf" {@code SingleCommand} that was dereferenced.
+   *
    * @return the command
    */
-  public Command<T> getCommand() {
-    return command;
-  }
-
-  public Supplier<BeanInstance> getNewInstance() {
-    return newInstance;
-  }
-
-  //  /**
-//   * @return the configurationClass
-//   */
-//  private ConfigurationClass getConfigurationClass() {
-//    return configurationClass;
-//  }
+  SingleCommand<? extends T> getLeafCommand();
 
   /**
+   * The arguments that were passed to the command. If the root command is of type
+   * {@code SingleCommand}, then this will be the same as the arguments that were passed to the
+   * application. Otherwise, this will be the arguments that were passed to the "leaf"
+   * {@code SingleCommand}. The prefix "discriminator" arguments that were used to dereference the
+   * subcommands to find the "leaf" {@code SingleCommand} will NOT be included in this list. (These
+   * discriminator arguments can be found in {@link #getSubcommands()}, in the order they originally
+   * appeared in the application arguments.)
+   *
    * @return the args
    */
-  public List<String> getArgs() {
-    return args;
-  }
+  List<String> getLeafArgs();
 
   /**
-   * @return the getEnv
-   */
-  private EnvironmentVariables getGetEnv() {
-    return getEnv;
-  }
-
-  /**
-   * Test hook
+   * The verbatim arguments as they were passed to the application. This includes the
+   * "discriminator" arguments that were used to dereference the subcommands to find the "leaf"
+   * {@code SingleCommand} (if the root command is of type {@code MultiCommand}), and the arguments
+   * that were passed to the "leaf" {@code SingleCommand}.
    *
-   * @param getEnv the getEnv to set
+   * @return the verbatim arguments
    */
-  /* default */ void setGetEnv(EnvironmentVariables getEnv) {
-    this.getEnv = getEnv;
-  }
-
-  /**
-   * @return the getProperty
-   */
-  private SystemProperties getGetProperty() {
-    return getProperty;
-  }
-
-  /**
-   * Test hook
-   *
-   * @param getProperty the getProperty to set
-   */
-  /* default */ void setGetProperty(SystemProperties getProperty) {
-    this.getProperty = getProperty;
-  }
-
-  private Optional<ConfigurationParameter> resolveConfigurationParameter(Coordinate coordinate) {
-    return getCommand().getParameters().stream()
-        .filter(p -> p.getCoordinates().contains(coordinate)).findFirst();
+  default List<String> getAllArgs() {
+    return Stream.concat(getSubcommands().stream().map(Map.Entry::getKey).map(Objects::toString),
+        getLeafArgs().stream()).toList();
   }
 }
