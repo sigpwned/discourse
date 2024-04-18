@@ -17,42 +17,35 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.util;
+package com.sigpwned.discourse.core.util.type;
 
-import java.lang.reflect.GenericArrayType;
+import com.sigpwned.discourse.core.util.Generated;
+import com.sigpwned.discourse.core.util.Types;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Objects;
+import java.util.Set;
 
-public class ArrayType {
-  public static ArrayType parse(Type genericType) {
-    if (genericType instanceof Class<?>) {
-      Class<?> classType = (Class<?>) genericType;
-      if (classType.getComponentType() == null)
-        throw new IllegalArgumentException("genericType is not an array type");
-      Class<?> elementType=classType.getComponentType();
-      if(!Types.isConcrete(elementType))
-        throw new IllegalArgumentException("elementType is not concrete");
-      return of(elementType);
-    } else if (genericType instanceof GenericArrayType) {
-      GenericArrayType arrayType = (GenericArrayType) genericType;
-      Type elementType=arrayType.getGenericComponentType();
-      if(!Types.isConcrete(elementType))
-        throw new IllegalArgumentException("elementType is not concrete");
+public class SetType {
+  public static SetType parse(Type genericType) {
+    if (genericType instanceof ParameterizedType) {
+      ParameterizedType parameterizedType = (ParameterizedType) genericType;
+      if (!parameterizedType.getRawType().equals(Set.class))
+        throw new IllegalArgumentException("Not a Set type");
+      Type elementType = parameterizedType.getActualTypeArguments()[0];
       return of(elementType);
     } else {
-      throw new IllegalArgumentException("genericType is not an array type");
+      throw new IllegalArgumentException("Not a parameterized type");
     }
   }
 
-  public static ArrayType of(Type elementType) {
-    return new ArrayType(elementType);
+  public static SetType of(Type elementType) {
+    return new SetType(elementType);
   }
 
   private final Type elementType;
 
-  public ArrayType(Type elementType) {
-    if (elementType.equals(void.class))
-      throw new IllegalArgumentException("elementType cannot be void");
+  public SetType(Type elementType) {
     if(!Types.isConcrete(elementType))
       throw new IllegalArgumentException("elementType must be concrete");
     this.elementType = elementType;
@@ -80,13 +73,13 @@ public class ArrayType {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    ArrayType other = (ArrayType) obj;
+    SetType other = (SetType) obj;
     return Objects.equals(elementType, other.elementType);
   }
 
   @Override
   @Generated
   public String toString() {
-    return "GenericArrayType [elementType=" + elementType + "]";
+    return "GenericSetType [elementType=" + elementType + "]";
   }
 }

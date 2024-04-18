@@ -17,8 +17,10 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.util;
+package com.sigpwned.discourse.core.util.type;
 
+import com.sigpwned.discourse.core.util.Generated;
+import com.sigpwned.discourse.core.util.Types;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;

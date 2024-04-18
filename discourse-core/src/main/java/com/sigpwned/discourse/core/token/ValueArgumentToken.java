@@ -19,6 +19,10 @@
  */
 package com.sigpwned.discourse.core.token;
 
+/**
+ * A token that represents a value argument, e.g., "foo" in {@code -f foo} or simply {@code foo} in
+ * a positional context.
+ */
 public final class ValueArgumentToken extends ArgumentToken {
 
   public ValueArgumentToken(String text) {

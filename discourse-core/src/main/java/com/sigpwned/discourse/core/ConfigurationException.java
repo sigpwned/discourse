@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,10 +23,9 @@ import com.sigpwned.discourse.core.annotation.OptionParameter;
 
 /**
  * Indicates a problem with the configuration setup, such as an {@link OptionParameter} that has
- * neither a short nor long name.
+ * neither a short nor long name. This is an error by the programmer.
  */
 public abstract class ConfigurationException extends RuntimeException {
-  private static final long serialVersionUID = 5876904542901684647L;
 
   protected ConfigurationException(String message) {
     super(message);

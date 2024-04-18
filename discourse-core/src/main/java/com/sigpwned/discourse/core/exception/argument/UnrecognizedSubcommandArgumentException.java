@@ -27,7 +27,9 @@ import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.command.MultiCommand;
 
 /**
- * Thrown when a user provides a discriminator that does not match any subcommand.
+ * Thrown when a user provides a discriminator that does not match any subcommand. For example, if a
+ * command defines two subcommands "foo" and "bar", but the user provides the discriminator "baz",
+ * then this exception would be thrown with the value "baz".
  */
 public class UnrecognizedSubcommandArgumentException extends ConfigurationException {
 

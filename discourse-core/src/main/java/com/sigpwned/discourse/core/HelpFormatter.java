@@ -21,6 +21,9 @@ package com.sigpwned.discourse.core;
 
 import com.sigpwned.discourse.core.command.Command;
 
+/**
+ * A formatter that formats help for a command for display.
+ */
 @FunctionalInterface
 public interface HelpFormatter {
 

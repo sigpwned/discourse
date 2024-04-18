@@ -17,49 +17,66 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.util;
+package com.sigpwned.discourse.core.util.type;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import java.util.Collection;
+
 import java.util.List;
-import java.util.Set;
 import org.junit.Test;
 import com.google.common.reflect.TypeToken;
 
-public class SetTypeTest {
-  public static final TypeToken<Collection<String>> COLLECTION_OF_STRING = new TypeToken<Collection<String>>() {};
-
-  @Test(expected = IllegalArgumentException.class)
-  public void parameterizedTest() {
-    SetType.parse(COLLECTION_OF_STRING.getType());
+public class ArrayTypeTest {
+  @Test
+  public void primitiveArrayTest() {
+    ArrayType type = ArrayType.parse(int[].class);
+    assertThat(type, is(ArrayType.of(int.class)));
   }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void objectTest() {
-    SetType.parse(Object.class);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void rawTest() {
-    SetType.parse(List.class);
-  }
-
-  public static final TypeToken<Set<String>> SET_OF_STRING = new TypeToken<Set<String>>() {};
 
   @Test
-  public void concreteTest() {
-    SetType observed = SetType.parse(SET_OF_STRING.getType());
+  public void referenceArrayTest() {
+    ArrayType type = ArrayType.parse(String[].class);
+    assertThat(type, is(ArrayType.of(String.class)));
+  }
 
-    assertThat(observed, is(SetType.of(String.class)));
+  public static final TypeToken<List<String>[]> ARRAY_OF_LIST_OF_STRING =
+      new TypeToken<List<String>[]>() {};
+
+  public static final TypeToken<List<String>> LIST_OF_STRING = new TypeToken<List<String>>() {};
+
+  @Test
+  public void genericArrayTest() {
+    ArrayType type = ArrayType.parse(ARRAY_OF_LIST_OF_STRING.getType());
+    assertThat(type, is(ArrayType.of(LIST_OF_STRING.getType())));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void nonArrayTest() {
+    ArrayType.parse(String.class);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void voidTest() {
+    new ArrayType(void.class);
+  }
+
+  @Test
+  public void primitiveTest() {
+    new ArrayType(int.class);
+  }
+
+  @Test
+  public void referenceTest() {
+    new ArrayType(String.class);
   }
   
-  public static class SetTest<T> {
-    public TypeToken<Set<T>> token=new TypeToken<Set<T>>() {};
+  public static class UnresolvedArrayTest<T> {
+    public TypeToken<T[]> token=new TypeToken<T[]>() {};
   }
   
   @Test(expected=IllegalArgumentException.class)
   public void unresolvedTest() {
-    SetType.parse(new SetTest<String>().token.getType());
+    UnresolvedArrayTest<String> test=new UnresolvedArrayTest<>();
+    ArrayType.parse(test.token.getType());
   }
 }

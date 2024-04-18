@@ -22,12 +22,12 @@ package com.sigpwned.discourse.core.format.help;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.joining;
 
-import com.sigpwned.discourse.core.command.Command;
-import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.HelpFormatter;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
@@ -50,6 +50,123 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * <p>
+ * A default implementation of {@link HelpFormatter}. Generates messages in the following format:
+ * </p>
+ *
+ * <h2>Single Command</h2>
+ *
+ * <pre>
+ *   Usage: command [ flags | options ] [ positional ... ]
+ *
+ *   Description of the command.
+ *
+ *   Flags:
+ *   -f, --flag1
+ *     Description of flag1.
+ *
+ *   -g, --flag2
+ *     Description of flag2.
+ *
+ *   Options:
+ *   -o, --option1 <type>
+ *     Description of option1.
+ *
+ *   -p, --option2 <type>
+ *     Description of option2.
+ *
+ *   Environment Variables:
+ *   ENV_VAR1
+ *     Description of ENV_VAR1.
+ *
+ *   ENV_VAR2
+ *     Description of ENV_VAR2.
+ *
+ *   System Properties:
+ *   PROP1
+ *     Description of PROP1.
+ *
+ *   PROP2
+ *     Description of PROP2.
+ *
+ *    ...
+ * </pre>
+ *
+ * <h2>Multi Command</h2>
+ *
+ * <pre>
+ *   Usage: command <subcommand> [ flags | options ] [ positional ... ]
+ *
+ *   Description of the command.
+ *
+ *   Common Flags:
+ *   -f, --flag1
+ *   Description of flag1.
+ *
+ *   -g, --flag2
+ *   Description of flag2.
+ *
+ *   Common Options:
+ *   -o, --option1 <type>
+ *     Description of option1.
+ *
+ *   -p, --option2 <type>
+ *     Description of option2.
+ *
+ *   First parameter must be a subcommand specifier: subcommand1, subcommand2, ...
+ *
+ *   Usage: command subcommand1 [ flags | options ] [ positional ... ]
+ *
+ *   Description of subcommand1.
+ *
+ *   Flags:
+ *   -f, --flag1
+ *     Description of flag1.
+ *
+ *   -g, --flag2
+ *     Description of flag2.
+ *
+ *   Options:
+ *   -o, --option1 <type>
+ *     Description of option1.
+ *
+ *   -p, --option2 <type>
+ *     Description of option2.
+ *
+ *   Usage: command subcommand2 [ flags | options ] [ positional ... ]
+ *
+ *   Description of subcommand2.
+ *
+ *   Flags:
+ *   -f, --flag1
+ *     Description of flag1.
+ *
+ *   -g, --flag2
+ *     Description of flag2.
+ *
+ *   Options:
+ *   -o, --option1 <type>
+ *     Description of option1.
+ *
+ *   -p, --option2 <type>
+ *     Description of option2.
+ *
+ *   All Environment Variables:
+ *   ENV_VAR1
+ *   Description of ENV_VAR1.
+ *
+ *   ENV_VAR2
+ *   Description of ENV_VAR2.
+ *
+ *   All System Properties:
+ *   PROP1
+ *   Description of PROP1.
+ *
+ *   PROP2
+ *   Description of PROP2.
+ * </pre>
+ */
 public class DefaultHelpFormatter implements HelpFormatter {
 
   public static final DefaultHelpFormatter INSTANCE = new DefaultHelpFormatter();
@@ -395,8 +512,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
           }
 
           List<EnvironmentConfigurationParameter> variables = Commands.parameters(command)
-              .mapMulti(Streams.filterAndCast(EnvironmentConfigurationParameter.class))
-              .distinct()
+              .mapMulti(Streams.filterAndCast(EnvironmentConfigurationParameter.class)).distinct()
               .sorted(Comparator.comparing(EnvironmentConfigurationParameter::getVariableName))
               .toList();
 
@@ -421,8 +537,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
           }
 
           List<PropertyConfigurationParameter> properties = Commands.parameters(command)
-              .mapMulti(Streams.filterAndCast(PropertyConfigurationParameter.class))
-              .distinct()
+              .mapMulti(Streams.filterAndCast(PropertyConfigurationParameter.class)).distinct()
               .sorted(Comparator.comparing(PropertyConfigurationParameter::getPropertyName))
               .toList();
 

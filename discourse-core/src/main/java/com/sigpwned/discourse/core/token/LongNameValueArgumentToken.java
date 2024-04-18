@@ -23,6 +23,11 @@ import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.util.Generated;
 import java.util.Objects;
 
+/**
+ * A "long name value" token that represents the single-token combination of a long name and a
+ * value, e.g., {@code --foo=bar}. Note that the value may be empty, (as in {@code --foo=}), and
+ * that the value can also be separated from the switch (as in {@code --foo bar}).
+ */
 public final class LongNameValueArgumentToken extends ArgumentToken {
 
   private final String longName;

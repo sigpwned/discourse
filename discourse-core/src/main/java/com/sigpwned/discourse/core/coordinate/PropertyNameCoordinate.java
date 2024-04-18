@@ -21,6 +21,8 @@ package com.sigpwned.discourse.core.coordinate;
 
 /**
  * A coordinate that represents a system property name.
+ * 
+ * @see System#getProperty(String) 
  */
 public final class PropertyNameCoordinate extends NameCoordinate {
 

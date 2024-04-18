@@ -19,6 +19,11 @@
  */
 package com.sigpwned.discourse.core.token;
 
+/**
+ * A token that indicates that no more flags or switches appear in the rest of the command line
+ * arguments. It is very useful when (a) generating command lines programmatically, and (b) to
+ * disambiguate between flags/switches and positional parameters that happen to start with "-".
+ */
 public final class SeparatorArgumentToken extends ArgumentToken {
 
   public static final SeparatorArgumentToken INSTANCE = new SeparatorArgumentToken();

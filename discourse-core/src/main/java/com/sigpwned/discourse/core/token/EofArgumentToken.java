@@ -19,6 +19,10 @@
  */
 package com.sigpwned.discourse.core.token;
 
+/**
+ * A logical "end of input" token. This token does not appear in the input, but is added to the
+ * arguments during parsing to demarcate the end of the input.
+ */
 public final class EofArgumentToken extends ArgumentToken {
 
   public static final EofArgumentToken INSTANCE = new EofArgumentToken();

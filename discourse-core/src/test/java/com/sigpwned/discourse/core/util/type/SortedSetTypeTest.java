@@ -17,10 +17,11 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.util;
+package com.sigpwned.discourse.core.util.type;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;

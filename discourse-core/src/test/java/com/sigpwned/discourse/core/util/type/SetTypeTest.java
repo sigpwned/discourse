@@ -17,48 +17,50 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.util;
+package com.sigpwned.discourse.core.util.type;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 import com.google.common.reflect.TypeToken;
 
-public class ListTypeTest {
+public class SetTypeTest {
   public static final TypeToken<Collection<String>> COLLECTION_OF_STRING = new TypeToken<Collection<String>>() {};
 
   @Test(expected = IllegalArgumentException.class)
   public void parameterizedTest() {
-    ListType.parse(COLLECTION_OF_STRING.getType());
+    SetType.parse(COLLECTION_OF_STRING.getType());
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void objectTest() {
-    ListType.parse(Object.class);
+    SetType.parse(Object.class);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void rawTest() {
-    ListType.parse(List.class);
+    SetType.parse(List.class);
   }
 
-  public static final TypeToken<List<String>> LIST_OF_STRING = new TypeToken<List<String>>() {};
+  public static final TypeToken<Set<String>> SET_OF_STRING = new TypeToken<Set<String>>() {};
 
   @Test
   public void concreteTest() {
-    ListType observed = ListType.parse(LIST_OF_STRING.getType());
+    SetType observed = SetType.parse(SET_OF_STRING.getType());
 
-    assertThat(observed, is(ListType.of(String.class)));
+    assertThat(observed, is(SetType.of(String.class)));
   }
   
-  public static class ListTest<T> {
-    public TypeToken<List<T>> token=new TypeToken<List<T>>() {};
+  public static class SetTest<T> {
+    public TypeToken<Set<T>> token=new TypeToken<Set<T>>() {};
   }
   
   @Test(expected=IllegalArgumentException.class)
   public void unresolvedTest() {
-    ListType.parse(new ListTest<String>().token.getType());
+    SetType.parse(new SetTest<String>().token.getType());
   }
 }

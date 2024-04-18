@@ -44,6 +44,9 @@ import com.sigpwned.discourse.core.token.ShortNameArgumentToken;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ * A parser for command line arguments.
+ */
 public class ArgumentsParser {
 
   public static interface Handler {
@@ -67,6 +70,12 @@ public class ArgumentsParser {
     this.handler = requireNonNull(handler);
   }
 
+  /**
+   * Parses the given arguments, emitting events to the instance's {@link Handler handler}.
+   *
+   * @param args the arguments to parse
+   * @throws SyntaxException if the command line could not be parsed
+   */
   public void parse(List<String> args) {
     iterator = unmodifiableList(args).listIterator();
     try {

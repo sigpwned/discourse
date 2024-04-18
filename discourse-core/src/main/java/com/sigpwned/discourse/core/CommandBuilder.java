@@ -25,6 +25,9 @@ import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfig
 import com.sigpwned.discourse.core.module.DefaultModule;
 import com.sigpwned.discourse.core.value.sink.AssignValueSinkFactory;
 
+/**
+ * A builder for creating {@link Command} objects.
+ */
 public class CommandBuilder {
 
   private final SerializationContext serializationContext;
@@ -42,6 +45,14 @@ public class CommandBuilder {
     return this;
   }
 
+  /**
+   * Builds a new {@link Command} object for the given raw type with the registered modules.
+   *
+   * @param rawType the raw type of the command
+   * @param <T>     the type of the command
+   * @return a new {@link Command} object for the given raw type
+   * @throws ConfigurationException
+   */
   public <T> Command<T> build(Class<T> rawType) {
     if (rawType.getAnnotation(Configurable.class) == null) {
       throw new NotConfigurableConfigurationException(rawType);
@@ -62,5 +73,4 @@ public class CommandBuilder {
   private SinkContext getSinkContext() {
     return sinkContext;
   }
-
 }

@@ -24,6 +24,16 @@ import com.sigpwned.discourse.core.command.Command;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>
+ * The default version formatter. This formatter formats the version as a string with the name of
+ * the command followed by the version of the command:
+ * </p>
+ *
+ * <pre>
+ *   name version
+ * </pre>
+ */
 public class DefaultVersionFormatter implements VersionFormatter {
 
   public static final DefaultVersionFormatter INSTANCE = new DefaultVersionFormatter();

@@ -19,6 +19,7 @@
  */
 package com.sigpwned.discourse.core.util;
 
+import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.token.ArgumentToken;
@@ -35,9 +36,10 @@ public final class Args {
 
   /**
    * Makes a best-effort attempt to determine if the given args contain the given switches. It is
-   * not -- and cannot be -- perfect because it does not know whether or not each switch is valued.
-   * That would require a ConfigurationClass, and we're trying to short-circuit that here. We could
-   * get some false positives if a flag is passed as a value to an option.
+   * not -- and cannot be -- perfect because it does not know whether or not each switch is valued,
+   * i.e., takes a value. Knowing this would require a {@link SingleCommand}, and we're trying to
+   * short-circuit that here. We could get some false positives if a flag is passed as a value to an
+   * option.
    */
   public static boolean containsFlag(List<String> args, ShortSwitchNameCoordinate shortName,
       LongSwitchNameCoordinate longName) {

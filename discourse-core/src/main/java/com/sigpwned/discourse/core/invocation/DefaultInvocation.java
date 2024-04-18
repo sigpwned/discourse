@@ -30,6 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+/**
+ * A default implementation of {@link Invocation}.
+ *
+ * @param <T> the type of the configuration object
+ */
 public class DefaultInvocation<T> implements Invocation<T> {
 
   private final List<Map.Entry<Discriminator, MultiCommand<? extends T>>> subcommands;
@@ -64,6 +69,6 @@ public class DefaultInvocation<T> implements Invocation<T> {
 
   @Override
   public List<String> getLeafArgs() {
-    return List.of();
+    return leafArgs;
   }
 }

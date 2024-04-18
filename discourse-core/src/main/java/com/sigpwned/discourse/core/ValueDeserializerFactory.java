@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 
+/**
+ * A factory for creating {@link ValueDeserializer} objects. This is used to create deserializers
+ * for command line arguments. A factory can handle one or more types of values.
+ */
 public interface ValueDeserializerFactory<T> {
+
   public boolean isDeserializable(Type genericType, List<Annotation> annotations);
 
   public ValueDeserializer<T> getDeserializer(Type genericType, List<Annotation> annotations);

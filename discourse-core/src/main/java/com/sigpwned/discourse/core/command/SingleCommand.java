@@ -60,7 +60,6 @@ import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
-import com.sigpwned.discourse.core.util.ConfigurationParameters;
 import com.sigpwned.discourse.core.util.Streams;
 import com.sigpwned.espresso.BeanClass;
 import com.sigpwned.espresso.BeanProperty;
@@ -75,6 +74,30 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
+/**
+ * <p>
+ * A single command is a simple, standalone command that simply takes arguments. For example, the
+ * following command has two parameters, {@code --foo} and {@code --bar}:
+ * </p>
+ *
+ * <pre>
+ *   &#x40;Configurable
+ *   public class MyCommand {
+ *     &#x40;OptionParameter(longName = "foo")
+ *     public String foo;
+ *
+ *     &#x40;OptionParameter(longName = "bar")
+ *     public String bar;
+ *   }
+ * </pre>
+ *
+ * <p>
+ * Note that the {@code MyCommand} class is not abstract. All single command classes must be
+ * concrete.
+ * </p>
+ *
+ * @param <T>
+ */
 public final class SingleCommand<T> extends Command<T> {
 
   private final Set<ConfigurationParameter> parameters;
@@ -167,14 +190,14 @@ public final class SingleCommand<T> extends Command<T> {
 
     // Is there more than 1 help flag?
     if (parameters.stream().map(Map.Entry::getValue)
-        .mapMulti(ConfigurationParameters.mapMultiFlag()).filter(FlagConfigurationParameter::isHelp)
-        .count() > 1L) {
+        .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
+        .filter(FlagConfigurationParameter::isHelp).count() > 1L) {
       return Optional.of(new MultipleHelpFlagsConfigurationException(rawType));
     }
 
     // Is there more than 1 version flag?
     if (parameters.stream().map(Map.Entry::getValue)
-        .mapMulti(ConfigurationParameters.mapMultiFlag())
+        .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
         .filter(FlagConfigurationParameter::isVersion).count() > 1L) {
       return Optional.of(new MultipleVersionFlagsConfigurationException(rawType));
     }
@@ -395,12 +418,12 @@ public final class SingleCommand<T> extends Command<T> {
           throw new IllegalArgumentException(format("coordinates defined more than once: %s", c));
         });
 
-    if (parameters.stream().mapMulti(ConfigurationParameters.mapMultiFlag())
+    if (parameters.stream().mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
         .filter(FlagConfigurationParameter::isHelp).count() > 1L) {
       throw new IllegalArgumentException("multiple help flags");
     }
 
-    if (parameters.stream().mapMulti(ConfigurationParameters.mapMultiFlag())
+    if (parameters.stream().mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
         .filter(FlagConfigurationParameter::isVersion).count() > 1L) {
       throw new IllegalArgumentException("multiple version flags");
     }

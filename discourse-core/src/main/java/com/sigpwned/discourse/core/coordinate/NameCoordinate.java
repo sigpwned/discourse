@@ -22,6 +22,9 @@ package com.sigpwned.discourse.core.coordinate;
 import java.util.Comparator;
 import java.util.Objects;
 
+/**
+ * A coordinate with an explicit name, like "-x" or "--xray".
+ */
 public abstract sealed class NameCoordinate extends Coordinate implements
     Comparable<NameCoordinate> permits PropertyNameCoordinate, SwitchNameCoordinate,
     VariableNameCoordinate {

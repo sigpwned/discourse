@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,10 +19,17 @@
  */
 package com.sigpwned.discourse.core;
 
-import java.util.Objects;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
+import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
+import java.util.Objects;
 
+/**
+ * A base class for configuration objects that have standard options. Provides {@code --help} and
+ * {@code --version} options that are common to many command-line tools and handled appropriately by
+ * the {@link DefaultInvocationStrategy}.
+ */
 public class StandardConfigurationBase {
+
   @FlagParameter(longName = "help", help = true, description = "Print this help message")
   private boolean help = false;
 
@@ -40,8 +47,7 @@ public class StandardConfigurationBase {
     this.help = help;
   }
 
-  @FlagParameter(longName = "version", version = true,
-      description = " The current version of this software")
+  @FlagParameter(longName = "version", version = true, description = " The current version of this software")
   private boolean version = false;
 
   /**
@@ -65,12 +71,15 @@ public class StandardConfigurationBase {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     StandardConfigurationBase other = (StandardConfigurationBase) obj;
     return help == other.help && version == other.version;
   }

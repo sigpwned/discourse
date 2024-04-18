@@ -21,6 +21,9 @@ package com.sigpwned.discourse.core;
 
 import com.sigpwned.discourse.core.command.Command;
 
+/**
+ * A function that formats a command's version into a string for display.
+ */
 @FunctionalInterface
 public interface VersionFormatter {
 

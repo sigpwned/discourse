@@ -23,6 +23,9 @@ import static java.lang.String.format;
 import com.sigpwned.discourse.core.ConfigurationException;
 import com.sigpwned.discourse.core.Discriminator;
 
+/**
+ *
+ */
 public class DiscriminatorMismatchConfigurationException extends ConfigurationException {
   private final Class<?> rawType;
   private final Discriminator expectedDiscriminator;

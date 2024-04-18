@@ -44,12 +44,69 @@ import com.sigpwned.discourse.core.value.deserializer.StringValueDeserializerFac
 import com.sigpwned.discourse.core.value.deserializer.UriValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.UrlValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.sink.ArrayAppendValueSinkFactory;
+import com.sigpwned.discourse.core.value.sink.AssignValueSinkFactory;
 import com.sigpwned.discourse.core.value.sink.ListAddValueSinkFactory;
 import com.sigpwned.discourse.core.value.sink.SetAddValueSinkFactory;
 import com.sigpwned.discourse.core.value.sink.SortedSetAddValueSinkFactory;
 
+/**
+ * <p>
+ * The default module for the core library. Registers the default deserializers and sinks.
+ * </p>
+ *
+ * <h2>Deserializers</h2>
+ */
 public class DefaultModule extends Module {
 
+  /**
+   * <p>
+   * Registers the default deserializers.
+   * </p>
+   *
+   * <h2>Dedicated</h2>
+   *
+   * <p>
+   * Supports a wide variety of built-in types specifically:
+   * </p>
+   *
+   * <ul>
+   *   <li>{@link BigDecimalValueDeserializerFactory}</li>
+   *   <li>{@link BooleanValueDeserializerFactory}</li>
+   *   <li>{@link ByteValueDeserializerFactory}</li>
+   *   <li>{@link CharValueDeserializerFactory}</li>
+   *   <li>{@link DoubleValueDeserializerFactory}</li>
+   *   <li>{@link EnumValueDeserializerFactory}</li>
+   *   <li>{@link FileValueDeserializerFactory}</li>
+   *   <li>{@link FloatValueDeserializerFactory}</li>
+   *   <li>{@link InstantValueDeserializerFactory}</li>
+   *   <li>{@link IntValueDeserializerFactory}</li>
+   *   <li>{@link LocalDateTimeValueDeserializerFactory}</li>
+   *   <li>{@link LocalDateValueDeserializerFactory}</li>
+   *   <li>{@link LocalTimeValueDeserializerFactory}</li>
+   *   <li>{@link LongValueDeserializerFactory}</li>
+   *   <li>{@link PathValueDeserializerFactory}</li>
+   *   <li>{@link PatternValueDeserializerFactory}</li>
+   *   <li>{@link ShortValueDeserializerFactory}</li>
+   *   <li>{@link StringValueDeserializerFactory}</li>
+   *   <li>{@link UriValueDeserializerFactory}</li>
+   *   <li>{@link UrlValueDeserializerFactory}</li>
+   * </ul>
+   *
+   * <h2>General</h2>
+   *
+   * <p>
+   *   Supports general deserialization of any class with the following features:
+   * </p>
+   *
+   * <ul>
+   *   <li>
+   *     {@link FromStringValueDeserializerFactory} -- Any class that defines a method with the
+   *     signature {@code public static T fromString(String)}
+   *   </li>
+   * </ul>
+   *
+   * @param context the serialization context to register the deserializers into
+   */
   @Override
   public void register(SerializationContext context) {
     context.addLast(StringValueDeserializerFactory.INSTANCE);
@@ -77,6 +134,21 @@ public class DefaultModule extends Module {
     context.addLast(FromStringValueDeserializerFactory.INSTANCE);
   }
 
+  /**
+   * <p>
+   * Registers the default sinks.
+   * </p>
+   *
+   * <ul>
+   *   <li>{@link AssignValueSinkFactory}</li>
+   *   <li>{@link ArrayAppendValueSinkFactory}</li>
+   *   <li>{@link ListAddValueSinkFactory}</li>
+   *   <li>{@link SetAddValueSinkFactory}</li>
+   *   <li>{@link SortedSetAddValueSinkFactory}</li>
+   * </ul>
+   *
+   * @param context the sink context to register the sinks into
+   */
   @Override
   public void register(SinkContext context) {
     context.addLast(SortedSetAddValueSinkFactory.INSTANCE);

@@ -23,11 +23,15 @@ import static java.lang.String.*;
 import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.ConfigurationException;
+import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.command.MultiCommand;
 
 /**
  * Thrown when a user provides a command line argument in a position where the application expects a
- * discriminator, but the argument is not a valid discriminator.
+ * discriminator, but the argument is not a valid discriminator. A discriminator must match the
+ * pattern "[a-zA-Z0-9][-a-zA-Z0-9_]*".
+ *
+ * @see Discriminator#PATTERN
  */
 public class InvalidDiscriminatorArgumentException extends ConfigurationException {
 

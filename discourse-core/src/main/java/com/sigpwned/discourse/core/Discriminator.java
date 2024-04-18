@@ -21,13 +21,18 @@ package com.sigpwned.discourse.core;
 
 import static java.lang.String.*;
 
+import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.util.Generated;
-import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-public class Discriminator implements Comparable<Discriminator>, Serializable {
+/**
+ * A discriminator is a string that is used to indicate which
+ * {@link MultiCommand#getSubcommands() subcommand} of a {@link MultiCommand} should be executed. It
+ * must match the regular expression {@code "[a-zA-Z0-9][-a-zA-Z0-9_]*"}.
+ */
+public class Discriminator implements Comparable<Discriminator> {
 
   public static final Pattern PATTERN = Pattern.compile("[a-zA-Z0-9][-a-zA-Z0-9_]*");
 

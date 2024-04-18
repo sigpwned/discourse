@@ -20,7 +20,7 @@
 package com.sigpwned.discourse.core.coordinate;
 
 /**
- * A coordinate that represents a switch name.
+ * A coordinate that represents a switch name, e.g., -x or --foo
  */
 public abstract sealed class SwitchNameCoordinate extends NameCoordinate permits
     LongSwitchNameCoordinate, ShortSwitchNameCoordinate {

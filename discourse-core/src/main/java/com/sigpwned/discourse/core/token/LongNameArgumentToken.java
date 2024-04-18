@@ -23,6 +23,9 @@ import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.util.Generated;
 import java.util.Objects;
 
+/**
+ * A "long name" argument token, e.g., {@code --foo}
+ */
 public final class LongNameArgumentToken extends ArgumentToken {
 
   private final String longName;

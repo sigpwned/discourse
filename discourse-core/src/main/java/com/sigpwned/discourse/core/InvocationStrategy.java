@@ -24,6 +24,19 @@ import java.util.List;
 
 public interface InvocationStrategy {
 
+  /**
+   * Creates an invocation for the given command, context, and arguments.
+   *
+   * @param command the command to invoke
+   * @param context the invocation context, which provides sinks, deserializers, etc.
+   * @param args    the arguments to the command
+   * @param <T>     the type of the command's result
+   * @return the invocation
+   * @throws SyntaxException   if the command line arguments cannot be parsed, for example because
+   *                           an option that requires a value was not given one
+   * @throws ArgumentException if the arguments are not make valid for the command, for example
+   *                           because they cannot be deserialized.
+   */
   <T> Invocation<? extends T> invoke(Command<T> command, InvocationContext context,
       List<String> args);
 }

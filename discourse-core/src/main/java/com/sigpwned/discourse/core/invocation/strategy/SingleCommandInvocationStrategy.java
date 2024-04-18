@@ -46,6 +46,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * An {@link InvocationStrategy} that takes a single command and its arguments and constructs an
+ * instance of the command with the arguments.
+ */
 public class SingleCommandInvocationStrategy implements InvocationStrategy {
 
   @FunctionalInterface
@@ -69,7 +73,8 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
   }
 
   @Override
-  public <T> Invocation<? extends T> invoke(Command<T> command, InvocationContext context, List<String> args) {
+  public <T> Invocation<? extends T> invoke(Command<T> command, InvocationContext context,
+      List<String> args) {
     if (!(command instanceof SingleCommand<T> single)) {
       throw new IllegalArgumentException("Command is not a SingleCommand");
     }
@@ -152,7 +157,8 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
       throw new UnassignedRequiredParametersArgumentException(requiredPropertyNames);
     }
 
-    return new DefaultInvocation<>(List.of(), single, args, (T) instance.getInstance());
+    return new DefaultInvocation<>(List.of(), single, args,
+        command.getRawType().cast(instance.getInstance()));
   }
 
   private EnvironmentVariables getVariables() {

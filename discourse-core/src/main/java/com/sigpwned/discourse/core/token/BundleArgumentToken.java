@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+/**
+ * A "bundle" token is a sequence of short switch names strung together, e.g., {@code -abc}.
+ */
 public final class BundleArgumentToken extends ArgumentToken {
 
   private final List<String> shortNames;

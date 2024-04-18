@@ -21,6 +21,10 @@ package com.sigpwned.discourse.core.exception.argument;
 
 import com.sigpwned.discourse.core.ArgumentException;
 
+/**
+ * Thrown when a new instance of a configuration class cannot be created. This is typically thrown
+ * in response to an InvocationTargetException that occurs when a constructor is called.
+ */
 public class NewInstanceFailureArgumentException extends ArgumentException {
 
   // TODO This is probably more of a runtime-type exception than an argument exception

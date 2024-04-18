@@ -28,7 +28,8 @@ import java.util.Set;
 /**
  * Thrown when a user does not provide adequate parameters to populate all the required fields of a
  * command. This can indicate missing environment variables, system properties, options, flags, or
- * positional arguments.
+ * positional arguments. For example, if a command requires a parameter named "foo" and the user
+ * does not provide a value for "foo", then this exception would be thrown.
  */
 public class UnassignedRequiredParametersArgumentException extends ArgumentException {
 

@@ -26,7 +26,8 @@ import com.sigpwned.discourse.core.command.MultiCommand;
 
 /**
  * Thrown when the application does not provide sufficient disciminators to dereference a multi
- * command. In this case, the application doesn't know which command to invoke.
+ * command. For example, if a command defines two subcommands "foo" and "bar", but the user provides
+ * no discriminators to indicate which subcommand to run, then this exception would be thrown.
  */
 public class NoSubcommandArgumentException extends ConfigurationException {
 

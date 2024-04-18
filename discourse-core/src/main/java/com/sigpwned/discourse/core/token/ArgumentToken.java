@@ -31,6 +31,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
+/**
+ * A token used during the parsing of command-line arguments.
+ */
 public abstract sealed class ArgumentToken permits BundleArgumentToken, EofArgumentToken,
     LongNameArgumentToken, LongNameValueArgumentToken, SeparatorArgumentToken,
     ShortNameArgumentToken, ValueArgumentToken {

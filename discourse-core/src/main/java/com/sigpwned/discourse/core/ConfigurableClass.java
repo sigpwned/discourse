@@ -29,6 +29,7 @@ import com.sigpwned.discourse.core.exception.configuration.NoDiscriminatorConfig
 import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.SealedSubcommandsConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.SubcommandDoesNotExtendRootCommandConfigurationException;
+import com.sigpwned.discourse.core.util.Discriminators;
 import com.sigpwned.discourse.core.util.Streams;
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +40,8 @@ import java.util.stream.Stream;
  * Represents a class that is annotated with {@link Configurable}. This class is used to scan a
  * class and extract the configuration information from the annotation and the class itself. This
  * class is immutable. It identifies pointers to subcommands, which are classes that extend the
- * configurable class, but does not scan them. It does not load parameters.
+ * configurable class, but does not scan them. It does not load parameters. This class generally
+ * should not be used by end users directly, but rather indirectly through the framework.
  *
  * @param <T>
  */
@@ -81,8 +83,7 @@ public class ConfigurableClass<T> {
 
     final Discriminator discriminator;
     try {
-      discriminator = Optional.of(configurable.discriminator()).filter(s -> !s.isEmpty())
-          .map(Discriminator::fromString).orElse(null);
+      discriminator = Discriminators.fromConfigurable(configurable).orElse(null);
     } catch (IllegalArgumentException e) {
       throw new InvalidDiscriminatorConfigurationException(rawType, configurable.discriminator());
     }
@@ -209,12 +210,10 @@ public class ConfigurableClass<T> {
             subcommand.configurable());
       }
 
-      if (subcommand.discriminator().isEmpty()) {
-        throw new NoDiscriminatorConfigurationException(rawSubcommandType);
-      }
       Discriminator discriminator;
       try {
-        discriminator = Discriminator.fromString(subcommand.discriminator());
+        discriminator = Discriminators.fromSubcommand(subcommand)
+            .orElseThrow(() -> new NoDiscriminatorConfigurationException(rawSubcommandType));
       } catch (IllegalArgumentException e) {
         throw new InvalidDiscriminatorConfigurationException(rawType, subcommand.discriminator());
       }
@@ -225,7 +224,7 @@ public class ConfigurableClass<T> {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private static <T> List<SubcommandClass<? extends T>> subcommandsFromPermittedSubclasses(
+  private static <T> List<ConfigurableClass.SubcommandClass<? extends T>> subcommandsFromPermittedSubclasses(
       Class<?> rawType, Configurable configurable) {
     if (configurable.subcommands().length > 0) {
       throw new SealedSubcommandsConfigurationException(rawType);

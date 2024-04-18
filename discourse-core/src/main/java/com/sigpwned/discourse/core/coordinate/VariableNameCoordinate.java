@@ -21,6 +21,8 @@ package com.sigpwned.discourse.core.coordinate;
 
 /**
  * A coordinate that represents an environment variable name.
+ * 
+ * @see System#getenv(String) 
  */
 public final class VariableNameCoordinate extends NameCoordinate {
 

@@ -28,6 +28,24 @@ import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfig
 import com.sigpwned.discourse.core.exception.configuration.UnexpectedDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.util.Discriminators;
 
+/**
+ * <p>
+ * A command is a blueprint for creating a configurable object from command line arguments and
+ * guiding users to provide the right command line arguments. Specifically, it captures the type of
+ * configuration class to create, the name of the command, the description of the command, the
+ * version of the command, and any command line or environmental parameters needed to build the
+ * configuration object.
+ * </p>
+ *
+ * <p>
+ * A command can be a {@link SingleCommand single} or {@link MultiCommand multi} command. A single
+ * command is a simple, standalone command that simply takes arguments. A multi command is a command
+ * that can run any one of multiple subcommands based on a discriminator. This mode is modeled after
+ * the AWS CLI and Git CLI.
+ * </p>
+ *
+ * @param <T> The type of the root configuration class.
+ */
 public abstract sealed class Command<T> permits SingleCommand, MultiCommand {
 
   /**
