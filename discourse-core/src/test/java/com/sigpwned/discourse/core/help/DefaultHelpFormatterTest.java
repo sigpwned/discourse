@@ -22,7 +22,7 @@ package com.sigpwned.discourse.core.help;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.sigpwned.discourse.core.Command;
+import com.sigpwned.discourse.core.command.Command;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;

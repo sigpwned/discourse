@@ -24,12 +24,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
-import com.sigpwned.discourse.core.annotation.PropertyParameter;
-import com.sigpwned.discourse.core.invocation.DefaultInvocation;
+import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -82,8 +80,9 @@ public class ConfiguratorSingleCommandTest {
     final String alpha = "alpha";
     final String bravo = "bravo";
 
-    Example1 observed = new CommandBuilder().build(Example1.class).args("-f", "-o", alpha, bravo)
-        .configuration();
+    Example1 observed = DefaultInvocationStrategy.INSTANCE.invoke(
+            new CommandBuilder().build(Example1.class), List.of("-f", "-o", alpha, bravo))
+        .getConfiguration();
 
     Example1 expected = new Example1();
     expected.flag = true;
@@ -140,8 +139,9 @@ public class ConfiguratorSingleCommandTest {
     final String bravo = "bravo";
     final String charlie = "charlie";
 
-    Example2 observed = new CommandBuilder().build(Example2.class)
-        .args("-f", "-o", alpha, bravo, charlie).configuration();
+    Example2 observed = DefaultInvocationStrategy.INSTANCE.invoke(
+            new CommandBuilder().build(Example2.class), List.of("-f", "-o", alpha, bravo, charlie))
+        .getConfiguration();
 
     Example2 expected = new Example2();
     expected.flag = true;
@@ -188,8 +188,9 @@ public class ConfiguratorSingleCommandTest {
   public void allowUnconfiguredFieldExample() {
     final String hello = "hello";
 
-    AllowUnconfiguredFieldExample observed = new CommandBuilder().build(
-        AllowUnconfiguredFieldExample.class).args(hello).configuration();
+    AllowUnconfiguredFieldExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
+        new CommandBuilder().build(
+            AllowUnconfiguredFieldExample.class), List.of(hello)).getConfiguration();
 
     AllowUnconfiguredFieldExample expected = new AllowUnconfiguredFieldExample();
     expected.example2 = hello;
@@ -239,8 +240,8 @@ public class ConfiguratorSingleCommandTest {
   public void accessorExample() {
     final String hello = "hello";
 
-    AccessorExample observed = new CommandBuilder().build(AccessorExample.class).args(hello)
-        .configuration();
+    AccessorExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
+        new CommandBuilder().build(AccessorExample.class), List.of(hello)).getConfiguration();
 
     AccessorExample expected = new AccessorExample();
     expected.example = hello;
@@ -287,106 +288,13 @@ public class ConfiguratorSingleCommandTest {
 
   @Test
   public void primitivesExample() {
-    PrimitivesExample observed = new CommandBuilder().build(PrimitivesExample.class)
-        .args("-x", "1", "2", "3").configuration();
+    PrimitivesExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
+            new CommandBuilder().build(PrimitivesExample.class), List.of("-x", "1", "2", "3"))
+        .getConfiguration();
 
     PrimitivesExample expected = new PrimitivesExample();
     expected.x = 1;
     expected.examples = new int[]{2, 3};
-
-    assertThat(observed, is(expected));
-  }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  @Configurable
-  public static class EnvironmentExample {
-
-    @EnvironmentParameter(variableName = "HELLO")
-    public String hello;
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(hello);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj == null) {
-        return false;
-      }
-      if (getClass() != obj.getClass()) {
-        return false;
-      }
-      EnvironmentExample other = (EnvironmentExample) obj;
-      return Objects.equals(hello, other.hello);
-    }
-  }
-
-  @Test
-  public void environmentExample() {
-    final String hello = "hello";
-
-    DefaultInvocation<? extends EnvironmentExample> invocation = new CommandBuilder().build(
-        EnvironmentExample.class).args();
-
-    invocation.setGetEnv(name -> name.equals("HELLO") ? hello : System.getenv(name));
-
-    EnvironmentExample observed = invocation.configuration();
-
-    EnvironmentExample expected = new EnvironmentExample();
-    expected.hello = hello;
-
-    assertThat(observed, is(expected));
-  }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  @Configurable
-  public static class PropertyExample {
-
-    @PropertyParameter(propertyName = "hello")
-    public String hello;
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(hello);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj == null) {
-        return false;
-      }
-      if (getClass() != obj.getClass()) {
-        return false;
-      }
-      PropertyExample other = (PropertyExample) obj;
-      return Objects.equals(hello, other.hello);
-    }
-  }
-
-  @Test
-  public void propertyExample() {
-    final String hello = "hello";
-
-    DefaultInvocation<? extends PropertyExample> invocation = new CommandBuilder().build(
-        PropertyExample.class).args();
-
-    invocation.setGetProperty(name -> name.equals("hello") ? hello : System.getProperty(name));
-
-    PropertyExample observed = invocation.configuration();
-
-    PropertyExample expected = new PropertyExample();
-    expected.hello = hello;
 
     assertThat(observed, is(expected));
   }

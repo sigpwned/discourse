@@ -17,11 +17,13 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core;
+package com.sigpwned.discourse.core.command;
 
+import com.sigpwned.discourse.core.ConfigurableClass;
+import com.sigpwned.discourse.core.ConfigurationException;
+import com.sigpwned.discourse.core.SerializationContext;
+import com.sigpwned.discourse.core.SinkContext;
 import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.command.MultiCommand;
-import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.UnexpectedDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.util.Discriminators;

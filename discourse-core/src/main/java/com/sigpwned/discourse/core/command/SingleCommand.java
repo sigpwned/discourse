@@ -23,7 +23,6 @@ import static java.lang.String.*;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
 
-import com.sigpwned.discourse.core.Command;
 import com.sigpwned.discourse.core.ConfigurableClass;
 import com.sigpwned.discourse.core.SerializationContext;
 import com.sigpwned.discourse.core.SinkContext;
@@ -34,7 +33,7 @@ import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.PropertyParameter;
-import com.sigpwned.discourse.core.Coordinate;
+import com.sigpwned.discourse.core.coordinate.Coordinate;
 import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.NameCoordinate;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
@@ -55,7 +54,7 @@ import com.sigpwned.discourse.core.exception.configuration.MultipleVersionFlagsC
 import com.sigpwned.discourse.core.exception.configuration.NoNameConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.TooManyAnnotationsConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.UnexpectedSubcommandsConfigurationException;
-import com.sigpwned.discourse.core.ConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;

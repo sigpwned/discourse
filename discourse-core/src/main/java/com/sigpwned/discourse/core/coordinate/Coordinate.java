@@ -17,10 +17,7 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core;
-
-import com.sigpwned.discourse.core.coordinate.NameCoordinate;
-import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
+package com.sigpwned.discourse.core.coordinate;
 
 /**
  * A coordinate that represents a logical configuration "position."

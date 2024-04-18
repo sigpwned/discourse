@@ -19,8 +19,8 @@
  */
 package com.sigpwned.discourse.core.util;
 
-import com.sigpwned.discourse.core.Command;
-import com.sigpwned.discourse.core.ConfigurationParameter;
+import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import java.util.Map;

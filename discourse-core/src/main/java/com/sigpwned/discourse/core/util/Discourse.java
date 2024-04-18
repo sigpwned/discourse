@@ -26,7 +26,7 @@ import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.ConfigurationException;
 import com.sigpwned.discourse.core.InvocationStrategy;
 import com.sigpwned.discourse.core.SyntaxException;
-import com.sigpwned.discourse.core.Command;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 import com.sigpwned.discourse.core.invocation.strategy.SingleCommandInvocationStrategy;
 import java.util.List;

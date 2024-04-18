@@ -20,11 +20,9 @@
 package com.sigpwned.discourse.core;
 
 import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
-import com.sigpwned.discourse.core.annotation.PropertyParameter;
 import com.sigpwned.discourse.core.annotation.Subcommand;
 import com.sigpwned.discourse.core.exception.argument.AssignmentFailureArgumentException;
 import com.sigpwned.discourse.core.exception.argument.InvalidDiscriminatorArgumentException;
@@ -32,7 +30,8 @@ import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgument
 import com.sigpwned.discourse.core.exception.argument.NoSubcommandArgumentException;
 import com.sigpwned.discourse.core.exception.argument.UnassignedRequiredParametersArgumentException;
 import com.sigpwned.discourse.core.exception.argument.UnrecognizedSubcommandArgumentException;
-import com.sigpwned.discourse.core.invocation.DefaultInvocation;
+import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
+import java.util.List;
 import java.util.Objects;
 import org.junit.Test;
 
@@ -60,7 +59,9 @@ public class ConfiguratorArgumentExceptionTest {
 
   @Test(expected = NewInstanceFailureArgumentException.class)
   public void constructorFailureExample() {
-    new CommandBuilder().build(ConstructorFailureExample.class).args("hello").configuration();
+    DefaultInvocationStrategy.INSTANCE.invoke(
+            new CommandBuilder().build(ConstructorFailureExample.class), List.of("hello"))
+        .getConfiguration();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,8 +84,9 @@ public class ConfiguratorArgumentExceptionTest {
 
   @Test(expected = AssignmentFailureArgumentException.class)
   public void positionalAssignmentFailureExample() {
-    new CommandBuilder().build(PositionalAssignmentFailureExample.class).args("hello")
-        .configuration();
+    DefaultInvocationStrategy.INSTANCE.invoke(
+            new CommandBuilder().build(PositionalAssignmentFailureExample.class), List.of("hello"))
+        .getConfiguration();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,8 +109,9 @@ public class ConfiguratorArgumentExceptionTest {
 
   @Test(expected = AssignmentFailureArgumentException.class)
   public void optionAssignmentFailureExample() {
-    new CommandBuilder().build(OptionAssignmentFailureExample.class).args("-x", "hello")
-        .configuration();
+    DefaultInvocationStrategy.INSTANCE.invoke(
+            new CommandBuilder().build(OptionAssignmentFailureExample.class), List.of("-x", "hello"))
+        .getConfiguration();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -131,67 +134,9 @@ public class ConfiguratorArgumentExceptionTest {
 
   @Test(expected = AssignmentFailureArgumentException.class)
   public void flagAssignmentFailureExample() {
-    new CommandBuilder().build(FlagAssignmentFailureExample.class).args("-x").configuration();
-  }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  @Configurable
-  public static class EnvironmentAssignmentFailureExample {
-
-    @EnvironmentParameter(variableName = "HELLO")
-    private String example;
-
-    public String getExample() {
-      return example;
-    }
-
-    public void setExample(String example) {
-      throw new RuntimeException("simulated failiure");
-    }
-  }
-
-  @Test(expected = AssignmentFailureArgumentException.class)
-  public void environmentAssignmentFailureExample() {
-    final String hello = "hello";
-
-    DefaultInvocation<? extends EnvironmentAssignmentFailureExample> invocation =
-        new CommandBuilder().build(EnvironmentAssignmentFailureExample.class).args();
-
-    invocation.setGetEnv(name -> name.equals("HELLO") ? hello : System.getenv(name));
-
-    invocation.configuration();
-  }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  @Configurable
-  public static class PropertyAssignmentFailureExample {
-
-    @PropertyParameter(propertyName = "hello")
-    private String example;
-
-    public String getExample() {
-      return example;
-    }
-
-    public void setExample(String example) {
-      throw new RuntimeException("simulated failiure");
-    }
-  }
-
-  @Test(expected = AssignmentFailureArgumentException.class)
-  public void propertyAssignmentFailureExample() {
-    final String hello = "hello";
-
-    DefaultInvocation<? extends PropertyAssignmentFailureExample> invocation =
-        new CommandBuilder().build(PropertyAssignmentFailureExample.class).args();
-
-    invocation.setGetProperty(name -> name.equals("hello") ? hello : System.getProperty(name));
-
-    invocation.configuration();
+    DefaultInvocationStrategy.INSTANCE.invoke(
+            new CommandBuilder().build(FlagAssignmentFailureExample.class), List.of("-x"))
+        .getConfiguration();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -206,15 +151,16 @@ public class ConfiguratorArgumentExceptionTest {
 
   @Test(expected = UnassignedRequiredParametersArgumentException.class)
   public void missingRequiredExample() {
-    new CommandBuilder().build(MissingRequiredExample.class).args().configuration();
+    DefaultInvocationStrategy.INSTANCE.invoke(
+        new CommandBuilder().build(MissingRequiredExample.class), List.of()).getConfiguration();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
-  @Configurable(
-      subcommands = {@Subcommand(discriminator = "alpha", configurable = AlphaMultiExample.class),
-          @Subcommand(discriminator = "bravo", configurable = BravoMultiExample.class)})
+  @Configurable(subcommands = {
+      @Subcommand(discriminator = "alpha", configurable = AlphaMultiExample.class),
+      @Subcommand(discriminator = "bravo", configurable = BravoMultiExample.class)})
   public abstract static class MultiExample {
 
     @OptionParameter(shortName = "o", longName = "option")
@@ -306,7 +252,8 @@ public class ConfiguratorArgumentExceptionTest {
    */
   @Test(expected = NoSubcommandArgumentException.class)
   public void multiExampleNoSubcommands() {
-    new CommandBuilder().build(MultiExample.class).args();
+    DefaultInvocationStrategy.INSTANCE.invoke(new CommandBuilder().build(MultiExample.class),
+        List.of());
   }
 
   /**
@@ -314,7 +261,8 @@ public class ConfiguratorArgumentExceptionTest {
    */
   @Test(expected = UnrecognizedSubcommandArgumentException.class)
   public void multiExampleUnknownSubcommand() {
-    new CommandBuilder().build(MultiExample.class).args("charlie");
+    DefaultInvocationStrategy.INSTANCE.invoke(new CommandBuilder().build(MultiExample.class),
+        List.of("charlie"));
   }
 
   /**
@@ -322,6 +270,7 @@ public class ConfiguratorArgumentExceptionTest {
    */
   @Test(expected = InvalidDiscriminatorArgumentException.class)
   public void multiExampleInvalidSubcommand() {
-    new CommandBuilder().build(MultiExample.class).args("-");
+    DefaultInvocationStrategy.INSTANCE.invoke(new CommandBuilder().build(MultiExample.class),
+        List.of("-"));
   }
 }

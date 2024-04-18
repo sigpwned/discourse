@@ -19,6 +19,7 @@
  */
 package com.sigpwned.discourse.core;
 
+import com.sigpwned.discourse.core.command.Command;
 import java.util.List;
 
 public interface InvocationStrategy {

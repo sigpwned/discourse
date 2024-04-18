@@ -104,7 +104,7 @@ public class ConfiguratorConfigurationExceptionTest {
 
   @Test(expected = NotConfigurableConfigurationException.class)
   public void notConfigurableTest() {
-    new CommandBuilder().build(NotConfigurableExample.class).args();
+    new CommandBuilder().build(NotConfigurableExample.class);
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////

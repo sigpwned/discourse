@@ -31,6 +31,7 @@ import com.sigpwned.discourse.core.exception.syntax.MissingLongNameValueSyntaxEx
 import com.sigpwned.discourse.core.exception.syntax.MissingShortNameValueSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.UnrecognizedLongNameSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.UnrecognizedShortNameSyntaxException;
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;

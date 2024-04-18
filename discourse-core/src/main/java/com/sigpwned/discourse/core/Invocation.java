@@ -19,6 +19,7 @@
  */
 package com.sigpwned.discourse.core;
 
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import java.util.List;

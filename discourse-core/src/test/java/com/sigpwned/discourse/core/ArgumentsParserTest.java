@@ -27,6 +27,7 @@ import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.exception.syntax.InvalidLongNameValueSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.MissingLongNameValueSyntaxException;

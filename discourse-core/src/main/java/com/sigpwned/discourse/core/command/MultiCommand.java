@@ -22,7 +22,6 @@ package com.sigpwned.discourse.core.command;
 import static java.lang.String.*;
 import static java.util.Collections.*;
 
-import com.sigpwned.discourse.core.Command;
 import com.sigpwned.discourse.core.ConfigurableClass;
 import com.sigpwned.discourse.core.ConfigurableClass.SubcommandClass;
 import com.sigpwned.discourse.core.Discriminator;

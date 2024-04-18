@@ -29,7 +29,11 @@ import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.Subcommand;
 import com.sigpwned.discourse.core.command.MultiCommand;
+import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
+import com.sigpwned.discourse.core.util.Commands;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.junit.Test;
@@ -132,7 +136,7 @@ public class ConfiguratorMultiCommandTest {
   public void multiExampleCommonParameters() {
     MultiCommand<MultiExample> command = (MultiCommand<MultiExample>) new CommandBuilder().build(
         MultiExample.class);
-    Set<String> commonParameters = command.getCommonParameters().stream()
+    Set<String> commonParameters = Commands.commonParameters(command).stream()
         .map(ConfigurationParameter::getName).collect(toSet());
 
     assertThat(commonParameters, is(singleton("option")));
@@ -143,8 +147,8 @@ public class ConfiguratorMultiCommandTest {
    */
   @Test
   public void multiExampleAllParameters() {
-    Set<String> allParameters = new CommandBuilder().build(MultiExample.class).getParameters()
-        .stream().map(ConfigurationParameter::getName).collect(toSet());
+    Set<String> allParameters = Commands.parameters(new CommandBuilder().build(MultiExample.class))
+        .map(ConfigurationParameter::getName).collect(toSet());
 
     Set<String> names = new HashSet<>();
     names.add("option");
@@ -162,7 +166,7 @@ public class ConfiguratorMultiCommandTest {
     MultiCommand<MultiExample> command = (MultiCommand<MultiExample>) new CommandBuilder().build(
         MultiExample.class);
 
-    Set<Discriminator> subcommands = command.listSubcommands();
+    Set<Discriminator> subcommands = new HashSet<>(command.getSubcommands().keySet());
 
     Set<Discriminator> discriminators = new HashSet<>();
     discriminators.add(Discriminator.fromString("alpha"));
@@ -179,8 +183,9 @@ public class ConfiguratorMultiCommandTest {
     final String hello = "hello";
     final String world = "world";
 
-    MultiExample observed = new CommandBuilder().build(MultiExample.class)
-        .args("alpha", "-o", hello, world).configuration();
+    MultiExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
+            new CommandBuilder().build(MultiExample.class), List.of("alpha", "-o", hello, world))
+        .getConfiguration();
 
     AlphaMultiExample expected = new AlphaMultiExample();
     expected.option = hello;
@@ -197,8 +202,9 @@ public class ConfiguratorMultiCommandTest {
     final String hello = "hello";
     final String world = "world";
 
-    MultiExample observed = new CommandBuilder().build(MultiExample.class)
-        .args("bravo", "-o", hello, world).configuration();
+    MultiExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
+            new CommandBuilder().build(MultiExample.class), List.of("bravo", "-o", hello, world))
+        .getConfiguration();
 
     BravoMultiExample expected = new BravoMultiExample();
     expected.option = hello;

@@ -24,7 +24,7 @@ import static java.util.Objects.requireNonNull;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationStrategy;
 import com.sigpwned.discourse.core.VersionFormatter;
-import com.sigpwned.discourse.core.Command;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.format.version.DefaultVersionFormatter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;

@@ -22,8 +22,8 @@ package com.sigpwned.discourse.core.format.help;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.joining;
 
-import com.sigpwned.discourse.core.Command;
-import com.sigpwned.discourse.core.ConfigurationParameter;
+import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.HelpFormatter;
 import com.sigpwned.discourse.core.command.MultiCommand;
@@ -396,6 +396,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
           List<EnvironmentConfigurationParameter> variables = Commands.parameters(command)
               .mapMulti(Streams.filterAndCast(EnvironmentConfigurationParameter.class))
+              .distinct()
               .sorted(Comparator.comparing(EnvironmentConfigurationParameter::getVariableName))
               .toList();
 
@@ -421,6 +422,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
           List<PropertyConfigurationParameter> properties = Commands.parameters(command)
               .mapMulti(Streams.filterAndCast(PropertyConfigurationParameter.class))
+              .distinct()
               .sorted(Comparator.comparing(PropertyConfigurationParameter::getPropertyName))
               .toList();
 

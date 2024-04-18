@@ -21,7 +21,7 @@ package com.sigpwned.discourse.core.invocation.strategy;
 
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationStrategy;
-import com.sigpwned.discourse.core.Command;
+import com.sigpwned.discourse.core.command.Command;
 import java.util.List;
 
 /**

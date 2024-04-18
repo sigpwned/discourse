@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,24 +19,27 @@
  */
 package com.sigpwned.discourse.core;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
+import com.sigpwned.discourse.core.annotation.Configurable;
+import com.sigpwned.discourse.core.annotation.OptionParameter;
+import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import org.junit.Test;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedSet;
-import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.annotation.OptionParameter;
 
 public class SinkTest {
+
   @Configurable
   public static class SinkExample {
+
     @OptionParameter(longName = "assign")
     public String assign;
 
@@ -52,7 +55,8 @@ public class SinkTest {
     @OptionParameter(longName = "array")
     public String[] array;
 
-    public SinkExample() {}
+    public SinkExample() {
+    }
 
     public SinkExample(String assign, List<String> list, Set<String> set,
         SortedSet<String> sortedSet, String[] array) {
@@ -74,29 +78,32 @@ public class SinkTest {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (obj == null)
+      }
+      if (obj == null) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       SinkExample other = (SinkExample) obj;
       return Arrays.equals(array, other.array) && Objects.equals(assign, other.assign)
-          && Objects.equals(list, other.list) && Objects.equals(set, other.set)
-          && Objects.equals(sortedSet, other.sortedSet);
+          && Objects.equals(list, other.list) && Objects.equals(set, other.set) && Objects.equals(
+          sortedSet, other.sortedSet);
     }
   }
 
   @Test
   public void sinkTest() {
-    SinkExample observed = new CommandBuilder().build(SinkExample.class)
-        .args(asList("--assign", "alpha", "--list", "bravo", "--list", "charlie", "--set", "delta",
+    SinkExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
+        new CommandBuilder().build(SinkExample.class),
+        List.of("--assign", "alpha", "--list", "bravo", "--list", "charlie", "--set", "delta",
             "--set", "echo", "--sortedSet", "foxtrot", "--sortedSet", "golf", "--array", "hotel",
-            "--array", "india")).configuration();
+            "--array", "india")).getConfiguration();
 
-    assertThat(observed,
-        is(new SinkExample("alpha", ImmutableList.of("bravo", "charlie"),
-            ImmutableSet.of("delta", "echo"), ImmutableSortedSet.of("foxtrot", "golf"),
-            new String[] {"hotel", "india"})));
+    assertThat(observed, is(new SinkExample("alpha", ImmutableList.of("bravo", "charlie"),
+        ImmutableSet.of("delta", "echo"), ImmutableSortedSet.of("foxtrot", "golf"),
+        new String[]{"hotel", "india"})));
   }
 }

@@ -20,6 +20,7 @@
 package com.sigpwned.discourse.core;
 
 import com.sigpwned.discourse.core.annotation.Configurable;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
 import com.sigpwned.discourse.core.module.DefaultModule;
 import com.sigpwned.discourse.core.value.sink.AssignValueSinkFactory;

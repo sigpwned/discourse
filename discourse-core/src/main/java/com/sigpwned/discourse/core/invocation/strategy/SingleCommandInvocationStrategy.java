@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,13 +25,13 @@ import static java.util.stream.Collectors.toCollection;
 import com.sigpwned.discourse.core.ArgumentsParser;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationStrategy;
-import com.sigpwned.discourse.core.Command;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.exception.argument.AssignmentFailureArgumentException;
 import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgumentException;
 import com.sigpwned.discourse.core.exception.argument.UnassignedRequiredParametersArgumentException;
 import com.sigpwned.discourse.core.invocation.DefaultInvocation;
-import com.sigpwned.discourse.core.ConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
@@ -62,6 +62,10 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
   private EnvironmentVariables variables;
   private SystemProperties properties;
 
+  public SingleCommandInvocationStrategy() {
+    this.variables = name -> Optional.ofNullable(System.getenv(name));
+    this.properties = name -> Optional.ofNullable(System.getProperty(name));
+  }
 
   @Override
   public <T> Invocation<? extends T> invoke(Command<T> command, List<String> args) {

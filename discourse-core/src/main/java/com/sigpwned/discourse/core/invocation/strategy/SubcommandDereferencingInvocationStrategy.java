@@ -22,7 +22,7 @@ package com.sigpwned.discourse.core.invocation.strategy;
 import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationStrategy;
-import com.sigpwned.discourse.core.Command;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.exception.argument.InvalidDiscriminatorArgumentException;
 import com.sigpwned.discourse.core.exception.argument.NoSubcommandArgumentException;

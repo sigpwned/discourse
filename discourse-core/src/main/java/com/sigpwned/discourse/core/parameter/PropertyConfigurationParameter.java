@@ -21,8 +21,7 @@ package com.sigpwned.discourse.core.parameter;
 
 import static java.util.Collections.*;
 
-import com.sigpwned.discourse.core.ConfigurationParameter;
-import com.sigpwned.discourse.core.Coordinate;
+import com.sigpwned.discourse.core.coordinate.Coordinate;
 import com.sigpwned.discourse.core.ValueDeserializer;
 import com.sigpwned.discourse.core.ValueSink;
 import com.sigpwned.discourse.core.coordinate.PropertyNameCoordinate;

@@ -20,7 +20,7 @@
 package com.sigpwned.discourse.core.format.version;
 
 import com.sigpwned.discourse.core.VersionFormatter;
-import com.sigpwned.discourse.core.Command;
+import com.sigpwned.discourse.core.command.Command;
 import java.util.ArrayList;
 import java.util.List;
 
