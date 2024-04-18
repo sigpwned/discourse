@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,23 +19,26 @@
  */
 package com.sigpwned.discourse.core.token;
 
-import java.util.Objects;
-import com.sigpwned.discourse.core.ArgumentToken;
 import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.util.Generated;
+import java.util.Objects;
 
-public class LongNameValueArgumentToken extends ArgumentToken {
+public final class LongNameValueArgumentToken extends ArgumentToken {
+
   private final String longName;
   private final String value;
 
   public LongNameValueArgumentToken(String text, String longName, String value) {
-    super(Type.LONG_NAME_VALUE, text);
-    if (longName == null)
+    super(text);
+    if (longName == null) {
       throw new NullPointerException();
-    if (!LongSwitchNameCoordinate.PATTERN.matcher(longName).matches())
+    }
+    if (!LongSwitchNameCoordinate.PATTERN.matcher(longName).matches()) {
       throw new IllegalArgumentException("invalid long name: " + longName);
-    if (value == null)
+    }
+    if (value == null) {
       throw new NullPointerException();
+    }
     this.longName = longName;
     this.value = value;
   }
@@ -66,12 +69,15 @@ public class LongNameValueArgumentToken extends ArgumentToken {
   @Override
   @Generated
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     LongNameValueArgumentToken other = (LongNameValueArgumentToken) obj;
     return Objects.equals(longName, other.longName) && Objects.equals(value, other.value);
   }

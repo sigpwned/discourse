@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,40 +17,35 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core;
+package com.sigpwned.discourse.core.token;
 
-import static java.lang.String.format;
+import static java.lang.String.*;
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
+
+import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
+import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
+import com.sigpwned.discourse.core.util.Generated;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
-import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
-import com.sigpwned.discourse.core.token.BundleArgumentToken;
-import com.sigpwned.discourse.core.token.EofArgumentToken;
-import com.sigpwned.discourse.core.token.LongNameArgumentToken;
-import com.sigpwned.discourse.core.token.LongNameValueArgumentToken;
-import com.sigpwned.discourse.core.token.SeparatorArgumentToken;
-import com.sigpwned.discourse.core.token.ShortNameArgumentToken;
-import com.sigpwned.discourse.core.token.ValueArgumentToken;
-import com.sigpwned.discourse.core.util.Generated;
 
-public abstract class ArgumentToken {
-  public static enum Type {
-    BUNDLE, SHORT_NAME, LONG_NAME, LONG_NAME_VALUE, VALUE, SEPARATOR, EOF;
-  }
-  
-  public static final Pattern SEPARATOR=Pattern.compile("--");
-  
+public abstract sealed class ArgumentToken permits BundleArgumentToken, EofArgumentToken,
+    LongNameArgumentToken, LongNameValueArgumentToken, SeparatorArgumentToken,
+    ShortNameArgumentToken, ValueArgumentToken {
+
+  public static final Pattern SEPARATOR = Pattern.compile("--");
+
   public static final Pattern LONG_NAME_PREFIX = Pattern.compile("--");
 
   public static final Pattern LONG_NAME_VALUE_SEPARATOR = Pattern.compile("=");
 
   public static final Pattern SHORT_NAME_PREFIX = Pattern.compile("-");
 
-  public static final Pattern BUNDLE = Pattern.compile(format("%s(%s{2,})",
-      SHORT_NAME_PREFIX.pattern(), ShortSwitchNameCoordinate.PATTERN.pattern()));
+  public static final Pattern BUNDLE = Pattern.compile(
+      format("%s(%s{2,})", SHORT_NAME_PREFIX.pattern(),
+          ShortSwitchNameCoordinate.PATTERN.pattern()));
 
   public static final Pattern SHORT_NAME = Pattern.compile(
       format("%s(%s)", SHORT_NAME_PREFIX.pattern(), ShortSwitchNameCoordinate.PATTERN.pattern()));
@@ -58,9 +53,9 @@ public abstract class ArgumentToken {
   public static final Pattern LONG_NAME = Pattern.compile(
       format("%s(%s)", LONG_NAME_PREFIX.pattern(), LongSwitchNameCoordinate.PATTERN.pattern()));
 
-  public static final Pattern LONG_NAME_VALUE =
-      Pattern.compile(format("%s(%s)%s(%s)", LONG_NAME_PREFIX.pattern(),
-          LongSwitchNameCoordinate.PATTERN.pattern(), LONG_NAME_VALUE_SEPARATOR.pattern(), ".*"));  
+  public static final Pattern LONG_NAME_VALUE = Pattern.compile(
+      format("%s(%s)%s(%s)", LONG_NAME_PREFIX.pattern(), LongSwitchNameCoordinate.PATTERN.pattern(),
+          LONG_NAME_VALUE_SEPARATOR.pattern(), ".*"));
 
   public static ArgumentToken fromString(String s) {
     if (s == null) {
@@ -82,8 +77,9 @@ public abstract class ArgumentToken {
       Matcher m = BUNDLE.matcher(s);
       m.matches();
       String bundle = m.group(1);
-      return new BundleArgumentToken(s, IntStream.range(0, bundle.length())
-          .mapToObj(i -> bundle.substring(i, i + 1)).collect(toList()));
+      return new BundleArgumentToken(s,
+          IntStream.range(0, bundle.length()).mapToObj(i -> bundle.substring(i, i + 1))
+              .collect(toList()));
     } else if (SHORT_NAME.matcher(s).matches()) {
       Matcher m = SHORT_NAME.matcher(s);
       m.matches();
@@ -94,19 +90,10 @@ public abstract class ArgumentToken {
     }
   }
 
-  private final Type type;
   private final String text;
 
-  protected ArgumentToken(Type type, String text) {
-    this.type = type;
-    this.text = text;
-  }
-
-  /**
-   * @return the type
-   */
-  public Type getType() {
-    return type;
+  protected ArgumentToken(String text) {
+    this.text = requireNonNull(text);
   }
 
   /**
@@ -115,19 +102,19 @@ public abstract class ArgumentToken {
   public String getText() {
     return text;
   }
-  
+
   public BundleArgumentToken asBundle() {
     return (BundleArgumentToken) this;
   }
-  
+
   public ShortNameArgumentToken asShortName() {
     return (ShortNameArgumentToken) this;
   }
-  
+
   public LongNameArgumentToken asLongName() {
     return (LongNameArgumentToken) this;
   }
-  
+
   public LongNameValueArgumentToken asLongNameValue() {
     return (LongNameValueArgumentToken) this;
   }
@@ -143,24 +130,27 @@ public abstract class ArgumentToken {
   public EofArgumentToken asEof() {
     return (EofArgumentToken) this;
   }
-  
+
   @Override
   @Generated
   public int hashCode() {
-    return Objects.hash(text, type);
+    return Objects.hash(text);
   }
 
   @Override
   @Generated
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     ArgumentToken other = (ArgumentToken) obj;
-    return Objects.equals(text, other.text) && type == other.type;
+    return Objects.equals(text, other.text);
   }
 
   @Override

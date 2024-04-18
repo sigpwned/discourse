@@ -35,9 +35,11 @@ import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
+import com.sigpwned.discourse.core.token.ArgumentToken;
 import com.sigpwned.discourse.core.token.BundleArgumentToken;
 import com.sigpwned.discourse.core.token.LongNameArgumentToken;
 import com.sigpwned.discourse.core.token.LongNameValueArgumentToken;
+import com.sigpwned.discourse.core.token.SeparatorArgumentToken;
 import com.sigpwned.discourse.core.token.ShortNameArgumentToken;
 import java.util.List;
 import java.util.ListIterator;
@@ -97,27 +99,16 @@ public class ArgumentsParser {
         }
       } else {
         ArgumentToken token = ArgumentToken.fromString(next);
-        switch (token.getType()) {
-          case BUNDLE:
-            handleBundle(token.asBundle());
-            break;
-          case LONG_NAME:
-            handleLongName(token.asLongName());
-            break;
-          case LONG_NAME_VALUE:
-            handleLongNameValue(token.asLongNameValue());
-            break;
-          case SEPARATOR:
-            positionals = true;
-            break;
-          case SHORT_NAME:
-            handleShortName(token.asShortName());
-            break;
-          case VALUE:
-          case EOF:
-            throw new AssertionError("unexpected token type: " + token.getType());
-          default:
-            throw new AssertionError("unrecognized token type: " + token.getType());
+        if (token instanceof BundleArgumentToken bundle) {
+          handleBundle(bundle);
+        } else if (token instanceof LongNameArgumentToken longName) {
+          handleLongName(longName);
+        } else if (token instanceof LongNameValueArgumentToken longNameValue) {
+          handleLongNameValue(longNameValue);
+        } else if (token instanceof ShortNameArgumentToken shortName) {
+          handleShortName(shortName);
+        } else if (token instanceof SeparatorArgumentToken separator) {
+          positionals = true;
         }
       }
     }
