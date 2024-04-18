@@ -39,7 +39,7 @@ import java.util.Objects;
 import java.util.Set;
 import org.junit.Test;
 
-public class ConfiguratorMultiCommandTest {
+public class MultiCommandTest {
 
   @Configurable(subcommands = {
       @Subcommand(discriminator = "alpha", configurable = AlphaMultiExample.class),

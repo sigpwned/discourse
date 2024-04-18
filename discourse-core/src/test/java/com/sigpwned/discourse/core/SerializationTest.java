@@ -33,6 +33,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.junit.Test;
 
 /**
@@ -305,6 +306,16 @@ public class SerializationTest {
 
     @PropertyParameter(propertyName = "property.path")
     public Path propertyPath;
+
+    // PATTERN ////////////////////////////////////////////////////////////////
+    @OptionParameter(longName = "optionPattern")
+    public Pattern optionPattern;
+
+    @EnvironmentParameter(variableName = "VARIABLE_PATTERN")
+    public Pattern variablePattern;
+
+    @PropertyParameter(propertyName = "property.pattern")
+    public Pattern propertyPattern;
 
     // FROMSTRING /////////////////////////////////////////////////////////////
     @OptionParameter(longName = "optionFromString")

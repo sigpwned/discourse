@@ -23,7 +23,6 @@ import com.sigpwned.discourse.core.ValueDeserializer;
 import com.sigpwned.discourse.core.ValueDeserializerFactory;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -33,7 +32,7 @@ public class PatternValueDeserializerFactory implements ValueDeserializerFactory
 
   @Override
   public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
-    return genericType.equals(BigDecimal.class);
+    return genericType.equals(Pattern.class);
   }
 
   @Override
