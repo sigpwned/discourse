@@ -32,6 +32,12 @@ import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 
+/**
+ * An invocation that validates the configuration object using Jakarta validation before returning
+ * it.
+ *
+ * @param <T>
+ */
 public class ValidatingInvocation<T> implements Invocation<T> {
 
   private final Invocation<T> delegate;

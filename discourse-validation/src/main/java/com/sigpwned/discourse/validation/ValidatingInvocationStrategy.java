@@ -30,6 +30,10 @@ import com.sigpwned.discourse.validation.util.Validation;
 import java.util.List;
 import javax.validation.Validator;
 
+/**
+ * An invocation strategy that validates the configuration object using Jakarta validation before
+ * returning it.
+ */
 public class ValidatingInvocationStrategy implements InvocationStrategy {
 
   private final InvocationStrategy delegate;
