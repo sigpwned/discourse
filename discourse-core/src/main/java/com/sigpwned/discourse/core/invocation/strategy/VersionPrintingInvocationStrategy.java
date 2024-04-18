@@ -21,6 +21,7 @@ package com.sigpwned.discourse.core.invocation.strategy;
 
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.ExitError;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.InvocationStrategy;
@@ -86,8 +87,11 @@ public class VersionPrintingInvocationStrategy implements InvocationStrategy {
         .orElse(DEFAULT_ERROR_STREAM);
   }
 
-  private AssertionError exit(int status) {
+  /**
+   * test hook
+   */
+  protected ExitError exit(int status) {
     System.exit(status);
-    return new AssertionError("exit");
+    return new ExitError(status);
   }
 }

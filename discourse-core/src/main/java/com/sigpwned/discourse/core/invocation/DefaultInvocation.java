@@ -29,6 +29,7 @@ import com.sigpwned.discourse.core.command.SingleCommand;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 /**
  * A default implementation of {@link Invocation}.
@@ -70,5 +71,34 @@ public class DefaultInvocation<T> implements Invocation<T> {
   @Override
   public List<String> getLeafArgs() {
     return leafArgs;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof DefaultInvocation<?> that)) {
+      return false;
+    }
+    return Objects.equals(getSubcommands(), that.getSubcommands())
+        && Objects.equals(getLeafCommand(), that.getLeafCommand())
+        && Objects.equals(getLeafArgs(), that.getLeafArgs()) && Objects.equals(
+        getConfiguration(), that.getConfiguration());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getSubcommands(), getLeafCommand(), getLeafArgs(), getConfiguration());
+  }
+
+  @Override
+  public String toString() {
+    return "DefaultInvocation{" +
+        "subcommands=" + subcommands +
+        ", leafCommand=" + leafCommand +
+        ", leafArgs=" + leafArgs +
+        ", configuration=" + configuration +
+        '}';
   }
 }

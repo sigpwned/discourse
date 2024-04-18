@@ -57,7 +57,7 @@ public class DefaultInvocationContext implements InvocationContext {
 
   @Override
   public void set(String key, Object value) {
-    if (value == null) {
+    if (value != null) {
       getValues().put(key, value);
     } else {
       getValues().remove(key);
