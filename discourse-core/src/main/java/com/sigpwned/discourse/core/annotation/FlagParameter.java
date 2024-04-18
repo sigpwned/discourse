@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <pre>
- *   @FlagParameter(longName = "verbose")
+ *   &#x40;FlagParameter(longName = "verbose")
  *   public boolean verbose;
  * </pre>
  */

@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <pre>
- *   @EnvironmentParameter(variableName = "MY_VAR")
+ *   &#x40;EnvironmentParameter(variableName = "MY_VAR")
  *   public String myVar;
  * </pre>
  *

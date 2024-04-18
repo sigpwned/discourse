@@ -53,8 +53,6 @@ import com.sigpwned.discourse.core.value.sink.SortedSetAddValueSinkFactory;
  * <p>
  * The default module for the core library. Registers the default deserializers and sinks.
  * </p>
- *
- * <h2>Deserializers</h2>
  */
 public class DefaultModule extends Module {
 
@@ -63,7 +61,7 @@ public class DefaultModule extends Module {
    * Registers the default deserializers.
    * </p>
    *
-   * <h2>Dedicated</h2>
+   * <h4>Dedicated</h4>
    *
    * <p>
    * Supports a wide variety of built-in types specifically:
@@ -92,7 +90,7 @@ public class DefaultModule extends Module {
    *   <li>{@link UrlValueDeserializerFactory}</li>
    * </ul>
    *
-   * <h2>General</h2>
+   * <h4>General</h4>
    *
    * <p>
    *   Supports general deserialization of any class with the following features:

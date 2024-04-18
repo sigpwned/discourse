@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <pre>
- *   @PropertyParameter(propertyName = "my.var")
+ *   &#x40;PropertyParameter(propertyName = "my.var")
  *   public String myVar;
  * </pre>
  *

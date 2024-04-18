@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <pre>
- *   @OptionParameter(longName = "xray")
+ *   &#x40;OptionParameter(longName = "xray")
  *   public String xray;
  * </pre>
  */

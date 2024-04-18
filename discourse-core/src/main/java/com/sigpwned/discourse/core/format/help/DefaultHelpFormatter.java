@@ -70,10 +70,10 @@ import java.util.Set;
  *     Description of flag2.
  *
  *   Options:
- *   -o, --option1 <type>
+ *   -o, --option1 &lt;type&gt;
  *     Description of option1.
  *
- *   -p, --option2 <type>
+ *   -p, --option2 &lt;type&gt;
  *     Description of option2.
  *
  *   Environment Variables:
@@ -96,7 +96,7 @@ import java.util.Set;
  * <h2>Multi Command</h2>
  *
  * <pre>
- *   Usage: command <subcommand> [ flags | options ] [ positional ... ]
+ *   Usage: command &lt;subcommand&gt; [ flags | options ] [ positional ... ]
  *
  *   Description of the command.
  *
@@ -108,10 +108,10 @@ import java.util.Set;
  *   Description of flag2.
  *
  *   Common Options:
- *   -o, --option1 <type>
+ *   -o, --option1 &lt;type&gt;
  *     Description of option1.
  *
- *   -p, --option2 <type>
+ *   -p, --option2 &lt;type&gt;
  *     Description of option2.
  *
  *   First parameter must be a subcommand specifier: subcommand1, subcommand2, ...
@@ -128,10 +128,10 @@ import java.util.Set;
  *     Description of flag2.
  *
  *   Options:
- *   -o, --option1 <type>
+ *   -o, --option1 &lt;type&gt;
  *     Description of option1.
  *
- *   -p, --option2 <type>
+ *   -p, --option2 &lt;type&gt;
  *     Description of option2.
  *
  *   Usage: command subcommand2 [ flags | options ] [ positional ... ]
@@ -146,10 +146,10 @@ import java.util.Set;
  *     Description of flag2.
  *
  *   Options:
- *   -o, --option1 <type>
+ *   -o, --option1 &lt;type&gt;
  *     Description of option1.
  *
- *   -p, --option2 <type>
+ *   -p, --option2 &lt;type&gt;
  *     Description of option2.
  *
  *   All Environment Variables:

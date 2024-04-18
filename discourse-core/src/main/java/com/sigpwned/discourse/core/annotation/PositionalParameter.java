@@ -36,7 +36,7 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <pre>
- *   @PositionalParameter(position = 0)
+ *   &#x40;PositionalParameter(position = 0)
  *   public String positional;
  * </pre>
  */
