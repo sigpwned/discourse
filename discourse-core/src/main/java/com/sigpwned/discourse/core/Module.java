@@ -19,8 +19,11 @@
  */
 package com.sigpwned.discourse.core;
 
+import com.sigpwned.discourse.core.command.Command;
+
 /**
- * Container for registering new functionality.
+ * Container for registering new functionality for the {@link Command} phase. The
+ * {@link CommandBuilder} uses this class to register new functionality.
  */
 public abstract class Module {
 
