@@ -22,6 +22,10 @@ package com.sigpwned.discourse.core;
 import com.sigpwned.discourse.core.command.Command;
 import java.util.List;
 
+/**
+ * A strategy for building configuration objects. Specifically, this is used to create the
+ * configuration instance from a {@link Command} and a list of command line arguments.
+ */
 public interface InvocationStrategy {
 
   /**
