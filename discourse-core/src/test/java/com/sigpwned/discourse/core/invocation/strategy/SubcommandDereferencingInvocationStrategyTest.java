@@ -22,11 +22,11 @@ package com.sigpwned.discourse.core.invocation.strategy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.Subcommand;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.exception.argument.NoSubcommandArgumentException;
@@ -60,7 +60,7 @@ public class SubcommandDereferencingInvocationStrategyTest {
 
   @Test
   public void givenArgsThatFullyDereferenceToSingleCommand_whenInvoke_thenSucceed() {
-    MultiCommand<RootAnnotationExample> rootCommand = (MultiCommand<RootAnnotationExample>) new CommandBuilder().build(
+    MultiCommand<RootAnnotationExample> rootCommand = (MultiCommand<RootAnnotationExample>) Command.scan(
         RootAnnotationExample.class);
     MultiCommand<FirstAnnotationSubcommandExample> firstSubcommand = (MultiCommand<FirstAnnotationSubcommandExample>) rootCommand.getSubcommands()
         .get(Discriminator.fromString("first"));
@@ -79,7 +79,7 @@ public class SubcommandDereferencingInvocationStrategyTest {
 
   @Test(expected = NoSubcommandArgumentException.class)
   public void givenArgsThatPartiallyDereferenceToSingleCommand_whenInvoke_thenFailWithNoSubcommandException() {
-    MultiCommand<RootAnnotationExample> rootCommand = (MultiCommand<RootAnnotationExample>) new CommandBuilder().build(
+    MultiCommand<RootAnnotationExample> rootCommand = (MultiCommand<RootAnnotationExample>) Command.scan(
         RootAnnotationExample.class);
 
     new SubcommandDereferencingInvocationStrategy(
@@ -89,7 +89,7 @@ public class SubcommandDereferencingInvocationStrategyTest {
 
   @Test(expected = NoSubcommandArgumentException.class)
   public void givenArgsThatNonelyDereferenceToSingleCommand_whenInvoke_thenFailWithNoSubcommandException() {
-    MultiCommand<RootAnnotationExample> rootCommand = (MultiCommand<RootAnnotationExample>) new CommandBuilder().build(
+    MultiCommand<RootAnnotationExample> rootCommand = (MultiCommand<RootAnnotationExample>) Command.scan(
         RootAnnotationExample.class);
 
     new SubcommandDereferencingInvocationStrategy(

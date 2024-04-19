@@ -20,8 +20,8 @@
 package com.sigpwned.discourse.core.module;
 
 import com.sigpwned.discourse.core.Module;
-import com.sigpwned.discourse.core.SerializationContext;
-import com.sigpwned.discourse.core.SinkContext;
+import com.sigpwned.discourse.core.ValueDeserializerResolver;
+import com.sigpwned.discourse.core.ValueSinkResolver;
 import com.sigpwned.discourse.core.value.deserializer.BigDecimalValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.BooleanValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.ByteValueDeserializerFactory;
@@ -103,33 +103,33 @@ public class DefaultModule extends Module {
    *   </li>
    * </ul>
    *
-   * @param context the serialization context to register the deserializers into
+   * @param resolver the serialization resolver to register the deserializers into
    */
   @Override
-  public void register(SerializationContext context) {
-    context.addLast(StringValueDeserializerFactory.INSTANCE);
-    context.addLast(LongValueDeserializerFactory.INSTANCE);
-    context.addLast(IntValueDeserializerFactory.INSTANCE);
-    context.addLast(CharValueDeserializerFactory.INSTANCE);
-    context.addLast(ShortValueDeserializerFactory.INSTANCE);
-    context.addLast(ByteValueDeserializerFactory.INSTANCE);
-    context.addLast(DoubleValueDeserializerFactory.INSTANCE);
-    context.addLast(FloatValueDeserializerFactory.INSTANCE);
-    context.addLast(BigDecimalValueDeserializerFactory.INSTANCE);
-    context.addLast(BooleanValueDeserializerFactory.INSTANCE);
-    context.addLast(InstantValueDeserializerFactory.INSTANCE);
-    context.addLast(LocalDateTimeValueDeserializerFactory.INSTANCE);
-    context.addLast(LocalDateValueDeserializerFactory.INSTANCE);
-    context.addLast(LocalTimeValueDeserializerFactory.INSTANCE);
-    context.addLast(UriValueDeserializerFactory.INSTANCE);
-    context.addLast(UrlValueDeserializerFactory.INSTANCE);
-    context.addLast(EnumValueDeserializerFactory.INSTANCE);
-    context.addLast(FileValueDeserializerFactory.INSTANCE);
-    context.addLast(PathValueDeserializerFactory.INSTANCE);
-    context.addLast(PatternValueDeserializerFactory.INSTANCE);
+  public void registerValueDeserializerFactories(ValueDeserializerResolver resolver) {
+    resolver.addLast(StringValueDeserializerFactory.INSTANCE);
+    resolver.addLast(LongValueDeserializerFactory.INSTANCE);
+    resolver.addLast(IntValueDeserializerFactory.INSTANCE);
+    resolver.addLast(CharValueDeserializerFactory.INSTANCE);
+    resolver.addLast(ShortValueDeserializerFactory.INSTANCE);
+    resolver.addLast(ByteValueDeserializerFactory.INSTANCE);
+    resolver.addLast(DoubleValueDeserializerFactory.INSTANCE);
+    resolver.addLast(FloatValueDeserializerFactory.INSTANCE);
+    resolver.addLast(BigDecimalValueDeserializerFactory.INSTANCE);
+    resolver.addLast(BooleanValueDeserializerFactory.INSTANCE);
+    resolver.addLast(InstantValueDeserializerFactory.INSTANCE);
+    resolver.addLast(LocalDateTimeValueDeserializerFactory.INSTANCE);
+    resolver.addLast(LocalDateValueDeserializerFactory.INSTANCE);
+    resolver.addLast(LocalTimeValueDeserializerFactory.INSTANCE);
+    resolver.addLast(UriValueDeserializerFactory.INSTANCE);
+    resolver.addLast(UrlValueDeserializerFactory.INSTANCE);
+    resolver.addLast(EnumValueDeserializerFactory.INSTANCE);
+    resolver.addLast(FileValueDeserializerFactory.INSTANCE);
+    resolver.addLast(PathValueDeserializerFactory.INSTANCE);
+    resolver.addLast(PatternValueDeserializerFactory.INSTANCE);
 
     // This should be the last resort.
-    context.addLast(FromStringValueDeserializerFactory.INSTANCE);
+    resolver.addLast(FromStringValueDeserializerFactory.INSTANCE);
   }
 
   /**
@@ -145,13 +145,13 @@ public class DefaultModule extends Module {
    *   <li>{@link SortedSetAddValueSinkFactory}</li>
    * </ul>
    *
-   * @param context the sink context to register the sinks into
+   * @param resolver the sink resolver to register the sinks into
    */
   @Override
-  public void register(SinkContext context) {
-    context.addLast(SortedSetAddValueSinkFactory.INSTANCE);
-    context.addLast(SetAddValueSinkFactory.INSTANCE);
-    context.addLast(ListAddValueSinkFactory.INSTANCE);
-    context.addLast(ArrayAppendValueSinkFactory.INSTANCE);
+  public void registerValueSinkFactories(ValueSinkResolver resolver) {
+    resolver.addLast(SortedSetAddValueSinkFactory.INSTANCE);
+    resolver.addLast(SetAddValueSinkFactory.INSTANCE);
+    resolver.addLast(ListAddValueSinkFactory.INSTANCE);
+    resolver.addLast(ArrayAppendValueSinkFactory.INSTANCE);
   }
 }

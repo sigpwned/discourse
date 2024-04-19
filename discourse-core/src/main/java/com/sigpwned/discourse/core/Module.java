@@ -28,17 +28,20 @@ import com.sigpwned.discourse.core.command.Command;
 public abstract class Module {
 
   /**
-   * Registers new {@link ValueDeserializerFactory} instances with the given
-   * {@link SerializationContext}.
+   * Perform any necessary registration for the given {@link InvocationContext}.
    */
-  public void register(SerializationContext context) {
-    // EXAMPLE: b.registerDeserializer(...);
+  public void register(InvocationContext context) {
   }
 
   /**
-   * Registers new {@link ValueSinkFactory} instances with the given {@link SinkContext}.
+   * Register new {@link ValueSinkFactory} instances with the given {@link ValueSinkResolver}.
    */
-  public void register(SinkContext context) {
-    // EXAMPLE: b.registerSink(...);
+  public void registerValueDeserializerFactories(ValueDeserializerResolver resolver) {
+  }
+
+  /**
+   * Register new {@link ValueSinkFactory} instances with the given {@link ValueSinkResolver}.
+   */
+  public void registerValueSinkFactories(ValueSinkResolver resolver) {
   }
 }

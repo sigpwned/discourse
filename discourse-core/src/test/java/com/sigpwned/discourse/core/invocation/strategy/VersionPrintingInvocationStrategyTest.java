@@ -22,7 +22,6 @@ package com.sigpwned.discourse.core.invocation.strategy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.ExitError;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.StandardConfigurationBase;
@@ -45,7 +44,7 @@ public class VersionPrintingInvocationStrategyTest {
 
   @Test
   public void givenVersionArgs_whenInvoke_thenDoPrint() {
-    Command<Example> command = new CommandBuilder().build(Example.class);
+    Command<Example> command = Command.scan(Example.class);
 
     ByteArrayOutputStream err = new ByteArrayOutputStream();
 
@@ -70,7 +69,7 @@ public class VersionPrintingInvocationStrategyTest {
 
   @Test
   public void givenNonVersionArgs_whenInvoke_thenDontPrint() {
-    Command<Example> command = new CommandBuilder().build(Example.class);
+    Command<Example> command = Command.scan(Example.class);
 
     ByteArrayOutputStream err = new ByteArrayOutputStream();
 

@@ -22,7 +22,6 @@ package com.sigpwned.discourse.core.invocation.strategy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.ExitError;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.StandardConfigurationBase;
@@ -62,7 +61,7 @@ public class AutoHelpInvocationStrategyTest {
 
   @Test
   public void givenNoArgs_whenInvoke_thenDoPrintHelp() {
-    Command<RootExample> command = new CommandBuilder().build(RootExample.class);
+    Command<RootExample> command = Command.scan(RootExample.class);
 
     ByteArrayOutputStream err = new ByteArrayOutputStream();
 
@@ -88,7 +87,7 @@ public class AutoHelpInvocationStrategyTest {
 
   @Test
   public void givenHelpArgsThatDontResolveToSubcommand_whenInvoke_thenDoPrintHelp() {
-    Command<RootExample> command = new CommandBuilder().build(RootExample.class);
+    Command<RootExample> command = Command.scan(RootExample.class);
 
     ByteArrayOutputStream err = new ByteArrayOutputStream();
 
@@ -114,7 +113,7 @@ public class AutoHelpInvocationStrategyTest {
 
   @Test
   public void givenHelpArgsThatDoResolveToSubcommand_whenInvoke_thenDontPrintHelp() {
-    Command<RootExample> command = new CommandBuilder().build(RootExample.class);
+    Command<RootExample> command = Command.scan(RootExample.class);
 
     ByteArrayOutputStream err = new ByteArrayOutputStream();
 
@@ -140,7 +139,7 @@ public class AutoHelpInvocationStrategyTest {
 
   @Test
   public void givenValidNonHelpArgs_whenInvoke_thenDontPrint() {
-    Command<RootExample> command = new CommandBuilder().build(RootExample.class);
+    Command<RootExample> command = Command.scan(RootExample.class);
 
     ByteArrayOutputStream err = new ByteArrayOutputStream();
 

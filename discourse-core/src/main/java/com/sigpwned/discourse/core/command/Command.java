@@ -21,11 +21,11 @@ package com.sigpwned.discourse.core.command;
 
 import com.sigpwned.discourse.core.ConfigurableClass;
 import com.sigpwned.discourse.core.ConfigurationException;
-import com.sigpwned.discourse.core.SerializationContext;
-import com.sigpwned.discourse.core.SinkContext;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.UnexpectedDiscriminatorConfigurationException;
+import com.sigpwned.discourse.core.util.Discourse;
 import com.sigpwned.discourse.core.util.Discriminators;
 
 /**
@@ -49,17 +49,29 @@ import com.sigpwned.discourse.core.util.Discriminators;
 public abstract sealed class Command<T> permits SingleCommand, MultiCommand {
 
   /**
+   * Scans the given root configuration class with the default context to create a command.
+   *
+   * @param rawType The root class to scan.
+   * @param <T>     The type of the root class.
+   * @return The command.
+   * @throws ConfigurationException If there is  configuration error on the command
+   * @see #scan(InvocationContext, Class)
+   * @see Discourse#defaultInvocationContext()
+   */
+  public static <T> Command<T> scan(Class<T> rawType) {
+    return scan(Discourse.defaultInvocationContext(), rawType);
+  }
+
+  /**
    * Scans the given root configuration class to create a command.
    *
-   * @param storage       The storage context.
-   * @param serialization The serialization context.
-   * @param rawType       The root class to scan.
-   * @param <T>           The type of the root class.
+   * @param context The context
+   * @param rawType The root class to scan.
+   * @param <T>     The type of the root class.
    * @return The command.
    * @throws ConfigurationException If there is  configuration error on the command
    */
-  public static <T> Command<T> scan(SinkContext storage, SerializationContext serialization,
-      Class<T> rawType) {
+  public static <T> Command<T> scan(InvocationContext context, Class<T> rawType) {
     Configurable configurable = rawType.getAnnotation(Configurable.class);
     if (configurable == null) {
       throw new NotConfigurableConfigurationException(rawType);
@@ -69,26 +81,25 @@ public abstract sealed class Command<T> permits SingleCommand, MultiCommand {
       throw new UnexpectedDiscriminatorConfigurationException(rawType);
     }
 
-    return subscan(storage, serialization, ConfigurableClass.scan(rawType));
+    return subscan(context, ConfigurableClass.scan(rawType));
   }
 
   /**
    * Scans the given configuration class for a command. This method is for internal use only.
    *
-   * @param storage           The storage context.
-   * @param serialization     The serialization context.
+   * @param context           The context
    * @param configurableClass The configuration class to scan.
    * @return The command.
    * @throws ConfigurationException If there is  configuration error on the command
    */
-  protected static <T> Command<T> subscan(SinkContext storage, SerializationContext serialization,
+  protected static <T> Command<T> subscan(InvocationContext context,
       ConfigurableClass<T> configurableClass) {
     if (configurableClass.getSubcommands().isEmpty()) {
       // This is a single command.
-      return SingleCommand.scan(storage, serialization, configurableClass);
+      return SingleCommand.scan(context, configurableClass);
     } else {
       // This is a multi command.
-      return MultiCommand.scan(storage, serialization, configurableClass);
+      return MultiCommand.scan(context, configurableClass);
     }
   }
 

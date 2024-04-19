@@ -23,7 +23,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.google.common.io.Resources;
-import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
@@ -62,7 +61,7 @@ public class DefaultHelpFormatterTest {
 
   @Test
   public void givenSingleCommand_whenFormatHelp_thenGenerateExpectedText() throws IOException {
-    Command<?> command = new CommandBuilder().build(SingleExample.class);
+    Command<?> command = Command.scan(SingleExample.class);
     String observed = new DefaultHelpFormatter().formatHelp(command);
     String expected = Resources.toString(getClass().getResource("singlecommandhelp.txt"),
         StandardCharsets.UTF_8);
@@ -103,7 +102,7 @@ public class DefaultHelpFormatterTest {
 
   @Test
   public void givenMultiCommand_whenFormatHelp_thenGenerateExpectedText() throws IOException {
-    Command<?> command = new CommandBuilder().build(MultiExample.class);
+    Command<?> command = Command.scan(MultiExample.class);
     String observed = new DefaultHelpFormatter().formatHelp(command);
     String expected = Resources.toString(getClass().getResource("multicommandhelp.txt"),
         StandardCharsets.UTF_8);

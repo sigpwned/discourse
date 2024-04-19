@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,8 +20,11 @@
 package com.sigpwned.discourse.core.invocation.context;
 
 import com.sigpwned.discourse.core.InvocationContext;
+import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 import com.sigpwned.discourse.core.format.version.DefaultVersionFormatter;
+import com.sigpwned.discourse.core.value.deserializer.resolver.DefaultValueDeserializerResolver;
+import com.sigpwned.discourse.core.value.sink.resolver.DefaultValueSinkResolver;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -36,35 +39,75 @@ import java.util.Optional;
  *   <li>{@link InvocationContext#HELP_FORMATTER_KEY} - {@link DefaultHelpFormatter#INSTANCE}</li>
  *   <li>{@link InvocationContext#VERSION_FORMATTER_KEY} - {@link DefaultVersionFormatter#INSTANCE}</li>
  *   <li>{@link InvocationContext#ERROR_STREAM_KEY} - {@link System#err}</li>
+ *   <li>{@link InvocationContext#VALUE_DESERIALIZER_RESOLVER_KEY} - {@link DefaultValueDeserializerResolver}</li>
+ *   <li>{@link InvocationContext#VALUE_SINK_RESOLVER_KEY} - {@link DefaultValueSinkResolver}</li>
  * </ul>
  */
 public class DefaultInvocationContext implements InvocationContext {
 
-  private final Map<String, Object> values;
+  public static class Builder {
+
+    private final DefaultInvocationContext building = new DefaultInvocationContext();
+
+    public <T> Builder set(InvocationContext.Key<T> key, T value) {
+      building.set(key, value);
+      return this;
+    }
+
+    public Builder register(Module module) {
+      building.register(module);
+      return this;
+    }
+
+    public DefaultInvocationContext build() {
+      return building;
+    }
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  private final Map<InvocationContext.Key<?>, Object> values;
 
   public DefaultInvocationContext() {
     this.values = new HashMap<>();
     this.values.put(InvocationContext.HELP_FORMATTER_KEY, DefaultHelpFormatter.INSTANCE);
     this.values.put(InvocationContext.VERSION_FORMATTER_KEY, DefaultVersionFormatter.INSTANCE);
     this.values.put(InvocationContext.ERROR_STREAM_KEY, System.err);
+    this.values.put(InvocationContext.VALUE_DESERIALIZER_RESOLVER_KEY,
+        new DefaultValueDeserializerResolver());
+    this.values.put(InvocationContext.VALUE_SINK_RESOLVER_KEY, new DefaultValueSinkResolver());
   }
 
   @Override
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public <T> Optional<T> get(String key) {
-    return (Optional) Optional.ofNullable(getValues().get(key));
+  public <T> Optional<T> get(Key<T> key) {
+    if (key == null) {
+      throw new NullPointerException();
+    }
+    return Optional.ofNullable(key.type().cast(getValues().get(key)));
   }
 
   @Override
-  public void set(String key, Object value) {
+  public <T> void set(Key<T> key, T value) {
+    if (key == null) {
+      throw new NullPointerException();
+    }
     if (value != null) {
-      getValues().put(key, value);
+      getValues().put(key, key.type().cast(value));
     } else {
       getValues().remove(key);
     }
   }
 
-  private Map<String, Object> getValues() {
+  public void register(Module module) {
+    if (module == null) {
+      throw new NullPointerException();
+    }
+    module.register(this);
+  }
+
+  private Map<Key<?>, Object> getValues() {
     return values;
   }
 }

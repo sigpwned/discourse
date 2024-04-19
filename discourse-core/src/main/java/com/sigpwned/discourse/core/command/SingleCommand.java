@@ -24,10 +24,11 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
 
 import com.sigpwned.discourse.core.ConfigurableClass;
-import com.sigpwned.discourse.core.SerializationContext;
-import com.sigpwned.discourse.core.SinkContext;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.ValueDeserializer;
+import com.sigpwned.discourse.core.ValueDeserializerResolver;
 import com.sigpwned.discourse.core.ValueSink;
+import com.sigpwned.discourse.core.ValueSinkResolver;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
@@ -102,11 +103,16 @@ public final class SingleCommand<T> extends Command<T> {
 
   private final Set<ConfigurationParameter> parameters;
 
-  public static <T> SingleCommand<T> scan(SinkContext storage, SerializationContext serialization,
+  public static <T> SingleCommand<T> scan(InvocationContext context,
       ConfigurableClass<T> configurableClass) {
     if (!configurableClass.getSubcommands().isEmpty()) {
       throw new UnexpectedSubcommandsConfigurationException(configurableClass.getRawType());
     }
+
+    ValueDeserializerResolver serialization = context.get(
+        InvocationContext.VALUE_DESERIALIZER_RESOLVER_KEY).orElseThrow();
+    ValueSinkResolver storage = context.get(InvocationContext.VALUE_SINK_RESOLVER_KEY)
+        .orElseThrow();
 
     BeanClass beanClass = BeanClass.scan(configurableClass.getRawType());
 
@@ -271,11 +277,13 @@ public final class SingleCommand<T> extends Command<T> {
   // LOAD PARAMETERS ///////////////////////////////////////////////////////////////////////////////
 
   private static Optional<ConfigurationParameter> parameter(Class<?> rawType,
-      BeanProperty beanProperty, SerializationContext serialization, SinkContext storage) {
-    ValueSink sink = storage.getSink(beanProperty);
+      BeanProperty beanProperty, ValueDeserializerResolver serialization,
+      ValueSinkResolver storage) {
+    ValueSink sink = storage.resolveValueSink(beanProperty);
 
-    ValueDeserializer<?> deserializer = serialization.getDeserializer(sink.getGenericType(),
-        beanProperty.getAnnotations()).orElseThrow(
+    // TODO This should have a ConfigurationException
+    ValueDeserializer<?> deserializer = serialization.resolveValueDeserializer(
+        sink.getGenericType(), beanProperty.getAnnotations()).orElseThrow(
         () -> new RuntimeException("No deserializer for property " + beanProperty.getName()));
 
     ConfigurationParameter configurationProperty = null;

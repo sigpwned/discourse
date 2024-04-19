@@ -28,6 +28,7 @@ import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.Subcommand;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
@@ -135,7 +136,7 @@ public class MultiCommandTest {
 
   @Test
   public void givenMultiCommandWithOneCommonParameter_whenComputeCommonParameters_thenFindOneCommonParameter() {
-    MultiCommand<MultiExample> command = (MultiCommand<MultiExample>) new CommandBuilder().build(
+    MultiCommand<MultiExample> command = (MultiCommand<MultiExample>) Command.scan(
         MultiExample.class);
     Set<String> commonParameters = Commands.commonParameters(command).stream()
         .map(ConfigurationParameter::getName).collect(toSet());
@@ -145,9 +146,8 @@ public class MultiCommandTest {
 
   @Test
   public void givenMultiCommandWithThreeDeepParameters_whenComputeDeepParameters_thenFindThreeDeepParameters() {
-    Set<String> allParameters = Commands.deepParameters(
-            new CommandBuilder().build(MultiExample.class)).map(ConfigurationParameter::getName)
-        .collect(toSet());
+    Set<String> allParameters = Commands.deepParameters(Command.scan(MultiExample.class))
+        .map(ConfigurationParameter::getName).collect(toSet());
 
     Set<String> names = new HashSet<>();
     names.add("option");
@@ -159,7 +159,7 @@ public class MultiCommandTest {
 
   @Test
   public void givenMultiCommandWithTwoSubcommands_whenRetrieveSubcommands_thenFindTwoSubcommands() {
-    MultiCommand<MultiExample> command = (MultiCommand<MultiExample>) new CommandBuilder().build(
+    MultiCommand<MultiExample> command = (MultiCommand<MultiExample>) Command.scan(
         MultiExample.class);
 
     Set<Discriminator> subcommands = new HashSet<>(command.getSubcommands().keySet());
@@ -177,7 +177,7 @@ public class MultiCommandTest {
     final String world = "world";
 
     MultiExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(MultiExample.class), new DefaultInvocationContext(),
+        Command.scan(MultiExample.class), new DefaultInvocationContext(),
         List.of("alpha", "-o", hello, world)).getConfiguration();
 
     AlphaMultiExample expected = new AlphaMultiExample();
@@ -196,7 +196,7 @@ public class MultiCommandTest {
     final String world = "world";
 
     MultiExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(MultiExample.class), new DefaultInvocationContext(),
+        Command.scan(MultiExample.class), new DefaultInvocationContext(),
         List.of("bravo", "-o", hello, world)).getConfiguration();
 
     BravoMultiExample expected = new BravoMultiExample();

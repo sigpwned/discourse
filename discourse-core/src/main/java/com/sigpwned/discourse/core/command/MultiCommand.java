@@ -26,8 +26,7 @@ import static java.util.Objects.requireNonNull;
 import com.sigpwned.discourse.core.ConfigurableClass;
 import com.sigpwned.discourse.core.ConfigurableClass.SubcommandClass;
 import com.sigpwned.discourse.core.Discriminator;
-import com.sigpwned.discourse.core.SerializationContext;
-import com.sigpwned.discourse.core.SinkContext;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.exception.configuration.DiscriminatorMismatchConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.MultiCommandNotAbstractConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NoDiscriminatorConfigurationException;
@@ -139,7 +138,7 @@ import java.util.Objects;
  */
 public final class MultiCommand<T> extends Command<T> {
 
-  public static <T> MultiCommand<T> scan(SinkContext storage, SerializationContext serialization,
+  public static <T> MultiCommand<T> scan(InvocationContext context,
       ConfigurableClass<T> configurableClass) {
     if (configurableClass.getSubcommands().isEmpty()) {
       // TODO This should be a configuration exception
@@ -169,8 +168,7 @@ public final class MultiCommand<T> extends Command<T> {
             configurableClass.getRawType(), subcommandClass.getRawType());
       }
 
-      subcommands.put(subcommandDiscriminator,
-          Command.subscan(storage, serialization, subcommandClass));
+      subcommands.put(subcommandDiscriminator, Command.subscan(context, subcommandClass));
     }
 
     return new MultiCommand<>(configurableClass.getRawType(), configurableClass.getName(),

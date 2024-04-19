@@ -22,9 +22,9 @@ package com.sigpwned.discourse.validation;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.validation.exception.argument.ValidationArgumentException;
 import java.util.List;
@@ -46,7 +46,7 @@ public class ValidationTest {
 
   @Test
   public void goodTest() {
-    new ValidatingInvocationStrategy().invoke(new CommandBuilder().build(Example.class),
+    new ValidatingInvocationStrategy().invoke(Command.scan(Example.class),
         new DefaultInvocationContext(), List.of("5")).getConfiguration();
   }
 
@@ -55,7 +55,7 @@ public class ValidationTest {
     ValidationArgumentException problem;
 
     try {
-      new ValidatingInvocationStrategy().invoke(new CommandBuilder().build(Example.class),
+      new ValidatingInvocationStrategy().invoke(Command.scan(Example.class),
           new DefaultInvocationContext(), List.of("15")).getConfiguration();
       throw new AssertionError("no exception");
     } catch (ValidationArgumentException e) {

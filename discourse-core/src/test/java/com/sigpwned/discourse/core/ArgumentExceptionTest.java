@@ -24,6 +24,7 @@ import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.Subcommand;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.exception.argument.AssignmentFailureArgumentException;
 import com.sigpwned.discourse.core.exception.argument.InvalidDiscriminatorArgumentException;
 import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgumentException;
@@ -65,9 +66,8 @@ public class ArgumentExceptionTest {
 
   @Test(expected = NewInstanceFailureArgumentException.class)
   public void givenFailingConstructor_whenInvoke_thenFailWithNoInstanceFailureException() {
-    DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(ConstructorFailureExample.class), new DefaultInvocationContext(),
-        List.of("hello")).getConfiguration();
+    DefaultInvocationStrategy.INSTANCE.invoke(Command.scan(ConstructorFailureExample.class),
+        new DefaultInvocationContext(), List.of("hello")).getConfiguration();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -91,8 +91,8 @@ public class ArgumentExceptionTest {
   @Test(expected = AssignmentFailureArgumentException.class)
   public void givenFailingSetterForPositionalArgument_whenInvoke_thenFailWithAssignmentFailureException() {
     DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(PositionalAssignmentFailureExample.class),
-        new DefaultInvocationContext(), List.of("hello")).getConfiguration();
+        Command.scan(PositionalAssignmentFailureExample.class), new DefaultInvocationContext(),
+        List.of("hello")).getConfiguration();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,8 +115,7 @@ public class ArgumentExceptionTest {
 
   @Test(expected = AssignmentFailureArgumentException.class)
   public void givenFailingSetterForOptionArgument_whenInvoke_thenFailWithAssignmentFailureException() {
-    DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(OptionAssignmentFailureExample.class),
+    DefaultInvocationStrategy.INSTANCE.invoke(Command.scan(OptionAssignmentFailureExample.class),
         new DefaultInvocationContext(), List.of("-x", "hello")).getConfiguration();
   }
 
@@ -140,8 +139,7 @@ public class ArgumentExceptionTest {
 
   @Test(expected = AssignmentFailureArgumentException.class)
   public void givenFailingSetterForFlagArgument_whenInvoke_thenFailWithAssignmentFailureException() {
-    DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(FlagAssignmentFailureExample.class),
+    DefaultInvocationStrategy.INSTANCE.invoke(Command.scan(FlagAssignmentFailureExample.class),
         new DefaultInvocationContext(), List.of("-x")).getConfiguration();
   }
 
@@ -157,9 +155,8 @@ public class ArgumentExceptionTest {
 
   @Test(expected = UnassignedRequiredParametersArgumentException.class)
   public void givenArgsWithoutRequiredArgument_whenInvoke_thenFailWithUnassignedRequiredParametersException() {
-    new SingleCommandInvocationStrategy().invoke(
-        new CommandBuilder().build(MissingRequiredExample.class), new DefaultInvocationContext(),
-        List.of()).getConfiguration();
+    new SingleCommandInvocationStrategy().invoke(Command.scan(MissingRequiredExample.class),
+        new DefaultInvocationContext(), List.of()).getConfiguration();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -257,18 +254,18 @@ public class ArgumentExceptionTest {
   @Test(expected = NoSubcommandArgumentException.class)
   public void givenMultiCommandAndArgsWithoutDiscriminators_whenInvoke_thenFailWithNoSubcommandException() {
     new SubcommandDereferencingInvocationStrategy(new SingleCommandInvocationStrategy()).invoke(
-        new CommandBuilder().build(MultiExample.class), new DefaultInvocationContext(), List.of());
+        Command.scan(MultiExample.class), new DefaultInvocationContext(), List.of());
   }
 
   @Test(expected = UnrecognizedSubcommandArgumentException.class)
   public void givenMultiCommandAndArgsWithUnrecognizedDiscriminator_whenInvoke_thenFailWithUnrecognizedSubcommandException() {
-    DefaultInvocationStrategy.INSTANCE.invoke(new CommandBuilder().build(MultiExample.class),
+    DefaultInvocationStrategy.INSTANCE.invoke(Command.scan(MultiExample.class),
         new DefaultInvocationContext(), List.of("charlie"));
   }
 
   @Test(expected = InvalidDiscriminatorArgumentException.class)
   public void givenMultiCommandAndArgsWithInvalidDiscriminator_whenInvoke_thenFailWithInvalidDiscriminatorException() {
-    DefaultInvocationStrategy.INSTANCE.invoke(new CommandBuilder().build(MultiExample.class),
+    DefaultInvocationStrategy.INSTANCE.invoke(Command.scan(MultiExample.class),
         new DefaultInvocationContext(), List.of("-"));
   }
 }

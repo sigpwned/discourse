@@ -27,6 +27,7 @@ import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
@@ -48,9 +49,8 @@ public class SingleCommandTest {
     final String alpha = "alpha";
     final String bravo = "bravo";
 
-    Example1 observed = DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(Example1.class), new DefaultInvocationContext(),
-        List.of("-f", "-o", alpha, bravo)).getConfiguration();
+    Example1 observed = DefaultInvocationStrategy.INSTANCE.invoke(Command.scan(Example1.class),
+        new DefaultInvocationContext(), List.of("-f", "-o", alpha, bravo)).getConfiguration();
 
     Example1 expected = new Example1();
     expected.flag = true;
@@ -66,9 +66,9 @@ public class SingleCommandTest {
     final String bravo = "bravo";
     final String charlie = "charlie";
 
-    Example2 observed = DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(Example2.class), new DefaultInvocationContext(),
-        List.of("-f", "-o", alpha, bravo, charlie)).getConfiguration();
+    Example2 observed = DefaultInvocationStrategy.INSTANCE.invoke(Command.scan(Example2.class),
+            new DefaultInvocationContext(), List.of("-f", "-o", alpha, bravo, charlie))
+        .getConfiguration();
 
     Example2 expected = new Example2();
     expected.flag = true;
@@ -87,8 +87,8 @@ public class SingleCommandTest {
     final String hello = "hello";
 
     AllowUnconfiguredFieldExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(AllowUnconfiguredFieldExample.class),
-        new DefaultInvocationContext(), List.of(hello)).getConfiguration();
+        Command.scan(AllowUnconfiguredFieldExample.class), new DefaultInvocationContext(),
+        List.of(hello)).getConfiguration();
 
     AllowUnconfiguredFieldExample expected = new AllowUnconfiguredFieldExample();
     expected.example2 = hello;
@@ -101,8 +101,8 @@ public class SingleCommandTest {
     final String hello = "hello";
 
     AccessorExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(AccessorExample.class), new DefaultInvocationContext(),
-        List.of(hello)).getConfiguration();
+            Command.scan(AccessorExample.class), new DefaultInvocationContext(), List.of(hello))
+        .getConfiguration();
 
     AccessorExample expected = new AccessorExample();
     expected.example = hello;
@@ -113,7 +113,7 @@ public class SingleCommandTest {
   @Test
   public void primitivesExample() {
     PrimitivesExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(PrimitivesExample.class), new DefaultInvocationContext(),
+        Command.scan(PrimitivesExample.class), new DefaultInvocationContext(),
         List.of("-x", "1", "2", "3")).getConfiguration();
 
     PrimitivesExample expected = new PrimitivesExample();

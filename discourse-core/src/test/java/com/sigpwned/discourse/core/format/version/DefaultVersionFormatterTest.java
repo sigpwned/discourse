@@ -23,7 +23,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.google.common.io.Resources;
-import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.command.Command;
 import java.io.IOException;
@@ -42,7 +41,7 @@ public class DefaultVersionFormatterTest {
 
   @Test
   public void givenMultiCommand_whenFormatVersion_thenGenerateExpectedText() throws IOException {
-    Command<?> command = new CommandBuilder().build(DefaultVersionFormatterTest.Example.class);
+    Command<?> command = Command.scan(DefaultVersionFormatterTest.Example.class);
     String observed = new DefaultVersionFormatter().formatVersion(command);
     String expected = Resources.toString(
         getClass().getResource("commandversion.txt"),

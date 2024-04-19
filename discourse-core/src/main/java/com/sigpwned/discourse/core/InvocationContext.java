@@ -19,6 +19,9 @@
  */
 package com.sigpwned.discourse.core;
 
+import static java.util.Objects.requireNonNull;
+
+import java.io.PrintStream;
 import java.util.Optional;
 
 /**
@@ -29,28 +32,59 @@ import java.util.Optional;
  */
 public interface InvocationContext {
 
-  /**
-   * The key for the help formatter. The value should be an instance of {@link HelpFormatter}. All
-   * InvocationContext implementations must provide a default value for this key, though the user
-   * may overwrite it later.
-   */
-  public static final String HELP_FORMATTER_KEY = "discourse.HelpFormatter";
+  public static record Key<T>(String name, Class<T> type) {
+
+    public static <T> Key<T> of(String name, Class<T> type) {
+      return new Key<>(name, type);
+    }
+
+    public Key {
+      name = requireNonNull(name);
+      type = requireNonNull(type);
+    }
+  }
 
   /**
-   * The key for the version formatter. The value should be an instance of {@link VersionFormatter}.
-   * All InvocationContext implementations must provide a default value for this key, though the
-   * user may overwrite it later.
+   * The key for the {@link HelpFormatter help formatter}. This is a required value.
    */
-  public static final String VERSION_FORMATTER_KEY = "discourse.VersionFormatter";
+  public static final Key<HelpFormatter> HELP_FORMATTER_KEY = Key.of("discourse.HelpFormatter",
+      HelpFormatter.class);
 
   /**
-   * The key for the output stream to which to write error information. The value should be an
-   * instance of {@link java.io.PrintStream}. All InvocationContext implementations must provide a
-   * default value for this key, though the user may overwrite it later.
+   * The key for the {@link VersionFormatter version formatter}. This is a required value.
    */
-  public static final String ERROR_STREAM_KEY = "discourse.ErrorStream";
+  public static final Key<VersionFormatter> VERSION_FORMATTER_KEY = Key.of(
+      "discourse.VersionFormatter", VersionFormatter.class);
 
-  public void set(String key, Object value);
+  /**
+   * The key for the {@link PrintStream error stream}. This is a required value.
+   */
+  public static final Key<PrintStream> ERROR_STREAM_KEY = Key.of("discourse.ErrorStream",
+      PrintStream.class);
 
-  public <T> Optional<T> get(String key);
+  /**
+   * The key for the {@link ValueDeserializerResolver value deserializer resolver}. This is a
+   * required value.
+   */
+  public static final Key<ValueDeserializerResolver> VALUE_DESERIALIZER_RESOLVER_KEY = Key.of(
+      "discourse.ValueDeserializerResolver", ValueDeserializerResolver.class);
+
+  /**
+   * The key for the {@link ValueSinkResolver value sink resolver}. This is a required value.
+   */
+  public static final Key<ValueSinkResolver> VALUE_SINK_RESOLVER_KEY = Key.of(
+      "discourse.ValueSinkResolver", ValueSinkResolver.class);
+
+  /**
+   * Registers a module with this invocation context. This is used to register additional resources
+   * with the context. May add additional keys to the context, reassign existing keys in the
+   * context, or modify existing values in the context.
+   *
+   * @param module the module to register
+   */
+  void register(Module module);
+
+  <T> void set(Key<T> key, T value);
+
+  <T> Optional<T> get(Key<T> key);
 }

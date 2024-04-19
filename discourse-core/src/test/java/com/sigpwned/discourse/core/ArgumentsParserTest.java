@@ -34,15 +34,12 @@ import com.sigpwned.discourse.core.exception.syntax.MissingLongNameValueSyntaxEx
 import com.sigpwned.discourse.core.exception.syntax.MissingShortNameValueSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.UnrecognizedLongNameSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.UnrecognizedShortNameSyntaxException;
-import com.sigpwned.discourse.core.module.DefaultModule;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -63,33 +60,12 @@ public class ArgumentsParserTest {
     public String position0;
   }
 
-  public SerializationContext serializationContext;
-  public SinkContext sinkContext;
-
-  @Before
-  public void setupArgumentsParserTest() {
-    serializationContext = new SerializationContext();
-    sinkContext = new SinkContext();
-
-    Module module = new DefaultModule();
-
-    module.register(serializationContext);
-    module.register(sinkContext);
-  }
-
-  @After
-  public void cleanupArgumentsParserTest() {
-    serializationContext = null;
-    sinkContext = null;
-  }
-
   /**
    * short flag, long disconnected option, positional
    */
   @Test
   public void givenShortFlagThenLongDisconnectedOptionThenPositional_whenParse_thenSucceed() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
-        serializationContext, Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -125,8 +101,7 @@ public class ArgumentsParserTest {
    */
   @Test
   public void givenLongFlagThenLongConnectedOptionThenPositional_whenParse_thenSucceed() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
-        serializationContext, Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -161,8 +136,7 @@ public class ArgumentsParserTest {
    */
   @Test
   public void givenLongFlagThenShortOptionThenPositional_whenParse_thenSucceed() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
-        serializationContext, Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -197,8 +171,7 @@ public class ArgumentsParserTest {
    */
   @Test(expected = UnrecognizedShortNameSyntaxException.class)
   public void givenUnrecognizedShortOption_whenParse_thenFailWithUnrecognizedShortNameException() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
-        serializationContext, Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
     new ArgumentsParser(cc::findParameter, new ArgumentsParser.Handler() {
     }).parse(List.of("-x"));
@@ -209,8 +182,7 @@ public class ArgumentsParserTest {
    */
   @Test
   public void givenShortFlagThenLongConnectedOptionThenPositional_whenParse_thenSucceed() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
-        serializationContext, Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -246,8 +218,7 @@ public class ArgumentsParserTest {
    */
   @Test
   public void givenBundleThenOptionValueThenPositional_whenParse_thenSucceed() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
-        serializationContext, Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -283,8 +254,7 @@ public class ArgumentsParserTest {
    */
   @Test(expected = MissingShortNameValueSyntaxException.class)
   public void givenShortSwitchThenEof_whenParse_thenFailWithMissingShortNameValueException() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
-        serializationContext, Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -320,8 +290,7 @@ public class ArgumentsParserTest {
    */
   @Test(expected = MissingLongNameValueSyntaxException.class)
   public void givenLongSwitchThenEof_whenParse_thenFailWithMissingLongNameValueException() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
-        serializationContext, Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -357,8 +326,7 @@ public class ArgumentsParserTest {
    */
   @Test(expected = MissingShortNameValueSyntaxException.class)
   public void givenBundleNeedingValueThenEof_whenParse_thenFailWithMissingShortNameValueException() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
-        serializationContext, Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -394,8 +362,7 @@ public class ArgumentsParserTest {
    */
   @Test(expected = UnrecognizedLongNameSyntaxException.class)
   public void givenArgsWithUnknownLongSwitch_whenParse_thenFailWithUnrecognizedLongNameException() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
-        serializationContext, Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -431,8 +398,7 @@ public class ArgumentsParserTest {
    */
   @Test(expected = UnrecognizedShortNameSyntaxException.class)
   public void givenArgsWithUnknownShortSwitch_whenParse_thenFailWithUnrecognizedShortNameException() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
-        serializationContext, Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -468,8 +434,7 @@ public class ArgumentsParserTest {
    */
   @Test(expected = InvalidLongNameValueSyntaxException.class)
   public void givenConnectedValueOnFlagSwitch_whenParse_thenFailWithInvalidLongNameValueException() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
-        serializationContext, Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -505,8 +470,7 @@ public class ArgumentsParserTest {
    */
   @Test
   public void givenShortFlagThenLongConnectedOptionThenSeparatorThenPositional_whenParse_thenSucceed() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
-        serializationContext, Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
     final String alpha = "alpha";
     final String foo = "-foo";

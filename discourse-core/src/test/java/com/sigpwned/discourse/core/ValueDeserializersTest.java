@@ -23,6 +23,7 @@ import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PropertyParameter;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
 import java.io.File;
@@ -330,8 +331,7 @@ public class ValueDeserializersTest {
 
   @Test
   public void givenConfigurationClassWithParametersOfAllStockTypes_whenInvoke_thenSucceed() {
-    DefaultInvocationStrategy.INSTANCE.invoke(
-        new CommandBuilder().build(SerializationExample.class), new DefaultInvocationContext(),
-        List.of());
+    DefaultInvocationStrategy.INSTANCE.invoke(Command.scan(SerializationExample.class),
+        new DefaultInvocationContext(), List.of());
   }
 }

@@ -22,7 +22,6 @@ package com.sigpwned.discourse.core.util;
 import static java.util.Arrays.asList;
 
 import com.sigpwned.discourse.core.ArgumentException;
-import com.sigpwned.discourse.core.CommandBuilder;
 import com.sigpwned.discourse.core.ConfigurationException;
 import com.sigpwned.discourse.core.HelpFormatter;
 import com.sigpwned.discourse.core.InvocationContext;
@@ -38,13 +37,6 @@ import java.util.List;
 public final class Discourse {
 
   private Discourse() {
-  }
-
-  /**
-   * Creates a default command builder.
-   */
-  public static CommandBuilder defaultCommandBuilder() {
-    return new CommandBuilder();
   }
 
   /**
@@ -72,29 +64,28 @@ public final class Discourse {
    * Create a configuration object of the given type from the given arguments using the given
    * command builder.
    */
-  public static <T> T configuration(Class<T> rawType, CommandBuilder b, InvocationStrategy invoker,
+  public static <T> T configuration(Class<T> rawType, InvocationStrategy invoker,
       InvocationContext context, String[] args) {
-    return configuration(rawType, b, invoker, context, List.of(args));
+    return configuration(rawType, invoker, context, List.of(args));
   }
 
   /**
    * Create a configuration object of the given type from the given arguments.
    */
   public static <T> T configuration(Class<T> rawType, List<String> args) {
-    return configuration(rawType, defaultCommandBuilder(), defaultInvocationStrategy(),
-        defaultInvocationContext(), args);
+    return configuration(rawType, defaultInvocationStrategy(), defaultInvocationContext(), args);
   }
 
   /**
    * Create a configuration object of the given type from the given arguments using the given
    * command builder.
    */
-  public static <T> T configuration(Class<T> rawType, CommandBuilder b, InvocationStrategy invoker,
+  public static <T> T configuration(Class<T> rawType, InvocationStrategy invoker,
       InvocationContext context, List<String> args) {
 
     Command<T> command;
     try {
-      command = b.build(rawType);
+      command = Command.scan(context, rawType);
     } catch (ConfigurationException e) {
       PrintStream err = context.<PrintStream>get(InvocationContext.ERROR_STREAM_KEY)
           .orElse(System.err);
