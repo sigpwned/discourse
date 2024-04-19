@@ -23,7 +23,6 @@ import com.sigpwned.discourse.core.ValueDeserializer;
 import com.sigpwned.discourse.core.ValueSink;
 import com.sigpwned.discourse.core.coordinate.Coordinate;
 import com.sigpwned.discourse.core.util.Generated;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import java.util.Set;
 
@@ -63,20 +62,15 @@ public abstract sealed class ConfigurationParameter permits EnvironmentConfigura
   /**
    * @return the deserializer
    */
-  private ValueDeserializer<?> getDeserializer() {
+  public ValueDeserializer<?> getDeserializer() {
     return deserializer;
   }
 
   /**
    * @return the sink
    */
-  private ValueSink getSink() {
+  public ValueSink getSink() {
     return sink;
-  }
-
-  public void set(Object instance, String value) throws InvocationTargetException {
-    Object deserializedValue = getDeserializer().deserialize(value);
-    getSink().write(instance, deserializedValue);
   }
 
   public boolean isCollection() {
