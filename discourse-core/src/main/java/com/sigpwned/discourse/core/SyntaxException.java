@@ -19,7 +19,10 @@
  */
 package com.sigpwned.discourse.core;
 
+import static java.util.Objects.requireNonNull;
+
 import com.sigpwned.discourse.core.annotation.OptionParameter;
+import com.sigpwned.discourse.core.command.Command;
 
 /**
  * Indicates a problem with the arguments given by the user, e.g. an {@link OptionParameter} was not
@@ -27,7 +30,14 @@ import com.sigpwned.discourse.core.annotation.OptionParameter;
  */
 public abstract class SyntaxException extends RuntimeException {
 
-  protected SyntaxException(String message) {
+  private final Command<?> command;
+
+  protected SyntaxException(Command<?> command, String message) {
     super(message);
+    this.command = requireNonNull(command);
+  }
+
+  public Command<?> getCommand() {
+    return command;
   }
 }

@@ -23,6 +23,7 @@ import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 import com.sigpwned.discourse.core.format.version.DefaultVersionFormatter;
+import com.sigpwned.discourse.core.module.DefaultModule;
 import com.sigpwned.discourse.core.value.deserializer.resolver.DefaultValueDeserializerResolver;
 import com.sigpwned.discourse.core.value.sink.resolver.DefaultValueSinkResolver;
 import java.util.HashMap;
@@ -42,12 +43,19 @@ import java.util.Optional;
  *   <li>{@link InvocationContext#VALUE_DESERIALIZER_RESOLVER_KEY} - {@link DefaultValueDeserializerResolver}</li>
  *   <li>{@link InvocationContext#VALUE_SINK_RESOLVER_KEY} - {@link DefaultValueSinkResolver}</li>
  * </ul>
+ *
+ * <p>
+ *   In addition, the {@link DefaultModule} is registered with this context on construction.
+ * </p>
  */
 public class DefaultInvocationContext implements InvocationContext {
 
   public static class Builder {
 
     private final DefaultInvocationContext building = new DefaultInvocationContext();
+
+    public Builder() {
+    }
 
     public <T> Builder set(InvocationContext.Key<T> key, T value) {
       building.set(key, value);
@@ -78,6 +86,7 @@ public class DefaultInvocationContext implements InvocationContext {
     this.values.put(InvocationContext.VALUE_DESERIALIZER_RESOLVER_KEY,
         new DefaultValueDeserializerResolver());
     this.values.put(InvocationContext.VALUE_SINK_RESOLVER_KEY, new DefaultValueSinkResolver());
+    register(new DefaultModule());
   }
 
   @Override

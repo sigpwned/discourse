@@ -92,7 +92,7 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
         .collect(toCollection(HashSet::new));
 
     // Handle CLI arguments
-    new ArgumentsParser(single::findParameter, new ArgumentsParser.Handler() {
+    new ArgumentsParser(single, new ArgumentsParser.Handler() {
       @Override
       public void flag(FlagConfigurationParameter property) {
         try {

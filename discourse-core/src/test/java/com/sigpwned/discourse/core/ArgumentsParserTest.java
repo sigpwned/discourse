@@ -73,7 +73,7 @@ public class ArgumentsParserTest {
     final AtomicBoolean flag = new AtomicBoolean(false);
     final AtomicReference<String> option = new AtomicReference<>();
     final AtomicReference<String> position0 = new AtomicReference<>();
-    new ArgumentsParser(cc::findParameter, new ArgumentsParser.Handler() {
+    new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
       public void flag(FlagConfigurationParameter property) {
@@ -109,7 +109,7 @@ public class ArgumentsParserTest {
     final AtomicBoolean flag = new AtomicBoolean(false);
     final AtomicReference<String> option = new AtomicReference<>();
     final AtomicReference<String> position0 = new AtomicReference<>();
-    new ArgumentsParser(cc::findParameter, new ArgumentsParser.Handler() {
+    new ArgumentsParser(cc, new ArgumentsParser.Handler() {
       @Override
       public void flag(FlagConfigurationParameter property) {
         flag.set(true);
@@ -144,7 +144,7 @@ public class ArgumentsParserTest {
     final AtomicBoolean flag = new AtomicBoolean(false);
     final AtomicReference<String> option = new AtomicReference<>();
     final AtomicReference<String> position0 = new AtomicReference<>();
-    new ArgumentsParser(cc::findParameter, new ArgumentsParser.Handler() {
+    new ArgumentsParser(cc, new ArgumentsParser.Handler() {
       @Override
       public void flag(FlagConfigurationParameter property) {
         flag.set(true);
@@ -173,7 +173,7 @@ public class ArgumentsParserTest {
   public void givenUnrecognizedShortOption_whenParse_thenFailWithUnrecognizedShortNameException() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
-    new ArgumentsParser(cc::findParameter, new ArgumentsParser.Handler() {
+    new ArgumentsParser(cc, new ArgumentsParser.Handler() {
     }).parse(List.of("-x"));
   }
 
@@ -190,7 +190,7 @@ public class ArgumentsParserTest {
     final AtomicBoolean flag = new AtomicBoolean(false);
     final AtomicReference<String> option = new AtomicReference<>();
     final AtomicReference<String> position0 = new AtomicReference<>();
-    new ArgumentsParser(cc::findParameter, new ArgumentsParser.Handler() {
+    new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
       public void flag(FlagConfigurationParameter property) {
@@ -226,7 +226,7 @@ public class ArgumentsParserTest {
     final AtomicBoolean flag = new AtomicBoolean(false);
     final AtomicReference<String> option = new AtomicReference<>();
     final AtomicReference<String> position0 = new AtomicReference<>();
-    new ArgumentsParser(cc::findParameter, new ArgumentsParser.Handler() {
+    new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
       public void flag(FlagConfigurationParameter property) {
@@ -262,7 +262,7 @@ public class ArgumentsParserTest {
     final AtomicBoolean flag = new AtomicBoolean(false);
     final AtomicReference<String> option = new AtomicReference<>();
     final AtomicReference<String> position0 = new AtomicReference<>();
-    new ArgumentsParser(cc::findParameter, new ArgumentsParser.Handler() {
+    new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
       public void flag(FlagConfigurationParameter property) {
@@ -298,7 +298,7 @@ public class ArgumentsParserTest {
     final AtomicBoolean flag = new AtomicBoolean(false);
     final AtomicReference<String> option = new AtomicReference<>();
     final AtomicReference<String> position0 = new AtomicReference<>();
-    new ArgumentsParser(cc::findParameter, new ArgumentsParser.Handler() {
+    new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
       public void flag(FlagConfigurationParameter property) {
@@ -334,7 +334,7 @@ public class ArgumentsParserTest {
     final AtomicBoolean flag = new AtomicBoolean(false);
     final AtomicReference<String> option = new AtomicReference<>();
     final AtomicReference<String> position0 = new AtomicReference<>();
-    new ArgumentsParser(cc::findParameter, new ArgumentsParser.Handler() {
+    new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
       public void flag(FlagConfigurationParameter property) {
@@ -370,7 +370,7 @@ public class ArgumentsParserTest {
     final AtomicBoolean flag = new AtomicBoolean(false);
     final AtomicReference<String> option = new AtomicReference<>();
     final AtomicReference<String> position0 = new AtomicReference<>();
-    new ArgumentsParser(cc::findParameter, new ArgumentsParser.Handler() {
+    new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
       public void flag(FlagConfigurationParameter property) {
@@ -406,7 +406,7 @@ public class ArgumentsParserTest {
     final AtomicBoolean flag = new AtomicBoolean(false);
     final AtomicReference<String> option = new AtomicReference<>();
     final AtomicReference<String> position0 = new AtomicReference<>();
-    new ArgumentsParser(cc::findParameter, new ArgumentsParser.Handler() {
+    new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
       public void flag(FlagConfigurationParameter property) {
@@ -442,7 +442,7 @@ public class ArgumentsParserTest {
     final AtomicBoolean flag = new AtomicBoolean(false);
     final AtomicReference<String> option = new AtomicReference<>();
     final AtomicReference<String> position0 = new AtomicReference<>();
-    new ArgumentsParser(cc::findParameter, new ArgumentsParser.Handler() {
+    new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
       public void flag(FlagConfigurationParameter property) {
@@ -478,7 +478,7 @@ public class ArgumentsParserTest {
     final AtomicBoolean flag = new AtomicBoolean(false);
     final AtomicReference<String> option = new AtomicReference<>();
     final AtomicReference<String> position0 = new AtomicReference<>();
-    new ArgumentsParser(cc::findParameter, new ArgumentsParser.Handler() {
+    new ArgumentsParser(cc, new ArgumentsParser.Handler() {
       @Override
       public void flag(FlagConfigurationParameter property) {
         flag.set(true);

@@ -22,6 +22,7 @@ package com.sigpwned.discourse.core.exception.syntax;
 import static java.lang.String.*;
 
 import com.sigpwned.discourse.core.SyntaxException;
+import com.sigpwned.discourse.core.command.Command;
 
 /**
  * Thrown when a short name is not recognized. For example, if a command only defines the short
@@ -32,8 +33,8 @@ public class UnrecognizedShortNameSyntaxException extends SyntaxException {
 
   private final String shortName;
 
-  public UnrecognizedShortNameSyntaxException(String shortName) {
-    super(format("Unrecognized short name -%s", shortName));
+  public UnrecognizedShortNameSyntaxException(Command<?> command, String shortName) {
+    super(command, format("Unrecognized short name -%s", shortName));
     this.shortName = shortName;
   }
 

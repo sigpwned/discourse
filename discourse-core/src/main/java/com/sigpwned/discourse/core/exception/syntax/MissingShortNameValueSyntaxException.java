@@ -22,6 +22,7 @@ package com.sigpwned.discourse.core.exception.syntax;
 import static java.lang.String.*;
 
 import com.sigpwned.discourse.core.SyntaxException;
+import com.sigpwned.discourse.core.command.Command;
 
 /**
  * Thrown when a parameter that requires a value is not given a value in a command line.
@@ -31,8 +32,9 @@ public class MissingShortNameValueSyntaxException extends SyntaxException {
   private final String parameterName;
   private final String shortName;
 
-  public MissingShortNameValueSyntaxException(String parameterName, String shortName) {
-    super(format("Parameter '%s' reference -%s requires value", parameterName, shortName));
+  public MissingShortNameValueSyntaxException(Command<?> command, String parameterName,
+      String shortName) {
+    super(command, format("Parameter '%s' reference -%s requires value", parameterName, shortName));
     this.parameterName = parameterName;
     this.shortName = shortName;
   }

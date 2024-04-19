@@ -22,6 +22,7 @@ package com.sigpwned.discourse.core.exception.syntax;
 import static java.lang.String.*;
 
 import com.sigpwned.discourse.core.SyntaxException;
+import com.sigpwned.discourse.core.command.Command;
 
 /**
  * Thrown when a long name is not recognized. For example, if a command only defines the long names
@@ -32,8 +33,8 @@ public class UnrecognizedLongNameSyntaxException extends SyntaxException {
 
   private final String longName;
 
-  public UnrecognizedLongNameSyntaxException(String longName) {
-    super(format("Unrecognized long name --%s", longName));
+  public UnrecognizedLongNameSyntaxException(Command<?> command, String longName) {
+    super(command, format("Unrecognized long name --%s", longName));
     this.longName = longName;
   }
 

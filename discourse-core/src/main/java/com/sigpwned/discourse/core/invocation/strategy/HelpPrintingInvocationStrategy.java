@@ -78,13 +78,11 @@ public class HelpPrintingInvocationStrategy implements InvocationStrategy {
   }
 
   private HelpFormatter getHelpFormatter(InvocationContext context) {
-    return context.<HelpFormatter>get(InvocationContext.HELP_FORMATTER_KEY)
-        .orElse(DEFAULT_FORMATTER);
+    return context.get(InvocationContext.HELP_FORMATTER_KEY).orElse(DEFAULT_FORMATTER);
   }
 
   private PrintStream getErrorStream(InvocationContext context) {
-    return context.<PrintStream>get(InvocationContext.ERROR_STREAM_KEY)
-        .orElse(DEFAULT_ERROR_STREAM);
+    return context.get(InvocationContext.ERROR_STREAM_KEY).orElse(DEFAULT_ERROR_STREAM);
   }
 
   /**

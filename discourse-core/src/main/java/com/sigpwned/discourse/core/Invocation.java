@@ -22,6 +22,7 @@ package com.sigpwned.discourse.core;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.invocation.DefaultInvocation;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -66,6 +67,16 @@ import java.util.stream.Stream;
  * @param <T> The type of the configuration object.
  */
 public interface Invocation<T> {
+
+  /**
+   * Create a new {@link Invocation} builder using the default implementation.
+   *
+   * @return the builder
+   * @see DefaultInvocation.Builder
+   */
+  public static DefaultInvocation.Builder defaultBuilder() {
+    return DefaultInvocation.builder();
+  }
 
   /**
    * The configuration object created from the command line arguments according to the command being

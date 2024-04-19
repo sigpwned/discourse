@@ -78,13 +78,11 @@ public class VersionPrintingInvocationStrategy implements InvocationStrategy {
   }
 
   private VersionFormatter getVersionFormatter(InvocationContext context) {
-    return context.<VersionFormatter>get(InvocationContext.VERSION_FORMATTER_KEY)
-        .orElse(DEFAULT_FORMATTER);
+    return context.get(InvocationContext.VERSION_FORMATTER_KEY).orElse(DEFAULT_FORMATTER);
   }
 
   private PrintStream getErrorStream(InvocationContext context) {
-    return context.<PrintStream>get(InvocationContext.ERROR_STREAM_KEY)
-        .orElse(DEFAULT_ERROR_STREAM);
+    return context.get(InvocationContext.ERROR_STREAM_KEY).orElse(DEFAULT_ERROR_STREAM);
   }
 
   /**

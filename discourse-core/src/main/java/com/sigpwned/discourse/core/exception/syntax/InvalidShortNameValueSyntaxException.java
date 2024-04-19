@@ -22,6 +22,7 @@ package com.sigpwned.discourse.core.exception.syntax;
 import static java.lang.String.*;
 
 import com.sigpwned.discourse.core.SyntaxException;
+import com.sigpwned.discourse.core.command.Command;
 
 /**
  * Thrown when a parameter that does not take a value is given a value in a command line.
@@ -31,8 +32,10 @@ public class InvalidShortNameValueSyntaxException extends SyntaxException {
   private final String parameterName;
   private final String shortName;
 
-  public InvalidShortNameValueSyntaxException(String parameterName, String shortName) {
-    super(format("Parameter '%s' reference -%s does not take a value", parameterName, shortName));
+  public InvalidShortNameValueSyntaxException(Command<?> command, String parameterName,
+      String shortName) {
+    super(command,
+        format("Parameter '%s' reference -%s does not take a value", parameterName, shortName));
     this.parameterName = parameterName;
     this.shortName = shortName;
   }

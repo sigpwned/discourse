@@ -24,7 +24,7 @@ import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.UnexpectedDiscriminatorConfigurationException;
-import com.sigpwned.discourse.core.util.Discourse;
+import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.util.Discriminators;
 
 /**
@@ -55,10 +55,9 @@ public abstract sealed class Command<T> permits SingleCommand, MultiCommand {
    * @return The command.
    * @throws ConfigurationException If there is  configuration error on the command
    * @see #scan(InvocationContext, Class)
-   * @see Discourse#defaultInvocationContext()
    */
   public static <T> Command<T> scan(Class<T> rawType) {
-    return scan(Discourse.defaultInvocationContext(), rawType);
+    return scan(new DefaultInvocationContext(), rawType);
   }
 
   /**
@@ -91,8 +90,7 @@ public abstract sealed class Command<T> permits SingleCommand, MultiCommand {
    * @return The command.
    * @throws ConfigurationException If there is  configuration error on the command
    */
-  static <T> Command<T> subscan(InvocationContext context,
-      ConfigurableClass<T> configurableClass) {
+  static <T> Command<T> subscan(InvocationContext context, ConfigurableClass<T> configurableClass) {
     if (configurableClass.getSubcommands().isEmpty()) {
       // This is a single command.
       return SingleCommand.scan(context, configurableClass);

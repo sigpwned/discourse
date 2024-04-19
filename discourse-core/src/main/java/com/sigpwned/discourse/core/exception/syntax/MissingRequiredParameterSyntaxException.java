@@ -22,6 +22,7 @@ package com.sigpwned.discourse.core.exception.syntax;
 import static java.lang.String.*;
 
 import com.sigpwned.discourse.core.SyntaxException;
+import com.sigpwned.discourse.core.command.Command;
 
 /**
  * Thrown when a required parameter is not given a value in a command line.
@@ -30,8 +31,8 @@ public class MissingRequiredParameterSyntaxException extends SyntaxException {
 
   private final String parameterName;
 
-  public MissingRequiredParameterSyntaxException(String parameterName) {
-    super(format("No value for the required parameter '%s'", parameterName));
+  public MissingRequiredParameterSyntaxException(Command<?> command, String parameterName) {
+    super(command, format("No value for the required parameter '%s'", parameterName));
     this.parameterName = parameterName;
   }
 

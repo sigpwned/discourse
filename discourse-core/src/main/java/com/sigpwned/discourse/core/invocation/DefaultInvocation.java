@@ -22,10 +22,18 @@ package com.sigpwned.discourse.core.invocation;
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.ConfigurationException;
 import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.Invocation;
+import com.sigpwned.discourse.core.InvocationContext;
+import com.sigpwned.discourse.core.InvocationContext.Key;
+import com.sigpwned.discourse.core.Module;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.invocation.context.ChainInvocationContext;
+import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,6 +45,67 @@ import java.util.Objects;
  * @param <T> the type of the configuration object
  */
 public class DefaultInvocation<T> implements Invocation<T> {
+
+  public static class Builder {
+
+    private final List<InvocationContext> chain = new ArrayList<>();
+    private final DefaultInvocationContext.Builder contextBuilder = DefaultInvocationContext.builder();
+    private boolean touched = false;
+
+    /**
+     * Calling this method will cause a chain of invocation contexts to be built, as opposed to a
+     * standalone. The context being built will be the first in the chain. Arguments to this method
+     * will appear in the chain after the context being built in the order they are called.
+     *
+     * @see ChainInvocationContext
+     */
+    public DefaultInvocation.Builder chain(InvocationContext context) {
+      chain.add(context);
+      return this;
+    }
+
+    /**
+     * Set a key in the invocation context being built.
+     */
+    public <T> DefaultInvocation.Builder set(Key<T> key, T value) {
+      contextBuilder.set(key, value);
+      touched = true;
+      return this;
+    }
+
+    /**
+     * Register a module with the invocation context being built.
+     */
+    public DefaultInvocation.Builder register(Module module) {
+      contextBuilder.register(module);
+      touched = true;
+      return this;
+    }
+
+    /**
+     * Build an invocation with the given command class.
+     *
+     * @throws ConfigurationException if the configuration object cannot be created due to an error
+     *                                in the configuration object or the command class
+     */
+    public <T> DefaultInvocationBuilderArgsStage<T> build(Class<T> commandClass) {
+      InvocationContext context = contextBuilder.build();
+      if (!chain.isEmpty()) {
+        List<InvocationContext> chain = new ArrayList<>(this.chain.size() + 1);
+        chain.add(context);
+        chain.addAll(this.chain);
+        context = ChainInvocationContext.of(chain);
+      }
+
+      Command<T> command = Command.scan(context, commandClass);
+
+      return new DefaultInvocationBuilderArgsStage<>(context, command);
+    }
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
 
   private final List<Map.Entry<Discriminator, MultiCommand<? extends T>>> subcommands;
   private final SingleCommand<? extends T> leafCommand;
@@ -81,10 +150,9 @@ public class DefaultInvocation<T> implements Invocation<T> {
     if (!(o instanceof DefaultInvocation<?> that)) {
       return false;
     }
-    return Objects.equals(getSubcommands(), that.getSubcommands())
-        && Objects.equals(getLeafCommand(), that.getLeafCommand())
-        && Objects.equals(getLeafArgs(), that.getLeafArgs()) && Objects.equals(
-        getConfiguration(), that.getConfiguration());
+    return Objects.equals(getSubcommands(), that.getSubcommands()) && Objects.equals(
+        getLeafCommand(), that.getLeafCommand()) && Objects.equals(getLeafArgs(),
+        that.getLeafArgs()) && Objects.equals(getConfiguration(), that.getConfiguration());
   }
 
   @Override
@@ -94,11 +162,7 @@ public class DefaultInvocation<T> implements Invocation<T> {
 
   @Override
   public String toString() {
-    return "DefaultInvocation{" +
-        "subcommands=" + subcommands +
-        ", leafCommand=" + leafCommand +
-        ", leafArgs=" + leafArgs +
-        ", configuration=" + configuration +
-        '}';
+    return "DefaultInvocation{" + "subcommands=" + subcommands + ", leafCommand=" + leafCommand
+        + ", leafArgs=" + leafArgs + ", configuration=" + configuration + '}';
   }
 }
