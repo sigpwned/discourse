@@ -25,26 +25,32 @@ import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.InvocationStrategy;
 import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
 import java.util.List;
 
-public class DefaultInvocationBuilderArgsStage<T> {
+public class DefaultInvocationBuilderStrategyStage<T> {
 
   private final InvocationContext context;
   private final Command<T> command;
-  private final InvocationStrategy strategy;
 
-  public DefaultInvocationBuilderArgsStage(InvocationContext context, Command<T> command,
-      InvocationStrategy strategy) {
+  public DefaultInvocationBuilderStrategyStage(InvocationContext context, Command<T> command) {
     this.context = requireNonNull(context);
     this.command = requireNonNull(command);
-    this.strategy = requireNonNull(strategy);
+  }
+
+  public DefaultInvocationBuilderArgsStage<T> strategy(InvocationStrategy strategy) {
+    return new DefaultInvocationBuilderArgsStage<T>(context, command, strategy);
   }
 
   public Invocation<? extends T> args(String[] args) {
-    return args(List.of(args));
+    return strategy(defaultStrategy()).args(args);
   }
 
   public Invocation<? extends T> args(List<String> args) {
-    return strategy.invoke(command, context, args);
+    return strategy(defaultStrategy()).args(args);
+  }
+
+  protected InvocationStrategy defaultStrategy() {
+    return new DefaultInvocationStrategy();
   }
 }

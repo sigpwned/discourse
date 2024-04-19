@@ -88,7 +88,7 @@ public class DefaultInvocation<T> implements Invocation<T> {
      * @throws ConfigurationException if the configuration object cannot be created due to an error
      *                                in the configuration object or the command class
      */
-    public <T> DefaultInvocationBuilderArgsStage<T> build(Class<T> commandClass) {
+    public <T> DefaultInvocationBuilderStrategyStage<T> command(Class<T> commandClass) {
       InvocationContext context = contextBuilder.build();
       if (!chain.isEmpty()) {
         List<InvocationContext> chain = new ArrayList<>(this.chain.size() + 1);
@@ -99,7 +99,7 @@ public class DefaultInvocation<T> implements Invocation<T> {
 
       Command<T> command = Command.scan(context, commandClass);
 
-      return new DefaultInvocationBuilderArgsStage<>(context, command);
+      return new DefaultInvocationBuilderStrategyStage<>(context, command);
     }
   }
 

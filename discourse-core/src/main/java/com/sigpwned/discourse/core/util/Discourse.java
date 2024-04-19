@@ -72,8 +72,8 @@ public final class Discourse {
       InvocationContext context, List<String> args) {
     T result;
     try {
-      result = Invocation.defaultBuilder().chain(context).build(rawType).strategy(strategy)
-          .invoke(args).getConfiguration();
+      result = Invocation.defaultBuilder().chain(context).command(rawType).strategy(strategy)
+          .args(args).getConfiguration();
     } catch (ConfigurationException e) {
       PrintStream err = context.get(InvocationContext.ERROR_STREAM_KEY).orElse(System.err);
       err.println("There was a problem with the application configuration.");
