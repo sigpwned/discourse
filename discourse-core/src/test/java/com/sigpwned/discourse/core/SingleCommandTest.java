@@ -45,7 +45,7 @@ public class SingleCommandTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
   @Test
-  public void test1() {
+  public void givenValidExample1Args_whenInvoke_thenGetExpectedValue() {
     final String alpha = "alpha";
     final String bravo = "bravo";
 
@@ -61,7 +61,7 @@ public class SingleCommandTest {
   }
 
   @Test
-  public void test2() {
+  public void givenValidExample2Args_whenInvoke_thenGetExpectedValue() {
     final String alpha = "alpha";
     final String bravo = "bravo";
     final String charlie = "charlie";
@@ -83,7 +83,7 @@ public class SingleCommandTest {
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
   @Test
-  public void allowUnconfiguredFieldExample() {
+  public void givenClassWithUnconfiguredField_whenInvoke_thenSucceedWithExpectedValue() {
     final String hello = "hello";
 
     AllowUnconfiguredFieldExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
@@ -97,7 +97,7 @@ public class SingleCommandTest {
   }
 
   @Test
-  public void accessorExample() {
+  public void givenClassWithSetters_whenInvoke_thenSucceedWithExpectedValue() {
     final String hello = "hello";
 
     AccessorExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
@@ -111,7 +111,7 @@ public class SingleCommandTest {
   }
 
   @Test
-  public void primitivesExample() {
+  public void givenClassWithPrimitives_whenInvoke_thenSucceedWithExpectedValue() {
     PrimitivesExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
         Command.scan(PrimitivesExample.class), new DefaultInvocationContext(),
         List.of("-x", "1", "2", "3")).getConfiguration();

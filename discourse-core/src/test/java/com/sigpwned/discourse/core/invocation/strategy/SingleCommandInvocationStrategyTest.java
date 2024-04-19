@@ -51,7 +51,7 @@ public class SingleCommandInvocationStrategyTest {
   }
 
   @Test(expected = AssignmentFailureArgumentException.class)
-  public void environmentAssignmentFailureExample() {
+  public void givenClassWithSimulatedVariableAssignmentFailure_whenInvoke_thenFailWithAssignmentFailureException() {
     final String hello = "hello";
 
     SingleCommandInvocationStrategy invoker = new SingleCommandInvocationStrategy();
@@ -81,7 +81,7 @@ public class SingleCommandInvocationStrategyTest {
   }
 
   @Test(expected = AssignmentFailureArgumentException.class)
-  public void propertyAssignmentFailureExample() {
+  public void givenClassWithSimulatedPropertyAssignmentFailure_whenInvoke_thenFailWithAssignmentFailureException() {
     final String hello = "hello";
 
     SingleCommandInvocationStrategy invoker = new SingleCommandInvocationStrategy();

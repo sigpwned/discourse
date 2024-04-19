@@ -71,7 +71,7 @@ public class DiscourseTest {
   }
 
   @Test
-  public void smokeTest() {
+  public void givenSimpleExample_whenInvoke_thenSucceedWithExpectedValue() {
     final String alpha = "alpha";
     final String bravo = "bravo";
 

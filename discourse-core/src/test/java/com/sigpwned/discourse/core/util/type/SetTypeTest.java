@@ -37,17 +37,17 @@ public class SetTypeTest {
   };
 
   @Test(expected = IllegalArgumentException.class)
-  public void parameterizedTest() {
+  public void givenCollectionTypeToken_whenParse_thenFailWithIllegalArgumentException() {
     SetType.parse(COLLECTION_OF_STRING.getType());
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void objectTest() {
+  public void givenObjectType_whenParse_thenFailWithIllegalArgumentException() {
     SetType.parse(Object.class);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void rawTest() {
+  public void givenRawType_whenParse_thenFailWithIllegalArgumentException() {
     SetType.parse(List.class);
   }
 
@@ -55,7 +55,7 @@ public class SetTypeTest {
   };
 
   @Test
-  public void concreteTest() {
+  public void givenSetOfStringTypeToken_whenParse_thenSucceedWithExpectedValue() {
     SetType observed = SetType.parse(SET_OF_STRING.getType());
 
     assertThat(observed, is(SetType.of(String.class)));
@@ -68,7 +68,7 @@ public class SetTypeTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void unresolvedTest() {
+  public void givenUnresolvedSetTypeToken_whenParse_thenFailWithIllegalArgumentException() {
     SetType.parse(new SetTest<String>().token.getType());
   }
 }

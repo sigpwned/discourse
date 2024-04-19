@@ -71,7 +71,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = MissingPositionConfigurationException.class)
-  public void missingPositionTest() {
+  public void givenClassWithGapInPositionalArguments_whenScan_thenFailWithMissingPositionException() {
     Command.scan(GapInPositionsExample.class);
   }
 
@@ -88,7 +88,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = TooManyAnnotationsConfigurationException.class)
-  public void tooManyAnnotationsTest() {
+  public void givenClassWithFieldWithMultipleAnnotations_whenScan_thenFailWithTooManyAnnotationsException() {
     Command.scan(TooManyAnnotationsExample.class);
   }
 
@@ -104,7 +104,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = NotConfigurableConfigurationException.class)
-  public void notConfigurableTest() {
+  public void givenClassWithoutConfigurableAnnotation_whenScan_thenFailWithNotConfigurableException() {
     Command.scan(NotConfigurableExample.class);
   }
 
@@ -119,7 +119,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = InvalidShortNameConfigurationException.class)
-  public void invalidOptionShortNameExample() {
+  public void givenClassWithFieldWithInvalidOptionShortNameAnnotation_whenScan_thenFailWithInvalidShortNameException() {
     Command.scan(InvalidOptionShortNameExample.class);
   }
 
@@ -134,7 +134,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = InvalidLongNameConfigurationException.class)
-  public void invalidOptionLongNameExample() {
+  public void givenClassWithFieldWithInvalidOptionLongNameAnnotation_whenScan_thenFailWithInvalidLongNameException() {
     Command.scan(InvalidOptionLongNameExample.class);
   }
 
@@ -149,7 +149,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = NoNameConfigurationException.class)
-  public void optionNoNameExample() {
+  public void givenClassWithFieldWithInvalidOptionAnnotation_whenScan_thenFailWithNoNameException() {
     Command.scan(NoNameOptionExample.class);
   }
 
@@ -164,7 +164,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = InvalidShortNameConfigurationException.class)
-  public void invalidFlagShortNameExample() {
+  public void givenClassWithFieldWithInvalidFlagShortNameAnnotation_whenScan_thenFailWithInvalidShortNameException() {
     Command.scan(InvalidFlagShortNameExample.class);
   }
 
@@ -179,7 +179,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = InvalidLongNameConfigurationException.class)
-  public void invalidFlagLongNameExample() {
+  public void givenClassWithFieldWithInvalidFlagLongNameAnnotation_whenScan_thenFailWithInvalidLongNameException() {
     Command.scan(InvalidFlagLongNameExample.class);
   }
 
@@ -194,7 +194,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = NoNameConfigurationException.class)
-  public void flagNoNameExample() {
+  public void givenClassWithFieldWithInvalidFlagAnnotation_whenScan_thenFailWithNoNameException() {
     Command.scan(NoNameFlagExample.class);
   }
 
@@ -209,7 +209,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = InvalidVariableNameConfigurationException.class)
-  public void invalidVariableExample() {
+  public void givenClassWithFieldWithInvalidVariableNameAnnotation_whenScan_thenFailWithInvalidVariableNameException() {
     Command.scan(InvalidVariableExample.class);
   }
 
@@ -224,7 +224,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = InvalidPropertyNameConfigurationException.class)
-  public void invalidPropertyExample() {
+  public void givenClassWithFieldWithInvalidPropertyNameAnnotation_whenScan_thenFailWithInvalidPropertyNameException() {
     Command.scan(InvalidPropertyExample.class);
   }
 
@@ -242,7 +242,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = DuplicateCoordinateConfigurationException.class)
-  public void duplicateShortNameExample() {
+  public void givenClassWithFieldWithDuplicateShortNames_whenScan_thenFailWithDuplicateCoordinateException() {
     Command.scan(DuplicateCoordinateExample.class);
   }
 
@@ -257,7 +257,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = InvalidPositionConfigurationException.class)
-  public void invalidPositionExample() {
+  public void givenClassWithFieldWithInvalidPosition_whenScan_thenFailWithInvalidPositionException() {
     Command.scan(InvalidPositionExample.class);
   }
 
@@ -275,7 +275,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = MissingPositionConfigurationException.class)
-  public void skipPositionExample() {
+  public void givenClassWithFieldWithMissingPosition_whenScan_thenFailWithMissingPositionException() {
     Command.scan(SkipPositionExample.class);
   }
 
@@ -290,7 +290,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = MissingPositionConfigurationException.class)
-  public void noZeroPositionExample() {
+  public void givenClassWithFieldWithNoZeroPosition_whenScan_thenFailWithMissingPositionException() {
     Command.scan(SkipPositionExample.class);
   }
 
@@ -308,7 +308,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = InvalidCollectionParameterPlacementConfigurationException.class)
-  public void invalidCollectionPositionExample() {
+  public void givenClassWithCollectionFieldNotInLastPosition_whenScan_thenFailWithInvalidCollectionParameterPlacementException() {
     Command.scan(InvalidCollectionPositionExample.class);
   }
 
@@ -326,7 +326,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = InvalidRequiredParameterPlacementConfigurationException.class)
-  public void invalidRequiredPositionExample() {
+  public void givenClassWithRequiredFieldBeforeOptionalField_whenScan_thenFailWithInvalidRequiredParameterPlacementException() {
     Command.scan(InvalidRequiredPositionExample.class);
   }
 
@@ -350,7 +350,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = DiscriminatorMismatchConfigurationException.class)
-  public void discriminatorMismatchExample() {
+  public void givenClassWithSubcommandDiscriminatorMismatch_whenScan_thenFailWithDiscriminatorMismatchException() {
     Command.scan(DiscriminatorMismatchMultiCommandExample.class);
   }
 
@@ -373,7 +373,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = SubcommandDoesNotExtendRootCommandConfigurationException.class)
-  public void noExtendExample() {
+  public void givenClassWithSubcommandNotExtendsCommand_whenScan_thenFailWithSubcommandDoesNotExtendRootCommandException() {
     Command.scan(NoExtendMultiCommandExample.class);
   }
 
@@ -397,7 +397,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = InvalidDiscriminatorConfigurationException.class)
-  public void invalidDiscriminatorCommandExample() {
+  public void givenClassWithInvalidDiscriminatorInCommand_whenScan_thenFailWithInvalidDiscriminatorException() {
     Command.scan(InvalidDiscriminatorMultiCommandExample1.class);
   }
 
@@ -421,7 +421,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = InvalidDiscriminatorConfigurationException.class)
-  public void invalidDiscriminatorSubcommandExample() {
+  public void givenClassWithInvalidDiscriminatorInSubcommand_whenScan_thenFailWithInvalidDiscriminatorException() {
     Command.scan(InvalidDiscriminatorMultiCommandExample2.class);
   }
 
@@ -445,7 +445,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = NoDiscriminatorConfigurationException.class)
-  public void noDiscriminatorCommandExample() {
+  public void givenClassWithEmptyDiscriminatorInCommand_whenScan_thenFailWithNoDiscriminatorException() {
     Command.scan(NoDiscriminatorMultiCommandExample1.class);
   }
 
@@ -469,7 +469,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = NoDiscriminatorConfigurationException.class)
-  public void noDiscriminatorSubcommandExample() {
+  public void givenClassWithEmptyDiscriminatorInSubcommand_whenScan_thenFailWithNoDiscriminatorException() {
     Command.scan(NoDiscriminatorMultiCommandExample2.class);
   }
 
@@ -484,7 +484,7 @@ public class ConfigurationExceptionTest {
     public String option;
   }
 
-  @Configurable(discriminator = "")
+  @Configurable(discriminator = "alpha")
   public static class UnexpectedDiscriminatorSubcommandExample extends
       UnexpectedDiscriminatorRootCommandExample {
 
@@ -493,7 +493,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = UnexpectedDiscriminatorConfigurationException.class)
-  public void unexpectedCommandDiscriminatorExample() {
+  public void givenClassWithDiscriminatorInCommandAndSubcommands_whenScan_thenFailWithUnexpectedDiscriminatorException() {
     Command.scan(UnexpectedDiscriminatorRootCommandExample.class);
   }
 
@@ -508,7 +508,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = UnexpectedDiscriminatorConfigurationException.class)
-  public void unexpectedDiscriminatorExample() {
+  public void givenClassWithDiscriminatorInCommandAndNoSubcommands_whenScan_thenFailWithUnexpectedDiscriminatorException() {
     Command.scan(UnexpectedDiscriminatorExample.class);
   }
 
@@ -565,7 +565,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = MultiCommandNotAbstractConfigurationException.class)
-  public void notAbstractDiscriminatorExample() {
+  public void givenConcreteClassWithSubcommands_whenScan_thenFailWithMultiCommandNotAbstractException() {
     Command.scan(NotAbstractCommandExample.class);
   }
 
@@ -583,7 +583,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = MultipleHelpFlagsConfigurationException.class)
-  public void multipleHelpExample() {
+  public void givenClassWithMultipleHelpFields_whenScan_thenFailWithMultipleHelpFlagsException() {
     Command.scan(MultipleHelpExample.class);
   }
 
@@ -601,7 +601,7 @@ public class ConfigurationExceptionTest {
   }
 
   @Test(expected = MultipleVersionFlagsConfigurationException.class)
-  public void multipleVersionExample() {
+  public void givenClassWithMultipleVersionFields_whenScan_thenFailWithMultipleVersionFlagsException() {
     Command.scan(MultipleVersionExample.class);
   }
 }

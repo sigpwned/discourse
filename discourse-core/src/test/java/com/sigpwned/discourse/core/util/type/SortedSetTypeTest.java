@@ -37,17 +37,17 @@ public class SortedSetTypeTest {
   };
 
   @Test(expected = IllegalArgumentException.class)
-  public void parameterizedTest() {
+  public void givenCollectionTypeToken_whenParse_thenFailWithIllegalArgumentException() {
     SortedSetType.parse(COLLECTION_OF_STRING.getType());
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void objectTest() {
+  public void givenObjectType_whenParse_thenFailWithIllegalArgumentException() {
     SortedSetType.parse(Object.class);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void rawTest() {
+  public void givenRawType_whenParse_thenFailWithIllegalArgumentException() {
     SortedSetType.parse(List.class);
   }
 
@@ -55,7 +55,7 @@ public class SortedSetTypeTest {
   };
 
   @Test
-  public void concreteTest() {
+  public void givenSortedSetOfStringTypeToken_whenParse_thenSucceedWithExpectedValue() {
     SortedSetType observed = SortedSetType.parse(SORTED_SET_OF_STRING.getType());
 
     assertThat(observed, is(SortedSetType.of(String.class)));
@@ -68,7 +68,7 @@ public class SortedSetTypeTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void unresolvedTest() {
+  public void givenUnresolvedSortedSetTypeToken_whenParse_thenFailWithIllegalArgumentException() {
     SortedSetType.parse(new SortedSetTest<String>().token.getType());
   }
 }

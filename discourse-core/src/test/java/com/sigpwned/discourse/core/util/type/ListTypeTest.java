@@ -36,17 +36,17 @@ public class ListTypeTest {
   };
 
   @Test(expected = IllegalArgumentException.class)
-  public void parameterizedTest() {
+  public void givenCollectionTypeToken_whenParse_thenFailWithIllegalArgumentException() {
     ListType.parse(COLLECTION_OF_STRING.getType());
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void objectTest() {
+  public void givenObjectType_whenParse_thenFailWithIllegalArgumentException() {
     ListType.parse(Object.class);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void rawTest() {
+  public void givenRawType_whenParse_thenFailWithIllegalArgumentException() {
     ListType.parse(List.class);
   }
 
@@ -54,7 +54,7 @@ public class ListTypeTest {
   };
 
   @Test
-  public void concreteTest() {
+  public void givenListOfStringTypeToken_whenParse_thenSucceedWithExpectedValue() {
     ListType observed = ListType.parse(LIST_OF_STRING.getType());
 
     assertThat(observed, is(ListType.of(String.class)));
@@ -67,7 +67,7 @@ public class ListTypeTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void unresolvedTest() {
+  public void givenUnresolvedListTypeToken_whenParse_thenFailWithIllegalArgumentException() {
     ListType.parse(new ListTest<String>().token.getType());
   }
 }
