@@ -24,6 +24,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
+import com.sigpwned.discourse.core.coordinate.NameCoordinate;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.exception.configuration.MissingPositionConfigurationException;
@@ -52,13 +53,15 @@ public class ArgumentsParser {
 
   public static interface Handler {
 
-    default void flag(FlagConfigurationParameter property) {
+    default void flag(NameCoordinate coordinate, FlagConfigurationParameter property) {
     }
 
-    default void option(OptionConfigurationParameter property, String value) {
+    default void option(NameCoordinate coordinate, OptionConfigurationParameter property,
+        String value) {
     }
 
-    default void positional(PositionalConfigurationParameter property, String value) {
+    default void positional(PositionCoordinate coordinate,
+        PositionalConfigurationParameter property, String value) {
     }
   }
 
@@ -100,7 +103,7 @@ public class ArgumentsParser {
         PositionalConfigurationParameter positionalProperty = (PositionalConfigurationParameter) getParameterResolver().resolveConfigurationParameter(
             position).orElseThrow(() -> new MissingPositionConfigurationException(index));
 
-        getHandler().positional(positionalProperty, next);
+        getHandler().positional(position, positionalProperty, next);
 
         positionals = true;
 
@@ -146,10 +149,10 @@ public class ArgumentsParser {
               shortName.toString());
         }
         String value = next();
-        getHandler().option(optionProperty, value);
+        getHandler().option(shortName, optionProperty, value);
       } else {
         FlagConfigurationParameter flagProperty = (FlagConfigurationParameter) shortNameProperty;
-        getHandler().flag(flagProperty);
+        getHandler().flag(shortName, flagProperty);
       }
     }
   }
@@ -169,10 +172,10 @@ public class ArgumentsParser {
             shortName.toString());
       }
       String value = next();
-      getHandler().option(optionProperty, value);
+      getHandler().option(shortName, optionProperty, value);
     } else {
       FlagConfigurationParameter flagProperty = (FlagConfigurationParameter) shortNameProperty;
-      getHandler().flag(flagProperty);
+      getHandler().flag(shortName, flagProperty);
     }
   }
 
@@ -190,10 +193,10 @@ public class ArgumentsParser {
             longName.toString());
       }
       String value = next();
-      getHandler().option(optionProperty, value);
+      getHandler().option(longName, optionProperty, value);
     } else {
       FlagConfigurationParameter flagProperty = (FlagConfigurationParameter) longNameProperty;
-      getHandler().flag(flagProperty);
+      getHandler().flag(longName, flagProperty);
     }
   }
 
@@ -207,7 +210,7 @@ public class ArgumentsParser {
 
     if (longNameValueProperty.isValued()) {
       OptionConfigurationParameter optionProperty = (OptionConfigurationParameter) longNameValueProperty;
-      getHandler().option(optionProperty, value);
+      getHandler().option(longName, optionProperty, value);
     } else {
       throw new InvalidLongNameValueSyntaxException(getCommand(), longNameValueProperty.getName(),
           longName.toString());

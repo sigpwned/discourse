@@ -29,6 +29,8 @@ import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.coordinate.NameCoordinate;
+import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import com.sigpwned.discourse.core.exception.syntax.InvalidLongNameValueSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.MissingLongNameValueSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.MissingShortNameValueSyntaxException;
@@ -76,17 +78,18 @@ public class ArgumentsParserTest {
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
-      public void flag(FlagConfigurationParameter property) {
+      public void flag(NameCoordinate name, FlagConfigurationParameter property) {
         flag.set(true);
       }
 
       @Override
-      public void option(OptionConfigurationParameter property, String value) {
+      public void option(NameCoordinate name, OptionConfigurationParameter property, String value) {
         option.set(value);
       }
 
       @Override
-      public void positional(PositionalConfigurationParameter property, String value) {
+      public void positional(PositionCoordinate position, PositionalConfigurationParameter property,
+          String value) {
         position0.set(value);
       }
     }).parse(asList("-f", "--option", alpha, foo));
@@ -111,17 +114,18 @@ public class ArgumentsParserTest {
     final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
       @Override
-      public void flag(FlagConfigurationParameter property) {
+      public void flag(NameCoordinate name, FlagConfigurationParameter property) {
         flag.set(true);
       }
 
       @Override
-      public void option(OptionConfigurationParameter property, String value) {
+      public void option(NameCoordinate name, OptionConfigurationParameter property, String value) {
         option.set(value);
       }
 
       @Override
-      public void positional(PositionalConfigurationParameter property, String value) {
+      public void positional(PositionCoordinate position, PositionalConfigurationParameter property,
+          String value) {
         position0.set(value);
       }
     }).parse(asList("--flag", "--option=" + alpha, foo));
@@ -146,17 +150,18 @@ public class ArgumentsParserTest {
     final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
       @Override
-      public void flag(FlagConfigurationParameter property) {
+      public void flag(NameCoordinate name, FlagConfigurationParameter property) {
         flag.set(true);
       }
 
       @Override
-      public void option(OptionConfigurationParameter property, String value) {
+      public void option(NameCoordinate name, OptionConfigurationParameter property, String value) {
         option.set(value);
       }
 
       @Override
-      public void positional(PositionalConfigurationParameter property, String value) {
+      public void positional(PositionCoordinate position, PositionalConfigurationParameter property,
+          String value) {
         position0.set(value);
       }
     }).parse(asList("--flag", "-o", alpha, foo));
@@ -193,17 +198,18 @@ public class ArgumentsParserTest {
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
-      public void flag(FlagConfigurationParameter property) {
+      public void flag(NameCoordinate name, FlagConfigurationParameter property) {
         flag.set(true);
       }
 
       @Override
-      public void option(OptionConfigurationParameter property, String value) {
+      public void option(NameCoordinate name, OptionConfigurationParameter property, String value) {
         option.set(value);
       }
 
       @Override
-      public void positional(PositionalConfigurationParameter property, String value) {
+      public void positional(PositionCoordinate position, PositionalConfigurationParameter property,
+          String value) {
         position0.set(value);
       }
     }).parse(List.of("-f", "--option=" + alpha, foo));
@@ -229,17 +235,18 @@ public class ArgumentsParserTest {
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
-      public void flag(FlagConfigurationParameter property) {
+      public void flag(NameCoordinate name, FlagConfigurationParameter property) {
         flag.set(true);
       }
 
       @Override
-      public void option(OptionConfigurationParameter property, String value) {
+      public void option(NameCoordinate name, OptionConfigurationParameter property, String value) {
         option.set(value);
       }
 
       @Override
-      public void positional(PositionalConfigurationParameter property, String value) {
+      public void positional(PositionCoordinate position, PositionalConfigurationParameter property,
+          String value) {
         position0.set(value);
       }
     }).parse(List.of("-fo", alpha, foo));
@@ -265,17 +272,18 @@ public class ArgumentsParserTest {
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
-      public void flag(FlagConfigurationParameter property) {
+      public void flag(NameCoordinate name, FlagConfigurationParameter property) {
         flag.set(true);
       }
 
       @Override
-      public void option(OptionConfigurationParameter property, String value) {
+      public void option(NameCoordinate name, OptionConfigurationParameter property, String value) {
         option.set(value);
       }
 
       @Override
-      public void positional(PositionalConfigurationParameter property, String value) {
+      public void positional(PositionCoordinate position, PositionalConfigurationParameter property,
+          String value) {
         position0.set(value);
       }
     }).parse(List.of("-o"));
@@ -301,17 +309,18 @@ public class ArgumentsParserTest {
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
-      public void flag(FlagConfigurationParameter property) {
+      public void flag(NameCoordinate name, FlagConfigurationParameter property) {
         flag.set(true);
       }
 
       @Override
-      public void option(OptionConfigurationParameter property, String value) {
+      public void option(NameCoordinate name, OptionConfigurationParameter property, String value) {
         option.set(value);
       }
 
       @Override
-      public void positional(PositionalConfigurationParameter property, String value) {
+      public void positional(PositionCoordinate position, PositionalConfigurationParameter property,
+          String value) {
         position0.set(value);
       }
     }).parse(List.of("--option"));
@@ -337,17 +346,18 @@ public class ArgumentsParserTest {
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
-      public void flag(FlagConfigurationParameter property) {
+      public void flag(NameCoordinate name, FlagConfigurationParameter property) {
         flag.set(true);
       }
 
       @Override
-      public void option(OptionConfigurationParameter property, String value) {
+      public void option(NameCoordinate name, OptionConfigurationParameter property, String value) {
         option.set(value);
       }
 
       @Override
-      public void positional(PositionalConfigurationParameter property, String value) {
+      public void positional(PositionCoordinate position, PositionalConfigurationParameter property,
+          String value) {
         position0.set(value);
       }
     }).parse(List.of("-of"));
@@ -373,17 +383,18 @@ public class ArgumentsParserTest {
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
-      public void flag(FlagConfigurationParameter property) {
+      public void flag(NameCoordinate name, FlagConfigurationParameter property) {
         flag.set(true);
       }
 
       @Override
-      public void option(OptionConfigurationParameter property, String value) {
+      public void option(NameCoordinate name, OptionConfigurationParameter property, String value) {
         option.set(value);
       }
 
       @Override
-      public void positional(PositionalConfigurationParameter property, String value) {
+      public void positional(PositionCoordinate position, PositionalConfigurationParameter property,
+          String value) {
         position0.set(value);
       }
     }).parse(List.of("--foobar"));
@@ -409,17 +420,18 @@ public class ArgumentsParserTest {
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
-      public void flag(FlagConfigurationParameter property) {
+      public void flag(NameCoordinate name, FlagConfigurationParameter property) {
         flag.set(true);
       }
 
       @Override
-      public void option(OptionConfigurationParameter property, String value) {
+      public void option(NameCoordinate name, OptionConfigurationParameter property, String value) {
         option.set(value);
       }
 
       @Override
-      public void positional(PositionalConfigurationParameter property, String value) {
+      public void positional(PositionCoordinate position, PositionalConfigurationParameter property,
+          String value) {
         position0.set(value);
       }
     }).parse(List.of("-z"));
@@ -445,17 +457,18 @@ public class ArgumentsParserTest {
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
 
       @Override
-      public void flag(FlagConfigurationParameter property) {
+      public void flag(NameCoordinate name, FlagConfigurationParameter property) {
         flag.set(true);
       }
 
       @Override
-      public void option(OptionConfigurationParameter property, String value) {
+      public void option(NameCoordinate name, OptionConfigurationParameter property, String value) {
         option.set(value);
       }
 
       @Override
-      public void positional(PositionalConfigurationParameter property, String value) {
+      public void positional(PositionCoordinate position, PositionalConfigurationParameter property,
+          String value) {
         position0.set(value);
       }
     }).parse(List.of("--flag=foo"));
@@ -480,17 +493,18 @@ public class ArgumentsParserTest {
     final AtomicReference<String> position0 = new AtomicReference<>();
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
       @Override
-      public void flag(FlagConfigurationParameter property) {
+      public void flag(NameCoordinate name, FlagConfigurationParameter property) {
         flag.set(true);
       }
 
       @Override
-      public void option(OptionConfigurationParameter property, String value) {
+      public void option(NameCoordinate name, OptionConfigurationParameter property, String value) {
         option.set(value);
       }
 
       @Override
-      public void positional(PositionalConfigurationParameter property, String value) {
+      public void positional(PositionCoordinate position, PositionalConfigurationParameter property,
+          String value) {
         position0.set(value);
       }
     }).parse(asList("-f", "--option=" + alpha, "--", foo));

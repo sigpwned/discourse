@@ -28,6 +28,8 @@ import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.InvocationStrategy;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.coordinate.NameCoordinate;
+import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import com.sigpwned.discourse.core.exception.argument.AssignmentFailureArgumentException;
 import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgumentException;
 import com.sigpwned.discourse.core.exception.argument.UnassignedRequiredParametersArgumentException;
@@ -94,7 +96,7 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
     // Handle CLI arguments
     new ArgumentsParser(single, new ArgumentsParser.Handler() {
       @Override
-      public void flag(FlagConfigurationParameter property) {
+      public void flag(NameCoordinate name, FlagConfigurationParameter property) {
         try {
           property.set(instance.getInstance(), "true");
         } catch (InvocationTargetException e) {
@@ -104,7 +106,7 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
       }
 
       @Override
-      public void option(OptionConfigurationParameter property, String text) {
+      public void option(NameCoordinate name, OptionConfigurationParameter property, String text) {
         try {
           property.set(instance.getInstance(), text);
         } catch (InvocationTargetException e) {
@@ -114,7 +116,8 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
       }
 
       @Override
-      public void positional(PositionalConfigurationParameter property, String text) {
+      public void positional(PositionCoordinate position, PositionalConfigurationParameter property,
+          String text) {
         try {
           property.set(instance.getInstance(), text);
         } catch (InvocationTargetException e) {
