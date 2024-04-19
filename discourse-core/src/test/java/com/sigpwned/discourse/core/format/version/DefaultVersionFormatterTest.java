@@ -30,6 +30,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 
+/**
+ * Test {@link DefaultVersionFormatter}
+ */
 public class DefaultVersionFormatterTest {
 
   @Configurable(name = "test", version = "1.0.0")
@@ -38,7 +41,7 @@ public class DefaultVersionFormatterTest {
   }
 
   @Test
-  public void exampleTest() throws IOException {
+  public void givenMultiCommand_whenFormatVersion_thenGenerateExpectedText() throws IOException {
     Command<?> command = new CommandBuilder().build(DefaultVersionFormatterTest.Example.class);
     String observed = new DefaultVersionFormatter().formatVersion(command);
     String expected = Resources.toString(

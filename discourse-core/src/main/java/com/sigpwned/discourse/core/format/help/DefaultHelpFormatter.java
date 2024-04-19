@@ -463,17 +463,17 @@ public class DefaultHelpFormatter implements HelpFormatter {
             Discriminator subdiscriminator = subentry.getKey();
             Command<?> subcommand = subentry.getValue();
 
-            List<FlagConfigurationParameter> flags = Commands.parameters(subcommand)
+            List<FlagConfigurationParameter> flags = Commands.deepParameters(subcommand)
                 .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
                 .filter(not(commonFlags::contains))
                 .sorted(Comparator.comparing(FlagConfigurationParameter::getName)).toList();
 
-            List<OptionConfigurationParameter> options = Commands.parameters(subcommand)
+            List<OptionConfigurationParameter> options = Commands.deepParameters(subcommand)
                 .mapMulti(Streams.filterAndCast(OptionConfigurationParameter.class))
                 .filter(not(commonOptions::contains))
                 .sorted(Comparator.comparing(OptionConfigurationParameter::getName)).toList();
 
-            List<PositionalConfigurationParameter> positionals = Commands.parameters(subcommand)
+            List<PositionalConfigurationParameter> positionals = Commands.deepParameters(subcommand)
                 .mapMulti(Streams.filterAndCast(PositionalConfigurationParameter.class))
                 .sorted(Comparator.comparing(PositionalConfigurationParameter::getPosition))
                 .toList();
@@ -511,7 +511,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
             out.println();
           }
 
-          List<EnvironmentConfigurationParameter> variables = Commands.parameters(command)
+          List<EnvironmentConfigurationParameter> variables = Commands.deepParameters(command)
               .mapMulti(Streams.filterAndCast(EnvironmentConfigurationParameter.class)).distinct()
               .sorted(Comparator.comparing(EnvironmentConfigurationParameter::getVariableName))
               .toList();
@@ -536,7 +536,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
             out.println();
           }
 
-          List<PropertyConfigurationParameter> properties = Commands.parameters(command)
+          List<PropertyConfigurationParameter> properties = Commands.deepParameters(command)
               .mapMulti(Streams.filterAndCast(PropertyConfigurationParameter.class)).distinct()
               .sorted(Comparator.comparing(PropertyConfigurationParameter::getPropertyName))
               .toList();

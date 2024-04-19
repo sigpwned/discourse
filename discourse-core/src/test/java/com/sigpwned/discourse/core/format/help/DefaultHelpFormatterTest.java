@@ -36,6 +36,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 
+/**
+ * Test {@link DefaultHelpFormatter}
+ */
 public class DefaultHelpFormatterTest {
 
   @Configurable(name = "test", description = "This is a test. This is only a test.")
@@ -58,7 +61,7 @@ public class DefaultHelpFormatterTest {
   }
 
   @Test
-  public void singleCommandTest() throws IOException {
+  public void givenSingleCommand_whenFormatHelp_thenGenerateExpectedText() throws IOException {
     Command<?> command = new CommandBuilder().build(SingleExample.class);
     String observed = new DefaultHelpFormatter().formatHelp(command);
     String expected = Resources.toString(getClass().getResource("singlecommandhelp.txt"),
@@ -99,7 +102,7 @@ public class DefaultHelpFormatterTest {
   }
 
   @Test
-  public void multiCommandTest() throws IOException {
+  public void givenMultiCommand_whenFormatHelp_thenGenerateExpectedText() throws IOException {
     Command<?> command = new CommandBuilder().build(MultiExample.class);
     String observed = new DefaultHelpFormatter().formatHelp(command);
     String expected = Resources.toString(getClass().getResource("multicommandhelp.txt"),

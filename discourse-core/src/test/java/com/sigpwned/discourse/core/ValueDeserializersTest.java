@@ -39,7 +39,7 @@ import org.junit.Test;
 /**
  * Tests every stock serializer
  */
-public class SerializationTest {
+public class ValueDeserializersTest {
 
   public static enum ExampleEnum {
     HELLO, WORLD;
@@ -329,7 +329,7 @@ public class SerializationTest {
   }
 
   @Test
-  public void serializationTest() {
+  public void givenConfigurationClassWithParametersOfAllStockTypes_whenInvoke_thenSucceed() {
     DefaultInvocationStrategy.INSTANCE.invoke(
         new CommandBuilder().build(SerializationExample.class), new DefaultInvocationContext(),
         List.of());

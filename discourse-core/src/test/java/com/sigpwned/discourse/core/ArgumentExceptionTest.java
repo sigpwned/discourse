@@ -38,6 +38,9 @@ import java.util.List;
 import java.util.Objects;
 import org.junit.Test;
 
+/**
+ * Tests for all causes of {@link ArgumentException}.
+ */
 @SuppressWarnings("ALL")
 public class ArgumentExceptionTest {
 
@@ -61,7 +64,7 @@ public class ArgumentExceptionTest {
   }
 
   @Test(expected = NewInstanceFailureArgumentException.class)
-  public void constructorFailureExample() {
+  public void givenFailingConstructor_whenInvoke_thenFailWithNoInstanceFailureException() {
     DefaultInvocationStrategy.INSTANCE.invoke(
         new CommandBuilder().build(ConstructorFailureExample.class), new DefaultInvocationContext(),
         List.of("hello")).getConfiguration();
@@ -86,7 +89,7 @@ public class ArgumentExceptionTest {
   }
 
   @Test(expected = AssignmentFailureArgumentException.class)
-  public void positionalAssignmentFailureExample() {
+  public void givenFailingSetterForPositionalArgument_whenInvoke_thenFailWithAssignmentFailureException() {
     DefaultInvocationStrategy.INSTANCE.invoke(
         new CommandBuilder().build(PositionalAssignmentFailureExample.class),
         new DefaultInvocationContext(), List.of("hello")).getConfiguration();
@@ -111,7 +114,7 @@ public class ArgumentExceptionTest {
   }
 
   @Test(expected = AssignmentFailureArgumentException.class)
-  public void optionAssignmentFailureExample() {
+  public void givenFailingSetterForOptionArgument_whenInvoke_thenFailWithAssignmentFailureException() {
     DefaultInvocationStrategy.INSTANCE.invoke(
         new CommandBuilder().build(OptionAssignmentFailureExample.class),
         new DefaultInvocationContext(), List.of("-x", "hello")).getConfiguration();
@@ -136,7 +139,7 @@ public class ArgumentExceptionTest {
   }
 
   @Test(expected = AssignmentFailureArgumentException.class)
-  public void flagAssignmentFailureExample() {
+  public void givenFailingSetterForFlagArgument_whenInvoke_thenFailWithAssignmentFailureException() {
     DefaultInvocationStrategy.INSTANCE.invoke(
         new CommandBuilder().build(FlagAssignmentFailureExample.class),
         new DefaultInvocationContext(), List.of("-x")).getConfiguration();
@@ -153,7 +156,7 @@ public class ArgumentExceptionTest {
   }
 
   @Test(expected = UnassignedRequiredParametersArgumentException.class)
-  public void missingRequiredExample() {
+  public void givenArgsWithoutRequiredArgument_whenInvoke_thenFailWithUnassignedRequiredParametersException() {
     new SingleCommandInvocationStrategy().invoke(
         new CommandBuilder().build(MissingRequiredExample.class), new DefaultInvocationContext(),
         List.of()).getConfiguration();
@@ -251,29 +254,20 @@ public class ArgumentExceptionTest {
     }
   }
 
-  /**
-   * Empty arguments contain no subcommand
-   */
   @Test(expected = NoSubcommandArgumentException.class)
-  public void multiExampleNoSubcommands() {
+  public void givenMultiCommandAndArgsWithoutDiscriminators_whenInvoke_thenFailWithNoSubcommandException() {
     new SubcommandDereferencingInvocationStrategy(new SingleCommandInvocationStrategy()).invoke(
         new CommandBuilder().build(MultiExample.class), new DefaultInvocationContext(), List.of());
   }
 
-  /**
-   * The subcommand charlie does not exist
-   */
   @Test(expected = UnrecognizedSubcommandArgumentException.class)
-  public void multiExampleUnknownSubcommand() {
+  public void givenMultiCommandAndArgsWithUnrecognizedDiscriminator_whenInvoke_thenFailWithUnrecognizedSubcommandException() {
     DefaultInvocationStrategy.INSTANCE.invoke(new CommandBuilder().build(MultiExample.class),
         new DefaultInvocationContext(), List.of("charlie"));
   }
 
-  /**
-   * The subcommand - is not valid
-   */
   @Test(expected = InvalidDiscriminatorArgumentException.class)
-  public void multiExampleInvalidSubcommand() {
+  public void givenMultiCommandAndArgsWithInvalidDiscriminator_whenInvoke_thenFailWithInvalidDiscriminatorException() {
     DefaultInvocationStrategy.INSTANCE.invoke(new CommandBuilder().build(MultiExample.class),
         new DefaultInvocationContext(), List.of("-"));
   }

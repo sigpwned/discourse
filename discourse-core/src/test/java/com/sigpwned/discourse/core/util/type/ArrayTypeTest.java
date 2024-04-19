@@ -26,6 +26,9 @@ import java.util.List;
 import org.junit.Test;
 import com.google.common.reflect.TypeToken;
 
+/**
+ * Test {@link ArrayType}
+ */
 public class ArrayTypeTest {
   @Test
   public void primitiveArrayTest() {

@@ -44,7 +44,7 @@ public class HelpPrintingInvocationStrategyTest {
   }
 
   @Test
-  public void doPrintTest() {
+  public void givenHelpArgs_whenInvoke_thenDoPrint() {
     Command<Example> command = new CommandBuilder().build(Example.class);
 
     ByteArrayOutputStream err = new ByteArrayOutputStream();
@@ -69,7 +69,7 @@ public class HelpPrintingInvocationStrategyTest {
   }
 
   @Test
-  public void dontPrintTest() {
+  public void givenNonHelpArgs_whenInvoke_thenDontPrint() {
     Command<Example> command = new CommandBuilder().build(Example.class);
 
     ByteArrayOutputStream err = new ByteArrayOutputStream();

@@ -44,7 +44,7 @@ public class VersionPrintingInvocationStrategyTest {
   }
 
   @Test
-  public void doPrintTest() {
+  public void givenVersionArgs_whenInvoke_thenDoPrint() {
     Command<Example> command = new CommandBuilder().build(Example.class);
 
     ByteArrayOutputStream err = new ByteArrayOutputStream();
@@ -69,7 +69,7 @@ public class VersionPrintingInvocationStrategyTest {
   }
 
   @Test
-  public void dontPrintTest() {
+  public void givenNonVersionArgs_whenInvoke_thenDontPrint() {
     Command<Example> command = new CommandBuilder().build(Example.class);
 
     ByteArrayOutputStream err = new ByteArrayOutputStream();

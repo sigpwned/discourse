@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Objects;
 import org.junit.Test;
 
-public class ConfigurationsTest {
+public class DiscourseTest {
 
   @Configurable
   public static class Example extends StandardConfigurationBase {
@@ -71,7 +71,7 @@ public class ConfigurationsTest {
   }
 
   @Test
-  public void test() {
+  public void smokeTest() {
     final String alpha = "alpha";
     final String bravo = "bravo";
 

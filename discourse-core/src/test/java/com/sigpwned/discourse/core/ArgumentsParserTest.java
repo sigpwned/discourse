@@ -45,6 +45,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Tests for {@link ArgumentsParser}.
+ */
 public class ArgumentsParserTest {
 
   @Configurable
@@ -84,7 +87,7 @@ public class ArgumentsParserTest {
    * short flag, long disconnected option, positional
    */
   @Test
-  public void test1() {
+  public void givenShortFlagThenLongDisconnectedOptionThenPositional_whenParse_thenSucceed() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
         serializationContext, Example.class);
 
@@ -121,7 +124,7 @@ public class ArgumentsParserTest {
    * long flag, long connected option, positional
    */
   @Test
-  public void test2() {
+  public void givenLongFlagThenLongConnectedOptionThenPositional_whenParse_thenSucceed() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
         serializationContext, Example.class);
 
@@ -157,7 +160,7 @@ public class ArgumentsParserTest {
    * long flag, short option, positional
    */
   @Test
-  public void test3() {
+  public void givenLongFlagThenShortOptionThenPositional_whenParse_thenSucceed() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
         serializationContext, Example.class);
 
@@ -193,7 +196,7 @@ public class ArgumentsParserTest {
    * unrecognized option
    */
   @Test(expected = UnrecognizedShortNameSyntaxException.class)
-  public void test4() {
+  public void givenUnrecognizedShortOption_whenParse_thenFailWithUnrecognizedShortNameException() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
         serializationContext, Example.class);
 
@@ -205,7 +208,7 @@ public class ArgumentsParserTest {
    * short flag, long connected option, positional
    */
   @Test
-  public void test5() {
+  public void givenShortFlagThenLongConnectedOptionThenPositional_whenParse_thenSucceed() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
         serializationContext, Example.class);
 
@@ -242,7 +245,7 @@ public class ArgumentsParserTest {
    * two bundled short flags, option, positional
    */
   @Test
-  public void test6() {
+  public void givenBundleThenOptionValueThenPositional_whenParse_thenSucceed() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
         serializationContext, Example.class);
 
@@ -279,7 +282,7 @@ public class ArgumentsParserTest {
    * unexpected eof looking for option value after short name
    */
   @Test(expected = MissingShortNameValueSyntaxException.class)
-  public void test7() {
+  public void givenShortSwitchThenEof_whenParse_thenFailWithMissingShortNameValueException() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
         serializationContext, Example.class);
 
@@ -316,7 +319,7 @@ public class ArgumentsParserTest {
    * unexpected eof looking for option value after long name
    */
   @Test(expected = MissingLongNameValueSyntaxException.class)
-  public void test8() {
+  public void givenLongSwitchThenEof_whenParse_thenFailWithMissingLongNameValueException() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
         serializationContext, Example.class);
 
@@ -353,7 +356,7 @@ public class ArgumentsParserTest {
    * missing value in short name bundle
    */
   @Test(expected = MissingShortNameValueSyntaxException.class)
-  public void test9() {
+  public void givenBundleNeedingValueThenEof_whenParse_thenFailWithMissingShortNameValueException() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
         serializationContext, Example.class);
 
@@ -387,47 +390,10 @@ public class ArgumentsParserTest {
   }
 
   /**
-   * unexpected eof looking for option value after short name in bundle
-   */
-  @Test(expected = MissingShortNameValueSyntaxException.class)
-  public void test10() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
-        serializationContext, Example.class);
-
-    final String alpha = "alpha";
-    final String foo = "foo";
-
-    final AtomicBoolean flag = new AtomicBoolean(false);
-    final AtomicReference<String> option = new AtomicReference<>();
-    final AtomicReference<String> position0 = new AtomicReference<>();
-    new ArgumentsParser(cc::findParameter, new ArgumentsParser.Handler() {
-
-      @Override
-      public void flag(FlagConfigurationParameter property) {
-        flag.set(true);
-      }
-
-      @Override
-      public void option(OptionConfigurationParameter property, String value) {
-        option.set(value);
-      }
-
-      @Override
-      public void positional(PositionalConfigurationParameter property, String value) {
-        position0.set(value);
-      }
-    }).parse(List.of("-fo"));
-
-    assertThat(flag.get(), is(true));
-    assertThat(option.get(), is(alpha));
-    assertThat(position0.get(), is(foo));
-  }
-
-  /**
    * unknown long name
    */
   @Test(expected = UnrecognizedLongNameSyntaxException.class)
-  public void test11() {
+  public void givenArgsWithUnknownLongSwitch_whenParse_thenFailWithUnrecognizedLongNameException() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
         serializationContext, Example.class);
 
@@ -464,7 +430,7 @@ public class ArgumentsParserTest {
    * unknown short name
    */
   @Test(expected = UnrecognizedShortNameSyntaxException.class)
-  public void test12() {
+  public void givenArgsWithUnknownShortSwitch_whenParse_thenFailWithUnrecognizedShortNameException() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
         serializationContext, Example.class);
 
@@ -501,7 +467,7 @@ public class ArgumentsParserTest {
    * long name connected value for flag
    */
   @Test(expected = InvalidLongNameValueSyntaxException.class)
-  public void test13() {
+  public void givenConnectedValueOnFlagSwitch_whenParse_thenFailWithInvalidLongNameValueException() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
         serializationContext, Example.class);
 
@@ -538,12 +504,12 @@ public class ArgumentsParserTest {
    * short flag, long connected option, separator, positional
    */
   @Test
-  public void test14() {
+  public void givenShortFlagThenLongConnectedOptionThenSeparatorThenPositional_whenParse_thenSucceed() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(sinkContext,
         serializationContext, Example.class);
 
     final String alpha = "alpha";
-    final String foo = "foo";
+    final String foo = "-foo";
 
     final AtomicBoolean flag = new AtomicBoolean(false);
     final AtomicReference<String> option = new AtomicReference<>();

@@ -36,7 +36,10 @@ import java.util.Set;
 import java.util.SortedSet;
 import org.junit.Test;
 
-public class SinkTest {
+/**
+ * Test every stock sink
+ */
+public class ValueSinksTest {
 
   @Configurable
   public static class SinkExample {
@@ -96,7 +99,7 @@ public class SinkTest {
   }
 
   @Test
-  public void sinkTest() {
+  public void givenConfigurationClassWithParametersOfAllStockSinks_whenInvoke_thenSucceed() {
     SinkExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
         new CommandBuilder().build(SinkExample.class),
         new DefaultInvocationContext(),

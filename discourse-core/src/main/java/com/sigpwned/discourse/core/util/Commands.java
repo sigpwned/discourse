@@ -36,17 +36,18 @@ public final class Commands {
   }
 
   /**
-   * Returns a stream of all parameters in the given command. The stream is not deduplicated. If one
-   * parameter appears in multiple subcommands, it will appear multiple times in the stream.
+   * Returns a stream of all parameters in the given command and all subcommands, if any exist. The
+   * stream is not deduplicated. If one parameter appears in multiple subcommands, it will appear
+   * multiple times in the stream.
    *
    * @param command the command
    * @return a stream of all parameters in the given command
    */
-  public static Stream<ConfigurationParameter> parameters(Command<?> command) {
+  public static Stream<ConfigurationParameter> deepParameters(Command<?> command) {
     if (command instanceof SingleCommand<?> single) {
       return single.getParameters().stream();
     } else if (command instanceof MultiCommand<?> multi) {
-      return multi.getSubcommands().values().stream().flatMap(Commands::parameters);
+      return multi.getSubcommands().values().stream().flatMap(Commands::deepParameters);
     }
     throw new AssertionError("unrecognized command type: " + command.getClass().getName());
   }
@@ -59,7 +60,7 @@ public final class Commands {
    * @param multi the multi-command
    */
   public static Set<ConfigurationParameter> commonParameters(MultiCommand<?> multi) {
-    return parameters(multi).collect(
+    return deepParameters(multi).collect(
             Collectors.groupingBy(Function.identity(), Collectors.counting())).entrySet().stream()
         .filter(e -> e.getValue() == multi.getSubcommands().size()).map(Map.Entry::getKey)
         .collect(Collectors.toUnmodifiableSet());

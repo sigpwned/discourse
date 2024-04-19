@@ -39,6 +39,9 @@ import java.util.Objects;
 import java.util.Set;
 import org.junit.Test;
 
+/**
+ * Test {@link MultiCommand} specific features
+ */
 public class MultiCommandTest {
 
   @Configurable(subcommands = {
@@ -130,11 +133,8 @@ public class MultiCommandTest {
     }
   }
 
-  /**
-   * There is one common parameter
-   */
   @Test
-  public void multiExampleCommonParameters() {
+  public void givenMultiCommandWithOneCommonParameter_whenComputeCommonParameters_thenFindOneCommonParameter() {
     MultiCommand<MultiExample> command = (MultiCommand<MultiExample>) new CommandBuilder().build(
         MultiExample.class);
     Set<String> commonParameters = Commands.commonParameters(command).stream()
@@ -143,13 +143,11 @@ public class MultiCommandTest {
     assertThat(commonParameters, is(singleton("option")));
   }
 
-  /**
-   * There are three total parameters
-   */
   @Test
-  public void multiExampleAllParameters() {
-    Set<String> allParameters = Commands.parameters(new CommandBuilder().build(MultiExample.class))
-        .map(ConfigurationParameter::getName).collect(toSet());
+  public void givenMultiCommandWithThreeDeepParameters_whenComputeDeepParameters_thenFindThreeDeepParameters() {
+    Set<String> allParameters = Commands.deepParameters(
+            new CommandBuilder().build(MultiExample.class)).map(ConfigurationParameter::getName)
+        .collect(toSet());
 
     Set<String> names = new HashSet<>();
     names.add("option");
@@ -159,11 +157,8 @@ public class MultiCommandTest {
     assertThat(allParameters, is(names));
   }
 
-  /**
-   * There are three total parameters
-   */
   @Test
-  public void multiExampleSubcommands() {
+  public void givenMultiCommandWithTwoSubcommands_whenRetrieveSubcommands_thenFindTwoSubcommands() {
     MultiCommand<MultiExample> command = (MultiCommand<MultiExample>) new CommandBuilder().build(
         MultiExample.class);
 
@@ -176,11 +171,8 @@ public class MultiCommandTest {
     assertThat(subcommands, is(discriminators));
   }
 
-  /**
-   * We should handle subcommands
-   */
   @Test
-  public void multiExampleAlpha() {
+  public void givenMultiCommandWithValidArgsForAlphaSubcommand_whenInvoke_thenSucceed() {
     final String hello = "hello";
     final String world = "world";
 
@@ -199,7 +191,7 @@ public class MultiCommandTest {
    * We should handle subcommands
    */
   @Test
-  public void multiExampleBravo() {
+  public void givenMultiCommandWithValidArgsForBravoSubcommand_whenInvoke_thenSucceed() {
     final String hello = "hello";
     final String world = "world";
 
