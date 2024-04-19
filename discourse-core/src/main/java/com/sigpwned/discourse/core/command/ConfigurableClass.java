@@ -17,11 +17,12 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core;
+package com.sigpwned.discourse.core.command;
 
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.exception.configuration.DuplicateDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.InvalidDiscriminatorConfigurationException;
@@ -45,7 +46,7 @@ import java.util.stream.Stream;
  *
  * @param <T>
  */
-public class ConfigurableClass<T> {
+class ConfigurableClass<T> {
 
   /**
    * Represents a pointer to asubcommand class. This class is used to store the class of a

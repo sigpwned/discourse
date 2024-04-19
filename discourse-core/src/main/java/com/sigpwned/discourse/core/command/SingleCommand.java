@@ -23,7 +23,6 @@ import static java.lang.String.*;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
 
-import com.sigpwned.discourse.core.ConfigurableClass;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.ValueDeserializer;
 import com.sigpwned.discourse.core.ValueDeserializerResolver;
@@ -103,7 +102,7 @@ public final class SingleCommand<T> extends Command<T> {
 
   private final Set<ConfigurationParameter> parameters;
 
-  public static <T> SingleCommand<T> scan(InvocationContext context,
+  static <T> SingleCommand<T> scan(InvocationContext context,
       ConfigurableClass<T> configurableClass) {
     if (!configurableClass.getSubcommands().isEmpty()) {
       throw new UnexpectedSubcommandsConfigurationException(configurableClass.getRawType());

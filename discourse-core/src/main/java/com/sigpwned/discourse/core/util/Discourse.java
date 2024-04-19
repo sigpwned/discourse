@@ -30,7 +30,8 @@ import com.sigpwned.discourse.core.SyntaxException;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
-import com.sigpwned.discourse.core.invocation.strategy.SingleCommandInvocationStrategy;
+import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
+import com.sigpwned.discourse.core.module.DefaultModule;
 import java.io.PrintStream;
 import java.util.List;
 
@@ -43,14 +44,14 @@ public final class Discourse {
    * Creates a default invocation strategy.
    */
   public static InvocationStrategy defaultInvocationStrategy() {
-    return new SingleCommandInvocationStrategy();
+    return new DefaultInvocationStrategy();
   }
 
   /**
    * Creates a default invocation context.
    */
   public static InvocationContext defaultInvocationContext() {
-    return new DefaultInvocationContext();
+    return DefaultInvocationContext.builder().register(new DefaultModule()).build();
   }
 
   /**

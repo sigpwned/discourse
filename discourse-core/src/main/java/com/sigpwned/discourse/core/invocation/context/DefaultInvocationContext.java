@@ -104,7 +104,13 @@ public class DefaultInvocationContext implements InvocationContext {
     if (module == null) {
       throw new NullPointerException();
     }
+
     module.register(this);
+
+    module.registerValueDeserializerFactories(
+        get(InvocationContext.VALUE_DESERIALIZER_RESOLVER_KEY).orElseThrow());
+
+    module.registerValueSinkFactories(get(InvocationContext.VALUE_SINK_RESOLVER_KEY).orElseThrow());
   }
 
   private Map<Key<?>, Object> getValues() {

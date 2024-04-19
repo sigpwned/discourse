@@ -19,7 +19,6 @@
  */
 package com.sigpwned.discourse.core.command;
 
-import com.sigpwned.discourse.core.ConfigurableClass;
 import com.sigpwned.discourse.core.ConfigurationException;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.annotation.Configurable;
@@ -92,7 +91,7 @@ public abstract sealed class Command<T> permits SingleCommand, MultiCommand {
    * @return The command.
    * @throws ConfigurationException If there is  configuration error on the command
    */
-  protected static <T> Command<T> subscan(InvocationContext context,
+  static <T> Command<T> subscan(InvocationContext context,
       ConfigurableClass<T> configurableClass) {
     if (configurableClass.getSubcommands().isEmpty()) {
       // This is a single command.

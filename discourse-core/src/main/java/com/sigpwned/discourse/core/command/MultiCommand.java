@@ -23,10 +23,9 @@ import static java.lang.String.*;
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.ConfigurableClass;
-import com.sigpwned.discourse.core.ConfigurableClass.SubcommandClass;
 import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.InvocationContext;
+import com.sigpwned.discourse.core.command.ConfigurableClass.SubcommandClass;
 import com.sigpwned.discourse.core.exception.configuration.DiscriminatorMismatchConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.MultiCommandNotAbstractConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NoDiscriminatorConfigurationException;
@@ -138,7 +137,7 @@ import java.util.Objects;
  */
 public final class MultiCommand<T> extends Command<T> {
 
-  public static <T> MultiCommand<T> scan(InvocationContext context,
+  static <T> MultiCommand<T> scan(InvocationContext context,
       ConfigurableClass<T> configurableClass) {
     if (configurableClass.getSubcommands().isEmpty()) {
       // TODO This should be a configuration exception
