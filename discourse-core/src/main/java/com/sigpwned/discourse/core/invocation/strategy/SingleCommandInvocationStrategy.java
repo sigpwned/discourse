@@ -32,6 +32,8 @@ import com.sigpwned.discourse.core.exception.argument.AssignmentFailureArgumentE
 import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgumentException;
 import com.sigpwned.discourse.core.exception.argument.UnassignedRequiredParametersArgumentException;
 import com.sigpwned.discourse.core.invocation.DefaultInvocation;
+import com.sigpwned.discourse.core.optional.OptionalEnvironmentVariable;
+import com.sigpwned.discourse.core.optional.OptionalSystemProperty;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
@@ -43,7 +45,6 @@ import com.sigpwned.espresso.BeanInstance;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -55,21 +56,21 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
   @FunctionalInterface
   /* default */ static interface EnvironmentVariables {
 
-    public Optional<String> get(String name);
+    public OptionalEnvironmentVariable<String> get(String name);
   }
 
   @FunctionalInterface
   /* default */ static interface SystemProperties {
 
-    public Optional<String> get(String name);
+    public OptionalSystemProperty<String> get(String name);
   }
 
   private EnvironmentVariables variables;
   private SystemProperties properties;
 
   public SingleCommandInvocationStrategy() {
-    this.variables = name -> Optional.ofNullable(System.getenv(name));
-    this.properties = name -> Optional.ofNullable(System.getProperty(name));
+    this.variables = OptionalEnvironmentVariable::getenv;
+    this.properties = OptionalSystemProperty::getProperty;
   }
 
   @Override
@@ -128,7 +129,7 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
         .mapMulti(Streams.filterAndCast(EnvironmentConfigurationParameter.class))
         .forEach(property -> {
           String variableName = property.getVariableName().toString();
-          getVariables().get(variableName).ifPresent(text -> {
+          getVariables().get(variableName).ifPresent((name, text) -> {
             try {
               property.set(instance.getInstance(), text);
             } catch (InvocationTargetException e) {
@@ -142,7 +143,7 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
     single.getParameters().stream()
         .mapMulti(Streams.filterAndCast(PropertyConfigurationParameter.class)).forEach(property -> {
           String propertyName = property.getPropertyName().toString();
-          getProperties().get(propertyName).ifPresent(text -> {
+          getProperties().get(propertyName).ifPresent((name, text) -> {
             try {
               property.set(instance.getInstance(), text);
             } catch (InvocationTargetException e) {

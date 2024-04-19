@@ -25,8 +25,9 @@ import com.sigpwned.discourse.core.annotation.PropertyParameter;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.exception.argument.AssignmentFailureArgumentException;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
+import com.sigpwned.discourse.core.optional.OptionalEnvironmentVariable;
+import com.sigpwned.discourse.core.optional.OptionalSystemProperty;
 import java.util.List;
-import java.util.Optional;
 import org.junit.Test;
 
 public class SingleCommandInvocationStrategyTest {
@@ -54,8 +55,8 @@ public class SingleCommandInvocationStrategyTest {
     final String hello = "hello";
 
     SingleCommandInvocationStrategy invoker = new SingleCommandInvocationStrategy();
-    invoker.setVariables(
-        name -> Optional.ofNullable(name.equals("HELLO") ? hello : System.getenv(name)));
+    invoker.setVariables(name -> name.equals("HELLO") ? OptionalEnvironmentVariable.of(name, hello)
+        : OptionalEnvironmentVariable.getenv(name));
 
     invoker.invoke(Command.scan(EnvironmentAssignmentFailureExample.class),
         new DefaultInvocationContext(), List.of()).getConfiguration();
@@ -84,8 +85,8 @@ public class SingleCommandInvocationStrategyTest {
     final String hello = "hello";
 
     SingleCommandInvocationStrategy invoker = new SingleCommandInvocationStrategy();
-    invoker.setProperties(
-        name -> Optional.ofNullable(name.equals("hello") ? hello : System.getProperty(name)));
+    invoker.setProperties(name -> name.equals("hello") ? OptionalSystemProperty.of("hello", hello)
+        : OptionalSystemProperty.getProperty(name));
 
     invoker.invoke(Command.scan(PropertyAssignmentFailureExample.class),
         new DefaultInvocationContext(), List.of()).getConfiguration();
