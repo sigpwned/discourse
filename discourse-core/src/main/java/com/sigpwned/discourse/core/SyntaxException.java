@@ -28,7 +28,7 @@ import com.sigpwned.discourse.core.command.Command;
  * <p>
  * Indicates a problem with the arguments given by the user, e.g. an {@link OptionParameter} was not
  * given a value on the command line. Broadly speaking, this exception indicates that the command
- * line cannot be understood. This indicates an error by the user.
+ * line arguments cannot be mapped onto the command object. This is the user's fault.
  * </p>
  *
  * <p>

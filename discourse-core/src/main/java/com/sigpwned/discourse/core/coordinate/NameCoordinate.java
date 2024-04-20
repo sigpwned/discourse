@@ -65,11 +65,6 @@ public abstract sealed class NameCoordinate extends Coordinate implements
     return Objects.equals(text, other.text);
   }
 
-  @Override
-  public String toString() {
-    return getText();
-  }
-
   public static final Comparator<NameCoordinate> COMPARATOR = Comparator.comparing(
       NameCoordinate::getText);
 

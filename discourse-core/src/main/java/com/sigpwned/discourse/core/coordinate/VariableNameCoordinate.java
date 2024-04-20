@@ -21,8 +21,8 @@ package com.sigpwned.discourse.core.coordinate;
 
 /**
  * A coordinate that represents an environment variable name.
- * 
- * @see System#getenv(String) 
+ *
+ * @see System#getenv(String)
  */
 public final class VariableNameCoordinate extends NameCoordinate {
 
@@ -35,5 +35,10 @@ public final class VariableNameCoordinate extends NameCoordinate {
     if (text.isEmpty()) {
       throw new IllegalArgumentException("variable names must not be blank");
     }
+  }
+
+  @Override
+  public String toString() {
+    return "environment variable " + getText();
   }
 }

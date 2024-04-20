@@ -90,6 +90,7 @@ public final class Discourse {
       // helpful error message.
       PrintStream err = context.get(InvocationContext.ERROR_STREAM_KEY).orElse(System.err);
       if (args.isEmpty()) {
+        // If there are no arguments, the user probably just wants help.
         HelpFormatter formatter = context.get(InvocationContext.HELP_FORMATTER_KEY)
             .orElse(DefaultHelpFormatter.INSTANCE);
         err.println(formatter.formatHelp(e.getCommand()));

@@ -36,8 +36,7 @@ public class FlagValuePresentSyntaxException extends SyntaxException {
 
   public FlagValuePresentSyntaxException(SingleCommand<?> command, String parameterName,
       SwitchNameCoordinate coordinate) {
-    super(command, "Flag parameter '%s' reference %s does not take a value".formatted(parameterName,
-        coordinate));
+    super(command, "Flag %s does not take a value".formatted(coordinate.toSwitchString()));
     this.parameterName = requireNonNull(parameterName);
     this.coordinate = requireNonNull(coordinate);
   }

@@ -25,8 +25,7 @@ import com.sigpwned.discourse.core.command.Command;
 /**
  * <p>
  * Indicates a problem with the configuration setup, such as an {@link OptionParameter} that has
- * neither a short nor long name. All instances of this exception are the result of an error by the
- * programmer, not the user.
+ * neither a short nor long name. This is the developer's fault.
  * </p>
  *
  * <p>

@@ -78,7 +78,7 @@ public final class PositionCoordinate extends Coordinate implements Comparable<P
 
   @Override
   public String toString() {
-    return "Position [index=" + index + "]";
+    return "position " + index;
   }
 
   public static final Comparator<PositionCoordinate> COMPARATOR = Comparator.comparingInt(

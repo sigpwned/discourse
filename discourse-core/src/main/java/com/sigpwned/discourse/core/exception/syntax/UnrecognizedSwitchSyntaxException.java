@@ -37,7 +37,7 @@ public class UnrecognizedSwitchSyntaxException extends SyntaxException {
 
   public UnrecognizedSwitchSyntaxException(SingleCommand<?> command,
       SwitchNameCoordinate coordinate) {
-    super(command, format("Unrecognized switch %s", coordinate));
+    super(command, format("Unrecognized switch %s", coordinate.toSwitchString()));
     this.coordinate = requireNonNull(coordinate);
   }
 

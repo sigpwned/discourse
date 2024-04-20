@@ -40,7 +40,7 @@ public class UnrecognizedDiscriminatorSyntaxException extends SyntaxException {
    */
   public UnrecognizedDiscriminatorSyntaxException(MultiCommand<?> command,
       Discriminator discriminator) {
-    super(command, "There is no subcommand for discriminator '%s'".formatted(discriminator));
+    super(command, "There is no subcommand for discriminator %s".formatted(discriminator));
     this.discriminator = requireNonNull(discriminator);
   }
 

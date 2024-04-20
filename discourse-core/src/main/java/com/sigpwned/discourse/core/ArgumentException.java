@@ -25,7 +25,7 @@ import com.sigpwned.discourse.core.command.SingleCommand;
 
 /**
  * An exception that is thrown when an argument is invalid. That is, the command line was parsed and
- * understood, but the specific value of the argument was not valid.
+ * understood, but the specific value of the argument was not valid. This is the user's fault.
  */
 public abstract class ArgumentException extends RuntimeException {
 

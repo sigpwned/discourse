@@ -42,4 +42,8 @@ public abstract sealed class SwitchNameCoordinate extends NameCoordinate permits
   }
 
   public abstract String toSwitchString();
+
+  public String toString() {
+    return "switch " + toSwitchString();
+  }
 }

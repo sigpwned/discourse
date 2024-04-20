@@ -35,8 +35,7 @@ public class OptionValueMissingSyntaxException extends SyntaxException {
 
   public OptionValueMissingSyntaxException(SingleCommand<?> command, String parameterName,
       SwitchNameCoordinate coordinate) {
-    super(command,
-        "Option parameter '%s' reference %s requires value".formatted(parameterName, coordinate));
+    super(command, "Option %s requires value".formatted(coordinate.toSwitchString()));
     this.parameterName = requireNonNull(parameterName);
     this.coordinate = requireNonNull(coordinate);
   }
