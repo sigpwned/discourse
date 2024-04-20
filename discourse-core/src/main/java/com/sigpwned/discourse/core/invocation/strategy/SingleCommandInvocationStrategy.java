@@ -37,8 +37,9 @@ import com.sigpwned.discourse.core.coordinate.NameCoordinate;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import com.sigpwned.discourse.core.coordinate.PropertyNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.VariableNameCoordinate;
-import com.sigpwned.discourse.core.exception.argument.AssignmentFailureArgumentException;
-import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgumentException;
+import com.sigpwned.discourse.core.exception.argument.DeserializationFailureArgumentException;
+import com.sigpwned.discourse.core.exception.bean.AssignmentFailureBeanException;
+import com.sigpwned.discourse.core.exception.bean.NewInstanceFailureBeanException;
 import com.sigpwned.discourse.core.exception.syntax.RequiredParametersMissingSyntaxException;
 import com.sigpwned.discourse.core.invocation.DefaultInvocation;
 import com.sigpwned.discourse.core.optional.OptionalEnvironmentVariable;
@@ -151,14 +152,6 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
     return new DefaultInvocation<>(List.of(), single, args, instance);
   }
 
-  /*
-        try {
-          property.set(instance.getInstance(), "true");
-        } catch (InvocationTargetException e) {
-          throw new AssignmentFailureArgumentException(property.getName(), e);
-        }
-   */
-
   /**
    * <p>
    * Parse the given arguments into a list of
@@ -253,7 +246,8 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
     try {
       value = parsed.parameter().getDeserializer().deserialize(parsed.text());
     } catch (Exception e) {
-      throw new IllegalArgumentException("Failed to deserialize argument", e);
+      throw new DeserializationFailureArgumentException(command, parsed.parameter().getName(),
+          parsed.coordinate(), e);
     }
 
     return new DeserializedArgument(parsed.coordinate(), parsed.parameter(), parsed.text(), value);
@@ -285,7 +279,7 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
     try {
       result = command.getBeanClass().newInstance();
     } catch (InvocationTargetException e) {
-      throw new NewInstanceFailureArgumentException(command, e);
+      throw new NewInstanceFailureBeanException(command, e);
     }
 
     for (DeserializedArgument arg : args) {
@@ -293,7 +287,7 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
       try {
         parameter.getSink().write(result.getInstance(), arg.value());
       } catch (InvocationTargetException e) {
-        throw new AssignmentFailureArgumentException(command, parameter.getName(), e);
+        throw new AssignmentFailureBeanException(command, parameter.getName(), e);
       }
     }
 

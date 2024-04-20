@@ -17,31 +17,18 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.exception.argument;
+package com.sigpwned.discourse.core.exception.bean;
 
-import com.sigpwned.discourse.core.ArgumentException;
-import com.sigpwned.discourse.core.ValueSink;
+import com.sigpwned.discourse.core.BeanException;
 import com.sigpwned.discourse.core.command.SingleCommand;
-import java.lang.reflect.InvocationTargetException;
 
 /**
- * Thrown when an assignment to a property fails. This is usually thrown in response to an
- * {@link InvocationTargetException} that occurs when a setter method is called.
- *
- * @see ValueSink#write(Object, Object)
+ * Thrown when a new instance of a configuration class cannot be created. This is typically thrown
+ * in response to an InvocationTargetException that occurs when a constructor is called.
  */
-public class AssignmentFailureArgumentException extends ArgumentException {
-  // TODO This is probably more of a runtime-type exception than an argument exception
+public class NewInstanceFailureBeanException extends BeanException {
 
-  private final String propertyName;
-
-  public AssignmentFailureArgumentException(SingleCommand<?> command, String propertyName,
-      Exception cause) {
-    super(command, "Failed to assign to property %s".formatted(propertyName), cause);
-    this.propertyName = propertyName;
-  }
-
-  public String getPropertyName() {
-    return propertyName;
+  public NewInstanceFailureBeanException(SingleCommand<?> command, Exception cause) {
+    super(command, "Failed to create new configuration instance", cause);
   }
 }

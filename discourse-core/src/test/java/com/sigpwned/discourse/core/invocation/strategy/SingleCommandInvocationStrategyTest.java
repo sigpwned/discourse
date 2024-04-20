@@ -23,7 +23,7 @@ import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.PropertyParameter;
 import com.sigpwned.discourse.core.command.Command;
-import com.sigpwned.discourse.core.exception.argument.AssignmentFailureArgumentException;
+import com.sigpwned.discourse.core.exception.bean.AssignmentFailureBeanException;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.optional.OptionalEnvironmentVariable;
 import com.sigpwned.discourse.core.optional.OptionalSystemProperty;
@@ -50,7 +50,7 @@ public class SingleCommandInvocationStrategyTest {
     }
   }
 
-  @Test(expected = AssignmentFailureArgumentException.class)
+  @Test(expected = AssignmentFailureBeanException.class)
   public void givenClassWithSimulatedVariableAssignmentFailure_whenInvoke_thenFailWithAssignmentFailureException() {
     final String hello = "hello";
 
@@ -80,7 +80,7 @@ public class SingleCommandInvocationStrategyTest {
     }
   }
 
-  @Test(expected = AssignmentFailureArgumentException.class)
+  @Test(expected = AssignmentFailureBeanException.class)
   public void givenClassWithSimulatedPropertyAssignmentFailure_whenInvoke_thenFailWithAssignmentFailureException() {
     final String hello = "hello";
 

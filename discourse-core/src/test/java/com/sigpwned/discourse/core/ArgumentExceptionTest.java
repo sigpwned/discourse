@@ -25,8 +25,8 @@ import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.Subcommand;
 import com.sigpwned.discourse.core.command.Command;
-import com.sigpwned.discourse.core.exception.argument.AssignmentFailureArgumentException;
-import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgumentException;
+import com.sigpwned.discourse.core.exception.bean.AssignmentFailureBeanException;
+import com.sigpwned.discourse.core.exception.bean.NewInstanceFailureBeanException;
 import com.sigpwned.discourse.core.exception.syntax.InsufficientDiscriminatorsSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.InvalidDiscriminatorSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.RequiredParametersMissingSyntaxException;
@@ -64,7 +64,7 @@ public class ArgumentExceptionTest {
     public String example;
   }
 
-  @Test(expected = NewInstanceFailureArgumentException.class)
+  @Test(expected = NewInstanceFailureBeanException.class)
   public void givenFailingConstructor_whenInvoke_thenFailWithNoInstanceFailureException() {
     DefaultInvocationStrategy.INSTANCE.invoke(Command.scan(ConstructorFailureExample.class),
         new DefaultInvocationContext(), List.of("hello")).getConfiguration();
@@ -88,7 +88,7 @@ public class ArgumentExceptionTest {
     }
   }
 
-  @Test(expected = AssignmentFailureArgumentException.class)
+  @Test(expected = AssignmentFailureBeanException.class)
   public void givenFailingSetterForPositionalArgument_whenInvoke_thenFailWithAssignmentFailureException() {
     DefaultInvocationStrategy.INSTANCE.invoke(
         Command.scan(PositionalAssignmentFailureExample.class), new DefaultInvocationContext(),
@@ -113,7 +113,7 @@ public class ArgumentExceptionTest {
     }
   }
 
-  @Test(expected = AssignmentFailureArgumentException.class)
+  @Test(expected = AssignmentFailureBeanException.class)
   public void givenFailingSetterForOptionArgument_whenInvoke_thenFailWithAssignmentFailureException() {
     DefaultInvocationStrategy.INSTANCE.invoke(Command.scan(OptionAssignmentFailureExample.class),
         new DefaultInvocationContext(), List.of("-x", "hello")).getConfiguration();
@@ -137,7 +137,7 @@ public class ArgumentExceptionTest {
     }
   }
 
-  @Test(expected = AssignmentFailureArgumentException.class)
+  @Test(expected = AssignmentFailureBeanException.class)
   public void givenFailingSetterForFlagArgument_whenInvoke_thenFailWithAssignmentFailureException() {
     DefaultInvocationStrategy.INSTANCE.invoke(Command.scan(FlagAssignmentFailureExample.class),
         new DefaultInvocationContext(), List.of("-x")).getConfiguration();

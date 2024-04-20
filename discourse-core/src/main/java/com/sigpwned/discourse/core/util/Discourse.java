@@ -22,6 +22,7 @@ package com.sigpwned.discourse.core.util;
 import static java.util.Arrays.asList;
 
 import com.sigpwned.discourse.core.ArgumentException;
+import com.sigpwned.discourse.core.BeanException;
 import com.sigpwned.discourse.core.ConfigurationException;
 import com.sigpwned.discourse.core.ExitError;
 import com.sigpwned.discourse.core.HelpFormatter;
@@ -82,7 +83,7 @@ public final class Discourse {
       err.println("ARGUMENTS: " + args);
       err.println("STACK TRACE:");
       e.printStackTrace(err);
-      throw exit(1);
+      throw exit(10);
     } catch (SyntaxException e) {
       // In this case, the user has made a mistake in the command line syntax. The command line
       // cannot be understood, so we do our best to figure out what the problem is and print a
@@ -95,17 +96,29 @@ public final class Discourse {
       } else {
         err.println("ERROR: " + e.getMessage());
       }
-      throw exit(2);
+      throw exit(20);
     } catch (ArgumentException e) {
       // In this case, the user has made a mistake in the command line arguments. The command line
       // is understood, but the arguments are not valid. We print a helpful error message.
       PrintStream err = context.get(InvocationContext.ERROR_STREAM_KEY).orElse(System.err);
       err.println("ERROR: " + e.getMessage());
-      throw exit(3);
+      throw exit(30);
+    } catch (BeanException e) {
+      // In this case, there was a problem building the command object. This is probably a bug in
+      // the application. We print a helpful error message.
+      PrintStream err = context.get(InvocationContext.ERROR_STREAM_KEY).orElse(System.err);
+      err.println("There was a problem building the command object.");
+      err.println("You should reach out to the application developer for help.");
+      err.println("They may find the following information useful:");
+      err.println("ARGUMENTS: " + args);
+      err.println("STACK TRACE:");
+      e.printStackTrace(err);
+      throw exit(40);
     } catch (RuntimeException e) {
+      // Welp, you got me. This is probably a bug in the application? We print a helpful error message.
       PrintStream err = context.get(InvocationContext.ERROR_STREAM_KEY).orElse(System.err);
       err.println("ERROR: " + e.getMessage());
-      throw exit(4);
+      throw exit(100);
     }
 
     return result;
