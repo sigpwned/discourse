@@ -21,15 +21,15 @@ package com.sigpwned.discourse.core.util;
 
 import static java.util.Arrays.asList;
 
-import com.sigpwned.discourse.core.ArgumentException;
-import com.sigpwned.discourse.core.BeanException;
-import com.sigpwned.discourse.core.ConfigurationException;
+import com.sigpwned.discourse.core.exception.ArgumentException;
+import com.sigpwned.discourse.core.exception.BeanException;
+import com.sigpwned.discourse.core.exception.ConfigurationException;
 import com.sigpwned.discourse.core.ExitError;
 import com.sigpwned.discourse.core.HelpFormatter;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.InvocationStrategy;
-import com.sigpwned.discourse.core.SyntaxException;
+import com.sigpwned.discourse.core.exception.SyntaxException;
 import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;

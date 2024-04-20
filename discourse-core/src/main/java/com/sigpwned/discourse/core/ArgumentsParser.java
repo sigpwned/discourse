@@ -27,6 +27,7 @@ import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.NameCoordinate;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
+import com.sigpwned.discourse.core.exception.SyntaxException;
 import com.sigpwned.discourse.core.exception.configuration.MissingPositionConfigurationException;
 import com.sigpwned.discourse.core.exception.syntax.FlagValuePresentSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.OptionValueMissingSyntaxException;

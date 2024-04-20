@@ -20,6 +20,8 @@
 package com.sigpwned.discourse.core;
 
 import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.exception.ArgumentException;
+import com.sigpwned.discourse.core.exception.SyntaxException;
 import java.util.List;
 
 /**

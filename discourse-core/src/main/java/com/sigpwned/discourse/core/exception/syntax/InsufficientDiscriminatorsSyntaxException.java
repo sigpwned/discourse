@@ -19,7 +19,7 @@
  */
 package com.sigpwned.discourse.core.exception.syntax;
 
-import com.sigpwned.discourse.core.SyntaxException;
+import com.sigpwned.discourse.core.exception.SyntaxException;
 import com.sigpwned.discourse.core.command.MultiCommand;
 
 /**

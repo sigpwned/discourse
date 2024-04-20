@@ -47,15 +47,15 @@ public final class Args {
       try {
         ArgumentToken at = ArgumentToken.fromString(arg);
         if (at instanceof BundleArgumentToken bat) {
-          if (shortName != null && bat.getShortNames().contains(shortName.toString())) {
+          if (shortName != null && bat.getShortNames().contains(shortName.getText())) {
             return true;
           }
         } else if (at instanceof LongNameArgumentToken lnat) {
-          if (longName != null && lnat.getLongName().equals(longName.toString())) {
+          if (longName != null && lnat.getLongName().equals(longName.getText())) {
             return true;
           }
         } else if (at instanceof ShortNameArgumentToken snat) {
-          if (shortName != null && snat.getShortName().equals(shortName.toString())) {
+          if (shortName != null && snat.getShortName().equals(shortName.getText())) {
             return true;
           }
         } else if (at instanceof SeparatorArgumentToken sat) {

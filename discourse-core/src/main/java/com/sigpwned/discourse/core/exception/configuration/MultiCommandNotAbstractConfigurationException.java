@@ -20,7 +20,7 @@
 package com.sigpwned.discourse.core.exception.configuration;
 
 import static java.lang.String.format;
-import com.sigpwned.discourse.core.ConfigurationException;
+import com.sigpwned.discourse.core.exception.ConfigurationException;
 
 public class MultiCommandNotAbstractConfigurationException extends ConfigurationException {
   private final Class<?> commandType;

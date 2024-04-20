@@ -22,7 +22,7 @@ package com.sigpwned.discourse.core.invocation;
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.ConfigurationException;
+import com.sigpwned.discourse.core.exception.ConfigurationException;
 import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationContext;

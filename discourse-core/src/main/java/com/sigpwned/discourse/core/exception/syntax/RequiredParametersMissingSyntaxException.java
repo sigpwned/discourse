@@ -21,7 +21,7 @@ package com.sigpwned.discourse.core.exception.syntax;
 
 import static java.util.Collections.*;
 
-import com.sigpwned.discourse.core.SyntaxException;
+import com.sigpwned.discourse.core.exception.SyntaxException;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import java.util.Set;
 

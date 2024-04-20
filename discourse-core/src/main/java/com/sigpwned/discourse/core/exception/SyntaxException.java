@@ -17,10 +17,11 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core;
+package com.sigpwned.discourse.core.exception;
 
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.DiscourseException;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.command.Command;
 
@@ -45,7 +46,7 @@ import com.sigpwned.discourse.core.command.Command;
  * understood, but the specific values given were invalid.
  * </p>
  */
-public abstract class SyntaxException extends RuntimeException {
+public abstract class SyntaxException extends DiscourseException {
 
   private final Command<?> command;
 

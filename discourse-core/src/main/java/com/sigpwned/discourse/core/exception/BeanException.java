@@ -2,7 +2,7 @@
  * =================================LICENSE_START==================================
  * discourse-core
  * ====================================SECTION=====================================
- * Copyright (C) 2022 Andy Boothe
+ * Copyright (C) 2022 - 2024 Andy Boothe
  * ====================================SECTION=====================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,23 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core;
+package com.sigpwned.discourse.core.exception;
 
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.DiscourseException;
 import com.sigpwned.discourse.core.command.SingleCommand;
 
 /**
- * An exception that is thrown when an argument is invalid. That is, the command line was parsed and
- * understood, but the specific value of the argument was not valid. This is the user's fault.
+ * <p>
+ * Thrown when the bean for a command cannot be created. This is (probably) the developer's fault.
+ * </p>
  */
-public abstract class ArgumentException extends RuntimeException {
+public abstract class BeanException extends DiscourseException {
 
   private final SingleCommand<?> command;
 
-  protected ArgumentException(SingleCommand<?> command, String message) {
-    super(message);
-    this.command = requireNonNull(command);
-  }
-
-  protected ArgumentException(SingleCommand<?> command, String message, Throwable cause) {
+  protected BeanException(SingleCommand<?> command, String message, Throwable cause) {
     super(message, cause);
     this.command = requireNonNull(command);
   }

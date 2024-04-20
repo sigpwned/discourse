@@ -19,7 +19,7 @@
  */
 package com.sigpwned.discourse.core.command;
 
-import com.sigpwned.discourse.core.ConfigurationException;
+import com.sigpwned.discourse.core.exception.ConfigurationException;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;

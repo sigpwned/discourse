@@ -21,7 +21,7 @@ package com.sigpwned.discourse.core.exception.configuration;
 
 import static java.lang.String.*;
 
-import com.sigpwned.discourse.core.ConfigurationException;
+import com.sigpwned.discourse.core.exception.ConfigurationException;
 
 public class SealedSubcommandsConfigurationException extends ConfigurationException {
 

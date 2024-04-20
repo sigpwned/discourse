@@ -23,7 +23,7 @@ import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toSet;
 
-import com.sigpwned.discourse.core.ArgumentException;
+import com.sigpwned.discourse.core.exception.ArgumentException;
 import com.sigpwned.discourse.core.ArgumentsParser;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationContext;
@@ -195,7 +195,7 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
     command.getParameters().stream()
         .mapMulti(Streams.filterAndCast(EnvironmentConfigurationParameter.class))
         .forEach(property -> {
-          String variableName = property.getVariableName().toString();
+          String variableName = property.getVariableName().getText();
           getVariables().get(variableName).ifPresent((name, text) -> {
             result.add(new ParsedArgument(new VariableNameCoordinate(name), property, text));
           });
@@ -204,7 +204,7 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
     // Handle system property arguments
     command.getParameters().stream()
         .mapMulti(Streams.filterAndCast(PropertyConfigurationParameter.class)).forEach(property -> {
-          String propertyName = property.getPropertyName().toString();
+          String propertyName = property.getPropertyName().getText();
           getProperties().get(propertyName).ifPresent((name, text) -> {
             result.add(new ParsedArgument(new PropertyNameCoordinate(name), property, text));
           });

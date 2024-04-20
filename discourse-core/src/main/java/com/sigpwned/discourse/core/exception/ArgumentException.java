@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,23 +17,32 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.exception.configuration;
+package com.sigpwned.discourse.core.exception;
 
-import static java.lang.String.format;
-import com.sigpwned.discourse.core.exception.ConfigurationException;
+import static java.util.Objects.requireNonNull;
 
-public class TooManyAnnotationsConfigurationException extends ConfigurationException {
-  private final String parameterName;
+import com.sigpwned.discourse.core.DiscourseException;
+import com.sigpwned.discourse.core.command.SingleCommand;
 
-  public TooManyAnnotationsConfigurationException(String parameterName) {
-    super(format("Configuration parameter %s has too many configuration annotations", parameterName));
-    this.parameterName = parameterName;
+/**
+ * An exception that is thrown when an argument is invalid. That is, the command line was parsed and
+ * understood, but the specific value of the argument was not valid. This is the user's fault.
+ */
+public abstract class ArgumentException extends DiscourseException {
+
+  private final SingleCommand<?> command;
+
+  protected ArgumentException(SingleCommand<?> command, String message) {
+    super(message);
+    this.command = requireNonNull(command);
   }
 
-  /**
-   * @return the name
-   */
-  public String getParameterName() {
-    return parameterName;
+  protected ArgumentException(SingleCommand<?> command, String message, Throwable cause) {
+    super(message, cause);
+    this.command = requireNonNull(command);
+  }
+
+  public SingleCommand<?> getCommand() {
+    return command;
   }
 }

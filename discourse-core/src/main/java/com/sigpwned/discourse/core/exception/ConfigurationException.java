@@ -17,8 +17,10 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core;
+package com.sigpwned.discourse.core.exception;
 
+import com.sigpwned.discourse.core.DiscourseException;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.command.Command;
 
@@ -38,7 +40,7 @@ import com.sigpwned.discourse.core.command.Command;
  *
  * @see Command#scan(InvocationContext, Class)
  */
-public abstract class ConfigurationException extends RuntimeException {
+public abstract class ConfigurationException extends DiscourseException {
 
   protected ConfigurationException(String message) {
     super(message);

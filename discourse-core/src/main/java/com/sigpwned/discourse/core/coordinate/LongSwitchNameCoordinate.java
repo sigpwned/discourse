@@ -43,6 +43,6 @@ public final class LongSwitchNameCoordinate extends SwitchNameCoordinate {
 
   @Override
   public String toSwitchString() {
-    return PREFIX + toString();
+    return PREFIX + getText();
   }
 }

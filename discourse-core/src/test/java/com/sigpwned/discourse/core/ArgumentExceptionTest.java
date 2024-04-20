@@ -25,6 +25,7 @@ import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.Subcommand;
 import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.exception.ArgumentException;
 import com.sigpwned.discourse.core.exception.bean.AssignmentFailureBeanException;
 import com.sigpwned.discourse.core.exception.bean.NewInstanceFailureBeanException;
 import com.sigpwned.discourse.core.exception.syntax.InsufficientDiscriminatorsSyntaxException;

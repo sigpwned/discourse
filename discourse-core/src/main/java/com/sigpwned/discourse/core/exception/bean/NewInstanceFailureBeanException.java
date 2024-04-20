@@ -19,7 +19,7 @@
  */
 package com.sigpwned.discourse.core.exception.bean;
 
-import com.sigpwned.discourse.core.BeanException;
+import com.sigpwned.discourse.core.exception.BeanException;
 import com.sigpwned.discourse.core.command.SingleCommand;
 
 /**

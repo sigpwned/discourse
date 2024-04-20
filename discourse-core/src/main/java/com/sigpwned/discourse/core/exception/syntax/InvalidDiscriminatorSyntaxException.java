@@ -22,7 +22,7 @@ package com.sigpwned.discourse.core.exception.syntax;
 import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.Discriminator;
-import com.sigpwned.discourse.core.SyntaxException;
+import com.sigpwned.discourse.core.exception.SyntaxException;
 import com.sigpwned.discourse.core.command.MultiCommand;
 
 /**
