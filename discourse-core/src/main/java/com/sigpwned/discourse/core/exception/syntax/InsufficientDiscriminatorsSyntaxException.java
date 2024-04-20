@@ -17,11 +17,9 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.exception.argument;
+package com.sigpwned.discourse.core.exception.syntax;
 
-import static java.util.Objects.requireNonNull;
-
-import com.sigpwned.discourse.core.ConfigurationException;
+import com.sigpwned.discourse.core.SyntaxException;
 import com.sigpwned.discourse.core.command.MultiCommand;
 
 /**
@@ -29,16 +27,22 @@ import com.sigpwned.discourse.core.command.MultiCommand;
  * command. For example, if a command defines two subcommands "foo" and "bar", but the user provides
  * no discriminators to indicate which subcommand to run, then this exception would be thrown.
  */
-public class NoSubcommandArgumentException extends ConfigurationException {
+public class InsufficientDiscriminatorsSyntaxException extends SyntaxException {
 
-  private final MultiCommand<?> command;
-
-  public NoSubcommandArgumentException(MultiCommand<?> command) {
-    super("No subcommand given");
-    this.command = requireNonNull(command);
+  /**
+   * @param command The first {@link MultiCommand} that was not dereferenced
+   */
+  public InsufficientDiscriminatorsSyntaxException(MultiCommand<?> command) {
+    super(command, "Insufficient discriminators given");
   }
 
+  /**
+   * The command that was not dereferenced.
+   *
+   * @return the command
+   */
+  @Override
   public MultiCommand<?> getCommand() {
-    return command;
+    return (MultiCommand<?>) super.getCommand();
   }
 }

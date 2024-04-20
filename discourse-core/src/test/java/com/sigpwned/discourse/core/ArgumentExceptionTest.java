@@ -26,11 +26,11 @@ import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.Subcommand;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.exception.argument.AssignmentFailureArgumentException;
-import com.sigpwned.discourse.core.exception.argument.InvalidDiscriminatorArgumentException;
 import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgumentException;
-import com.sigpwned.discourse.core.exception.argument.NoSubcommandArgumentException;
-import com.sigpwned.discourse.core.exception.argument.UnassignedRequiredParametersArgumentException;
-import com.sigpwned.discourse.core.exception.argument.UnrecognizedSubcommandArgumentException;
+import com.sigpwned.discourse.core.exception.syntax.InsufficientDiscriminatorsSyntaxException;
+import com.sigpwned.discourse.core.exception.syntax.InvalidDiscriminatorSyntaxException;
+import com.sigpwned.discourse.core.exception.syntax.RequiredParametersMissingSyntaxException;
+import com.sigpwned.discourse.core.exception.syntax.UnrecognizedDiscriminatorSyntaxException;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
 import com.sigpwned.discourse.core.invocation.strategy.SingleCommandInvocationStrategy;
@@ -153,7 +153,7 @@ public class ArgumentExceptionTest {
     public String example;
   }
 
-  @Test(expected = UnassignedRequiredParametersArgumentException.class)
+  @Test(expected = RequiredParametersMissingSyntaxException.class)
   public void givenArgsWithoutRequiredArgument_whenInvoke_thenFailWithUnassignedRequiredParametersException() {
     new SingleCommandInvocationStrategy().invoke(Command.scan(MissingRequiredExample.class),
         new DefaultInvocationContext(), List.of()).getConfiguration();
@@ -251,19 +251,19 @@ public class ArgumentExceptionTest {
     }
   }
 
-  @Test(expected = NoSubcommandArgumentException.class)
+  @Test(expected = InsufficientDiscriminatorsSyntaxException.class)
   public void givenMultiCommandAndArgsWithoutDiscriminators_whenInvoke_thenFailWithNoSubcommandException() {
     new SubcommandDereferencingInvocationStrategy(new SingleCommandInvocationStrategy()).invoke(
         Command.scan(MultiExample.class), new DefaultInvocationContext(), List.of());
   }
 
-  @Test(expected = UnrecognizedSubcommandArgumentException.class)
+  @Test(expected = UnrecognizedDiscriminatorSyntaxException.class)
   public void givenMultiCommandAndArgsWithUnrecognizedDiscriminator_whenInvoke_thenFailWithUnrecognizedSubcommandException() {
     DefaultInvocationStrategy.INSTANCE.invoke(Command.scan(MultiExample.class),
         new DefaultInvocationContext(), List.of("charlie"));
   }
 
-  @Test(expected = InvalidDiscriminatorArgumentException.class)
+  @Test(expected = InvalidDiscriminatorSyntaxException.class)
   public void givenMultiCommandAndArgsWithInvalidDiscriminator_whenInvoke_thenFailWithInvalidDiscriminatorException() {
     DefaultInvocationStrategy.INSTANCE.invoke(Command.scan(MultiExample.class),
         new DefaultInvocationContext(), List.of("-"));

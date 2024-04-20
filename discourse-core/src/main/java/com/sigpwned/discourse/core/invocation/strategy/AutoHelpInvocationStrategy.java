@@ -29,8 +29,8 @@ import com.sigpwned.discourse.core.InvocationStrategy;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
-import com.sigpwned.discourse.core.exception.argument.UnassignedRequiredParametersArgumentException;
-import com.sigpwned.discourse.core.exception.argument.UnrecognizedSubcommandArgumentException;
+import com.sigpwned.discourse.core.exception.syntax.RequiredParametersMissingSyntaxException;
+import com.sigpwned.discourse.core.exception.syntax.UnrecognizedDiscriminatorSyntaxException;
 import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 import java.io.PrintStream;
 import java.util.List;
@@ -86,7 +86,7 @@ public class AutoHelpInvocationStrategy implements InvocationStrategy {
       } else {
         try {
           return getDelegate().invoke(command, context, args);
-        } catch (UnassignedRequiredParametersArgumentException e) {
+        } catch (RequiredParametersMissingSyntaxException e) {
           // If the user didn't provide all the required parameters and the given args are empty,
           // then print the help message and exit. Otherwise, rethrow the exception. Note that we
           // don't print the help message if the user provided no arguments, but the command has no
@@ -108,11 +108,11 @@ public class AutoHelpInvocationStrategy implements InvocationStrategy {
       }
       try {
         return getDelegate().invoke(multi, context, args);
-      } catch (UnrecognizedSubcommandArgumentException e) {
+      } catch (UnrecognizedDiscriminatorSyntaxException e) {
         // If the user provided the discriminator "help" to a multi command and it is unrecognized,
         // then print the help message and exit. Otherwise, rethrow the exception. Note that we
         // don't print the help message if the help discriminator is recognized.
-        if (e.getInvalidDiscriminator().toString().equals(HELP)) {
+        if (e.getDiscriminator().toString().equals(HELP)) {
           // Note that we use the command from the exception, not the command passed to this method.
           // We want to print explicit help for the subcommand where help was requested, not the
           // upstream multi command.

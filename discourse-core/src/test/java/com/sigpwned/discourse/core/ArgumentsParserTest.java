@@ -31,11 +31,9 @@ import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.coordinate.NameCoordinate;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
-import com.sigpwned.discourse.core.exception.syntax.InvalidLongNameValueSyntaxException;
-import com.sigpwned.discourse.core.exception.syntax.MissingLongNameValueSyntaxException;
-import com.sigpwned.discourse.core.exception.syntax.MissingShortNameValueSyntaxException;
-import com.sigpwned.discourse.core.exception.syntax.UnrecognizedLongNameSyntaxException;
-import com.sigpwned.discourse.core.exception.syntax.UnrecognizedShortNameSyntaxException;
+import com.sigpwned.discourse.core.exception.syntax.FlagValuePresentSyntaxException;
+import com.sigpwned.discourse.core.exception.syntax.OptionValueMissingSyntaxException;
+import com.sigpwned.discourse.core.exception.syntax.UnrecognizedSwitchSyntaxException;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
@@ -174,7 +172,7 @@ public class ArgumentsParserTest {
   /**
    * unrecognized option
    */
-  @Test(expected = UnrecognizedShortNameSyntaxException.class)
+  @Test(expected = UnrecognizedSwitchSyntaxException.class)
   public void givenUnrecognizedShortOption_whenParse_thenFailWithUnrecognizedShortNameException() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
@@ -259,7 +257,7 @@ public class ArgumentsParserTest {
   /**
    * unexpected eof looking for option value after short name
    */
-  @Test(expected = MissingShortNameValueSyntaxException.class)
+  @Test(expected = OptionValueMissingSyntaxException.class)
   public void givenShortSwitchThenEof_whenParse_thenFailWithMissingShortNameValueException() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
@@ -296,7 +294,7 @@ public class ArgumentsParserTest {
   /**
    * unexpected eof looking for option value after long name
    */
-  @Test(expected = MissingLongNameValueSyntaxException.class)
+  @Test(expected = OptionValueMissingSyntaxException.class)
   public void givenLongSwitchThenEof_whenParse_thenFailWithMissingLongNameValueException() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
@@ -333,7 +331,7 @@ public class ArgumentsParserTest {
   /**
    * missing value in short name bundle
    */
-  @Test(expected = MissingShortNameValueSyntaxException.class)
+  @Test(expected = OptionValueMissingSyntaxException.class)
   public void givenBundleNeedingValueThenEof_whenParse_thenFailWithMissingShortNameValueException() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
@@ -370,7 +368,7 @@ public class ArgumentsParserTest {
   /**
    * unknown long name
    */
-  @Test(expected = UnrecognizedLongNameSyntaxException.class)
+  @Test(expected = UnrecognizedSwitchSyntaxException.class)
   public void givenArgsWithUnknownLongSwitch_whenParse_thenFailWithUnrecognizedLongNameException() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
@@ -407,7 +405,7 @@ public class ArgumentsParserTest {
   /**
    * unknown short name
    */
-  @Test(expected = UnrecognizedShortNameSyntaxException.class)
+  @Test(expected = UnrecognizedSwitchSyntaxException.class)
   public void givenArgsWithUnknownShortSwitch_whenParse_thenFailWithUnrecognizedShortNameException() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 
@@ -444,7 +442,7 @@ public class ArgumentsParserTest {
   /**
    * long name connected value for flag
    */
-  @Test(expected = InvalidLongNameValueSyntaxException.class)
+  @Test(expected = FlagValuePresentSyntaxException.class)
   public void givenConnectedValueOnFlagSwitch_whenParse_thenFailWithInvalidLongNameValueException() {
     SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
 

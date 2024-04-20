@@ -19,21 +19,27 @@
  */
 package com.sigpwned.discourse.core.exception.syntax;
 
-import static java.lang.String.*;
+import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.SyntaxException;
-import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.coordinate.SwitchNameCoordinate;
 
 /**
- * Thrown when a required parameter is not given a value in a command line.
+ * Thrown when a flag parameter -- which is a parameter type that should never be given a value --
+ * is given with a value.
  */
-public class MissingRequiredParameterSyntaxException extends SyntaxException {
+public class FlagValuePresentSyntaxException extends SyntaxException {
 
   private final String parameterName;
+  private final SwitchNameCoordinate coordinate;
 
-  public MissingRequiredParameterSyntaxException(Command<?> command, String parameterName) {
-    super(command, format("No value for the required parameter '%s'", parameterName));
-    this.parameterName = parameterName;
+  public FlagValuePresentSyntaxException(SingleCommand<?> command, String parameterName,
+      SwitchNameCoordinate coordinate) {
+    super(command, "Flag parameter '%s' reference %s does not take a value".formatted(parameterName,
+        coordinate));
+    this.parameterName = requireNonNull(parameterName);
+    this.coordinate = requireNonNull(coordinate);
   }
 
   /**
@@ -41,5 +47,22 @@ public class MissingRequiredParameterSyntaxException extends SyntaxException {
    */
   public String getParameterName() {
     return parameterName;
+  }
+
+  /**
+   * @return the longName
+   */
+  public SwitchNameCoordinate getCoordinate() {
+    return coordinate;
+  }
+
+  /**
+   * The command that was being parsed when the exception was thrown.
+   *
+   * @return the command
+   */
+  @Override
+  public SingleCommand<?> getCommand() {
+    return (SingleCommand<?>) super.getCommand();
   }
 }

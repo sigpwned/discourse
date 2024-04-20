@@ -19,24 +19,26 @@
  */
 package com.sigpwned.discourse.core.exception.syntax;
 
-import static java.lang.String.*;
+import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.SyntaxException;
-import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.coordinate.SwitchNameCoordinate;
 
 /**
- * Thrown when a parameter that requires a value is not given a value in a command line.
+ * Thrown when an option parameter -- which always requires a value -- is not given a value
  */
-public class MissingShortNameValueSyntaxException extends SyntaxException {
+public class OptionValueMissingSyntaxException extends SyntaxException {
 
   private final String parameterName;
-  private final String shortName;
+  private final SwitchNameCoordinate coordinate;
 
-  public MissingShortNameValueSyntaxException(Command<?> command, String parameterName,
-      String shortName) {
-    super(command, format("Parameter '%s' reference -%s requires value", parameterName, shortName));
-    this.parameterName = parameterName;
-    this.shortName = shortName;
+  public OptionValueMissingSyntaxException(SingleCommand<?> command, String parameterName,
+      SwitchNameCoordinate coordinate) {
+    super(command,
+        "Option parameter '%s' reference %s requires value".formatted(parameterName, coordinate));
+    this.parameterName = requireNonNull(parameterName);
+    this.coordinate = requireNonNull(coordinate);
   }
 
   /**
@@ -47,9 +49,19 @@ public class MissingShortNameValueSyntaxException extends SyntaxException {
   }
 
   /**
-   * @return the shortName
+   * @return the longName
    */
-  public String getShortName() {
-    return shortName;
+  public SwitchNameCoordinate getCoordinate() {
+    return coordinate;
+  }
+
+  /**
+   * The first command that was being parsed when the exception was thrown.
+   *
+   * @return the command
+   */
+  @Override
+  public SingleCommand<?> getCommand() {
+    return (SingleCommand<?>) super.getCommand();
   }
 }

@@ -39,7 +39,7 @@ import com.sigpwned.discourse.core.coordinate.PropertyNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.VariableNameCoordinate;
 import com.sigpwned.discourse.core.exception.argument.AssignmentFailureArgumentException;
 import com.sigpwned.discourse.core.exception.argument.NewInstanceFailureArgumentException;
-import com.sigpwned.discourse.core.exception.argument.UnassignedRequiredParametersArgumentException;
+import com.sigpwned.discourse.core.exception.syntax.RequiredParametersMissingSyntaxException;
 import com.sigpwned.discourse.core.invocation.DefaultInvocation;
 import com.sigpwned.discourse.core.optional.OptionalEnvironmentVariable;
 import com.sigpwned.discourse.core.optional.OptionalSystemProperty;
@@ -138,7 +138,7 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
     if (!assignedParameters.containsAll(requiredParameters)) {
       Set<String> unassignedRequiredParameters = new HashSet<>(requiredParameters);
       unassignedRequiredParameters.removeAll(assignedParameters);
-      throw new UnassignedRequiredParametersArgumentException(unassignedRequiredParameters);
+      throw new RequiredParametersMissingSyntaxException(single, unassignedRequiredParameters);
     }
 
     // Deserialize our arguments
@@ -285,7 +285,7 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
     try {
       result = command.getBeanClass().newInstance();
     } catch (InvocationTargetException e) {
-      throw new NewInstanceFailureArgumentException(e);
+      throw new NewInstanceFailureArgumentException(command, e);
     }
 
     for (DeserializedArgument arg : args) {
@@ -293,7 +293,7 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
       try {
         parameter.getSink().write(result.getInstance(), arg.value());
       } catch (InvocationTargetException e) {
-        throw new AssignmentFailureArgumentException(parameter.getName(), e);
+        throw new AssignmentFailureArgumentException(command, parameter.getName(), e);
       }
     }
 

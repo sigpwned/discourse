@@ -20,36 +20,41 @@
 package com.sigpwned.discourse.core.exception.syntax;
 
 import static java.lang.String.*;
+import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.SyntaxException;
-import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.coordinate.SwitchNameCoordinate;
 
 /**
- * Thrown when a parameter that requires a value is not given a value in a command line.
+ * Thrown when a long name is not recognized. For example, if a command only defines the long names
+ * "alpha" and "bravo", but the user provides "--charlie", then this exception would be thrown with
+ * the long name "charlie".
  */
-public class MissingLongNameValueSyntaxException extends SyntaxException {
+public class UnrecognizedSwitchSyntaxException extends SyntaxException {
 
-  private final String parameterName;
-  private final String longName;
+  private final SwitchNameCoordinate coordinate;
 
-  public MissingLongNameValueSyntaxException(Command<?> command, String parameterName,
-      String longName) {
-    super(command, format("Parameter '%s' reference --%s requires value", parameterName, longName));
-    this.parameterName = parameterName;
-    this.longName = longName;
-  }
-
-  /**
-   * @return the parameterName
-   */
-  public String getParameterName() {
-    return parameterName;
+  public UnrecognizedSwitchSyntaxException(SingleCommand<?> command,
+      SwitchNameCoordinate coordinate) {
+    super(command, format("Unrecognized switch %s", coordinate));
+    this.coordinate = requireNonNull(coordinate);
   }
 
   /**
    * @return the longName
    */
-  public String getLongName() {
-    return longName;
+  public SwitchNameCoordinate getCoordinate() {
+    return coordinate;
+  }
+
+  /**
+   * The command that was being parsed when the exception was thrown.
+   *
+   * @return the command
+   */
+  @Override
+  public SingleCommand<?> getCommand() {
+    return (SingleCommand<?>) super.getCommand();
   }
 }

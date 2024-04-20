@@ -2,14 +2,14 @@
  * =================================LICENSE_START==================================
  * discourse-core
  * ====================================SECTION=====================================
- * Copyright (C) 2022 Andy Boothe
+ * Copyright (C) 2022 - 2024 Andy Boothe
  * ====================================SECTION=====================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,40 +17,32 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.exception.syntax;
+package com.sigpwned.discourse.core.exception.argument;
 
-import static java.lang.String.*;
+import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.SyntaxException;
-import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.ArgumentException;
+import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.coordinate.Coordinate;
 
-/**
- * Thrown when a parameter that does not take a value is given a value in a command line.
- */
-public class InvalidLongNameValueSyntaxException extends SyntaxException {
+public class DeserializationFailureArgumentException extends ArgumentException {
 
   private final String parameterName;
-  private final String longName;
+  private final Coordinate coordinate;
 
-  public InvalidLongNameValueSyntaxException(Command<?> command, String parameterName,
-      String longName) {
+  public DeserializationFailureArgumentException(SingleCommand<?> command, String parameterName,
+      Coordinate coordinate, Throwable cause) {
     super(command,
-        format("Parameter '%s' reference --%s does not take a value", parameterName, longName));
-    this.parameterName = parameterName;
-    this.longName = longName;
+        "Failed to deserialize parameter '%s' at %s".formatted(parameterName, coordinate), cause);
+    this.parameterName = requireNonNull(parameterName);
+    this.coordinate = requireNonNull(coordinate);
   }
 
-  /**
-   * @return the parameterName
-   */
   public String getParameterName() {
     return parameterName;
   }
 
-  /**
-   * @return the longName
-   */
-  public String getLongName() {
-    return longName;
+  public Coordinate getCoordinate() {
+    return coordinate;
   }
 }

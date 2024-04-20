@@ -20,6 +20,7 @@
 package com.sigpwned.discourse.core.exception.argument;
 
 import com.sigpwned.discourse.core.ArgumentException;
+import com.sigpwned.discourse.core.command.SingleCommand;
 
 /**
  * Thrown when a new instance of a configuration class cannot be created. This is typically thrown
@@ -28,7 +29,7 @@ import com.sigpwned.discourse.core.ArgumentException;
 public class NewInstanceFailureArgumentException extends ArgumentException {
 
   // TODO This is probably more of a runtime-type exception than an argument exception
-  public NewInstanceFailureArgumentException(Exception cause) {
-    super("Failed to create new configuration instance", cause);
+  public NewInstanceFailureArgumentException(SingleCommand<?> command, Exception cause) {
+    super(command, "Failed to create new configuration instance", cause);
   }
 }

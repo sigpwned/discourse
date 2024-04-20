@@ -19,29 +19,40 @@
  */
 package com.sigpwned.discourse.core.exception.syntax;
 
-import static java.lang.String.*;
+import static java.util.Collections.*;
 
 import com.sigpwned.discourse.core.SyntaxException;
-import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.SingleCommand;
+import java.util.Set;
 
 /**
- * Thrown when a short name is not recognized. For example, if a command only defines the short
- * names "a" and "b", but the user provides "-c", then this exception would be thrown with the short
- * name "c".
+ * Thrown when a required parameter is not given a value in a command line.
  */
-public class UnrecognizedShortNameSyntaxException extends SyntaxException {
+public class RequiredParametersMissingSyntaxException extends SyntaxException {
 
-  private final String shortName;
+  private final Set<String> missingParameterNames;
 
-  public UnrecognizedShortNameSyntaxException(Command<?> command, String shortName) {
-    super(command, format("Unrecognized short name -%s", shortName));
-    this.shortName = shortName;
+  public RequiredParametersMissingSyntaxException(SingleCommand<?> command,
+      Set<String> missingParameterNames) {
+    super(command, "No value for the required parameters: %s".formatted(
+        String.join(", ", missingParameterNames)));
+    this.missingParameterNames = unmodifiableSet(missingParameterNames);
   }
 
   /**
-   * @return the shortName
+   * @return the parameterName
    */
-  public String getShortName() {
-    return shortName;
+  public Set<String> getMissingParameterNames() {
+    return missingParameterNames;
+  }
+
+  /**
+   * The command that was being parsed when the exception was thrown.
+   *
+   * @return the command
+   */
+  @Override
+  public SingleCommand<?> getCommand() {
+    return (SingleCommand<?>) super.getCommand();
   }
 }

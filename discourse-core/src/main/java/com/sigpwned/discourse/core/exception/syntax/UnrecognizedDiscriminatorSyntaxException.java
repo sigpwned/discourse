@@ -17,13 +17,12 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.exception.argument;
+package com.sigpwned.discourse.core.exception.syntax;
 
-import static java.lang.String.*;
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.ConfigurationException;
 import com.sigpwned.discourse.core.Discriminator;
+import com.sigpwned.discourse.core.SyntaxException;
 import com.sigpwned.discourse.core.command.MultiCommand;
 
 /**
@@ -31,33 +30,36 @@ import com.sigpwned.discourse.core.command.MultiCommand;
  * command defines two subcommands "foo" and "bar", but the user provides the discriminator "baz",
  * then this exception would be thrown with the value "baz".
  */
-public class UnrecognizedSubcommandArgumentException extends ConfigurationException {
+public class UnrecognizedDiscriminatorSyntaxException extends SyntaxException {
 
-  private final MultiCommand<?> command;
   private final Discriminator discriminator;
 
   /**
    * @param command       The context in which the unrecognized discriminator was provided.
-   * @param discriminator The discriminator that was provided.
+   * @param discriminator The discriminator that was provided, but not recognized
    */
-  public UnrecognizedSubcommandArgumentException(MultiCommand<?> command,
+  public UnrecognizedDiscriminatorSyntaxException(MultiCommand<?> command,
       Discriminator discriminator) {
-    super(format("There is no subcommand for discriminator '%s'", discriminator));
-    this.command = requireNonNull(command);
+    super(command, "There is no subcommand for discriminator '%s'".formatted(discriminator));
     this.discriminator = requireNonNull(discriminator);
   }
 
   /**
-   * @return the command
+   * The discriminator that was provided, but not recognized.
+   *
+   * @return the invalidDiscriminator
    */
-  public MultiCommand<?> getCommand() {
-    return command;
+  public Discriminator getDiscriminator() {
+    return discriminator;
   }
 
   /**
-   * @return the invalidDiscriminator
+   * The command that would have been dereferenced, if the discriminator were recognized.
+   *
+   * @return the command
    */
-  public Discriminator getInvalidDiscriminator() {
-    return discriminator;
+  @Override
+  public MultiCommand<?> getCommand() {
+    return (MultiCommand<?>) super.getCommand();
   }
 }

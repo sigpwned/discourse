@@ -25,9 +25,9 @@ import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.InvocationStrategy;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
-import com.sigpwned.discourse.core.exception.argument.InvalidDiscriminatorArgumentException;
-import com.sigpwned.discourse.core.exception.argument.NoSubcommandArgumentException;
-import com.sigpwned.discourse.core.exception.argument.UnrecognizedSubcommandArgumentException;
+import com.sigpwned.discourse.core.exception.syntax.InvalidDiscriminatorSyntaxException;
+import com.sigpwned.discourse.core.exception.syntax.InsufficientDiscriminatorsSyntaxException;
+import com.sigpwned.discourse.core.exception.syntax.UnrecognizedDiscriminatorSyntaxException;
 import com.sigpwned.discourse.core.invocation.DefaultInvocation;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +59,7 @@ public class SubcommandDereferencingInvocationStrategy implements InvocationStra
     while (subcommand instanceof MultiCommand<? extends T> multi) {
       if (args.isEmpty()) {
         // TODO This should really be "insufficient" not "no"
-        throw new NoSubcommandArgumentException(multi);
+        throw new InsufficientDiscriminatorsSyntaxException(multi);
       }
 
       String discriminatorString = args.remove(0);
@@ -68,13 +68,13 @@ public class SubcommandDereferencingInvocationStrategy implements InvocationStra
       try {
         discriminator = Discriminator.fromString(discriminatorString);
       } catch (IllegalArgumentException e) {
-        throw new InvalidDiscriminatorArgumentException(multi, discriminatorString);
+        throw new InvalidDiscriminatorSyntaxException(multi, discriminatorString);
       }
 
       subcommands.add(Map.entry(discriminator, multi));
 
       subcommand = Optional.of(multi).map(m -> m.getSubcommands().get(discriminator))
-          .orElseThrow(() -> new UnrecognizedSubcommandArgumentException(multi, discriminator));
+          .orElseThrow(() -> new UnrecognizedDiscriminatorSyntaxException(multi, discriminator));
     }
 
     final Invocation<? extends T> invocation = getDelegate().invoke(subcommand, context, args);

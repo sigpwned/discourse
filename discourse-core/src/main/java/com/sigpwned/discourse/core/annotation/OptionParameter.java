@@ -23,7 +23,7 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import com.sigpwned.discourse.core.exception.syntax.MissingRequiredParameterSyntaxException;
+import com.sigpwned.discourse.core.exception.syntax.RequiredParametersMissingSyntaxException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -60,7 +60,7 @@ public @interface OptionParameter {
 
   /**
    * If this option is required, then it must appear on the command line. Otherwise, a
-   * {@link MissingRequiredParameterSyntaxException} is thrown.
+   * {@link RequiredParametersMissingSyntaxException} is thrown.
    *
    * @return whether the option is required
    */

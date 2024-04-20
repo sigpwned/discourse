@@ -20,10 +20,24 @@
 package com.sigpwned.discourse.core;
 
 import com.sigpwned.discourse.core.annotation.OptionParameter;
+import com.sigpwned.discourse.core.command.Command;
 
 /**
+ * <p>
  * Indicates a problem with the configuration setup, such as an {@link OptionParameter} that has
- * neither a short nor long name. This is an error by the programmer.
+ * neither a short nor long name. All instances of this exception are the result of an error by the
+ * programmer, not the user.
+ * </p>
+ *
+ * <p>
+ * This exception is thrown exclusively during the process creating the {@link Command} object. Once
+ * the {@code Command} object is created, the configuration is considered valid and this exception
+ * will no longer be thrown. The {@code Command} class either is or is not configured properly and
+ * user input has nothing to do with it, so simply scanning the command class in a test is
+ * sufficient to ensure that the configuration is correct.
+ * </p>
+ *
+ * @see Command#scan(InvocationContext, Class)
  */
 public abstract class ConfigurationException extends RuntimeException {
 

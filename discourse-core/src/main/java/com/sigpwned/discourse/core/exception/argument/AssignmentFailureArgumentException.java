@@ -19,10 +19,9 @@
  */
 package com.sigpwned.discourse.core.exception.argument;
 
-import static java.lang.String.*;
-
 import com.sigpwned.discourse.core.ArgumentException;
 import com.sigpwned.discourse.core.ValueSink;
+import com.sigpwned.discourse.core.command.SingleCommand;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -36,8 +35,9 @@ public class AssignmentFailureArgumentException extends ArgumentException {
 
   private final String propertyName;
 
-  public AssignmentFailureArgumentException(String propertyName, Exception cause) {
-    super(format("Failed to assign to property %s", propertyName), cause);
+  public AssignmentFailureArgumentException(SingleCommand<?> command, String propertyName,
+      Exception cause) {
+    super(command, "Failed to assign to property %s".formatted(propertyName), cause);
     this.propertyName = propertyName;
   }
 

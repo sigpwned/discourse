@@ -17,13 +17,12 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.exception.argument;
+package com.sigpwned.discourse.core.exception.syntax;
 
-import static java.lang.String.*;
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.ConfigurationException;
 import com.sigpwned.discourse.core.Discriminator;
+import com.sigpwned.discourse.core.SyntaxException;
 import com.sigpwned.discourse.core.command.MultiCommand;
 
 /**
@@ -33,15 +32,12 @@ import com.sigpwned.discourse.core.command.MultiCommand;
  *
  * @see Discriminator#PATTERN
  */
-public class InvalidDiscriminatorArgumentException extends ConfigurationException {
+public class InvalidDiscriminatorSyntaxException extends SyntaxException {
 
-  private final MultiCommand<?> command;
   private final String invalidDiscriminator;
 
-  public InvalidDiscriminatorArgumentException(MultiCommand<?> command,
-      String invalidDiscriminator) {
-    super(format("The string '%s' is not a valid subcommand", invalidDiscriminator));
-    this.command = requireNonNull(command);
+  public InvalidDiscriminatorSyntaxException(MultiCommand<?> command, String invalidDiscriminator) {
+    super(command, "The string '%s' is not a valid discriminator".formatted(invalidDiscriminator));
     this.invalidDiscriminator = requireNonNull(invalidDiscriminator);
   }
 
@@ -52,7 +48,13 @@ public class InvalidDiscriminatorArgumentException extends ConfigurationExceptio
     return invalidDiscriminator;
   }
 
+  /**
+   * The command that the discriminator would have dereferenced if it were valid.
+   *
+   * @return the command
+   */
+  @Override
   public MultiCommand<?> getCommand() {
-    return command;
+    return (MultiCommand<?>) super.getCommand();
   }
 }

@@ -19,17 +19,29 @@
  */
 package com.sigpwned.discourse.core;
 
+import static java.util.Objects.requireNonNull;
+
+import com.sigpwned.discourse.core.command.SingleCommand;
+
 /**
  * An exception that is thrown when an argument is invalid. That is, the command line was parsed and
  * understood, but the specific value of the argument was not valid.
  */
 public abstract class ArgumentException extends RuntimeException {
 
-  protected ArgumentException(String message) {
+  private final SingleCommand<?> command;
+
+  protected ArgumentException(SingleCommand<?> command, String message) {
     super(message);
+    this.command = requireNonNull(command);
   }
 
-  protected ArgumentException(String message, Throwable cause) {
+  protected ArgumentException(SingleCommand<?> command, String message, Throwable cause) {
     super(message, cause);
+    this.command = requireNonNull(command);
+  }
+
+  public SingleCommand<?> getCommand() {
+    return command;
   }
 }

@@ -25,8 +25,25 @@ import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.command.Command;
 
 /**
+ * <p>
  * Indicates a problem with the arguments given by the user, e.g. an {@link OptionParameter} was not
- * given a value on the command line. The command line cannot be understood.
+ * given a value on the command line. Broadly speaking, this exception indicates that the command
+ * line cannot be understood. This indicates an error by the user.
+ * </p>
+ *
+ * <p>
+ * Exceptions of this type are thrown during the process of (a) parsing of the command line, (b)
+ * resolving the correct subcommand, and (c) associating the command line arguments with the
+ * command's parameters, e.g., to make sure that all the given options actually exist. Therefore,
+ * user errors involving discriminators -- e.g., a command line that gives an unrecognized
+ * subcommand discriminator, but is otherwise syntactically correct -- are included in this category
+ * because they affect the ability to resolve the correct subcommand.
+ * </p>
+ *
+ * <p>
+ * This is distinct from {@link ArgumentException}, which indicates that the command line was
+ * understood, but the specific values given were invalid.
+ * </p>
  */
 public abstract class SyntaxException extends RuntimeException {
 
@@ -37,6 +54,12 @@ public abstract class SyntaxException extends RuntimeException {
     this.command = requireNonNull(command);
   }
 
+  /**
+   * Returns a {@link Command} relevant to the exception. The exact semantics of the command differ
+   * depending on the specific exception.
+   *
+   * @return the command
+   */
   public Command<?> getCommand() {
     return command;
   }

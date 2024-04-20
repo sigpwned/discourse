@@ -29,7 +29,7 @@ import com.sigpwned.discourse.core.annotation.Subcommand;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
-import com.sigpwned.discourse.core.exception.argument.NoSubcommandArgumentException;
+import com.sigpwned.discourse.core.exception.syntax.InsufficientDiscriminatorsSyntaxException;
 import com.sigpwned.discourse.core.invocation.DefaultInvocation;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import java.util.List;
@@ -77,7 +77,7 @@ public class SubcommandDereferencingInvocationStrategyTest {
         List.of(), new SecondAnnotationSubcommandExample())));
   }
 
-  @Test(expected = NoSubcommandArgumentException.class)
+  @Test(expected = InsufficientDiscriminatorsSyntaxException.class)
   public void givenArgsThatPartiallyDereferenceToSingleCommand_whenInvoke_thenFailWithNoSubcommandException() {
     MultiCommand<RootAnnotationExample> rootCommand = (MultiCommand<RootAnnotationExample>) Command.scan(
         RootAnnotationExample.class);
@@ -87,7 +87,7 @@ public class SubcommandDereferencingInvocationStrategyTest {
         List.of("first"));
   }
 
-  @Test(expected = NoSubcommandArgumentException.class)
+  @Test(expected = InsufficientDiscriminatorsSyntaxException.class)
   public void givenArgsThatNonelyDereferenceToSingleCommand_whenInvoke_thenFailWithNoSubcommandException() {
     MultiCommand<RootAnnotationExample> rootCommand = (MultiCommand<RootAnnotationExample>) Command.scan(
         RootAnnotationExample.class);
