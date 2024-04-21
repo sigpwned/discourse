@@ -27,7 +27,7 @@ public class NoNameConfigurationException extends ConfigurationException {
 
   public NoNameConfigurationException(String parameterName) {
     super(
-        format("Configuration parameter %s has too many configuration annotations", parameterName));
+        format("Configuration parameter %s has no name coordinate", parameterName));
     this.parameterName = parameterName;
   }
 

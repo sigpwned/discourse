@@ -22,6 +22,7 @@ package com.sigpwned.discourse.core.util;
 import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.Subcommand;
+import com.sigpwned.discourse.core.exception.configuration.InvalidDiscriminatorConfigurationException;
 import java.util.Optional;
 
 public final class Discriminators {
@@ -29,12 +30,6 @@ public final class Discriminators {
   private Discriminators() {
   }
 
-  /**
-   * Extracts the discriminator from a configurable.
-   *
-   * @param configurable the configurable
-   * @return the discriminator
-   */
   public static Optional<Discriminator> fromConfigurable(Configurable configurable) {
     if (configurable.discriminator().isEmpty()) {
       return Optional.empty();
@@ -47,11 +42,9 @@ public final class Discriminators {
    *
    * @param subcommand the configurable
    * @return the discriminator
+   * @throws InvalidDiscriminatorConfigurationException if the discriminator is invalid
    */
-  public static Optional<Discriminator> fromSubcommand(Subcommand subcommand) {
-    if (subcommand.discriminator().isEmpty()) {
-      return Optional.empty();
-    }
-    return Optional.of(Discriminator.fromString(subcommand.discriminator()));
+  public static Discriminator fromSubcommand(Subcommand subcommand) {
+    return Discriminator.fromString(subcommand.discriminator());
   }
 }

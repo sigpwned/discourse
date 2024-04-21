@@ -22,11 +22,11 @@ package com.sigpwned.discourse.core.exception.configuration;
 import static java.lang.String.format;
 import com.sigpwned.discourse.core.exception.ConfigurationException;
 
-public class SubcommandDoesNotExtendRootCommandConfigurationException extends ConfigurationException {
+public class SubcommandDoesNotExtendParentCommandConfigurationException extends ConfigurationException {
   private final Class<?> commandType;
   private final Class<?> subcommandType;
 
-  public SubcommandDoesNotExtendRootCommandConfigurationException(Class<?> commandType,
+  public SubcommandDoesNotExtendParentCommandConfigurationException(Class<?> commandType,
       Class<?> subcommandType) {
     super(format("Subcommand configurable %s does not extend root configurable %s",
         subcommandType.getName(), commandType.getName()));

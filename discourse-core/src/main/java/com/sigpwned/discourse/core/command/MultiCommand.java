@@ -29,7 +29,7 @@ import com.sigpwned.discourse.core.command.ConfigurableClass.SubcommandClass;
 import com.sigpwned.discourse.core.exception.configuration.DiscriminatorMismatchConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.MultiCommandNotAbstractConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NoDiscriminatorConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.SubcommandDoesNotExtendRootCommandConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.SubcommandDoesNotExtendParentCommandConfigurationException;
 import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -163,7 +163,7 @@ public final class MultiCommand<T> extends Command<T> {
 
       if (!Objects.equals(subcommandClass.getRawType().getSuperclass(),
           configurableClass.getRawType())) {
-        throw new SubcommandDoesNotExtendRootCommandConfigurationException(
+        throw new SubcommandDoesNotExtendParentCommandConfigurationException(
             configurableClass.getRawType(), subcommandClass.getRawType());
       }
 

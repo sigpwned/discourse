@@ -88,7 +88,7 @@ public abstract sealed class Command<T> permits SingleCommand, MultiCommand {
    * @param context           The context
    * @param configurableClass The configuration class to scan.
    * @return The command.
-   * @throws ConfigurationException If there is  configuration error on the command
+   * @throws ConfigurationException If there is a configuration error on the command
    */
   static <T> Command<T> subscan(InvocationContext context, ConfigurableClass<T> configurableClass) {
     if (configurableClass.getSubcommands().isEmpty()) {

@@ -44,7 +44,7 @@ import com.sigpwned.discourse.core.exception.configuration.MultipleVersionFlagsC
 import com.sigpwned.discourse.core.exception.configuration.NoDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NoNameConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.SubcommandDoesNotExtendRootCommandConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.SubcommandDoesNotExtendParentCommandConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.TooManyAnnotationsConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.UnexpectedDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.UnexpectedSubcommandsConfigurationException;
@@ -372,7 +372,7 @@ public class ConfigurationExceptionTest {
     public String alpha;
   }
 
-  @Test(expected = SubcommandDoesNotExtendRootCommandConfigurationException.class)
+  @Test(expected = SubcommandDoesNotExtendParentCommandConfigurationException.class)
   public void givenClassWithSubcommandNotExtendsCommand_whenScan_thenFailWithSubcommandDoesNotExtendRootCommandException() {
     Command.scan(NoExtendMultiCommandExample.class);
   }

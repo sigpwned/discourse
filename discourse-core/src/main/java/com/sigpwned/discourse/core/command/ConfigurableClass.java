@@ -26,10 +26,9 @@ import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.exception.configuration.DuplicateDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.InvalidDiscriminatorConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.NoDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.SealedSubcommandsConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.SubcommandDoesNotExtendRootCommandConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.SubcommandDoesNotExtendParentCommandConfigurationException;
 import com.sigpwned.discourse.core.util.Discriminators;
 import com.sigpwned.discourse.core.util.Streams;
 import java.util.List;
@@ -207,17 +206,11 @@ class ConfigurableClass<T> {
     return (List) Stream.of(configurable.subcommands()).map(subcommand -> {
       Class<?> rawSubcommandType = subcommand.configurable();
       if (!rawSubcommandType.getSuperclass().equals(rawType)) {
-        throw new SubcommandDoesNotExtendRootCommandConfigurationException(rawType,
+        throw new SubcommandDoesNotExtendParentCommandConfigurationException(rawType,
             subcommand.configurable());
       }
 
-      Discriminator discriminator;
-      try {
-        discriminator = Discriminators.fromSubcommand(subcommand)
-            .orElseThrow(() -> new NoDiscriminatorConfigurationException(rawSubcommandType));
-      } catch (IllegalArgumentException e) {
-        throw new InvalidDiscriminatorConfigurationException(rawType, subcommand.discriminator());
-      }
+      Discriminator discriminator = Discriminators.fromSubcommand(subcommand);
 
       return (SubcommandClass<? extends T>) new SubcommandClass<>(Optional.of(discriminator),
           rawSubcommandType);
@@ -231,9 +224,9 @@ class ConfigurableClass<T> {
       throw new SealedSubcommandsConfigurationException(rawType);
     }
     // We know that each subclass extends the given raw type T, so this is safe.
-    return (List) Stream.of(rawType.getPermittedSubclasses())
-        .map(permittedSubclass -> new SubcommandClass<>(Optional.empty(), permittedSubclass))
-        .toList();
+    return (List) Stream.of(rawType.getPermittedSubclasses()).map(
+        permittedSubclass -> new ConfigurableClass.SubcommandClass<>(Optional.empty(),
+            permittedSubclass)).toList();
   }
 
   private static <T> Optional<RuntimeException> validateSubcommands(Class<T> rawType,

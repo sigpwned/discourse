@@ -25,9 +25,9 @@ import com.sigpwned.discourse.core.exception.ConfigurationException;
 import com.sigpwned.discourse.core.Discriminator;
 
 public class DuplicateDiscriminatorConfigurationException extends ConfigurationException {
-
   private final Discriminator discriminator;
 
+  // TODO Add configurable class here
   public DuplicateDiscriminatorConfigurationException(Discriminator discriminator) {
     super(format("Multiple subcommands have the same discriminator %s", discriminator));
     this.discriminator = discriminator;
