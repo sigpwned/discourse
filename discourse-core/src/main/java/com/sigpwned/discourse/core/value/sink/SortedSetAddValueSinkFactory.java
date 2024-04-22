@@ -63,7 +63,7 @@ public class SortedSetAddValueSinkFactory implements ValueSinkFactory {
 
       @SuppressWarnings({"unchecked", "rawtypes"})
       @Override
-      public void write(Object instance, Object value) throws InvocationTargetException {
+      public void put(Object instance, Object value) throws InvocationTargetException {
         SortedSet propertyValue = (SortedSet) property.get(instance);
         if (propertyValue == null) {
           propertyValue = new TreeSet();

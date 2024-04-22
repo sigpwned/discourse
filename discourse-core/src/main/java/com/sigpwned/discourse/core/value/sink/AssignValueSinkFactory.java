@@ -55,7 +55,7 @@ public class AssignValueSinkFactory implements ValueSinkFactory {
       }
 
       @Override
-      public void write(Object instance, Object value) throws InvocationTargetException {
+      public void put(Object instance, Object value) throws InvocationTargetException {
         property.set(instance, value);
       }
 

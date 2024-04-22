@@ -28,7 +28,7 @@ import java.lang.reflect.InvocationTargetException;
  * Thrown when an assignment to a property fails. This is usually thrown in response to an
  * {@link InvocationTargetException} that occurs when a setter method is called.
  *
- * @see ValueSink#write(Object, Object)
+ * @see ValueSink#put(Object, Object)
  */
 public class AssignmentFailureBeanException extends BeanException {
 

@@ -285,7 +285,7 @@ public class SingleCommandInvocationStrategy implements InvocationStrategy {
     for (DeserializedArgument arg : args) {
       ConfigurationParameter parameter = arg.parameter();
       try {
-        parameter.getSink().write(result.getInstance(), arg.value());
+        parameter.getSink().put(result.getInstance(), arg.value());
       } catch (InvocationTargetException e) {
         throw new AssignmentFailureBeanException(command, parameter.getName(), e);
       }

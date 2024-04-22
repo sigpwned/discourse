@@ -63,7 +63,7 @@ public class ListAddValueSinkFactory implements ValueSinkFactory {
 
       @SuppressWarnings({"unchecked", "rawtypes"})
       @Override
-      public void write(Object instance, Object value) throws InvocationTargetException {
+      public void put(Object instance, Object value) throws InvocationTargetException {
         List propertyValue = (List) property.get(instance);
         if (propertyValue == null) {
           propertyValue = new ArrayList();

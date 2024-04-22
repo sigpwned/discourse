@@ -62,7 +62,7 @@ public class ArrayAppendValueSinkFactory implements ValueSinkFactory {
       }
 
       @Override
-      public void write(Object instance, Object value) throws InvocationTargetException {
+      public void put(Object instance, Object value) throws InvocationTargetException {
         Object propertyValue = property.get(instance);
 
         // Make sure our property value has exactly one empty new value at the top of the array

@@ -19,14 +19,25 @@
  */
 package com.sigpwned.discourse.core;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
- * An assignment target. A sink receives a value and stories it into the configuration object being
- * built. This is used to populate the fields of the configuration object.
+ * <p>
+ * An assignment target. A sink receives zero or more values and stores them for later retrieval.
+ * The sink implements an arbitrary policy for combining multiple values into a single value, such
+ * as:
+ * </p>
+ *
+ * <ul>
+ *   <li>{@link com.sigpwned.discourse.core.value.sink.AssignValueSinkFactory Overwrite}</li>
+ *   <li>{@link com.sigpwned.discourse.core.value.sink.ArrayAppendValueSinkFactory Collect in array}</li>
+ *   <li>{@link com.sigpwned.discourse.core.value.sink.ListAddValueSinkFactory Collect in List}</li>
+ *   <li>{@link com.sigpwned.discourse.core.value.sink.SetAddValueSinkFactory Collect in Set}</li>
+ *   <li>{@link com.sigpwned.discourse.core.value.sink.SortedSetAddValueSinkFactory Collect in SortedSet}</li>
+ * </ul>
  */
 public interface ValueSink {
 
@@ -39,12 +50,19 @@ public interface ValueSink {
   public Type getGenericType();
 
   /**
-   * Writes the value into the instance, for example by setting a field or appending to a
-   * {@link List}.
+   * Writes the given value into the sink. This can perform any operation, such as overwriting the
+   * current value, adding the value to a collection, etc.
    *
-   * @param instance the instance to write the value into
-   * @param value    the value to write
-   * @throws InvocationTargetException if the value could not be written
+   * @param value the value to write
    */
-  public void write(Object instance, Object value) throws InvocationTargetException;
+  public void put(Object value);
+
+  /**
+   * Returns the value stored in the sink. If the sink is has {@link #put(Object) received} zero
+   * values, this method returns an empty {@link Optional}. Otherwise, this method returns the value
+   * stored in the sink.
+   *
+   * @return the value stored in the sink
+   */
+  public Optional<Object> get();
 }

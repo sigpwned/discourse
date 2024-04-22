@@ -23,6 +23,7 @@ import static java.lang.String.*;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
 
+import com.sigpwned.discourse.core.ConfigurationInstanceFactory;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.ValueDeserializer;
 import com.sigpwned.discourse.core.ValueDeserializerResolver;
@@ -157,6 +158,10 @@ public final class SingleCommand<T> extends Command<T> {
 
   public BeanClass getBeanClass() {
     return beanClass;
+  }
+
+  public ConfigurationInstanceFactory<T> getInstanceFactory() {
+
   }
 
   // VALIDATE COORDINATES //////////////////////////////////////////////////////////////////////////

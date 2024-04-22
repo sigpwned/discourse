@@ -109,9 +109,9 @@ import java.util.Optional;
  *   itself configurable".
  * </p>
  */
-public final class ConfigurableClassWalker {
+public final class ConfigurableClassWalker<T> {
 
-  public static interface Visitor {
+  public static interface Visitor<T> {
 
     /**
      * Visit a class that represents a {@link MultiCommand}. A multi command is a command that can
@@ -125,11 +125,11 @@ public final class ConfigurableClassWalker {
      * @param description   the description of the command
      * @param clazz         the class that represents the command
      */
-    public void enterMultiCommandClass(Discriminator discriminator, String name, String description,
-        Class<?> clazz);
+    public <M extends T> void enterMultiCommandClass(Discriminator discriminator, String name,
+        String description, Class<M> clazz);
 
-    public void leaveMultiCommandClass(Discriminator discriminator, String name, String description,
-        Class<?> clazz);
+    public <M extends T> void leaveMultiCommandClass(Discriminator discriminator, String name,
+        String description, Class<M> clazz);
 
     /**
      * Visit a class that represents a {@link SingleCommand}. A single command is a standalone
@@ -142,17 +142,17 @@ public final class ConfigurableClassWalker {
      * @param description   the description of the command
      * @param clazz         the class that represents the command
      */
-    public void visitSingleCommandClass(Discriminator discriminator, String name,
-        String description, Class<?> clazz);
+    public <S extends T> void visitSingleCommandClass(Discriminator discriminator, String name,
+        String description, Class<S> clazz);
   }
 
-  private final Visitor visitor;
+  private final Class<T> clazz;
 
-  public ConfigurableClassWalker(Visitor visitor) {
-    this.visitor = requireNonNull(visitor);
+  public ConfigurableClassWalker(Class<T> clazz) {
+    this.clazz = requireNonNull(clazz);
   }
 
-  public <T> void walk(Class<T> clazz) {
+  public void walk(Visitor<T> visitor) {
     if (clazz.isInterface()) {
       // TODO New configurable exception
       throw new IllegalArgumentException("Cannot walk an interface");
@@ -187,7 +187,8 @@ public final class ConfigurableClassWalker {
     }
   }
 
-  protected <T> void subwalk(Discriminator expectedDiscriminator, Class<T> clazz) {
+  protected void subwalk(Discriminator expectedDiscriminator, Class<? extends T> clazz,
+      Visitor<T> visitor) {
     if (clazz.isInterface()) {
       // TODO New configurable exception
       throw new IllegalArgumentException("Cannot walk an interface");
