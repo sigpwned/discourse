@@ -36,13 +36,13 @@ public class Foobarticus {
     return invocation.getConfiguration();
   }
 
-  protected <T> DereferencedCommandAndRemainingArguments<T> dereference(Command<T> command,
+  protected <T> ResolvedCommandAndRemainingArguments<T> dereference(Command<T> command,
       InvocationContext context, List<String> args) {
 
     args = new ArrayList<>(args);
 
     Command<? extends T> subcommand = command;
-    List<Map.Entry<Discriminator, MultiCommand<? extends T>>> subcommands = new ArrayList<>();
+    List<MultiCommandDereference<? extends T>> subcommands = new ArrayList<>();
     while (subcommand instanceof MultiCommand<? extends T> multi) {
       if (args.isEmpty()) {
         throw new InsufficientDiscriminatorsSyntaxException(multi);
@@ -57,7 +57,7 @@ public class Foobarticus {
         throw new InvalidDiscriminatorSyntaxException(multi, discriminatorString);
       }
 
-      subcommands.add(Map.entry(discriminator, multi));
+      subcommands.add(new MultiCommandDereference<>(multi, discriminator));
 
       Command<? extends T> dereferencedSubcommand = multi.getSubcommands().get(discriminator);
       if (dereferencedSubcommand == null) {
@@ -69,15 +69,14 @@ public class Foobarticus {
 
     SingleCommand<? extends T> single = (SingleCommand<? extends T>) subcommand;
 
-    return new DereferencedCommandAndRemainingArguments<>(command,
-        subcommands.stream().map(Map.Entry::getKey).toList(), single, args);
+    return new ResolvedCommandAndRemainingArguments<>(command, subcommands, single, args);
   }
 
-  protected <T> DereferencedCommandAndParsedArguments<T> parse(Command<T> rootCommand,
-      List<Discriminator> discriminators, SingleCommand<? extends T> dereferencedCommand,
-      List<String> remainingArgs) {
+  protected <T> ResolvedCommandAndParsedArguments<T> parse(Command<T> rootCommand,
+      List<MultiCommandDereference<? extends T>> dereferencedCommands,
+      SingleCommand<? extends T> resolvedCommand, List<String> remainingArgs) {
     final List<ParsedArgument> parsedArguments = new ArrayList<>();
-    new ArgumentsParser(dereferencedCommand, new Handler() {
+    new ArgumentsParser(resolvedCommand, new Handler() {
       @Override
       public void flag(NameCoordinate coordinate, FlagConfigurationParameter property) {
         parsedArguments.add(new ParsedArgument(coordinate, property, "true"));
@@ -96,13 +95,14 @@ public class Foobarticus {
       }
     }).parse(remainingArgs);
 
-    return new DereferencedCommandAndParsedArguments<>(rootCommand, discriminators,
-        dereferencedCommand, parsedArguments);
+    return new ResolvedCommandAndParsedArguments<>(rootCommand, dereferencedCommands,
+        resolvedCommand, parsedArguments);
   }
 
-  protected <T> DereferencedCommandAndDeserializedArguments<T> deserialize(Command<T> rootCommand,
-      List<Discriminator> discriminators, SingleCommand<? extends T> dereferencedCommand,
-      List<ParsedArgument> parsedArguments, InvocationContext context) {
+  protected <T> ResolvedCommandAndDeserializedArguments<T> deserialize(Command<T> rootCommand,
+      List<MultiCommandDereference<? extends T>> dereferencedCommands,
+      SingleCommand<? extends T> resolvedCommand, List<ParsedArgument> parsedArguments,
+      InvocationContext context) {
     final List<DeserializedArgument> deserializedArguments = parsedArguments.stream()
         .map(parsedArgument -> {
           String argumentText = parsedArgument.argumentText();
@@ -111,35 +111,38 @@ public class Foobarticus {
           return new DeserializedArgument(parsedArgument.coordinate(), parsedArgument.parameter(),
               argumentText, argumentValue);
         }).toList();
-    return new DereferencedCommandAndDeserializedArguments<>(rootCommand, discriminators,
-        dereferencedCommand, deserializedArguments);
+    return new ResolvedCommandAndDeserializedArguments<>(rootCommand, dereferencedCommands,
+        resolvedCommand, deserializedArguments);
   }
 
-  protected <T> DereferencedCommandAndSinkedArguments<T> sink(Command<T> rootCommand,
-      List<Discriminator> discriminators, SingleCommand<? extends T> dereferencedCommand,
-      List<DeserializedArgument> deserializedArguments, InvocationContext context) {
-    List<SinkedArgument> sinkedArguments = deserializedArguments.stream().collect(
+  protected <T> ResolvedCommandAndSinkedArguments<T> sink(Command<T> rootCommand,
+      List<MultiCommandDereference<? extends T>> dereferencedCommands,
+      SingleCommand<? extends T> resolvedCommand, List<DeserializedArgument> deserializedArguments,
+      InvocationContext context) {
+    List<PreparedArgument> sinkedArguments = deserializedArguments.stream().collect(
         groupingBy(DeserializedArgument::parameter, collectingAndThen(toList(), arguments -> {
           ConfigurationParameter parameter = arguments.get(0).parameter();
           ValueSink sink = parameter.getSink();
           for (DeserializedArgument argument : arguments) {
             sink.put(argument.argumentValue());
           }
-          return new SinkedArgument(parameter.getName(), arguments, sink.get().orElse(null));
-        }))).values().stream().sorted(Comparator.comparing(SinkedArgument::name)).toList();
-    return new DereferencedCommandAndSinkedArguments<>(rootCommand, discriminators,
-        dereferencedCommand, sinkedArguments);
+          return new PreparedArgument(parameter.getName(), arguments, sink.get().orElse(null));
+        }))).values().stream().sorted(Comparator.comparing(PreparedArgument::name)).toList();
+    return new ResolvedCommandAndSinkedArguments<>(rootCommand, dereferencedCommands,
+        resolvedCommand, sinkedArguments);
   }
 
-  protected <T> void invoke(Command<T> rootCommand, List<Discriminator> discriminators,
-      SingleCommand<? extends T> dereferencedCommand, List<SinkedArgument> sinkedArguments,
+  protected <T> ResolvedCommandAndSinkedArgumentsAndInstance<T> create(Command<T> rootCommand,
+      List<MultiCommandDereference<? extends T>> discriminators,
+      SingleCommand<? extends T> resolvedCommand, List<PreparedArgument> sinkedArguments,
       InvocationContext context) {
     Map<String, Object> arguments = sinkedArguments.stream()
-        .collect(toMap(SinkedArgument::name, SinkedArgument::sinkedArgumentValue));
+        .collect(toMap(PreparedArgument::name, PreparedArgument::sinkedArgumentValue));
 
-    T instance = dereferencedCommand.getInstanceFactory().createInstance(arguments);
+    T instance = resolvedCommand.getInstanceFactory().createInstance(arguments);
 
-    
+    return new ResolvedCommandAndSinkedArgumentsAndInstance<>(rootCommand, discriminators,
+        resolvedCommand, sinkedArguments, instance);
   }
 
   protected <T> Command<T> scan(Class<T> rawType, InvocationContext context) {
@@ -168,14 +171,14 @@ public class Foobarticus {
       @Override
       public <M extends T> void visitSingleCommandClass(Discriminator discriminator, String name,
           String description, Class<M> clazz) {
-        ConfigurationInstanceFactoryProviderChain factoryProviderChain = null;
-        ConfigurationInstanceFactory<M> factory = factoryProviderChain.getConfigurationInstanceFactory(
+        ConfigurableInstanceFactoryProviderChain factoryProviderChain = null;
+        ConfigurableInstanceFactory<M> factory = factoryProviderChain.getConfigurationInstanceFactory(
             clazz).orElseThrow(() -> {
           // TODO better exception
           return new IllegalArgumentException("No factory for " + rawType);
         });
 
-        ConfigurationParameterScannerChain parameterScannerChain = null;
+        ConfigurableParameterScannerChain parameterScannerChain = null;
         List<ConfigurationParameter> parameters = parameterScannerChain.scanForParameters(clazz);
         if (parameters.isEmpty()) {
           // TODO Warn

@@ -181,7 +181,7 @@ public final class ConfigurableClassWalker<T> {
       }
       visitor.enterMultiCommandClass(null, configurable.name(), configurable.description(), clazz);
       for (SubcommandClass<? extends T> subcommand : subcommands) {
-        subwalk(subcommand.expectedDiscriminator().orElse(null), subcommand.rawType());
+        subwalk(subcommand.expectedDiscriminator().orElse(null), subcommand.rawType(), visitor);
       }
       visitor.leaveMultiCommandClass(null, configurable.name(), configurable.description(), clazz);
     }
@@ -207,7 +207,7 @@ public final class ConfigurableClassWalker<T> {
           discriminator);
     }
 
-    List<SubcommandClass<? extends T>> subcommands = subcommands(configurable, clazz);
+    List<SubcommandClass<? extends T>> subcommands = subcommands(configurable, clazz, visitor);
     if (subcommands.isEmpty()) {
       if (Modifier.isAbstract(clazz.getModifiers())) {
         // TODO New configurable exception
@@ -223,7 +223,7 @@ public final class ConfigurableClassWalker<T> {
       visitor.enterMultiCommandClass(discriminator, configurable.name(), configurable.description(),
           clazz);
       for (SubcommandClass<?> subcommand : subcommands) {
-        subwalk(subcommand.expectedDiscriminator().orElse(null), subcommand.rawType());
+        subwalk(subcommand.expectedDiscriminator().orElse(null), subcommand.rawType(), visitor);
       }
       visitor.leaveMultiCommandClass(discriminator, configurable.name(), configurable.description(),
           clazz);

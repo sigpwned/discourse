@@ -13,7 +13,7 @@ import java.util.Set;
  *
  * @param <T> the type of object that the factory creates
  */
-public interface ConfigurationInstanceFactory<T> {
+public interface ConfigurableInstanceFactory<T> {
 
   /**
    * Returns the names of the parameters that are required to create an instance of the class. For

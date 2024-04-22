@@ -233,7 +233,7 @@ public class ArgumentsParser {
   /**
    * @return the configurationClass
    */
-  private ConfigurationParameterResolver getParameterResolver() {
+  private ConfigurableParameterResolver getParameterResolver() {
     return getCommand()::findParameter;
   }
 

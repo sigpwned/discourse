@@ -27,7 +27,7 @@ import java.util.Optional;
  * A resolver that resolves a {@link ConfigurationParameter} for a {@link Coordinate}.
  */
 @FunctionalInterface
-public interface ConfigurationParameterResolver {
+public interface ConfigurableParameterResolver {
 
   public Optional<ConfigurationParameter> resolveConfigurationParameter(Coordinate coordinate);
 }

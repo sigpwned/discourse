@@ -75,6 +75,9 @@ public interface InvocationContext {
   public static final Key<ValueSinkResolver> VALUE_SINK_RESOLVER_KEY = Key.of(
       "discourse.ValueSinkResolver", ValueSinkResolver.class);
 
+  public static final Key<DiscourseListenerChain> DISCOURSE_LISTENER_CHAIN_KEY = Key.of(
+      "discourse.DiscourseListenerChain", DiscourseListenerChain.class);
+
   /**
    * Registers a module with this invocation context. This is used to register additional resources
    * with the context. May add additional keys to the context, reassign existing keys in the

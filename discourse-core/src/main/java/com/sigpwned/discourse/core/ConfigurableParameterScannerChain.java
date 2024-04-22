@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ConfigurationParameterScannerChain extends Chain<ConfigurationParameterScanner> {
+public class ConfigurableParameterScannerChain extends Chain<ConfigurableParameterScanner> {
 
   public List<ConfigurationParameter> scanForParameters(Class<?> type) {
     Map<String, List<ConfigurationParameter>> parameters = Chains.stream(this)

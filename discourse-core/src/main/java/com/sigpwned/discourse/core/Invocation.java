@@ -19,14 +19,16 @@
  */
 package com.sigpwned.discourse.core;
 
+import static java.util.Collections.*;
+import static java.util.Objects.requireNonNull;
+
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.invocation.DefaultInvocation;
+import com.sigpwned.discourse.core.invocation.InvocationBuilder;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 /**
  * <p>
@@ -66,68 +68,71 @@ import java.util.stream.Stream;
  *
  * @param <T> The type of the configuration object.
  */
-public interface Invocation<T> {
-
+public class Invocation<T> {
   /**
    * Create a new {@link Invocation} builder using the default implementation.
    *
    * @return the builder
    * @see DefaultInvocation.Builder
    */
-  public static DefaultInvocation.Builder defaultBuilder() {
-    return DefaultInvocation.builder();
+  public static InvocationBuilder builder() {
+    return new InvocationBuilder();
   }
 
-  /**
-   * The configuration object created from the command line arguments according to the command being
-   * executed.
-   *
-   * @return the configuration
-   */
-  T getConfiguration();
+  private final Command<T> rootCommand;
+  private final List<MultiCommandDereference<? extends T>> dereferencedCommands;
+  private final SingleCommand<? extends T> resolvedCommand;
+  private final T configuration;
 
-  /**
-   * The discriminators and the {@link MultiCommand}s they map to. If the root command is of type
-   * {@link SingleCommand}, then this will be empty. Otherwise, this will contain the discriminators
-   * that were used to dereference the subcommands to find the "leaf" {@code SingleCommand}, and the
-   * {@code MultiCommand}s that were dereferenced.
-   *
-   * @return the subcommands
-   */
-  List<Map.Entry<Discriminator, MultiCommand<? extends T>>> getSubcommands();
+  public Invocation(Command<T> rootCommand,
+      List<MultiCommandDereference<? extends T>> dereferencedCommands,
+      SingleCommand<? extends T> resolvedCommand, T configuration) {
+    this.rootCommand = requireNonNull(rootCommand);
+    this.dereferencedCommands = unmodifiableList(dereferencedCommands);
+    this.resolvedCommand = requireNonNull(resolvedCommand);
+    this.configuration = requireNonNull(configuration);
+  }
 
-  /**
-   * The "leaf" {@link SingleCommand} that was invoked. If the root command is of type
-   * {@code SingleCommand}, then this will be the same as the root command. Otherwise, this will be
-   * the "leaf" {@code SingleCommand} that was dereferenced.
-   *
-   * @return the command
-   */
-  SingleCommand<? extends T> getLeafCommand();
+  public Command<T> getRootCommand() {
+    return rootCommand;
+  }
 
-  /**
-   * The arguments that were passed to the command. If the root command is of type
-   * {@code SingleCommand}, then this will be the same as the arguments that were passed to the
-   * application. Otherwise, this will be the arguments that were passed to the "leaf"
-   * {@code SingleCommand}. The prefix "discriminator" arguments that were used to dereference the
-   * subcommands to find the "leaf" {@code SingleCommand} will NOT be included in this list. (These
-   * discriminator arguments can be found in {@link #getSubcommands()}, in the order they originally
-   * appeared in the application arguments.)
-   *
-   * @return the args
-   */
-  List<String> getLeafArgs();
+  public List<MultiCommandDereference<? extends T>> getDereferencedCommands() {
+    return dereferencedCommands;
+  }
 
-  /**
-   * The verbatim arguments as they were passed to the application. This includes the
-   * "discriminator" arguments that were used to dereference the subcommands to find the "leaf"
-   * {@code SingleCommand} (if the root command is of type {@code MultiCommand}), and the arguments
-   * that were passed to the "leaf" {@code SingleCommand}.
-   *
-   * @return the verbatim arguments
-   */
-  default List<String> getAllArgs() {
-    return Stream.concat(getSubcommands().stream().map(Map.Entry::getKey).map(Objects::toString),
-        getLeafArgs().stream()).toList();
+  public SingleCommand<? extends T> getResolvedCommand() {
+    return resolvedCommand;
+  }
+
+  public T getConfiguration() {
+    return configuration;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Invocation<?> that)) {
+      return false;
+    }
+    return Objects.equals(getRootCommand(), that.getRootCommand()) && Objects.equals(
+        getDereferencedCommands(), that.getDereferencedCommands()) && Objects.equals(
+        getResolvedCommand(), that.getResolvedCommand()) && Objects.equals(getConfiguration(),
+        that.getConfiguration());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getRootCommand(), getDereferencedCommands(), getResolvedCommand(),
+        getConfiguration());
+  }
+
+  @Override
+  public String toString() {
+    return "Invocation{" + "rootCommand=" + rootCommand + ", dereferencedCommands="
+        + dereferencedCommands + ", resolvedCommand=" + resolvedCommand + ", configuration="
+        + configuration + '}';
   }
 }

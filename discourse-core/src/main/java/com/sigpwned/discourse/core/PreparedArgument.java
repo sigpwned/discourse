@@ -5,10 +5,10 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 
-public record SinkedArgument(String name, List<DeserializedArgument> deserializedArguments,
+public record PreparedArgument(String name, List<DeserializedArgument> deserializedArguments,
     Object sinkedArgumentValue) {
 
-  public SinkedArgument {
+  public PreparedArgument {
     name = requireNonNull(name);
     deserializedArguments = unmodifiableList(deserializedArguments);
   }

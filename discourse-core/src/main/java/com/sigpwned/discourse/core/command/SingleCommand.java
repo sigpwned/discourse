@@ -23,7 +23,7 @@ import static java.lang.String.*;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
 
-import com.sigpwned.discourse.core.ConfigurationInstanceFactory;
+import com.sigpwned.discourse.core.ConfigurableInstanceFactory;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.ValueDeserializer;
 import com.sigpwned.discourse.core.ValueDeserializerResolver;
@@ -134,13 +134,13 @@ public final class SingleCommand<T> extends Command<T> {
         configurableClass.getVersion(), new HashSet<>(parameters), beanClass);
   }
 
-  private final BeanClass beanClass;
+  private final ConfigurableInstanceFactory<T> factory;
 
   public SingleCommand(String name, String description, String version,
-      Set<ConfigurationParameter> parameters, BeanClass beanClass) {
+      List<ConfigurationParameter> parameters, ConfigurableInstanceFactory<T> factory) {
     super(name, description, version);
     this.parameters = requireNonNull(parameters);
-    this.beanClass = requireNonNull(beanClass);
+    this.factory = requireNonNull(factory);
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -160,7 +160,7 @@ public final class SingleCommand<T> extends Command<T> {
     return beanClass;
   }
 
-  public ConfigurationInstanceFactory<T> getInstanceFactory() {
+  public ConfigurableInstanceFactory<T> getInstanceFactory() {
 
   }
 
