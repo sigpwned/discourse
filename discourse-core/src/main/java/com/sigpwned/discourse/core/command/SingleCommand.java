@@ -101,6 +101,13 @@ import java.util.stream.Stream;
  */
 public final class SingleCommand<T> extends Command<T> {
 
+  public static interface InstanceFactory<T> {
+
+    public List<ConfigurationParameter> getParameters();
+
+    public T createInstance(Map<String, Object> arguments);
+  }
+
   private final Set<ConfigurationParameter> parameters;
 
   static <T> SingleCommand<T> scan(InvocationContext context,

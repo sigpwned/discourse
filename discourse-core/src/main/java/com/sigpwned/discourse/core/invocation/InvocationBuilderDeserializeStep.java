@@ -33,8 +33,7 @@ public class InvocationBuilderDeserializeStep<T> {
           parsedArguments);
     });
 
-    List<DeserializedArgument> deserializedArguments = parsedArguments.stream()
-        .map(this::doDeserialize).toList();
+    List<DeserializedArgument> deserializedArguments = doDeserialize();
 
     return new InvocationBuilderPrepareStep<>(rootCommand, dereferencedCommands, resolvedCommand,
         deserializedArguments);
@@ -43,8 +42,11 @@ public class InvocationBuilderDeserializeStep<T> {
   /**
    * extension hook
    */
-  protected DeserializedArgument doDeserialize(ParsedArgument a) {
-    Object deserialized = a.parameter().getDeserializer().deserialize(a.argumentText());
-    return new DeserializedArgument(a.coordinate(), a.parameter(), a.argumentText(), deserialized);
+  protected List<DeserializedArgument> doDeserialize() {
+    return parsedArguments.stream().map(a -> {
+      Object deserialized = a.parameter().getDeserializer().deserialize(a.argumentText());
+      return new DeserializedArgument(a.coordinate(), a.parameter(), a.argumentText(),
+          deserialized);
+    }).toList();
   }
 }

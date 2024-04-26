@@ -28,7 +28,7 @@ public class InvocationBuilderResolveStep<T> {
       listenerChain.beforeResolve(command, arguments);
     });
 
-    ResolvedCommandAndRemainingArguments<T> resolved = doResolve(command, arguments);
+    ResolvedCommandAndRemainingArguments<T> resolved = doResolve(arguments, context);
 
     return new InvocationBuilderParseStep<T>(command, resolved.dereferencedCommands(),
         resolved.resolvedCommand(), resolved.remainingArguments());
@@ -50,8 +50,8 @@ public class InvocationBuilderResolveStep<T> {
   /**
    * extension hook
    */
-  protected ResolvedCommandAndRemainingArguments<T> doResolve(Command<T> command,
-      List<String> arguments) {
+  protected ResolvedCommandAndRemainingArguments<T> doResolve(List<String> arguments,
+      InvocationContext context) {
     Command<? extends T> subcommand = command;
     List<MultiCommandDereference<? extends T>> subcommands = new ArrayList<>();
     while (subcommand instanceof MultiCommand<? extends T> multi) {

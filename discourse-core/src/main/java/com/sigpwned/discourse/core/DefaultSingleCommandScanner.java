@@ -28,6 +28,15 @@ import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.PropertyParameter;
 import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.component.FieldConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.component.GetterConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.component.InputConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.component.SetterConfigurableComponent;
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
+import com.sigpwned.discourse.core.reflection.ClassWalker;
+import com.sigpwned.discourse.core.reflection.DefaultClassWalker;
+import com.sigpwned.discourse.core.util.ParameterAnnotations;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
@@ -46,76 +55,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class DefaultSingleCommandScanner {
-
-  protected static enum AccessorNamingScheme {
-    BEAN {
-      @Override
-      public Optional<String> parseGetterName(String methodName) {
-        if (methodName.startsWith("get") && methodName.length() > 3 && Character.isUpperCase(
-            methodName.charAt(3))) {
-          return Optional.of(methodName.substring(3, 4).toLowerCase() + methodName.substring(4));
-        } else {
-          return Optional.empty();
-        }
-      }
-
-      @Override
-      public Optional<String> parseSetterName(String methodName) {
-        if (methodName.startsWith("set") && methodName.length() > 3 && Character.isUpperCase(
-            methodName.charAt(3))) {
-          return Optional.of(methodName.substring(3, 4).toLowerCase() + methodName.substring(4));
-        } else {
-          return Optional.empty();
-        }
-      }
-
-      @Override
-      public String computeGetterName(String fieldName) {
-        return "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-      }
-
-      @Override
-      public String computeSetterName(String fieldName) {
-        return "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-      }
-    }, RECORD {
-      @Override
-      public Optional<String> parseGetterName(String methodName) {
-        if (Character.isLowerCase(methodName.charAt(0))) {
-          return Optional.of(methodName);
-        } else {
-          return Optional.empty();
-        }
-      }
-
-      @Override
-      public Optional<String> parseSetterName(String methodName) {
-        if (Character.isLowerCase(methodName.charAt(0))) {
-          return Optional.of(methodName);
-        } else {
-          return Optional.empty();
-        }
-      }
-
-      @Override
-      public String computeGetterName(String fieldName) {
-        return fieldName;
-      }
-
-      @Override
-      public String computeSetterName(String fieldName) {
-        return fieldName;
-      }
-    };
-
-    public abstract Optional<String> parseGetterName(String methodName);
-
-    public abstract Optional<String> parseSetterName(String methodName);
-
-    public abstract String computeGetterName(String fieldName);
-
-    public abstract String computeSetterName(String fieldName);
-  }
 
   protected static record Creator(Optional<Constructor<?>> constructor, Optional<Method> factory) {
 
@@ -375,6 +314,323 @@ public class DefaultSingleCommandScanner {
     }
 
     return unmodifiableList(attributes);
+  }
+
+  private static class AttributeBucket {
+
+    private final String name;
+    private final Annotation annotation;
+    private final Class<?> rawType;
+    private final Type genericType;
+    private final List<InputConfigurableComponent> inputs;
+    private final List<FieldConfigurableComponent> fields;
+    private final List<GetterConfigurableComponent> getters;
+    private final List<SetterConfigurableComponent> setters;
+
+    public static AttributeBucket fromAttributeDefinition(AttributeDefinition definition) {
+      return new AttributeBucket(definition.name(), definition.annotation(), definition.rawType(),
+          definition.genericType());
+    }
+
+    public AttributeBucket(String name, Annotation annotation, Class<?> rawType, Type genericType) {
+      this.name = name;
+      this.annotation = annotation;
+      this.rawType = rawType;
+      this.genericType = genericType;
+      this.inputs = new ArrayList<>();
+      this.fields = new ArrayList<>();
+      this.getters = new ArrayList<>();
+      this.setters = new ArrayList<>();
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public Annotation getAnnotation() {
+      return annotation;
+    }
+
+    public Class<?> getRawType() {
+      return rawType;
+    }
+
+    public Type getGenericType() {
+      return genericType;
+    }
+
+    public List<InputConfigurableComponent> getInputs() {
+      return unmodifiableList(inputs);
+    }
+
+    public List<FieldConfigurableComponent> getFields() {
+      return unmodifiableList(fields);
+    }
+
+    public List<GetterConfigurableComponent> getGetters() {
+      return unmodifiableList(getters);
+    }
+
+    public List<SetterConfigurableComponent> getSetters() {
+      return unmodifiableList(setters);
+    }
+
+    public void addInput(InputConfigurableComponent input) {
+      inputs.add(input);
+    }
+
+    public void addField(FieldConfigurableComponent field) {
+      fields.add(field);
+    }
+
+    public void addGetter(GetterConfigurableComponent getter) {
+      getters.add(getter);
+    }
+
+    public void addSetter(SetterConfigurableComponent setter) {
+      setters.add(setter);
+    }
+
+    public int size() {
+      return inputs.size() + fields.size() + getters.size() + setters.size();
+    }
+  }
+
+  private <T> List<Attribute> foo(Class<T> rawType, InvocationContext context) {
+    AccessorNamingSchemeChain naming = context.get(
+        InvocationContext.ACCESSOR_NAMING_SCHEME_CHAIN_KEY).orElseThrow();
+
+    ConfigurableInstanceFactoryProviderChain factoryProvider = context.get(
+        InvocationContext.CONFIGURABLE_INSTANCE_FACTORY_PROVIDER_CHAIN_KEY).orElseThrow();
+
+    ConfigurableClass<T> configurable = null;
+
+    List<AttributeDefinition> attributeAnchors = configurable.getComponents().stream()
+        .<AttributeDefinition>mapMulti((component, downstream) -> {
+          ParameterAnnotations.findParameterAnnotation(component.getAnnotations())
+              .ifPresent(parameterAnnotation -> {
+                attributeName(naming, component).ifPresent(attributeName -> {
+                  downstream.accept(new AttributeDefinition(attributeName, parameterAnnotation,
+                      component.getRawType(), component.getGenericType()));
+                });
+              }, () -> {
+                // TODO better exception
+                return new IllegalArgumentException("multiple parameter annotations");
+              });
+        }).toList();
+
+    Map<String, AttributeBucket> attributeBuckets = new HashMap<>();
+    for (AttributeDefinition attributeAnchor : attributeAnchors) {
+      if (attributeBuckets.containsKey(attributeAnchor.name())) {
+        // TODO better exception
+        throw new IllegalArgumentException("Duplicate attribute name: " + attributeAnchor.name());
+      }
+      attributeBuckets.put(attributeAnchor.name(),
+          AttributeBucket.fromAttributeDefinition(attributeAnchor));
+    }
+    for (ConfigurableComponent component : configurable.getComponents()) {
+      if (component instanceof InputConfigurableComponent input) {
+        String assignmentName = null;
+        for (Map.Entry<String, AttributeBucket> e : attributeBuckets.entrySet()) {
+          String attributeName = e.getKey();
+          AttributeBucket bucket = e.getValue();
+          if (naming.isAttributeInputFor(attributeName, input.getName(), input.getAnnotations())
+              .orElse(false)) {
+            if (assignmentName != null) {
+              // TODO better exception
+              throw new IllegalArgumentException(
+                  "Input %s assigned to multiple attributes: %s and %s".formatted(input.getName(),
+                      assignmentName, attributeName));
+            }
+            bucket.addInput(input);
+            assignmentName = attributeName;
+          }
+        }
+      } else if (component instanceof FieldConfigurableComponent field) {
+        String assignmentName = null;
+        for (Map.Entry<String, AttributeBucket> e : attributeBuckets.entrySet()) {
+          String attributeName = e.getKey();
+          AttributeBucket bucket = e.getValue();
+          if (naming.isAttributeFieldFor(attributeName, field.getName(), field.getAnnotations())
+              .orElse(false)) {
+            if (assignmentName != null) {
+              // TODO better exception
+              throw new IllegalArgumentException(
+                  "Field %s assigned to multiple attributes: %s and %s".formatted(field.getName(),
+                      assignmentName, attributeName));
+            }
+            bucket.addField(field);
+            assignmentName = attributeName;
+          }
+        }
+      } else if (component instanceof GetterConfigurableComponent getter) {
+        String assignmentName = null;
+        for (Map.Entry<String, AttributeBucket> e : attributeBuckets.entrySet()) {
+          String attributeName = e.getKey();
+          AttributeBucket bucket = e.getValue();
+          if (naming.isAttributeGetterFor(attributeName, getter.getName(), getter.getAnnotations())
+              .orElse(false)) {
+            if (assignmentName != null) {
+              // TODO better exception
+              throw new IllegalArgumentException(
+                  "Getter %s assigned to multiple attributes: %s and %s".formatted(getter.getName(),
+                      assignmentName, attributeName));
+            }
+            bucket.addGetter(getter);
+            assignmentName = attributeName;
+          }
+        }
+      } else if (component instanceof SetterConfigurableComponent setter) {
+        String assignmentName = null;
+        for (Map.Entry<String, AttributeBucket> e : attributeBuckets.entrySet()) {
+          String attributeName = e.getKey();
+          AttributeBucket bucket = e.getValue();
+          if (naming.isAttributeSetterFor(attributeName, setter.getName(), setter.getAnnotations())
+              .orElse(false)) {
+            if (assignmentName != null) {
+              // TODO better exception
+              throw new IllegalArgumentException(
+                  "Getter %s assigned to multiple attributes: %s and %s".formatted(setter.getName(),
+                      assignmentName, attributeName));
+            }
+            bucket.addSetter(setter);
+            assignmentName = attributeName;
+          }
+        }
+      }
+    }
+
+    List<ConfigurationParameter> parameters = new ArrayList<>();
+    for (AttributeBucket bucket : attributeBuckets.values()) {
+      parameters.add(toConfigurationParameter(bucket))
+    }
+
+    if (!attributeBuckets.keySet().containsAll(creator.getRequiredParameterNames())) {
+      // TODO better exception
+      throw new IllegalArgumentException("Missing attribute names");
+    }
+
+    new DefaultClassWalker().walkClass(rawType, new ClassWalker.Visitor() {
+      @Override
+      public void constructor(Constructor<?> constructor) {
+      }
+
+      @Override
+      public void field(Field field) {
+        String assignedTo = null;
+        for (String attributeName : attributeBuckets.keySet()) {
+          if (naming.isAttributeGetterFor(attributeName, field.getName(),
+              List.of(field.getAnnotations())).orElse(false)) {
+            if (assignedTo != null) {
+              // TODO better exception
+              throw new IllegalArgumentException(
+                  "Field %s assigned to multiple attributes: %s and %s".formatted(field.getName(),
+                      assignedTo, attributeName));
+            }
+            attributeBuckets.get(attributeName).addField(field);
+            assignedTo = attributeName;
+          }
+        }
+      }
+
+      @Override
+      public void method(Method method) {
+        String assignedTo = null;
+        if (hasInstanceGetterSignature(method)) {
+          for (String attributeName : attributeBuckets.keySet()) {
+            if (naming.isAttributeGetterFor(attributeName, method.getName(),
+                List.of(method.getAnnotations())).orElse(false)) {
+              if (assignedTo != null) {
+                // TODO better exception
+                throw new IllegalArgumentException(
+                    "Getter method %s assigned to multiple attributes: %s and %s".formatted(
+                        method.getName(), assignedTo, attributeName));
+              }
+              attributeBuckets.get(attributeName).addGetter(method);
+              assignedTo = attributeName;
+            }
+          }
+        }
+        if (hasInstanceSetterSignature(method)) {
+          for (String attributeName : attributeBuckets.keySet()) {
+            if (naming.isAttributeSetterFor(attributeName, method.getName(),
+                List.of(method.getAnnotations())).orElse(false)) {
+              if (assignedTo != null) {
+                // TODO better exception
+                throw new IllegalArgumentException(
+                    "Setter method %s assigned to multiple attributes: %s and %s".formatted(
+                        method.getName(), assignedTo, attributeName));
+              }
+              attributeBuckets.get(attributeName).addSetter(method);
+              assignedTo = attributeName;
+            }
+          }
+        }
+      }
+    });
+
+  }
+
+  private static ConfigurationParameter toConfigurationParameter(AttributeBucket bucket) {
+    // TODO
+    if (bucket.size() == 0) {
+      // TODO better exception
+      throw new IllegalArgumentException(
+          "No field, getter, or setter for attribute %s".formatted(bucket.getName()));
+    }
+    if (bucket.getFields().size() > 1) {
+      // TODO better exception
+      throw new IllegalArgumentException(
+          "Multiple fields for attribute %s".formatted(bucket.getName()));
+    }
+    if (bucket.getInputs().size() > 1) {
+      // TODO better exception
+      throw new IllegalArgumentException(
+          "Multiple inputs for attribute %s".formatted(bucket.getName()));
+    }
+
+    if (!bucket.getInputs().isEmpty()) {
+      return new ConfigurationParameter(bucket.name(), bucket.inputs().get(0).getGenericType(),
+          bucket.inputs().get(0).getAnnotations());
+    }
+
+    if (!bucket.getFields().isEmpty()) {
+      FieldConfigurableComponent field = bucket.getFields().get(0);
+      if(field.isVisible() && field.isMutable()) {
+        return new ConfigurationParameter(bucket.name(), field.getRawType(), field.getGenericType(),
+            field.getAnnotations());
+      }
+    }
+
+    if(!bucket.getSetters().isEmpty()) {
+      SetterConfigurableComponent setter = bucket.getSetters().get(0);
+      if(setter.isVisible()) {
+        return new ConfigurationParameter(bucket.name(), setter.getRawType(), setter.getGenericType(),
+            setter.getAnnotations());
+      }
+    }
+
+
+  }
+
+
+
+  private static Optional<String> attributeName(AccessorNamingSchemeChain naming,
+      ConfigurableComponent component) {
+    if (component instanceof InputConfigurableComponent input) {
+      // TODO handle factory methods
+      return naming.getAttributeConstructorParameterName(input.getAnnotations(), input.getName(),
+          input.getAnnotations());
+    } else if (component instanceof FieldConfigurableComponent field) {
+      return naming.getAttributeFieldName(field.getName(), field.getAnnotations());
+    } else if (component instanceof GetterConfigurableComponent getter) {
+      return naming.getAttributeGetterName(getter.getName(), getter.getAnnotations());
+    } else if (component instanceof SetterConfigurableComponent setter) {
+      return naming.getAttributeSetterName(setter.getName(), setter.getAnnotations());
+    } else {
+      // TODO throw? instance?
+      return Optional.empty();
+    }
   }
 
   /**

@@ -19,9 +19,13 @@
  */
 package com.sigpwned.discourse.core.module;
 
+import com.sigpwned.discourse.core.AccessorNamingSchemeChain;
+import com.sigpwned.discourse.core.ConfigurableInstanceFactoryProviderChain;
+import com.sigpwned.discourse.core.ConfigurableParameterScannerChain;
 import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.ValueDeserializerResolver;
 import com.sigpwned.discourse.core.ValueSinkResolver;
+import com.sigpwned.discourse.core.configurable.instance.factory.DefaultConstructorConfigurableInstanceFactory;
 import com.sigpwned.discourse.core.value.deserializer.BigDecimalValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.BooleanValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.ByteValueDeserializerFactory;
@@ -153,5 +157,19 @@ public class DefaultModule extends Module {
     resolver.addLast(SetAddValueSinkFactory.INSTANCE);
     resolver.addLast(ListAddValueSinkFactory.INSTANCE);
     resolver.addLast(ArrayAppendValueSinkFactory.INSTANCE);
+  }
+
+  @Override
+  public void registerInstanceFactoryProviders(ConfigurableInstanceFactoryProviderChain chain) {
+    chain.addLast(new DefaultConstructorConfigurableInstanceFactory.Provider());
+  }
+
+  @Override
+  public void registerParameterScanners(ConfigurableParameterScannerChain chain) {
+  }
+
+  @Override
+  public void registerAccessorNamingSchemes(AccessorNamingSchemeChain chain) {
+    chain.addLast();
   }
 }

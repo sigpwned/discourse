@@ -78,6 +78,16 @@ public interface InvocationContext {
   public static final Key<DiscourseListenerChain> DISCOURSE_LISTENER_CHAIN_KEY = Key.of(
       "discourse.DiscourseListenerChain", DiscourseListenerChain.class);
 
+  public static final Key<ConfigurableInstanceFactoryProviderChain> CONFIGURABLE_INSTANCE_FACTORY_PROVIDER_CHAIN_KEY = Key.of(
+      "discourse.ConfigurableInstanceFactoryProviderChain",
+      ConfigurableInstanceFactoryProviderChain.class);
+
+  public static final Key<ConfigurableComponentScannerChain> CONFIGURABLE_COMPONENT_SCANNER_CHAIN_KEY = Key.of(
+      "discourse.ConfigurableComponentScannerChain", ConfigurableComponentScannerChain.class);
+
+  public static final Key<AccessorNamingSchemeChain> ACCESSOR_NAMING_SCHEME_CHAIN_KEY = Key.of(
+      "discourse.AccessorNamingSchemeChain", AccessorNamingSchemeChain.class);
+
   /**
    * Registers a module with this invocation context. This is used to register additional resources
    * with the context. May add additional keys to the context, reassign existing keys in the

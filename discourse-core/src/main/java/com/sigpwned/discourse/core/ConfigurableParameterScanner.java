@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface ConfigurableParameterScanner {
 
-  public List<ConfigurationParameter> scanForParameters(Class<?> type);
+  public List<ConfigurationParameter> scanForParameters(Class<?> type, InvocationContext context);
 }

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,6 @@ package com.sigpwned.discourse.core.util;
 
 import static java.util.stream.Collectors.groupingBy;
 
-import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -32,6 +31,24 @@ import java.util.stream.Stream;
 public class Streams {
 
   private Streams() {
+  }
+
+  /**
+   * Returns a stream that concatenates the input streams.
+   *
+   * @param first  the first stream
+   * @param second the second stream
+   * @param more   additional streams
+   * @param <T>    the type of the elements in the streams
+   * @return a stream that concatenates the input streams
+   */
+  public static <T> Stream<T> concat(Stream<? extends T> first, Stream<? extends T> second,
+      Stream<? extends T>... more) {
+    Stream<T> result = Stream.concat(first, second);
+    for (Stream<? extends T> stream : more) {
+      result = Stream.concat(result, stream);
+    }
+    return result;
   }
 
   /**
@@ -62,17 +79,15 @@ public class Streams {
    * the specified class and casts the elements to that class in one step.
    *
    * @param clazz the class to filter and cast elements to
-   * @param <T>   the type to filter and cast elements to
+   * @param <U>   the type to filter and cast elements to
    * @return a {@link Stream#mapMulti(BiConsumer)} operator that filters elements of the stream to
    * the specified class and casts the elements to that class in one step
    */
-  public static <T> BiConsumer<ConfigurationParameter, Consumer<T>> filterAndCast(Class<T> clazz) {
+  public static <T, U extends T> BiConsumer<T, Consumer<U>> filterAndCast(Class<U> clazz) {
     return (x, d) -> {
       if (clazz.isInstance(x)) {
         d.accept(clazz.cast(x));
       }
     };
   }
-
-
 }

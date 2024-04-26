@@ -44,4 +44,22 @@ public abstract class Module {
    */
   public void registerValueSinkFactories(ValueSinkResolver resolver) {
   }
+
+  /**
+   * Register new {@link ConfigurableInstanceFactoryProvider} instances with the given chain
+   */
+  public void registerInstanceFactoryProviders(ConfigurableInstanceFactoryProviderChain chain) {
+  }
+
+  /**
+   * Register new {@link ConfigurableParameterScanner} instances with the given chain
+   */
+  public void registerParameterScanners(ConfigurableParameterScannerChain chain) {
+  }
+
+  /**
+   * Register new {@link AccessorNamingScheme} instances with the given chain
+   */
+  public void registerAccessorNamingSchemes(AccessorNamingSchemeChain chain) {
+  }
 }
