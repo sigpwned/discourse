@@ -78,13 +78,13 @@ public interface InvocationContext {
    * The key for the {@link ValueDeserializerFactoryChain value deserializer resolver}. This is a
    * required value.
    */
-  public static final Key<ValueDeserializerFactoryChain> VALUE_DESERIALIZER_RESOLVER_KEY = Key.of(
+  public static final Key<ValueDeserializerFactoryChain> VALUE_DESERIALIZER_FACTORY_CHAIN_KEY = Key.of(
       "discourse.ValueDeserializerResolver", ValueDeserializerFactoryChain.class);
 
   /**
    * The key for the {@link ValueSinkFactoryChain value sink resolver}. This is a required value.
    */
-  public static final Key<ValueSinkFactoryChain> VALUE_SINK_RESOLVER_KEY = Key.of(
+  public static final Key<ValueSinkFactoryChain> VALUE_SINK_FACTORY_CHAIN_KEY = Key.of(
       "discourse.ValueSinkResolver", ValueSinkFactoryChain.class);
 
   public static final Key<DiscourseListenerChain> DISCOURSE_LISTENER_CHAIN_KEY = Key.of(

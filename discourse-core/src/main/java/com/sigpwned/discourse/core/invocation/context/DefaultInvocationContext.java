@@ -19,14 +19,14 @@
  */
 package com.sigpwned.discourse.core.invocation.context;
 
-import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.Module;
+import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
+import com.sigpwned.discourse.core.chain.ValueDeserializerFactoryChain;
+import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
 import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 import com.sigpwned.discourse.core.format.version.DefaultVersionFormatter;
 import com.sigpwned.discourse.core.module.DefaultModule;
-import com.sigpwned.discourse.core.value.deserializer.resolver.DefaultValueDeserializerResolver;
-import com.sigpwned.discourse.core.value.sink.resolver.DefaultValueSinkResolver;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -41,8 +41,8 @@ import java.util.Optional;
  *   <li>{@link InvocationContext#HELP_FORMATTER_KEY} - {@link DefaultHelpFormatter#INSTANCE}</li>
  *   <li>{@link InvocationContext#VERSION_FORMATTER_KEY} - {@link DefaultVersionFormatter#INSTANCE}</li>
  *   <li>{@link InvocationContext#ERROR_STREAM_KEY} - {@link System#err}</li>
- *   <li>{@link InvocationContext#VALUE_DESERIALIZER_RESOLVER_KEY} - {@link DefaultValueDeserializerResolver}</li>
- *   <li>{@link InvocationContext#VALUE_SINK_RESOLVER_KEY} - {@link DefaultValueSinkResolver}</li>
+ *   <li>{@link InvocationContext#VALUE_DESERIALIZER_FACTORY_CHAIN_KEY} - {@link ValueDeserializerFactoryChain}</li>
+ *   <li>{@link InvocationContext#VALUE_SINK_FACTORY_CHAIN_KEY} - {@link ValueSinkFactoryChain}</li>
  * </ul>
  *
  * <p>
@@ -84,9 +84,9 @@ public class DefaultInvocationContext implements InvocationContext {
     this.values.put(InvocationContext.HELP_FORMATTER_KEY, DefaultHelpFormatter.INSTANCE);
     this.values.put(InvocationContext.VERSION_FORMATTER_KEY, DefaultVersionFormatter.INSTANCE);
     this.values.put(InvocationContext.ERROR_STREAM_KEY, System.err);
-    this.values.put(InvocationContext.VALUE_DESERIALIZER_RESOLVER_KEY,
-        new DefaultValueDeserializerResolver());
-    this.values.put(InvocationContext.VALUE_SINK_RESOLVER_KEY, new DefaultValueSinkResolver());
+    this.values.put(InvocationContext.VALUE_DESERIALIZER_FACTORY_CHAIN_KEY,
+        new ValueDeserializerFactoryChain());
+    this.values.put(InvocationContext.VALUE_SINK_FACTORY_CHAIN_KEY, new ValueSinkFactoryChain());
     this.values.put(InvocationContext.CONFIGURABLE_INSTANCE_FACTORY_PROVIDER_CHAIN_KEY,
         new ConfigurableInstanceFactoryScannerChain());
     register(new DefaultModule());
@@ -120,9 +120,10 @@ public class DefaultInvocationContext implements InvocationContext {
     module.register(this);
 
     module.registerValueDeserializerFactories(
-        get(InvocationContext.VALUE_DESERIALIZER_RESOLVER_KEY).orElseThrow());
+        get(InvocationContext.VALUE_DESERIALIZER_FACTORY_CHAIN_KEY).orElseThrow());
 
-    module.registerValueSinkFactories(get(InvocationContext.VALUE_SINK_RESOLVER_KEY).orElseThrow());
+    module.registerValueSinkFactories(
+        get(InvocationContext.VALUE_SINK_FACTORY_CHAIN_KEY).orElseThrow());
   }
 
   private Map<Key<?>, Object> getValues() {

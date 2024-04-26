@@ -72,30 +72,30 @@ public final class Discourse {
       // In this case, there was a problem with the application configuration. This is probably a
       // bug in the application, and therefore the developer's fault. Exit code 10.
       context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
-          .getExceptionFormatter(e).formatException(e, context);
+          .getExceptionFormatter(e, context).formatException(e, context);
       throw exit(10);
     } catch (SyntaxException e) {
       // In this case, there was a problem with the structure of the user's CLI arguments. This is
       // the user's fault. Exit code 20.
       context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
-          .getExceptionFormatter(e).formatException(e, context);
+          .getExceptionFormatter(e, context).formatException(e, context);
       throw exit(20);
     } catch (ArgumentException e) {
       // In this case, there was a problem with the content of the user's CLI arguments. This is
       // the user's fault. Exit code 30.
       context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
-          .getExceptionFormatter(e).formatException(e, context);
+          .getExceptionFormatter(e, context).formatException(e, context);
       throw exit(30);
     } catch (BeanException e) {
       // In this case, there was a problem with creating the configuration bean. This is the
       // developer's fault. Exit code 40.
       context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
-          .getExceptionFormatter(e).formatException(e, context);
+          .getExceptionFormatter(e, context).formatException(e, context);
       throw exit(40);
     } catch (Throwable e) {
       // Welp, you got me. This is probably a bug in the application? We print a helpful error message.
       context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
-          .getExceptionFormatter(e).formatException(e, context);
+          .getExceptionFormatter(e, context).formatException(e, context);
       throw exit(100);
     }
 

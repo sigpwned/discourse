@@ -20,13 +20,13 @@
 package com.sigpwned.discourse.core;
 
 import com.sigpwned.discourse.core.annotation.FlagParameter;
-import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
+import com.sigpwned.discourse.core.invocation.InvocationBuilder;
 import java.util.Objects;
 
 /**
  * A base class for configuration objects that have standard options. Provides {@code --help} and
  * {@code --version} options that are common to many command-line tools and handled appropriately by
- * the {@link DefaultInvocationStrategy}.
+ * {@link InvocationBuilder}
  */
 public class StandardConfigurationBase {
 

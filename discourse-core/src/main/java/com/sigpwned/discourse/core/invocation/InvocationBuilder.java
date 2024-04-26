@@ -452,13 +452,13 @@ public class InvocationBuilder {
   private static ConfigurationParameter toConfigurationParameter(
       InvocationBuilder.AttributeBucket bucket, InvocationContext context) {
     ValueDeserializer<?> deserializer = context.get(
-            InvocationContext.VALUE_DESERIALIZER_RESOLVER_KEY).orElseThrow()
+            InvocationContext.VALUE_DESERIALIZER_FACTORY_CHAIN_KEY).orElseThrow()
         .getDeserializer(bucket.getGenericType(), null).orElseThrow(() -> {
           // TODO better exception
           return new IllegalArgumentException("No deserializer for " + bucket.getRawType());
         });
 
-    ValueSink sink = context.get(InvocationContext.VALUE_SINK_RESOLVER_KEY).orElseThrow()
+    ValueSink sink = context.get(InvocationContext.VALUE_SINK_FACTORY_CHAIN_KEY).orElseThrow()
         .getSink(bucket.getGenericType(), null);
 
     if (bucket.getAnnotation() instanceof FlagParameter flag) {
