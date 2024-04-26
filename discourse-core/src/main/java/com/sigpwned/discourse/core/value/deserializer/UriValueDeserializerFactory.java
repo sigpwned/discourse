@@ -23,8 +23,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.List;
-import com.sigpwned.discourse.core.ValueDeserializer;
-import com.sigpwned.discourse.core.ValueDeserializerFactory;
 
 public class UriValueDeserializerFactory implements ValueDeserializerFactory<URI> {
   public static final UriValueDeserializerFactory INSTANCE = new UriValueDeserializerFactory();

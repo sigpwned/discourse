@@ -19,28 +19,27 @@
  */
 package com.sigpwned.discourse.core.value.sink;
 
-import com.sigpwned.discourse.core.ValueSink;
-import com.sigpwned.discourse.core.ValueSinkFactory;
 import com.sigpwned.discourse.core.util.Generated;
 import com.sigpwned.discourse.core.util.type.SortedSetType;
-import com.sigpwned.espresso.BeanProperty;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * A value sink that stores values by adding them to a sorted set.
+ * A value sink that stores values by appending them to a list.
  */
 public class SortedSetAddValueSinkFactory implements ValueSinkFactory {
 
   public static final SortedSetAddValueSinkFactory INSTANCE = new SortedSetAddValueSinkFactory();
 
   @Override
-  public boolean isSinkable(BeanProperty property) {
+  public boolean isSinkable(Type genericType, List<Annotation> annotations) {
     try {
-      SortedSetType.parse(property.getGenericType());
+      SortedSetType.parse(genericType);
     } catch (IllegalArgumentException e) {
       return false;
     }
@@ -48,9 +47,11 @@ public class SortedSetAddValueSinkFactory implements ValueSinkFactory {
   }
 
   @Override
-  public ValueSink getSink(BeanProperty property) {
-    final SortedSetType sortedSetType = SortedSetType.parse(property.getGenericType());
+  public ValueSink getSink(Type genericType, List<Annotation> annotations) {
+    final SortedSetType setType = SortedSetType.parse(genericType);
     return new ValueSink() {
+      private final SortedSet set = new TreeSet<>();
+
       @Override
       public boolean isCollection() {
         return true;
@@ -58,24 +59,26 @@ public class SortedSetAddValueSinkFactory implements ValueSinkFactory {
 
       @Override
       public Type getGenericType() {
-        return sortedSetType.getElementType();
+        return setType.getElementType();
       }
 
-      @SuppressWarnings({"unchecked", "rawtypes"})
       @Override
-      public void put(Object instance, Object value) throws InvocationTargetException {
-        SortedSet propertyValue = (SortedSet) property.get(instance);
-        if (propertyValue == null) {
-          propertyValue = new TreeSet();
-          property.set(instance, propertyValue);
+      public void put(Object value) {
+        if (value == null) {
+          throw new IllegalArgumentException("Cannot add null to a set");
         }
-        propertyValue.add(value);
+        set.add(value);
+      }
+
+      @Override
+      public Optional<Object> get() {
+        return Optional.of(set);
       }
 
       @Override
       @Generated
       public int hashCode() {
-        return 23;
+        return getGenericType().hashCode();
       }
 
       @Override

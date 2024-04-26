@@ -19,8 +19,8 @@
  */
 package com.sigpwned.discourse.core.parameter;
 
-import com.sigpwned.discourse.core.ValueDeserializer;
-import com.sigpwned.discourse.core.ValueSink;
+import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.value.sink.ValueSink;
 import com.sigpwned.discourse.core.coordinate.Coordinate;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import com.sigpwned.discourse.core.util.Generated;

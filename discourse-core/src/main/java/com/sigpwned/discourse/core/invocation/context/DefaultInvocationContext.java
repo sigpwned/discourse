@@ -19,8 +19,7 @@
  */
 package com.sigpwned.discourse.core.invocation.context;
 
-import com.sigpwned.discourse.core.ConfigurableInstanceFactoryProviderChain;
-import com.sigpwned.discourse.core.ConfigurableParameterScannerChain;
+import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
@@ -89,9 +88,7 @@ public class DefaultInvocationContext implements InvocationContext {
         new DefaultValueDeserializerResolver());
     this.values.put(InvocationContext.VALUE_SINK_RESOLVER_KEY, new DefaultValueSinkResolver());
     this.values.put(InvocationContext.CONFIGURABLE_INSTANCE_FACTORY_PROVIDER_CHAIN_KEY,
-        new ConfigurableInstanceFactoryProviderChain());
-    this.values.put(InvocationContext.CONFIGURABLE_PARAMETER_SCANNER_CHAIN_KEY,
-        new ConfigurableParameterScannerChain());
+        new ConfigurableInstanceFactoryScannerChain());
     register(new DefaultModule());
   }
 

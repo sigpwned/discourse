@@ -19,7 +19,7 @@
  */
 package com.sigpwned.discourse.core.annotation;
 
-import com.sigpwned.discourse.core.Discriminator;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.command.MultiCommand;
 
 /**

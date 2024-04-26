@@ -22,7 +22,7 @@ package com.sigpwned.discourse.core.invocation.strategy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.sigpwned.discourse.core.Discriminator;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.Subcommand;

@@ -19,28 +19,27 @@
  */
 package com.sigpwned.discourse.core.value.sink;
 
-import com.sigpwned.discourse.core.ValueSink;
-import com.sigpwned.discourse.core.ValueSinkFactory;
 import com.sigpwned.discourse.core.util.Generated;
 import com.sigpwned.discourse.core.util.type.SetType;
-import com.sigpwned.espresso.BeanProperty;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
- * A value sink that stores values by adding them to a set.
+ * A value sink that stores values by appending them to a list.
  */
 public class SetAddValueSinkFactory implements ValueSinkFactory {
 
   public static final SetAddValueSinkFactory INSTANCE = new SetAddValueSinkFactory();
 
   @Override
-  public boolean isSinkable(BeanProperty property) {
+  public boolean isSinkable(Type genericType, List<Annotation> annotations) {
     try {
-      SetType.parse(property.getGenericType());
+      SetType.parse(genericType);
     } catch (IllegalArgumentException e) {
       return false;
     }
@@ -48,9 +47,11 @@ public class SetAddValueSinkFactory implements ValueSinkFactory {
   }
 
   @Override
-  public ValueSink getSink(BeanProperty property) {
-    final SetType setType = SetType.parse(property.getGenericType());
+  public ValueSink getSink(Type genericType, List<Annotation> annotations) {
+    final SetType setType = SetType.parse(genericType);
     return new ValueSink() {
+      private final Set set = new HashSet<>();
+
       @Override
       public boolean isCollection() {
         return true;
@@ -62,20 +63,22 @@ public class SetAddValueSinkFactory implements ValueSinkFactory {
       }
 
       @Override
-      @SuppressWarnings({"unchecked", "rawtypes"})
-      public void put(Object instance, Object value) throws InvocationTargetException {
-        Set propertyValue = (Set) property.get(instance);
-        if (propertyValue == null) {
-          propertyValue = new HashSet();
-          property.set(instance, propertyValue);
+      public void put(Object value) {
+        if (value == null) {
+          throw new IllegalArgumentException("Cannot add null to a set");
         }
-        propertyValue.add(value);
+        set.add(value);
+      }
+
+      @Override
+      public Optional<Object> get() {
+        return Optional.of(set);
       }
 
       @Override
       @Generated
       public int hashCode() {
-        return 19;
+        return getGenericType().hashCode();
       }
 
       @Override

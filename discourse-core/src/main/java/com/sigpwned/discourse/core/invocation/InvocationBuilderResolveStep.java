@@ -3,9 +3,9 @@ package com.sigpwned.discourse.core.invocation;
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.Discriminator;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.MultiCommandDereference;
+import com.sigpwned.discourse.core.model.invocation.MultiCommandDereference;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;

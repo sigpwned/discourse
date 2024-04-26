@@ -3,10 +3,10 @@ package com.sigpwned.discourse.core.invocation;
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.DeserializedArgument;
+import com.sigpwned.discourse.core.model.argument.DeserializedArgument;
 import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.MultiCommandDereference;
-import com.sigpwned.discourse.core.ParsedArgument;
+import com.sigpwned.discourse.core.model.invocation.MultiCommandDereference;
+import com.sigpwned.discourse.core.model.argument.ParsedArgument;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import java.util.List;
@@ -29,7 +29,7 @@ public class InvocationBuilderDeserializeStep<T> {
 
   public InvocationBuilderPrepareStep<T> deserialize(InvocationContext context) {
     context.get(InvocationContext.DISCOURSE_LISTENER_CHAIN_KEY).ifPresent(listenerChain -> {
-      listenerChain.afterParseBeforeDeserialize(rootCommand, dereferencedCommands, resolvedCommand,
+      listenerChain.beforeDeserialize(rootCommand, dereferencedCommands, resolvedCommand,
           parsedArguments);
     });
 

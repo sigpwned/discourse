@@ -2,8 +2,8 @@ package com.sigpwned.discourse.core.util;
 
 import static java.util.function.Predicate.not;
 
-import com.sigpwned.discourse.core.ValueDeserializer;
-import com.sigpwned.discourse.core.ValueSink;
+import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.value.sink.ValueSink;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;

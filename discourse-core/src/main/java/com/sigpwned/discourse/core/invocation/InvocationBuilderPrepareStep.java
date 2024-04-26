@@ -6,11 +6,11 @@ import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
-import com.sigpwned.discourse.core.DeserializedArgument;
+import com.sigpwned.discourse.core.model.argument.DeserializedArgument;
 import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.MultiCommandDereference;
-import com.sigpwned.discourse.core.PreparedArgument;
-import com.sigpwned.discourse.core.ValueSink;
+import com.sigpwned.discourse.core.model.invocation.MultiCommandDereference;
+import com.sigpwned.discourse.core.model.argument.PreparedArgument;
+import com.sigpwned.discourse.core.value.sink.ValueSink;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
@@ -36,7 +36,7 @@ public class InvocationBuilderPrepareStep<T> {
 
   public InvocationBuilderBuildStep<T> prepare(InvocationContext context) {
     context.get(InvocationContext.DISCOURSE_LISTENER_CHAIN_KEY).ifPresent(listenerChain -> {
-      listenerChain.afterDeserializeBeforePrepare(rootCommand, dereferencedCommands,
+      listenerChain.beforePrepare(rootCommand, dereferencedCommands,
           resolvedCommand, deserializedArguments);
     });
 

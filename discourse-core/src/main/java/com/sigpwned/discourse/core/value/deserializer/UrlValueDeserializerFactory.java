@@ -25,8 +25,6 @@ import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import com.sigpwned.discourse.core.ValueDeserializer;
-import com.sigpwned.discourse.core.ValueDeserializerFactory;
 
 public class UrlValueDeserializerFactory implements ValueDeserializerFactory<URL> {
   public static final UrlValueDeserializerFactory INSTANCE=new UrlValueDeserializerFactory();

@@ -19,11 +19,21 @@
  */
 package com.sigpwned.discourse.core;
 
-import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.accessor.naming.AccessorNamingScheme;
+import com.sigpwned.discourse.core.chain.AccessorNamingSchemeChain;
+import com.sigpwned.discourse.core.chain.ConfigurableComponentScannerChain;
+import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
+import com.sigpwned.discourse.core.chain.DiscourseListenerChain;
+import com.sigpwned.discourse.core.chain.ExceptionFormatterChain;
+import com.sigpwned.discourse.core.chain.ValueDeserializerFactoryChain;
+import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
+import com.sigpwned.discourse.core.configurable.component.scanner.ConfigurableComponentScanner;
+import com.sigpwned.discourse.core.configurable.instance.factory.ConfigurableInstanceFactoryScanner;
+import com.sigpwned.discourse.core.format.exception.ExceptionFormatter;
+import com.sigpwned.discourse.core.value.sink.ValueSinkFactory;
 
 /**
- * Container for registering new functionality for the {@link Command} phase. The
- * {@link CommandBuilder} uses this class to register new functionality.
+ * Container for registering various components of a Discourse application.
  */
 public abstract class Module {
 
@@ -34,32 +44,44 @@ public abstract class Module {
   }
 
   /**
-   * Register new {@link ValueSinkFactory} instances with the given {@link ValueSinkResolver}.
+   * Register new {@link ValueSinkFactory} instances with the given {@link ValueSinkFactoryChain}.
    */
-  public void registerValueDeserializerFactories(ValueDeserializerResolver resolver) {
+  public void registerValueDeserializerFactories(ValueDeserializerFactoryChain resolver) {
   }
 
   /**
-   * Register new {@link ValueSinkFactory} instances with the given {@link ValueSinkResolver}.
+   * Register new {@link ValueSinkFactory} instances with the given {@link ValueSinkFactoryChain}.
    */
-  public void registerValueSinkFactories(ValueSinkResolver resolver) {
+  public void registerValueSinkFactories(ValueSinkFactoryChain resolver) {
   }
 
   /**
-   * Register new {@link ConfigurableInstanceFactoryProvider} instances with the given chain
+   * Register new {@link ConfigurableInstanceFactoryScanner} instances with the given chain
    */
-  public void registerInstanceFactoryProviders(ConfigurableInstanceFactoryProviderChain chain) {
+  public void registerInstanceFactoryScanners(ConfigurableInstanceFactoryScannerChain chain) {
   }
 
   /**
-   * Register new {@link ConfigurableParameterScanner} instances with the given chain
+   * Register new {@link ConfigurableComponentScanner} instances with the given chain
    */
-  public void registerParameterScanners(ConfigurableParameterScannerChain chain) {
+  public void registerConfigurableComponentScanners(ConfigurableComponentScannerChain chain) {
   }
 
   /**
    * Register new {@link AccessorNamingScheme} instances with the given chain
    */
   public void registerAccessorNamingSchemes(AccessorNamingSchemeChain chain) {
+  }
+
+  /**
+   * Register new {@link ExceptionFormatter} instances with the given chain
+   */
+  public void registerExceptionFormatters(ExceptionFormatterChain chain) {
+  }
+
+  /**
+   * Register new {@link DiscourseListener} instances with the given chain
+   */
+  public void registerDiscourseListeners(DiscourseListenerChain chain) {
   }
 }

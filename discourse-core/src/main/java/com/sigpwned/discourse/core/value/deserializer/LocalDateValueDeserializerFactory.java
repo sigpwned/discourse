@@ -24,8 +24,6 @@ import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import com.sigpwned.discourse.core.ValueDeserializer;
-import com.sigpwned.discourse.core.ValueDeserializerFactory;
 
 /**
  * Parses a {@link LocalDate} according to ISO-8601, e.g. 2007-12-03.

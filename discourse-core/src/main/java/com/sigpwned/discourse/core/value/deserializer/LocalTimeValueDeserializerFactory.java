@@ -24,8 +24,6 @@ import java.lang.reflect.Type;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import com.sigpwned.discourse.core.ValueDeserializer;
-import com.sigpwned.discourse.core.ValueDeserializerFactory;
 
 /**
  * Parses a {@link LocalTime} according to ISO-8601, e.g. 10:15.

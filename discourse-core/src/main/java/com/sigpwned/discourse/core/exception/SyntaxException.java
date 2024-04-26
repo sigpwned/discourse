@@ -21,7 +21,6 @@ package com.sigpwned.discourse.core.exception;
 
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.DiscourseException;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.command.Command;
 

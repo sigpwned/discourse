@@ -22,8 +22,6 @@ package com.sigpwned.discourse.core.value.deserializer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
-import com.sigpwned.discourse.core.ValueDeserializer;
-import com.sigpwned.discourse.core.ValueDeserializerFactory;
 
 public class ByteValueDeserializerFactory implements ValueDeserializerFactory<Byte> {
   public static final ByteValueDeserializerFactory INSTANCE=new ByteValueDeserializerFactory();

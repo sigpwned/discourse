@@ -21,8 +21,8 @@ package com.sigpwned.discourse.core.invocation.strategy;
 
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.ExitError;
-import com.sigpwned.discourse.core.HelpFormatter;
+import com.sigpwned.discourse.core.util.error.ExitError;
+import com.sigpwned.discourse.core.format.help.HelpFormatter;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.InvocationStrategy;

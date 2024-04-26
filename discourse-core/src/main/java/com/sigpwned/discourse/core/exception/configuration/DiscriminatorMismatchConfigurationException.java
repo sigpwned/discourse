@@ -21,7 +21,7 @@ package com.sigpwned.discourse.core.exception.configuration;
 
 import static java.lang.String.format;
 import com.sigpwned.discourse.core.exception.ConfigurationException;
-import com.sigpwned.discourse.core.Discriminator;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 
 /**
  *

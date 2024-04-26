@@ -23,6 +23,7 @@ import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.coordinate.Coordinate;
 import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.NameCoordinate;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
@@ -44,6 +45,7 @@ import com.sigpwned.discourse.core.token.SeparatorArgumentToken;
 import com.sigpwned.discourse.core.token.ShortNameArgumentToken;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Optional;
 
 /**
  * A parser for command line arguments.
@@ -99,7 +101,7 @@ public class ArgumentsParser {
       if (positionals || !next.startsWith("-")) {
         final int index = position.getIndex();
 
-        PositionalConfigurationParameter positionalProperty = (PositionalConfigurationParameter) getParameterResolver().resolveConfigurationParameter(
+        PositionalConfigurationParameter positionalProperty = (PositionalConfigurationParameter) resolveConfigurationParameter(
             position).orElseThrow(() -> new MissingPositionConfigurationException(index));
 
         getHandler().positional(position, positionalProperty, next);
@@ -133,9 +135,9 @@ public class ArgumentsParser {
       ShortSwitchNameCoordinate shortName = ShortSwitchNameCoordinate.fromString(
           bundle.getShortNames().get(index));
 
-      ConfigurationParameter shortNameProperty = getParameterResolver().resolveConfigurationParameter(
-              shortName)
-          .orElseThrow(() -> new UnrecognizedSwitchSyntaxException(getCommand(), shortName));
+      ConfigurationParameter shortNameProperty = resolveConfigurationParameter(
+          shortName).orElseThrow(
+          () -> new UnrecognizedSwitchSyntaxException(getCommand(), shortName));
 
       if (shortNameProperty.isValued()) {
         OptionConfigurationParameter optionProperty = (OptionConfigurationParameter) shortNameProperty;
@@ -162,9 +164,8 @@ public class ArgumentsParser {
     ShortSwitchNameCoordinate shortName = ShortSwitchNameCoordinate.fromString(
         token.getShortName());
 
-    ConfigurationParameter shortNameProperty = getParameterResolver().resolveConfigurationParameter(
-            shortName)
-        .orElseThrow(() -> new UnrecognizedSwitchSyntaxException(getCommand(), shortName));
+    ConfigurationParameter shortNameProperty = resolveConfigurationParameter(shortName).orElseThrow(
+        () -> new UnrecognizedSwitchSyntaxException(getCommand(), shortName));
 
     if (shortNameProperty.isValued()) {
       OptionConfigurationParameter optionProperty = (OptionConfigurationParameter) shortNameProperty;
@@ -183,8 +184,8 @@ public class ArgumentsParser {
   private void handleLongName(LongNameArgumentToken token) {
     LongSwitchNameCoordinate longName = LongSwitchNameCoordinate.fromString(token.getLongName());
 
-    ConfigurationParameter longNameProperty = getParameterResolver().resolveConfigurationParameter(
-        longName).orElseThrow(() -> new UnrecognizedSwitchSyntaxException(getCommand(), longName));
+    ConfigurationParameter longNameProperty = resolveConfigurationParameter(longName).orElseThrow(
+        () -> new UnrecognizedSwitchSyntaxException(getCommand(), longName));
 
     if (longNameProperty.isValued()) {
       OptionConfigurationParameter optionProperty = (OptionConfigurationParameter) longNameProperty;
@@ -204,7 +205,7 @@ public class ArgumentsParser {
     LongSwitchNameCoordinate longName = LongSwitchNameCoordinate.fromString(token.getLongName());
     String value = token.getValue();
 
-    ConfigurationParameter longNameValueProperty = getParameterResolver().resolveConfigurationParameter(
+    ConfigurationParameter longNameValueProperty = resolveConfigurationParameter(
         longName).orElseThrow(() -> new UnrecognizedSwitchSyntaxException(getCommand(), longName));
 
     if (longNameValueProperty.isValued()) {
@@ -233,8 +234,8 @@ public class ArgumentsParser {
   /**
    * @return the configurationClass
    */
-  private ConfigurableParameterResolver getParameterResolver() {
-    return getCommand()::findParameter;
+  private Optional<ConfigurationParameter> resolveConfigurationParameter(Coordinate coordinate) {
+    return getCommand().findParameter(coordinate);
   }
 
   /**

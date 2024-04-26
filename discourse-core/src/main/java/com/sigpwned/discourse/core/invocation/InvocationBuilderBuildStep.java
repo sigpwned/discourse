@@ -6,8 +6,8 @@ import static java.util.stream.Collectors.toMap;
 
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.MultiCommandDereference;
-import com.sigpwned.discourse.core.PreparedArgument;
+import com.sigpwned.discourse.core.model.invocation.MultiCommandDereference;
+import com.sigpwned.discourse.core.model.argument.PreparedArgument;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import java.util.List;
@@ -31,7 +31,7 @@ public class InvocationBuilderBuildStep<T> {
 
   public Invocation<T> build(InvocationContext context) {
     context.get(InvocationContext.DISCOURSE_LISTENER_CHAIN_KEY).ifPresent(listenerChain -> {
-      listenerChain.afterPrepareBeforeBuild(rootCommand, dereferencedCommands, resolvedCommand,
+      listenerChain.beforeBuild(rootCommand, dereferencedCommands, resolvedCommand,
           preparedArguments);
     });
 

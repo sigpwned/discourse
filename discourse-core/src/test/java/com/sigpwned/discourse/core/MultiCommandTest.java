@@ -32,6 +32,7 @@ import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.util.Commands;
 import java.util.HashSet;

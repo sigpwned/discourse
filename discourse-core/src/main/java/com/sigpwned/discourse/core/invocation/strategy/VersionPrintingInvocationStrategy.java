@@ -21,11 +21,11 @@ package com.sigpwned.discourse.core.invocation.strategy;
 
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.ExitError;
+import com.sigpwned.discourse.core.util.error.ExitError;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.InvocationStrategy;
-import com.sigpwned.discourse.core.VersionFormatter;
+import com.sigpwned.discourse.core.format.version.VersionFormatter;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.format.version.DefaultVersionFormatter;

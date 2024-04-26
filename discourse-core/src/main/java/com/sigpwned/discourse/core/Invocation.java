@@ -25,8 +25,8 @@ import static java.util.Objects.requireNonNull;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
-import com.sigpwned.discourse.core.invocation.DefaultInvocation;
 import com.sigpwned.discourse.core.invocation.InvocationBuilder;
+import com.sigpwned.discourse.core.model.invocation.MultiCommandDereference;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,22 +38,14 @@ import java.util.Objects;
  * </p>
  *
  * <p>
- * Note that the leaf commandO is of type {@link SingleCommand}. In the case where the "root"
- * command being executed is a {@link MultiCommand}, the {@link InvocationStrategy} is responsible
- * for dereferencing the subcommands and invoking the underlying "leaf" {@code SingleCommand}.
- * </p>
- *
- * <p>
- * The {@link #getLeafArgs() leaf args} are the arguments that were passed to the command. In cases
- * where the command has been dereferenced, the args will NOT contain the "discriminator" arguments
- * that were used to dereference the subcommands to find the "leaf" {@code SingleCommand}. The
- * verbatim command line arguments passed to the application are available as
- * {@link #getAllArgs() all args}.
+ * Note that the leaf command is of type {@link SingleCommand}. In the case where the "root" command
+ * being executed is a {@link MultiCommand}, the {@link InvocationStrategy} is responsible for
+ * dereferencing the subcommands and invoking the underlying "leaf" {@code SingleCommand}.
  * </p>
  *
  * <p>
  * The discriminators and the {@code MultiCommand}s they map to are available via
- * {@link #getSubcommands()}.
+ * {@link #getDereferencedCommands()}.
  * </p>
  *
  * <p>
@@ -69,11 +61,11 @@ import java.util.Objects;
  * @param <T> The type of the configuration object.
  */
 public class Invocation<T> {
+
   /**
    * Create a new {@link Invocation} builder using the default implementation.
    *
    * @return the builder
-   * @see DefaultInvocation.Builder
    */
   public static InvocationBuilder builder() {
     return new InvocationBuilder();

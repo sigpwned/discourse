@@ -22,7 +22,7 @@ package com.sigpwned.discourse.core.exception.configuration;
 import static java.lang.String.*;
 
 import com.sigpwned.discourse.core.exception.ConfigurationException;
-import com.sigpwned.discourse.core.Discriminator;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 
 public class DuplicateDiscriminatorConfigurationException extends ConfigurationException {
   private final Discriminator discriminator;

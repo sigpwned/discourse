@@ -19,13 +19,12 @@
  */
 package com.sigpwned.discourse.core.value.sink;
 
-import com.sigpwned.discourse.core.ValueSink;
-import com.sigpwned.discourse.core.ValueSinkFactory;
 import com.sigpwned.discourse.core.util.Generated;
-import com.sigpwned.espresso.BeanProperty;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A value sink that assigns values to a bean property. Supports assigning values to fields directly
@@ -36,14 +35,16 @@ public class AssignValueSinkFactory implements ValueSinkFactory {
   public static final AssignValueSinkFactory INSTANCE = new AssignValueSinkFactory();
 
   @Override
-  public boolean isSinkable(BeanProperty property) {
+  public boolean isSinkable(Type genericType, List<Annotation> annotations) {
     // We can always just assign a bean property
     return true;
   }
 
   @Override
-  public ValueSink getSink(BeanProperty property) {
+  public ValueSink getSink(Type genericType, List<Annotation> annotations) {
     return new ValueSink() {
+      private Object currentValue;
+
       @Override
       public boolean isCollection() {
         return false;
@@ -51,18 +52,27 @@ public class AssignValueSinkFactory implements ValueSinkFactory {
 
       @Override
       public Type getGenericType() {
-        return property.getGenericType();
+        return genericType;
       }
 
       @Override
-      public void put(Object instance, Object value) throws InvocationTargetException {
-        property.set(instance, value);
+      public void put(Object value) {
+        if (value == null) {
+          // TODO better exception
+          throw new IllegalArgumentException("Cannot assign null to property");
+        }
+        this.currentValue = value;
+      }
+
+      @Override
+      public Optional<Object> get() {
+        return Optional.ofNullable(currentValue);
       }
 
       @Override
       @Generated
       public int hashCode() {
-        return property.getName().hashCode();
+        return getGenericType().hashCode();
       }
 
       @Override

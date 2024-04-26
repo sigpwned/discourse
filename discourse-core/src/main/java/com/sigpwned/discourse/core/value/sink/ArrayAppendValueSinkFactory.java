@@ -19,16 +19,15 @@
  */
 package com.sigpwned.discourse.core.value.sink;
 
-import com.sigpwned.discourse.core.ValueSink;
-import com.sigpwned.discourse.core.ValueSinkFactory;
-import com.sigpwned.discourse.core.util.type.ArrayType;
 import com.sigpwned.discourse.core.util.Generated;
 import com.sigpwned.discourse.core.util.Types;
-import com.sigpwned.espresso.BeanProperty;
+import com.sigpwned.discourse.core.util.type.ArrayType;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A value sink that stores values by appending them to an array.
@@ -38,9 +37,9 @@ public class ArrayAppendValueSinkFactory implements ValueSinkFactory {
   public static final ArrayAppendValueSinkFactory INSTANCE = new ArrayAppendValueSinkFactory();
 
   @Override
-  public boolean isSinkable(BeanProperty property) {
+  public boolean isSinkable(Type genericType, List<Annotation> annotations) {
     try {
-      ArrayType.parse(property.getGenericType());
+      ArrayType.parse(genericType);
     } catch (IllegalArgumentException e) {
       return false;
     }
@@ -48,9 +47,11 @@ public class ArrayAppendValueSinkFactory implements ValueSinkFactory {
   }
 
   @Override
-  public ValueSink getSink(BeanProperty property) {
-    final ArrayType arrayType = ArrayType.parse(property.getGenericType());
+  public ValueSink getSink(Type genericType, List<Annotation> annotations) {
+    final ArrayType arrayType = ArrayType.parse(genericType);
     return new ValueSink() {
+      private Object currentArray = Types.newConcreteArrayInstance(genericType, 0);
+
       @Override
       public boolean isCollection() {
         return true;
@@ -62,29 +63,24 @@ public class ArrayAppendValueSinkFactory implements ValueSinkFactory {
       }
 
       @Override
-      public void put(Object instance, Object value) throws InvocationTargetException {
-        Object propertyValue = property.get(instance);
-
+      public void put(Object value) {
         // Make sure our property value has exactly one empty new value at the top of the array
-        if (propertyValue == null) {
-          propertyValue = Types.newConcreteArrayInstance(property.getGenericType(), 1);
-          property.set(instance, propertyValue);
-        } else {
-          int length = Array.getLength(propertyValue);
-          Object newPropertyValue = Types.newConcreteArrayInstance(property.getGenericType(),
-              length + 1);
-          System.arraycopy(propertyValue, 0, newPropertyValue, 0, length);
-          propertyValue = newPropertyValue;
-          property.set(instance, propertyValue);
-        }
+        int currentLength = Array.getLength(currentArray);
+        Object newArray = Types.newConcreteArrayInstance(getGenericType(), currentLength + 1);
+        System.arraycopy(currentArray, 0, newArray, 0, currentLength);
+        this.currentArray = newArray;
+        Array.set(this.currentArray, currentLength, value);
+      }
 
-        Array.set(propertyValue, Array.getLength(propertyValue) - 1, value);
+      @Override
+      public Optional<Object> get() {
+        return Optional.of(currentArray);
       }
 
       @Override
       @Generated
       public int hashCode() {
-        return 11;
+        return getGenericType().hashCode();
       }
 
       @Override

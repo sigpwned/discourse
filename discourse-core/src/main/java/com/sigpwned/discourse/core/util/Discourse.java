@@ -21,19 +21,16 @@ package com.sigpwned.discourse.core.util;
 
 import static java.util.Arrays.asList;
 
-import com.sigpwned.discourse.core.exception.ArgumentException;
-import com.sigpwned.discourse.core.exception.BeanException;
-import com.sigpwned.discourse.core.exception.ConfigurationException;
-import com.sigpwned.discourse.core.ExitError;
-import com.sigpwned.discourse.core.HelpFormatter;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.InvocationStrategy;
+import com.sigpwned.discourse.core.exception.ArgumentException;
+import com.sigpwned.discourse.core.exception.BeanException;
+import com.sigpwned.discourse.core.exception.ConfigurationException;
 import com.sigpwned.discourse.core.exception.SyntaxException;
-import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
-import java.io.PrintStream;
+import com.sigpwned.discourse.core.util.error.ExitError;
 import java.util.List;
 
 public final class Discourse {
@@ -76,49 +73,33 @@ public final class Discourse {
       result = Invocation.defaultBuilder().chain(context).command(rawType).strategy(strategy)
           .args(args).getConfiguration();
     } catch (ConfigurationException e) {
-      PrintStream err = context.get(InvocationContext.ERROR_STREAM_KEY).orElse(System.err);
-      err.println("There was a problem with the application configuration.");
-      err.println("You should reach out to the application developer for help.");
-      err.println("They may find the following information useful:");
-      err.println("ARGUMENTS: " + args);
-      err.println("STACK TRACE:");
-      e.printStackTrace(err);
+      // In this case, there was a problem with the application configuration. This is probably a
+      // bug in the application, and therefore the developer's fault. Exit code 10.
+      context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
+          .getExceptionFormatter(e).formatException(e, context);
       throw exit(10);
     } catch (SyntaxException e) {
-      // In this case, the user has made a mistake in the command line syntax. The command line
-      // cannot be understood, so we do our best to figure out what the problem is and print a
-      // helpful error message.
-      PrintStream err = context.get(InvocationContext.ERROR_STREAM_KEY).orElse(System.err);
-      if (args.isEmpty()) {
-        // If there are no arguments, the user probably just wants help.
-        HelpFormatter formatter = context.get(InvocationContext.HELP_FORMATTER_KEY)
-            .orElse(DefaultHelpFormatter.INSTANCE);
-        err.println(formatter.formatHelp(e.getCommand()));
-      } else {
-        err.println("ERROR: " + e.getMessage());
-      }
+      // In this case, there was a problem with the structure of the user's CLI arguments. This is
+      // the user's fault. Exit code 20.
+      context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
+          .getExceptionFormatter(e).formatException(e, context);
       throw exit(20);
     } catch (ArgumentException e) {
-      // In this case, the user has made a mistake in the command line arguments. The command line
-      // is understood, but the arguments are not valid. We print a helpful error message.
-      PrintStream err = context.get(InvocationContext.ERROR_STREAM_KEY).orElse(System.err);
-      err.println("ERROR: " + e.getMessage());
+      // In this case, there was a problem with the content of the user's CLI arguments. This is
+      // the user's fault. Exit code 30.
+      context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
+          .getExceptionFormatter(e).formatException(e, context);
       throw exit(30);
     } catch (BeanException e) {
-      // In this case, there was a problem building the command object. This is probably a bug in
-      // the application. We print a helpful error message.
-      PrintStream err = context.get(InvocationContext.ERROR_STREAM_KEY).orElse(System.err);
-      err.println("There was a problem building the command object.");
-      err.println("You should reach out to the application developer for help.");
-      err.println("They may find the following information useful:");
-      err.println("ARGUMENTS: " + args);
-      err.println("STACK TRACE:");
-      e.printStackTrace(err);
+      // In this case, there was a problem with creating the configuration bean. This is the
+      // developer's fault. Exit code 40.
+      context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
+          .getExceptionFormatter(e).formatException(e, context);
       throw exit(40);
-    } catch (RuntimeException e) {
+    } catch (Throwable e) {
       // Welp, you got me. This is probably a bug in the application? We print a helpful error message.
-      PrintStream err = context.get(InvocationContext.ERROR_STREAM_KEY).orElse(System.err);
-      err.println("ERROR: " + e.getMessage());
+      context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
+          .getExceptionFormatter(e).formatException(e, context);
       throw exit(100);
     }
 

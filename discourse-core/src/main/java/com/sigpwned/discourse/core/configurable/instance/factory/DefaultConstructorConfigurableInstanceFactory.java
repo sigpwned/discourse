@@ -2,23 +2,20 @@ package com.sigpwned.discourse.core.configurable.instance.factory;
 
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.ConfigurableInstanceFactory;
-import com.sigpwned.discourse.core.ConfigurableInstanceFactoryProvider;
-import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
+import com.sigpwned.discourse.core.configurable.component.InputConfigurableComponent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 public class DefaultConstructorConfigurableInstanceFactory<T> implements
     ConfigurableInstanceFactory<T> {
 
-  public static class Provider implements ConfigurableInstanceFactoryProvider {
+  public static class Provider implements ConfigurableInstanceFactoryScanner {
 
     @Override
-    public <T> Optional<ConfigurableInstanceFactory<T>> getConfigurationInstanceFactory(
+    public <T> Optional<ConfigurableInstanceFactory<T>> scanForInstanceFactory(
         Class<T> type) {
       Constructor<T> defaultConstructor;
       try {
@@ -26,7 +23,7 @@ public class DefaultConstructorConfigurableInstanceFactory<T> implements
       } catch (NoSuchMethodException e) {
         return Optional.empty();
       }
-      if(!Modifier.isPublic(defaultConstructor.getModifiers())) {
+      if (!Modifier.isPublic(defaultConstructor.getModifiers())) {
         return Optional.empty();
       }
       return Optional.of(new DefaultConstructorConfigurableInstanceFactory<>(defaultConstructor));
@@ -46,15 +43,7 @@ public class DefaultConstructorConfigurableInstanceFactory<T> implements
   }
 
   @Override
-  public Set<String> getRequiredParameterNames() {
-    // The default constructor does not require any parameters, by definition
-    return Set.of();
-  }
-
-  @Override
-  public List<ConfigurationParameter> getDefinedParameters() {
-    // If a constructor defines parameters, then they are from constructor parameters.
-    // The default constructor has no parameters, so cannot define any parameters, either.
+  public List<InputConfigurableComponent> getInputs() {
     return List.of();
   }
 

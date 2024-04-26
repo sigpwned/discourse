@@ -21,7 +21,7 @@ package com.sigpwned.discourse.validation;
 
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.Discriminator;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;

@@ -22,8 +22,7 @@ package com.sigpwned.discourse.core.format.help;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.joining;
 
-import com.sigpwned.discourse.core.Discriminator;
-import com.sigpwned.discourse.core.HelpFormatter;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;

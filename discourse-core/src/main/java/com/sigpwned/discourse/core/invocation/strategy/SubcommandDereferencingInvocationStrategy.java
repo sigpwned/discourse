@@ -19,16 +19,15 @@
  */
 package com.sigpwned.discourse.core.invocation.strategy;
 
-import com.sigpwned.discourse.core.Discriminator;
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.InvocationStrategy;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
-import com.sigpwned.discourse.core.exception.syntax.InvalidDiscriminatorSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.InsufficientDiscriminatorsSyntaxException;
+import com.sigpwned.discourse.core.exception.syntax.InvalidDiscriminatorSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.UnrecognizedDiscriminatorSyntaxException;
-import com.sigpwned.discourse.core.invocation.DefaultInvocation;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -79,8 +78,8 @@ public class SubcommandDereferencingInvocationStrategy implements InvocationStra
 
     final Invocation<? extends T> invocation = getDelegate().invoke(subcommand, context, args);
 
-    return new DefaultInvocation<>(subcommands, invocation.getLeafCommand(),
-        invocation.getLeafArgs(), invocation.getConfiguration());
+    return new Invocation<>(subcommands, invocation.getLeafCommand(), invocation.getLeafArgs(),
+        invocation.getConfiguration());
   }
 
   private InvocationStrategy getDelegate() {

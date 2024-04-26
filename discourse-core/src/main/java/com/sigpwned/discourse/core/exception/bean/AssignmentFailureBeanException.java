@@ -20,7 +20,7 @@
 package com.sigpwned.discourse.core.exception.bean;
 
 import com.sigpwned.discourse.core.exception.BeanException;
-import com.sigpwned.discourse.core.ValueSink;
+import com.sigpwned.discourse.core.value.sink.ValueSink;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import java.lang.reflect.InvocationTargetException;
 

@@ -1,6 +1,5 @@
 package com.sigpwned.discourse.core.accessor.naming;
 
-import com.sigpwned.discourse.core.AccessorNamingScheme;
 import com.sigpwned.discourse.core.annotation.DiscourseAttribute;
 import com.sigpwned.discourse.core.util.Streams;
 import java.lang.annotation.Annotation;

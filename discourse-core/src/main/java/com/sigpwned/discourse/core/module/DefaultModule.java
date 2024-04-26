@@ -19,13 +19,28 @@
  */
 package com.sigpwned.discourse.core.module;
 
-import com.sigpwned.discourse.core.AccessorNamingSchemeChain;
-import com.sigpwned.discourse.core.ConfigurableInstanceFactoryProviderChain;
-import com.sigpwned.discourse.core.ConfigurableParameterScannerChain;
 import com.sigpwned.discourse.core.Module;
-import com.sigpwned.discourse.core.ValueDeserializerResolver;
-import com.sigpwned.discourse.core.ValueSinkResolver;
+import com.sigpwned.discourse.core.accessor.naming.BeanAccessorNamingScheme;
+import com.sigpwned.discourse.core.accessor.naming.DiscourseAttributeAnnotationAccessorNamingScheme;
+import com.sigpwned.discourse.core.accessor.naming.DiscourseIgnoreAnnotationAccessorNamingScheme;
+import com.sigpwned.discourse.core.annotation.DiscourseIgnore;
+import com.sigpwned.discourse.core.chain.AccessorNamingSchemeChain;
+import com.sigpwned.discourse.core.chain.ConfigurableComponentScannerChain;
+import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
+import com.sigpwned.discourse.core.chain.ExceptionFormatterChain;
+import com.sigpwned.discourse.core.chain.ValueDeserializerFactoryChain;
+import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
+import com.sigpwned.discourse.core.configurable.component.scanner.FieldConfigurableComponentScanner;
+import com.sigpwned.discourse.core.configurable.component.scanner.GetterConfigurableComponentScanner;
+import com.sigpwned.discourse.core.configurable.component.scanner.SetterConfigurableComponentScanner;
+import com.sigpwned.discourse.core.configurable.instance.factory.AnnotatedConstructorConfigurableInstanceFactory;
 import com.sigpwned.discourse.core.configurable.instance.factory.DefaultConstructorConfigurableInstanceFactory;
+import com.sigpwned.discourse.core.format.exception.ArgumentExceptionFormatter;
+import com.sigpwned.discourse.core.format.exception.BeanExceptionFormatter;
+import com.sigpwned.discourse.core.format.exception.CatchAllErrorFormatter;
+import com.sigpwned.discourse.core.format.exception.CatchAllExceptionFormatter;
+import com.sigpwned.discourse.core.format.exception.ConfigurationExceptionFormatter;
+import com.sigpwned.discourse.core.format.exception.SyntaxExceptionFormatter;
 import com.sigpwned.discourse.core.value.deserializer.BigDecimalValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.BooleanValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.ByteValueDeserializerFactory;
@@ -54,9 +69,10 @@ import com.sigpwned.discourse.core.value.sink.SetAddValueSinkFactory;
 import com.sigpwned.discourse.core.value.sink.SortedSetAddValueSinkFactory;
 
 /**
- * <p>
- * The default module for the core library. Registers the default deserializers and sinks.
- * </p>
+ * The default module for the core library. Any new functionality that is added to the core library
+ * should be registered here. All values are added to the ends of their respectivee chains so that
+ * they do not supersede existing values already registered by other modules unless otherwise
+ * noted.
  */
 public class DefaultModule extends Module {
 
@@ -110,7 +126,7 @@ public class DefaultModule extends Module {
    * @param resolver the serialization resolver to register the deserializers into
    */
   @Override
-  public void registerValueDeserializerFactories(ValueDeserializerResolver resolver) {
+  public void registerValueDeserializerFactories(ValueDeserializerFactoryChain resolver) {
     resolver.addLast(StringValueDeserializerFactory.INSTANCE);
     resolver.addLast(LongValueDeserializerFactory.INSTANCE);
     resolver.addLast(IntValueDeserializerFactory.INSTANCE);
@@ -152,24 +168,100 @@ public class DefaultModule extends Module {
    * @param resolver the sink resolver to register the sinks into
    */
   @Override
-  public void registerValueSinkFactories(ValueSinkResolver resolver) {
+  public void registerValueSinkFactories(ValueSinkFactoryChain resolver) {
     resolver.addLast(SortedSetAddValueSinkFactory.INSTANCE);
     resolver.addLast(SetAddValueSinkFactory.INSTANCE);
     resolver.addLast(ListAddValueSinkFactory.INSTANCE);
     resolver.addLast(ArrayAppendValueSinkFactory.INSTANCE);
   }
 
+  /**
+   * <p>
+   * Registers the default instance factory providers.
+   * </p>
+   *
+   * <ul>
+   *   <li>{@link DefaultConstructorConfigurableInstanceFactory.Provider}</li>
+   *   <li>{@link AnnotatedConstructorConfigurableInstanceFactory.Provider}</li>
+   * </ul>
+   *
+   * @param chain the chain to register the instance factory providers into
+   */
   @Override
-  public void registerInstanceFactoryProviders(ConfigurableInstanceFactoryProviderChain chain) {
+  public void registerInstanceFactoryScanners(ConfigurableInstanceFactoryScannerChain chain) {
     chain.addLast(new DefaultConstructorConfigurableInstanceFactory.Provider());
+    chain.addLast(new AnnotatedConstructorConfigurableInstanceFactory.Provider());
   }
 
+  /**
+   * <p>
+   * Registers the default component scanners.
+   * </p>
+   *
+   * <ul>
+   *   <li>{@link FieldConfigurableComponentScanner}</li>
+   *   <li>{@link GetterConfigurableComponentScanner}</li>
+   *   <li>{@link SetterConfigurableComponentScanner}</li>
+   * </ul>
+   *
+   * @param chain the chain to register the component scanners into
+   */
   @Override
-  public void registerParameterScanners(ConfigurableParameterScannerChain chain) {
+  public void registerConfigurableComponentScanners(ConfigurableComponentScannerChain chain) {
+    chain.addLast(FieldConfigurableComponentScanner.INSTANCE);
+    chain.addLast(GetterConfigurableComponentScanner.INSTANCE);
+    chain.addLast(SetterConfigurableComponentScanner.INSTANCE);
   }
 
+  /**
+   * <p>
+   * Registers the default accessor naming schemes.
+   * </p>
+   *
+   * <ul>
+   *   <li>{@link DiscourseIgnoreAnnotationAccessorNamingScheme}</li>
+   *   <li>{@link DiscourseAttributeAnnotationAccessorNamingScheme}</li>
+   *   <li>{@link BeanAccessorNamingScheme}</li>
+   * </ul>
+   *
+   * <p>
+   *   {@link DiscourseIgnoreAnnotationAccessorNamingScheme} is registered at the front of the chain
+   *   so that it can be used to ignore fields that are annotated with {@link DiscourseIgnore}.
+   *   This means it will supersede any existing schemes already in the chain.
+   * </p>
+   *
+   * @param chain the chain to register the accessor naming schemes into
+   */
   @Override
   public void registerAccessorNamingSchemes(AccessorNamingSchemeChain chain) {
-    chain.addLast();
+    chain.addFirst(DiscourseIgnoreAnnotationAccessorNamingScheme.INSTANCE);
+    chain.addLast(DiscourseAttributeAnnotationAccessorNamingScheme.INSTANCE);
+    chain.addLast(BeanAccessorNamingScheme.INSTANCE);
+  }
+
+  /**
+   * <p>
+   * Registers the default exception formatters.
+   * </p>
+   *
+   * <ul>
+   *   <li>{@link ConfigurationExceptionFormatter}</li>
+   *   <li>{@link SyntaxExceptionFormatter}</li>
+   *   <li>{@link BeanExceptionFormatter}</li>
+   *   <li>{@link ArgumentExceptionFormatter}</li>
+   *   <li>{@link CatchAllExceptionFormatter}</li>
+   *   <li>{@link CatchAllErrorFormatter}</li>
+   * </ul>
+   *
+   * @param chain the chain to register the exception formatters into
+   */
+  @Override
+  public void registerExceptionFormatters(ExceptionFormatterChain chain) {
+    chain.addLast(ConfigurationExceptionFormatter.INSTANCE);
+    chain.addLast(SyntaxExceptionFormatter.INSTANCE);
+    chain.addLast(BeanExceptionFormatter.INSTANCE);
+    chain.addLast(ArgumentExceptionFormatter.INSTANCE);
+    chain.addLast(CatchAllExceptionFormatter.INSTANCE);
+    chain.addLast(CatchAllErrorFormatter.INSTANCE);
   }
 }

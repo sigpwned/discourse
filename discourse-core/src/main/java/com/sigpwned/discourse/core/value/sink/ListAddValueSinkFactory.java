@@ -19,16 +19,14 @@
  */
 package com.sigpwned.discourse.core.value.sink;
 
-import com.sigpwned.discourse.core.ValueSink;
-import com.sigpwned.discourse.core.ValueSinkFactory;
 import com.sigpwned.discourse.core.util.Generated;
 import com.sigpwned.discourse.core.util.type.ListType;
-import com.sigpwned.espresso.BeanProperty;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A value sink that stores values by appending them to a list.
@@ -38,9 +36,9 @@ public class ListAddValueSinkFactory implements ValueSinkFactory {
   public static final ListAddValueSinkFactory INSTANCE = new ListAddValueSinkFactory();
 
   @Override
-  public boolean isSinkable(BeanProperty property) {
+  public boolean isSinkable(Type genericType, List<Annotation> annotations) {
     try {
-      ListType.parse(property.getGenericType());
+      ListType.parse(genericType);
     } catch (IllegalArgumentException e) {
       return false;
     }
@@ -48,9 +46,11 @@ public class ListAddValueSinkFactory implements ValueSinkFactory {
   }
 
   @Override
-  public ValueSink getSink(BeanProperty property) {
-    final ListType listType = ListType.parse(property.getGenericType());
+  public ValueSink getSink(Type genericType, List<Annotation> annotations) {
+    final ListType listType = ListType.parse(genericType);
     return new ValueSink() {
+      private final List list = new ArrayList<>();
+
       @Override
       public boolean isCollection() {
         return true;
@@ -61,21 +61,23 @@ public class ListAddValueSinkFactory implements ValueSinkFactory {
         return listType.getElementType();
       }
 
-      @SuppressWarnings({"unchecked", "rawtypes"})
       @Override
-      public void put(Object instance, Object value) throws InvocationTargetException {
-        List propertyValue = (List) property.get(instance);
-        if (propertyValue == null) {
-          propertyValue = new ArrayList();
-          property.set(instance, propertyValue);
+      public void put(Object value) {
+        if (value == null) {
+          throw new IllegalArgumentException("Cannot add null to a list");
         }
-        propertyValue.add(value);
+        list.add(value);
+      }
+
+      @Override
+      public Optional<Object> get() {
+        return Optional.of(list);
       }
 
       @Override
       @Generated
       public int hashCode() {
-        return 17;
+        return getGenericType().hashCode();
       }
 
       @Override

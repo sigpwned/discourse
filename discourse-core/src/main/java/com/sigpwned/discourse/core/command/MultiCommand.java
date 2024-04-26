@@ -19,21 +19,11 @@
  */
 package com.sigpwned.discourse.core.command;
 
-import static java.lang.String.*;
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.Discriminator;
-import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.command.ConfigurableClass.SubcommandClass;
-import com.sigpwned.discourse.core.exception.configuration.DiscriminatorMismatchConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.MultiCommandNotAbstractConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.NoDiscriminatorConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.SubcommandDoesNotExtendParentCommandConfigurationException;
-import java.lang.reflect.Modifier;
-import java.util.LinkedHashMap;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * <p>
@@ -136,43 +126,6 @@ import java.util.Objects;
  * @param <T> the type of the object that the command returns
  */
 public final class MultiCommand<T> extends Command<T> {
-
-  static <T> MultiCommand<T> scan(InvocationContext context,
-      ConfigurableClass<T> configurableClass) {
-    if (configurableClass.getSubcommands().isEmpty()) {
-      // TODO This should be a configuration exception
-      throw new IllegalArgumentException(
-          format("Configurable %s has no subcommands", configurableClass.getRawType().getName()));
-    }
-    if (!Modifier.isAbstract(configurableClass.getRawType().getModifiers())) {
-      throw new MultiCommandNotAbstractConfigurationException(configurableClass.getRawType());
-    }
-
-    Map<Discriminator, Command<? extends T>> subcommands = new LinkedHashMap<>();
-    for (SubcommandClass<? extends T> subcommand : configurableClass.getSubcommands()) {
-      ConfigurableClass<? extends T> subcommandClass = ConfigurableClass.scan(subcommand.rawType());
-
-      Discriminator subcommandDiscriminator = subcommandClass.getDiscriminator().orElseThrow(
-          () -> new NoDiscriminatorConfigurationException(subcommandClass.getRawType()));
-
-      if (subcommand.discriminator().isPresent() && !subcommand.discriminator().orElseThrow()
-          .equals(subcommandDiscriminator)) {
-        throw new DiscriminatorMismatchConfigurationException(subcommandClass.getRawType(),
-            subcommandDiscriminator, subcommand.discriminator().orElseThrow());
-      }
-
-      if (!Objects.equals(subcommandClass.getRawType().getSuperclass(),
-          configurableClass.getRawType())) {
-        throw new SubcommandDoesNotExtendParentCommandConfigurationException(
-            configurableClass.getRawType(), subcommandClass.getRawType());
-      }
-
-      subcommands.put(subcommandDiscriminator, Command.subscan(context, subcommandClass));
-    }
-
-    return new MultiCommand<>(configurableClass.getRawType(), configurableClass.getName(),
-        configurableClass.getDescription(), configurableClass.getVersion(), subcommands);
-  }
 
   private final Class<T> rawType;
   private final Map<Discriminator, Command<? extends T>> subcommands;

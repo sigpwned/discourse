@@ -19,7 +19,7 @@
  */
 package com.sigpwned.discourse.core.util;
 
-import com.sigpwned.discourse.core.Discriminator;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.Subcommand;
 import com.sigpwned.discourse.core.exception.configuration.InvalidDiscriminatorConfigurationException;

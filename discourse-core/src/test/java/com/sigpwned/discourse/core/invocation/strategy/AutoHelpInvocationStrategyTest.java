@@ -22,7 +22,7 @@ package com.sigpwned.discourse.core.invocation.strategy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.sigpwned.discourse.core.ExitError;
+import com.sigpwned.discourse.core.util.error.ExitError;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.StandardConfigurationBase;
 import com.sigpwned.discourse.core.annotation.Configurable;

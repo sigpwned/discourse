@@ -21,6 +21,15 @@ package com.sigpwned.discourse.core;
 
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.chain.AccessorNamingSchemeChain;
+import com.sigpwned.discourse.core.chain.ConfigurableComponentScannerChain;
+import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
+import com.sigpwned.discourse.core.chain.DiscourseListenerChain;
+import com.sigpwned.discourse.core.chain.ExceptionFormatterChain;
+import com.sigpwned.discourse.core.chain.ValueDeserializerFactoryChain;
+import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
+import com.sigpwned.discourse.core.format.help.HelpFormatter;
+import com.sigpwned.discourse.core.format.version.VersionFormatter;
 import java.io.PrintStream;
 import java.util.Optional;
 
@@ -63,30 +72,33 @@ public interface InvocationContext {
       PrintStream.class);
 
   /**
-   * The key for the {@link ValueDeserializerResolver value deserializer resolver}. This is a
+   * The key for the {@link ValueDeserializerFactoryChain value deserializer resolver}. This is a
    * required value.
    */
-  public static final Key<ValueDeserializerResolver> VALUE_DESERIALIZER_RESOLVER_KEY = Key.of(
-      "discourse.ValueDeserializerResolver", ValueDeserializerResolver.class);
+  public static final Key<ValueDeserializerFactoryChain> VALUE_DESERIALIZER_RESOLVER_KEY = Key.of(
+      "discourse.ValueDeserializerResolver", ValueDeserializerFactoryChain.class);
 
   /**
-   * The key for the {@link ValueSinkResolver value sink resolver}. This is a required value.
+   * The key for the {@link ValueSinkFactoryChain value sink resolver}. This is a required value.
    */
-  public static final Key<ValueSinkResolver> VALUE_SINK_RESOLVER_KEY = Key.of(
-      "discourse.ValueSinkResolver", ValueSinkResolver.class);
+  public static final Key<ValueSinkFactoryChain> VALUE_SINK_RESOLVER_KEY = Key.of(
+      "discourse.ValueSinkResolver", ValueSinkFactoryChain.class);
 
   public static final Key<DiscourseListenerChain> DISCOURSE_LISTENER_CHAIN_KEY = Key.of(
       "discourse.DiscourseListenerChain", DiscourseListenerChain.class);
 
-  public static final Key<ConfigurableInstanceFactoryProviderChain> CONFIGURABLE_INSTANCE_FACTORY_PROVIDER_CHAIN_KEY = Key.of(
+  public static final Key<ConfigurableInstanceFactoryScannerChain> CONFIGURABLE_INSTANCE_FACTORY_PROVIDER_CHAIN_KEY = Key.of(
       "discourse.ConfigurableInstanceFactoryProviderChain",
-      ConfigurableInstanceFactoryProviderChain.class);
+      ConfigurableInstanceFactoryScannerChain.class);
 
   public static final Key<ConfigurableComponentScannerChain> CONFIGURABLE_COMPONENT_SCANNER_CHAIN_KEY = Key.of(
       "discourse.ConfigurableComponentScannerChain", ConfigurableComponentScannerChain.class);
 
   public static final Key<AccessorNamingSchemeChain> ACCESSOR_NAMING_SCHEME_CHAIN_KEY = Key.of(
       "discourse.AccessorNamingSchemeChain", AccessorNamingSchemeChain.class);
+
+  public static final Key<ExceptionFormatterChain> EXCEPTION_FORMATTER_CHAIN_KEY = Key.of(
+      "discourse.ExceptionFormatterChain", ExceptionFormatterChain.class);
 
   /**
    * Registers a module with this invocation context. This is used to register additional resources

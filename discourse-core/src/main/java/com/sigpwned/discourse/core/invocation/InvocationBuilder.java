@@ -3,16 +3,15 @@ package com.sigpwned.discourse.core.invocation;
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.AccessorNamingSchemeChain;
-import com.sigpwned.discourse.core.ConfigurableClass;
-import com.sigpwned.discourse.core.ConfigurableClassWalker;
-import com.sigpwned.discourse.core.ConfigurableInstanceFactory;
-import com.sigpwned.discourse.core.ConfigurableInstanceFactoryProviderChain;
-import com.sigpwned.discourse.core.ConfigurableParameterScannerChain;
-import com.sigpwned.discourse.core.Discriminator;
+import com.sigpwned.discourse.core.chain.AccessorNamingSchemeChain;
+import com.sigpwned.discourse.core.configurable.ConfigurableClass;
+import com.sigpwned.discourse.core.configurable.ConfigurableClassWalker;
+import com.sigpwned.discourse.core.configurable.instance.factory.ConfigurableInstanceFactory;
+import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.ValueDeserializer;
-import com.sigpwned.discourse.core.ValueSink;
+import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.value.sink.ValueSink;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
@@ -73,12 +72,8 @@ public class InvocationBuilder {
    * extension hook
    */
   protected <T> Command<T> doScan(Class<T> rawType, InvocationContext context) {
-    final ConfigurableInstanceFactoryProviderChain factoryProviderChain = context.get(
+    final ConfigurableInstanceFactoryScannerChain factoryProviderChain = context.get(
         InvocationContext.CONFIGURABLE_INSTANCE_FACTORY_PROVIDER_CHAIN_KEY).orElseThrow();
-
-    final ConfigurableParameterScannerChain parameterScannerChain = context.get(
-        InvocationContext.CONFIGURABLE_PARAMETER_SCANNER_CHAIN_KEY).orElseThrow();
-
     final AtomicReference<Command<? extends T>> result = new AtomicReference<>();
 
     new ConfigurableClassWalker<>(rawType).walk(new ConfigurableClassWalker.Visitor<>() {
@@ -94,7 +89,7 @@ public class InvocationBuilder {
       public <M extends T> void leaveMultiCommandClass(Discriminator discriminator, String name,
           String description, Class<M> clazz) {
         Map<Discriminator, Command<? extends M>> subcommands = (Map) subcommandsStack.pop();
-        MultiCommand<M> multi = new MultiCommand<M>(clazz, name, description, "1.0", subcommands);
+        MultiCommand<M> multi = new MultiCommand<>(clazz, name, description, "1.0", subcommands);
         if (discriminator != null) {
           subcommandsStack.peek().put(discriminator, multi);
         } else {
@@ -105,19 +100,13 @@ public class InvocationBuilder {
       @Override
       public <M extends T> void visitSingleCommandClass(Discriminator discriminator, String name,
           String description, Class<M> clazz) {
-        ConfigurableInstanceFactory<M> factory = factoryProviderChain.getConfigurationInstanceFactory(
-            clazz).orElseThrow(() -> {
-          // TODO better exception
-          return new IllegalArgumentException("No factory for " + rawType);
-        });
+        ConfigurableClass<M> configurable = doScanSingleCommand(discriminator, name, description,
+            clazz, context);
 
-        ConfigurableParameterScannerChain parameterScannerChain = null;
-        List<ConfigurationParameter> parameters = parameterScannerChain.scanForParameters(clazz);
-        if (parameters.isEmpty()) {
-          // TODO Warn
-        }
+        SingleCommand.InstanceFactory<M> instanceFactory = resolveInstanceFactory(configurable,
+            context);
 
-        SingleCommand<M> single = new SingleCommand<>(name, description, "1.0", parameters, null);
+        SingleCommand<M> single = new SingleCommand<>(name, description, "1.0", instanceFactory);
         if (discriminator != null) {
           subcommandsStack.peek().put(discriminator, single);
         } else {
@@ -133,7 +122,6 @@ public class InvocationBuilder {
       Class<?> rawType, Type genericType) {
 
   }
-
 
   protected static class AttributeBucketBuilder {
 
@@ -309,7 +297,7 @@ public class InvocationBuilder {
     // factory. This is an abstraction of a constructor or factory method.
     ConfigurableInstanceFactory<M> instanceFactory = context.get(
             InvocationContext.CONFIGURABLE_INSTANCE_FACTORY_PROVIDER_CHAIN_KEY).orElseThrow()
-        .getConfigurationInstanceFactory(clazz).orElseThrow(() -> {
+        .scanForInstanceFactory(clazz).orElseThrow(() -> {
           // TODO better exception
           return new IllegalArgumentException("No factory for " + clazz);
         });
@@ -321,6 +309,11 @@ public class InvocationBuilder {
         .scanForComponents(clazz, context);
 
     return new ConfigurableClass<>(clazz, instanceFactory, instanceComponents);
+  }
+
+  record AssignableConfigurationParameter(ConfigurationParameter parameter,
+      BiConsumer<Object, Object> assigner) {
+
   }
 
   protected <M> SingleCommand.InstanceFactory<M> resolveInstanceFactory(ConfigurableClass<M> clazz,
@@ -368,21 +361,30 @@ public class InvocationBuilder {
     List<AttributeBucketBuilder> bucketBuilders = anchors.stream()
         .map(AttributeBucketBuilder::fromAttributeDefinition).toList();
     for (AttributeBucketBuilder bucketBuilder : bucketBuilders) {
+      final String attributeName = bucketBuilder.getName();
       for (ConfigurableComponent component : components) {
-        // For each component, for each attribute, check if the component is relevant to the attribute.
-        if (!component.getName().equals(bucketBuilder.getName())) {
-          continue;
-        }
-
-        // If the component is relevant to the attribute, add it to the bucket.
+        // For each component, for each attribute, if the component is relevant to the attribute,
+        // then add it to the bucket.
         if (component instanceof FieldConfigurableComponent field) {
-          bucketBuilder.addField(field);
+          if (naming.isAttributeFieldFor(attributeName, field.getName(), field.getAnnotations())
+              .orElse(false)) {
+            bucketBuilder.addField(field);
+          }
         } else if (component instanceof GetterConfigurableComponent getter) {
-          bucketBuilder.addGetter(getter);
+          if (naming.isAttributeGetterFor(attributeName, getter.getName(), getter.getAnnotations())
+              .orElse(false)) {
+            bucketBuilder.addGetter(getter);
+          }
         } else if (component instanceof SetterConfigurableComponent setter) {
-          bucketBuilder.addSetter(setter);
+          if (naming.isAttributeSetterFor(attributeName, setter.getName(), setter.getAnnotations())
+              .orElse(false)) {
+            bucketBuilder.addSetter(setter);
+          }
         } else if (component instanceof InputConfigurableComponent input) {
-          bucketBuilder.addInput(input);
+          if (naming.isAttributeInputFor(attributeName, input.getName(), input.getAnnotations())
+              .orElse(false)) {
+            bucketBuilder.addInput(input);
+          }
         }
       }
     }
@@ -395,7 +397,7 @@ public class InvocationBuilder {
           "component assigned to multiple attributes: " + duplicate.getName());
     });
 
-    // Let's get our buckets now
+    // Let's build our buckets now
     List<AttributeBucket> buckets = bucketBuilders.stream().map(AttributeBucketBuilder::build)
         .toList();
 
@@ -422,6 +424,11 @@ public class InvocationBuilder {
 
     return new SingleCommand.InstanceFactory<>() {
       @Override
+      public Class<M> getRawType() {
+        return clazz.getClazz();
+      }
+
+      @Override
       public List<ConfigurationParameter> getParameters() {
         return Streams.concat(inputParameters.stream(),
             setterParameters.stream().map(AssignableConfigurationParameter::parameter),
@@ -442,13 +449,8 @@ public class InvocationBuilder {
     };
   }
 
-  protected static record AssignableConfigurationParameter(ConfigurationParameter parameter,
-      BiConsumer<Object, Object> assigner) {
-
-  }
-
-  private static ConfigurationParameter toConfigurationParameter(AttributeBucket bucket,
-      InvocationContext context) {
+  private static ConfigurationParameter toConfigurationParameter(
+      InvocationBuilder.AttributeBucket bucket, InvocationContext context) {
     ValueDeserializer<?> deserializer = context.get(
             InvocationContext.VALUE_DESERIALIZER_RESOLVER_KEY).orElseThrow()
         .resolveValueDeserializer(bucket.getGenericType(), null).orElseThrow(() -> {

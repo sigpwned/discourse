@@ -19,14 +19,6 @@
  */
 package com.sigpwned.discourse.core.command;
 
-import com.sigpwned.discourse.core.exception.ConfigurationException;
-import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.UnexpectedDiscriminatorConfigurationException;
-import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
-import com.sigpwned.discourse.core.util.Discriminators;
-
 /**
  * <p>
  * A command is a blueprint for creating a configurable object from command line arguments and
@@ -46,59 +38,6 @@ import com.sigpwned.discourse.core.util.Discriminators;
  * @param <T> The type of the root configuration class.
  */
 public abstract sealed class Command<T> permits SingleCommand, MultiCommand {
-
-  /**
-   * Scans the given root configuration class with the default context to create a command.
-   *
-   * @param rawType The root class to scan.
-   * @param <T>     The type of the root class.
-   * @return The command.
-   * @throws ConfigurationException If there is  configuration error on the command
-   * @see #scan(InvocationContext, Class)
-   */
-  public static <T> Command<T> scan(Class<T> rawType) {
-    return scan(new DefaultInvocationContext(), rawType);
-  }
-
-  /**
-   * Scans the given root configuration class to create a command.
-   *
-   * @param context The context
-   * @param rawType The root class to scan.
-   * @param <T>     The type of the root class.
-   * @return The command.
-   * @throws ConfigurationException If there is  configuration error on the command
-   */
-  public static <T> Command<T> scan(InvocationContext context, Class<T> rawType) {
-    Configurable configurable = rawType.getAnnotation(Configurable.class);
-    if (configurable == null) {
-      throw new NotConfigurableConfigurationException(rawType);
-    }
-
-    if (Discriminators.fromConfigurable(configurable).isPresent()) {
-      throw new UnexpectedDiscriminatorConfigurationException(rawType);
-    }
-
-    return subscan(context, ConfigurableClass.scan(rawType));
-  }
-
-  /**
-   * Scans the given configuration class for a command. This method is for internal use only.
-   *
-   * @param context           The context
-   * @param configurableClass The configuration class to scan.
-   * @return The command.
-   * @throws ConfigurationException If there is a configuration error on the command
-   */
-  static <T> Command<T> subscan(InvocationContext context, ConfigurableClass<T> configurableClass) {
-    if (configurableClass.getSubcommands().isEmpty()) {
-      // This is a single command.
-      return SingleCommand.scan(context, configurableClass);
-    } else {
-      // This is a multi command.
-      return MultiCommand.scan(context, configurableClass);
-    }
-  }
 
   private final String name;
   private final String description;
