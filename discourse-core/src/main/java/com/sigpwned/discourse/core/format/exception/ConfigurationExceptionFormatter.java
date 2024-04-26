@@ -9,7 +9,7 @@ public class ConfigurationExceptionFormatter implements ExceptionFormatter {
   public static final ConfigurationExceptionFormatter INSTANCE = new ConfigurationExceptionFormatter();
 
   @Override
-  public boolean handlesException(Throwable e) {
+  public boolean handlesException(Throwable e, InvocationContext context) {
     return e instanceof ConfigurationException;
   }
 

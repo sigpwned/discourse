@@ -9,7 +9,7 @@ public class ArgumentExceptionFormatter implements ExceptionFormatter {
   public static final ArgumentExceptionFormatter INSTANCE = new ArgumentExceptionFormatter();
 
   @Override
-  public boolean handlesException(Throwable e) {
+  public boolean handlesException(Throwable e, InvocationContext context) {
     return e instanceof ArgumentException;
   }
 

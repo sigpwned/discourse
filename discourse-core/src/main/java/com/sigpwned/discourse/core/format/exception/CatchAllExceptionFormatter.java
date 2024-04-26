@@ -8,7 +8,7 @@ public class CatchAllExceptionFormatter implements ExceptionFormatter {
   public static final CatchAllExceptionFormatter INSTANCE = new CatchAllExceptionFormatter();
 
   @Override
-  public boolean handlesException(Throwable e) {
+  public boolean handlesException(Throwable e, InvocationContext context) {
     return e instanceof Exception;
   }
 

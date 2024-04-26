@@ -8,7 +8,7 @@ public class DefaultExceptionFormatter implements ExceptionFormatter {
   public static final DefaultExceptionFormatter INSTANCE = new DefaultExceptionFormatter();
 
   @Override
-  public boolean handlesException(Throwable e) {
+  public boolean handlesException(Throwable e, InvocationContext context) {
     return true;
   }
 

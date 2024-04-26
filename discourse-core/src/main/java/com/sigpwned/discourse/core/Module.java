@@ -30,6 +30,7 @@ import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
 import com.sigpwned.discourse.core.configurable.component.scanner.ConfigurableComponentScanner;
 import com.sigpwned.discourse.core.configurable.instance.factory.ConfigurableInstanceFactoryScanner;
 import com.sigpwned.discourse.core.format.exception.ExceptionFormatter;
+import com.sigpwned.discourse.core.listener.DiscourseListener;
 import com.sigpwned.discourse.core.value.sink.ValueSinkFactory;
 
 /**

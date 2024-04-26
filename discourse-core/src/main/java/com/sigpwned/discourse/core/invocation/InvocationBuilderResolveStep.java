@@ -3,15 +3,15 @@ package com.sigpwned.discourse.core.invocation;
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.model.invocation.MultiCommandDereference;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.exception.syntax.InsufficientDiscriminatorsSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.InvalidDiscriminatorSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.UnrecognizedDiscriminatorSyntaxException;
+import com.sigpwned.discourse.core.model.command.Discriminator;
+import com.sigpwned.discourse.core.model.invocation.MultiCommandDereference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +24,10 @@ public class InvocationBuilderResolveStep<T> {
   }
 
   public InvocationBuilderParseStep<T> resolve(List<String> arguments, InvocationContext context) {
+    context.set(InvocationContext.ARGUMENTS_KEY, List.copyOf(arguments));
+
     context.get(InvocationContext.DISCOURSE_LISTENER_CHAIN_KEY).ifPresent(listenerChain -> {
-      listenerChain.beforeResolve(command, arguments);
+      listenerChain.beforeResolve(command, arguments, context);
     });
 
     ResolvedCommandAndRemainingArguments<T> resolved = doResolve(arguments, context);

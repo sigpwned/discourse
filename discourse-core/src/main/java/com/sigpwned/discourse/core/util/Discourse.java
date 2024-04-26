@@ -23,13 +23,11 @@ import static java.util.Arrays.asList;
 
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.InvocationStrategy;
 import com.sigpwned.discourse.core.exception.ArgumentException;
 import com.sigpwned.discourse.core.exception.BeanException;
 import com.sigpwned.discourse.core.exception.ConfigurationException;
 import com.sigpwned.discourse.core.exception.SyntaxException;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
-import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
 import com.sigpwned.discourse.core.util.error.ExitError;
 import java.util.List;
 
@@ -49,29 +47,27 @@ public final class Discourse {
    * Create a configuration object of the given type from the given arguments using the given
    * command builder.
    */
-  public static <T> T configuration(Class<T> rawType, InvocationStrategy invoker,
-      InvocationContext context, String[] args) {
-    return configuration(rawType, invoker, context, List.of(args));
+  public static <T> T configuration(Class<T> rawType, InvocationContext context, String[] args) {
+    return configuration(rawType, context, List.of(args));
   }
 
   /**
    * Create a configuration object of the given type from the given arguments.
    */
   public static <T> T configuration(Class<T> rawType, List<String> args) {
-    return configuration(rawType, new DefaultInvocationStrategy(), new DefaultInvocationContext(),
-        args);
+    return configuration(rawType, new DefaultInvocationContext(), args);
   }
 
   /**
    * Create a configuration object of the given type from the given arguments using the given
    * command builder.
    */
-  public static <T> T configuration(Class<T> rawType, InvocationStrategy strategy,
-      InvocationContext context, List<String> args) {
+  public static <T> T configuration(Class<T> rawType, InvocationContext context,
+      List<String> args) {
     T result;
     try {
-      result = Invocation.defaultBuilder().chain(context).command(rawType).strategy(strategy)
-          .args(args).getConfiguration();
+      result = Invocation.builder().scan(rawType, context).resolve(args, context).parse(context)
+          .deserialize(context).prepare(context).build(context).getConfiguration();
     } catch (ConfigurationException e) {
       // In this case, there was a problem with the application configuration. This is probably a
       // bug in the application, and therefore the developer's fault. Exit code 10.

@@ -3,8 +3,8 @@ package com.sigpwned.discourse.core.invocation;
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.ArgumentsParser;
-import com.sigpwned.discourse.core.ArgumentsParser.Handler;
+import com.sigpwned.discourse.core.args.ArgumentsParser;
+import com.sigpwned.discourse.core.args.ArgumentsParser.Handler;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.model.invocation.MultiCommandDereference;
 import com.sigpwned.discourse.core.model.argument.ParsedArgument;
@@ -37,7 +37,7 @@ public class InvocationBuilderParseStep<T> {
   public InvocationBuilderDeserializeStep<T> parse(InvocationContext context) {
     context.get(InvocationContext.DISCOURSE_LISTENER_CHAIN_KEY).ifPresent(listenerChain -> {
       listenerChain.beforeParse(rootCommand, dereferencedCommands, resolvedCommand,
-          remainingArguments);
+          remainingArguments, context);
     });
 
     List<ParsedArgument> parsedArguments = doParse();

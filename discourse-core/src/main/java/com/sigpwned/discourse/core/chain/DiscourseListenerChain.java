@@ -1,6 +1,7 @@
 package com.sigpwned.discourse.core.chain;
 
-import com.sigpwned.discourse.core.DiscourseListener;
+import com.sigpwned.discourse.core.listener.DiscourseListener;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.model.argument.DeserializedArgument;
@@ -12,43 +13,46 @@ import java.util.List;
 public class DiscourseListenerChain extends Chain<DiscourseListener> implements DiscourseListener {
 
   @Override
-  public void beforeScan(Class<?> clazz) {
+  public void beforeScan(Class<?> clazz, InvocationContext context) {
     for (DiscourseListener discourseListener : this) {
-      discourseListener.beforeScan(clazz);
+      discourseListener.beforeScan(clazz, context);
     }
   }
 
   @Override
-  public <T> void afterScan(Command<T> rootCommand) {
+  public <T> void afterScan(Command<T> rootCommand, InvocationContext context) {
     for (DiscourseListener discourseListener : this) {
-      discourseListener.afterScan(rootCommand);
+      discourseListener.afterScan(rootCommand, context);
     }
   }
 
   @Override
-  public <T> void beforeResolve(Command<T> rootCommand, List<String> args) {
+  public <T> void beforeResolve(Command<T> rootCommand, List<String> args,
+      InvocationContext context) {
     for (DiscourseListener discourseListener : this) {
-      discourseListener.beforeResolve(rootCommand, args);
+      discourseListener.beforeResolve(rootCommand, args, context);
     }
   }
 
   @Override
   public <T> void beforeParse(Command<T> rootCommand,
       List<MultiCommandDereference<? extends T>> dereferencedCommands,
-      SingleCommand<? extends T> resolvedCommand, List<String> remainingArgs) {
+      SingleCommand<? extends T> resolvedCommand, List<String> remainingArgs,
+      InvocationContext context) {
     for (DiscourseListener discourseListener : this) {
       discourseListener.beforeParse(rootCommand, dereferencedCommands, resolvedCommand,
-          remainingArgs);
+          remainingArgs, context);
     }
   }
 
   @Override
   public <T> void beforeDeserialize(Command<T> rootCommand,
       List<MultiCommandDereference<? extends T>> dereferencedCommands,
-      SingleCommand<? extends T> resolvedCommand, List<ParsedArgument> parsedArguments) {
+      SingleCommand<? extends T> resolvedCommand, List<ParsedArgument> parsedArguments,
+      InvocationContext context) {
     for (DiscourseListener discourseListener : this) {
       discourseListener.beforeDeserialize(rootCommand, dereferencedCommands,
-          resolvedCommand, parsedArguments);
+          resolvedCommand, parsedArguments, context);
     }
   }
 
@@ -56,20 +60,21 @@ public class DiscourseListenerChain extends Chain<DiscourseListener> implements 
   public <T> void beforePrepare(Command<T> rootCommand,
       List<MultiCommandDereference<? extends T>> dereferencedCommands,
       SingleCommand<? extends T> resolvedCommand,
-      List<DeserializedArgument> deserializedArguments) {
+      List<DeserializedArgument> deserializedArguments, InvocationContext context) {
     for (DiscourseListener discourseListener : this) {
       discourseListener.beforePrepare(rootCommand, dereferencedCommands,
-          resolvedCommand, deserializedArguments);
+          resolvedCommand, deserializedArguments, context);
     }
   }
 
   @Override
   public <T> void beforeBuild(Command<T> rootCommand,
       List<MultiCommandDereference<? extends T>> dereferencedCommands,
-      SingleCommand<? extends T> resolvedCommand, List<PreparedArgument> sinkedArguments) {
+      SingleCommand<? extends T> resolvedCommand, List<PreparedArgument> sinkedArguments,
+      InvocationContext context) {
     for (DiscourseListener discourseListener : this) {
       discourseListener.beforeBuild(rootCommand, dereferencedCommands, resolvedCommand,
-          sinkedArguments);
+          sinkedArguments, context);
     }
   }
 
@@ -77,10 +82,10 @@ public class DiscourseListenerChain extends Chain<DiscourseListener> implements 
   public <T> void afterBuild(Command<T> rootCommand,
       List<MultiCommandDereference<? extends T>> dereferencedCommands,
       SingleCommand<? extends T> resolvedCommand, List<PreparedArgument> sinkedArguments,
-      T instance) {
+      T instance, InvocationContext context) {
     for (DiscourseListener discourseListener : this) {
       discourseListener.afterBuild(rootCommand, dereferencedCommands, resolvedCommand,
-          sinkedArguments, instance);
+          sinkedArguments, instance, context);
     }
   }
 }

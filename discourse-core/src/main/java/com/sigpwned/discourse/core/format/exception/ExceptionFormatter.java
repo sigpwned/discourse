@@ -4,7 +4,7 @@ import com.sigpwned.discourse.core.InvocationContext;
 
 public interface ExceptionFormatter {
 
-  public boolean handlesException(Throwable e);
+  public boolean handlesException(Throwable e, InvocationContext context);
 
   public void formatException(Throwable e, InvocationContext context);
 }

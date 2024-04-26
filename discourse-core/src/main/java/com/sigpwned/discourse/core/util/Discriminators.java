@@ -19,16 +19,18 @@
  */
 package com.sigpwned.discourse.core.util;
 
-import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.Subcommand;
 import com.sigpwned.discourse.core.exception.configuration.InvalidDiscriminatorConfigurationException;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 import java.util.Optional;
 
 public final class Discriminators {
 
   private Discriminators() {
   }
+
+  public static final Discriminator HELP = Discriminator.fromString("help");
 
   public static Optional<Discriminator> fromConfigurable(Configurable configurable) {
     if (configurable.discriminator().isEmpty()) {

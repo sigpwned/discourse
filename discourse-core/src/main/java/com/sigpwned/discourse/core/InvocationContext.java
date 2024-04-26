@@ -28,9 +28,12 @@ import com.sigpwned.discourse.core.chain.DiscourseListenerChain;
 import com.sigpwned.discourse.core.chain.ExceptionFormatterChain;
 import com.sigpwned.discourse.core.chain.ValueDeserializerFactoryChain;
 import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.format.help.HelpFormatter;
 import com.sigpwned.discourse.core.format.version.VersionFormatter;
+import com.sigpwned.discourse.core.listener.DiscourseListener;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -99,6 +102,15 @@ public interface InvocationContext {
 
   public static final Key<ExceptionFormatterChain> EXCEPTION_FORMATTER_CHAIN_KEY = Key.of(
       "discourse.ExceptionFormatterChain", ExceptionFormatterChain.class);
+
+  /**
+   * The key for the arguments to the current invocation. This value is added during the resolve
+   * step, and is available via the context from
+   * {@link DiscourseListener#beforeResolve(Command, List, InvocationContext)} onward.
+   */
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public static final Key<List<String>> ARGUMENTS_KEY = (Key) Key.of("discourse.Arguments",
+      List.class);
 
   /**
    * Registers a module with this invocation context. This is used to register additional resources

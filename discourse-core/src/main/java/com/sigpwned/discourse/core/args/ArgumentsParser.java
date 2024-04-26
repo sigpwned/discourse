@@ -17,7 +17,7 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core;
+package com.sigpwned.discourse.core.args;
 
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;

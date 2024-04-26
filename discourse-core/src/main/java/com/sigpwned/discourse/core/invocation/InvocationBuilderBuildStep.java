@@ -32,14 +32,14 @@ public class InvocationBuilderBuildStep<T> {
   public Invocation<T> build(InvocationContext context) {
     context.get(InvocationContext.DISCOURSE_LISTENER_CHAIN_KEY).ifPresent(listenerChain -> {
       listenerChain.beforeBuild(rootCommand, dereferencedCommands, resolvedCommand,
-          preparedArguments);
+          preparedArguments, context);
     });
 
     T instance = doBuild();
 
     context.get(InvocationContext.DISCOURSE_LISTENER_CHAIN_KEY).ifPresent(listenerChain -> {
       listenerChain.afterBuild(rootCommand, dereferencedCommands, resolvedCommand,
-          preparedArguments, instance);
+          preparedArguments, instance, context);
     });
 
     return new Invocation<>(rootCommand, dereferencedCommands, resolvedCommand, instance);

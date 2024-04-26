@@ -3,33 +3,31 @@ package com.sigpwned.discourse.core.invocation;
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.chain.AccessorNamingSchemeChain;
-import com.sigpwned.discourse.core.configurable.ConfigurableClass;
-import com.sigpwned.discourse.core.configurable.ConfigurableClassWalker;
-import com.sigpwned.discourse.core.configurable.instance.factory.ConfigurableInstanceFactory;
-import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
-import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
-import com.sigpwned.discourse.core.value.sink.ValueSink;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.PropertyParameter;
+import com.sigpwned.discourse.core.chain.AccessorNamingSchemeChain;
+import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.configurable.ConfigurableClass;
+import com.sigpwned.discourse.core.configurable.ConfigurableClassWalker;
 import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.component.FieldConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.component.GetterConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.component.InputConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.component.SetterConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.instance.factory.ConfigurableInstanceFactory;
 import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import com.sigpwned.discourse.core.coordinate.PropertyNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.VariableNameCoordinate;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
@@ -39,6 +37,8 @@ import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
 import com.sigpwned.discourse.core.util.MoreIterables;
 import com.sigpwned.discourse.core.util.ParameterAnnotations;
 import com.sigpwned.discourse.core.util.Streams;
+import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.value.sink.ValueSink;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -56,13 +56,13 @@ public class InvocationBuilder {
   public <T> InvocationBuilderResolveStep<T> scan(Class<T> rawType, InvocationContext context) {
 
     context.get(InvocationContext.DISCOURSE_LISTENER_CHAIN_KEY).ifPresent(listener -> {
-      listener.beforeScan(rawType);
+      listener.beforeScan(rawType, context);
     });
 
     Command<T> command = doScan(rawType, context);
 
     context.get(InvocationContext.DISCOURSE_LISTENER_CHAIN_KEY).ifPresent(listener -> {
-      listener.afterScan(command);
+      listener.afterScan(command, context);
     });
 
     return new InvocationBuilderResolveStep<>(command);
@@ -453,13 +453,13 @@ public class InvocationBuilder {
       InvocationBuilder.AttributeBucket bucket, InvocationContext context) {
     ValueDeserializer<?> deserializer = context.get(
             InvocationContext.VALUE_DESERIALIZER_RESOLVER_KEY).orElseThrow()
-        .resolveValueDeserializer(bucket.getGenericType(), null).orElseThrow(() -> {
+        .getDeserializer(bucket.getGenericType(), null).orElseThrow(() -> {
           // TODO better exception
           return new IllegalArgumentException("No deserializer for " + bucket.getRawType());
         });
 
     ValueSink sink = context.get(InvocationContext.VALUE_SINK_RESOLVER_KEY).orElseThrow()
-        .resolveValueSink(bucket.getGenericType(), null);
+        .getSink(bucket.getGenericType(), null);
 
     if (bucket.getAnnotation() instanceof FlagParameter flag) {
       ShortSwitchNameCoordinate shortName = Optional.ofNullable(flag.shortName())

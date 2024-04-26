@@ -19,7 +19,7 @@ public class ExceptionFormatterChain extends Chain<ExceptionFormatter> {
   }
 
   public ExceptionFormatter getExceptionFormatter(Throwable e) {
-    return Chains.stream(this).filter(formatter -> formatter.handlesException(e)).findFirst()
+    return Chains.stream(this).filter(formatter -> formatter.handlesException(e, context)).findFirst()
         .orElseGet(this::getDefaultFormatter);
   }
 

@@ -30,7 +30,7 @@ public class InvocationBuilderDeserializeStep<T> {
   public InvocationBuilderPrepareStep<T> deserialize(InvocationContext context) {
     context.get(InvocationContext.DISCOURSE_LISTENER_CHAIN_KEY).ifPresent(listenerChain -> {
       listenerChain.beforeDeserialize(rootCommand, dereferencedCommands, resolvedCommand,
-          parsedArguments);
+          parsedArguments, context);
     });
 
     List<DeserializedArgument> deserializedArguments = doDeserialize();

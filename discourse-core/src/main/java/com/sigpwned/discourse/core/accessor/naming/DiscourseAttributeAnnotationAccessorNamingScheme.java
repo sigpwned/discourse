@@ -61,7 +61,7 @@ public class DiscourseAttributeAnnotationAccessorNamingScheme implements Accesso
 
   private Optional<String> findDiscourseAttributeName(List<Annotation> annotations) {
     return annotations.stream().mapMulti(Streams.filterAndCast(DiscourseAttribute.class))
-        .map(DiscourseAttribute::name).peek(name -> {
+        .map(DiscourseAttribute::value).peek(name -> {
           if (name.isEmpty()) {
             // TODO better exception
             throw new IllegalArgumentException("empty attribute name");

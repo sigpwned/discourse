@@ -22,7 +22,6 @@ package com.sigpwned.discourse.core.configurable;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
-import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.Subcommand;
 import com.sigpwned.discourse.core.command.Command;
@@ -37,6 +36,7 @@ import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfig
 import com.sigpwned.discourse.core.exception.configuration.SealedSubcommandsConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.SubcommandDoesNotExtendParentCommandConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.UnexpectedDiscriminatorConfigurationException;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.util.Discriminators;
 import com.sigpwned.discourse.core.util.Streams;
 import java.lang.reflect.Modifier;
@@ -136,8 +136,10 @@ public final class ConfigurableClassWalker<T> {
      * @param clazz         the class that represents the command
      * @param <M>           the type of this MutliCommand class
      */
-    public <M extends T> void enterMultiCommandClass(Discriminator discriminator, String name,
-        String description, Class<M> clazz);
+    default <M extends T> void enterMultiCommandClass(Discriminator discriminator, String name,
+        String description, Class<M> clazz) {
+
+    }
 
     /**
      * <p>
@@ -158,8 +160,10 @@ public final class ConfigurableClassWalker<T> {
      * @param clazz         the class that represents the command
      * @param <M>           the type of this MutliCommand class
      */
-    public <M extends T> void leaveMultiCommandClass(Discriminator discriminator, String name,
-        String description, Class<M> clazz);
+    default <M extends T> void leaveMultiCommandClass(Discriminator discriminator, String name,
+        String description, Class<M> clazz) {
+
+    }
 
     /**
      * Visit a class that represents a {@link SingleCommand}. A single command is a standalone
@@ -172,8 +176,10 @@ public final class ConfigurableClassWalker<T> {
      * @param description   the description of the command
      * @param clazz         the class that represents the command
      */
-    public <S extends T> void visitSingleCommandClass(Discriminator discriminator, String name,
-        String description, Class<S> clazz);
+    default <S extends T> void visitSingleCommandClass(Discriminator discriminator, String name,
+        String description, Class<S> clazz) {
+
+    }
   }
 
   private final Class<T> clazz;

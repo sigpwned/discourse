@@ -27,6 +27,7 @@ import com.sigpwned.discourse.core.annotation.DiscourseIgnore;
 import com.sigpwned.discourse.core.chain.AccessorNamingSchemeChain;
 import com.sigpwned.discourse.core.chain.ConfigurableComponentScannerChain;
 import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
+import com.sigpwned.discourse.core.chain.DiscourseListenerChain;
 import com.sigpwned.discourse.core.chain.ExceptionFormatterChain;
 import com.sigpwned.discourse.core.chain.ValueDeserializerFactoryChain;
 import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
@@ -40,7 +41,12 @@ import com.sigpwned.discourse.core.format.exception.BeanExceptionFormatter;
 import com.sigpwned.discourse.core.format.exception.CatchAllErrorFormatter;
 import com.sigpwned.discourse.core.format.exception.CatchAllExceptionFormatter;
 import com.sigpwned.discourse.core.format.exception.ConfigurationExceptionFormatter;
+import com.sigpwned.discourse.core.format.exception.EmptyArgsRequiredParametersMissingSyntaxExceptionFormatter;
+import com.sigpwned.discourse.core.format.exception.HelpUnrecognizedDiscriminatorSyntaxExceptionFormatter;
 import com.sigpwned.discourse.core.format.exception.SyntaxExceptionFormatter;
+import com.sigpwned.discourse.core.listener.EmptyArgsToMultiCommandInterceptingDiscourseListener;
+import com.sigpwned.discourse.core.listener.HelpFlagInterceptingDiscourseListener;
+import com.sigpwned.discourse.core.listener.VersionFlagInterceptingDiscourseListener;
 import com.sigpwned.discourse.core.value.deserializer.BigDecimalValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.BooleanValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.ByteValueDeserializerFactory;
@@ -245,6 +251,8 @@ public class DefaultModule extends Module {
    * </p>
    *
    * <ul>
+   *   <li>{@link EmptyArgsRequiredParametersMissingSyntaxExceptionFormatter}</li>
+   *   <li>{@link HelpUnrecognizedDiscriminatorSyntaxExceptionFormatter}</li>
    *   <li>{@link ConfigurationExceptionFormatter}</li>
    *   <li>{@link SyntaxExceptionFormatter}</li>
    *   <li>{@link BeanExceptionFormatter}</li>
@@ -257,11 +265,20 @@ public class DefaultModule extends Module {
    */
   @Override
   public void registerExceptionFormatters(ExceptionFormatterChain chain) {
+    chain.addLast(EmptyArgsRequiredParametersMissingSyntaxExceptionFormatter.INSTANCE);
+    chain.addLast(HelpUnrecognizedDiscriminatorSyntaxExceptionFormatter.INSTANCE);
     chain.addLast(ConfigurationExceptionFormatter.INSTANCE);
     chain.addLast(SyntaxExceptionFormatter.INSTANCE);
     chain.addLast(BeanExceptionFormatter.INSTANCE);
     chain.addLast(ArgumentExceptionFormatter.INSTANCE);
     chain.addLast(CatchAllExceptionFormatter.INSTANCE);
     chain.addLast(CatchAllErrorFormatter.INSTANCE);
+  }
+
+  @Override
+  public void registerDiscourseListeners(DiscourseListenerChain chain) {
+    chain.addLast(EmptyArgsToMultiCommandInterceptingDiscourseListener.INSTANCE);
+    chain.addLast(HelpFlagInterceptingDiscourseListener.INSTANCE);
+    chain.addLast(VersionFlagInterceptingDiscourseListener.INSTANCE);
   }
 }

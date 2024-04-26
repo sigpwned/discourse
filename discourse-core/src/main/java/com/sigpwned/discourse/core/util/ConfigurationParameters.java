@@ -57,7 +57,7 @@ public final class ConfigurationParameters {
     if (parameterAnnotation instanceof PositionalParameter positional) {
       PositionCoordinate position = Optional.of(positional.position()).filter(x -> x >= 0)
           .map(PositionCoordinate::new)
-          .orElseThrow(() -> new InvalidPositionConfigurationException(positional.position()));
+          .orElseThrow(() -> new InvalidPositionConfigurationException(name, positional.position()));
       return new PositionalConfigurationParameter(name, positional.description(),
           positional.required(), deserializer, sink, position);
     }

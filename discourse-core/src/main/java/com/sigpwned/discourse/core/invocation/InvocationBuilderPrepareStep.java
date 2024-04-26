@@ -37,7 +37,7 @@ public class InvocationBuilderPrepareStep<T> {
   public InvocationBuilderBuildStep<T> prepare(InvocationContext context) {
     context.get(InvocationContext.DISCOURSE_LISTENER_CHAIN_KEY).ifPresent(listenerChain -> {
       listenerChain.beforePrepare(rootCommand, dereferencedCommands,
-          resolvedCommand, deserializedArguments);
+          resolvedCommand, deserializedArguments, context);
     });
 
     List<PreparedArgument> preparedArguments = doPrepare();
