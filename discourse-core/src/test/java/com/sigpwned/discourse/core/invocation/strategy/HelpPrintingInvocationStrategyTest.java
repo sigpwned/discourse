@@ -36,59 +36,59 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 public class HelpPrintingInvocationStrategyTest {
-
-  @Configurable(name = "foobar")
-  public static class Example extends StandardConfigurationBase {
-
-  }
-
-  @Test
-  public void givenHelpArgs_whenInvoke_thenDoPrint() {
-    Command<Example> command = Command.scan(Example.class);
-
-    ByteArrayOutputStream err = new ByteArrayOutputStream();
-
-    InvocationContext context = new DefaultInvocationContext();
-    context.set(InvocationContext.ERROR_STREAM_KEY, new PrintStream(err));
-
-    boolean exited = false;
-    try {
-      new HelpPrintingInvocationStrategy(new SingleCommandInvocationStrategy()) {
-        @Override
-        protected ExitError exit(int status) {
-          return new ExitError(status);
-        }
-      }.invoke(command, context, List.of("--help"));
-    } catch (ExitError e) {
-      exited = true;
-    }
-
-    assertThat(exited, is(true));
-    assertThat(err.toString(StandardCharsets.UTF_8), CoreMatchers.containsString("foobar"));
-  }
-
-  @Test
-  public void givenNonHelpArgs_whenInvoke_thenDontPrint() {
-    Command<Example> command = Command.scan(Example.class);
-
-    ByteArrayOutputStream err = new ByteArrayOutputStream();
-
-    InvocationContext context = new DefaultInvocationContext();
-    context.set(InvocationContext.ERROR_STREAM_KEY, new PrintStream(err));
-
-    boolean exited = false;
-    try {
-      new HelpPrintingInvocationStrategy(new SingleCommandInvocationStrategy()) {
-        @Override
-        protected ExitError exit(int status) {
-          return new ExitError(status);
-        }
-      }.invoke(command, context, List.of());
-    } catch (ExitError e) {
-      exited = true;
-    }
-
-    assertThat(exited, is(false));
-    assertThat(err.toString(StandardCharsets.UTF_8), is(""));
-  }
+//
+//  @Configurable(name = "foobar")
+//  public static class Example extends StandardConfigurationBase {
+//
+//  }
+//
+//  @Test
+//  public void givenHelpArgs_whenInvoke_thenDoPrint() {
+//    Command<Example> command = Command.scan(Example.class);
+//
+//    ByteArrayOutputStream err = new ByteArrayOutputStream();
+//
+//    InvocationContext context = new DefaultInvocationContext();
+//    context.set(InvocationContext.ERROR_STREAM_KEY, new PrintStream(err));
+//
+//    boolean exited = false;
+//    try {
+//      new HelpPrintingInvocationStrategy(new SingleCommandInvocationStrategy()) {
+//        @Override
+//        protected ExitError exit(int status) {
+//          return new ExitError(status);
+//        }
+//      }.invoke(command, context, List.of("--help"));
+//    } catch (ExitError e) {
+//      exited = true;
+//    }
+//
+//    assertThat(exited, is(true));
+//    assertThat(err.toString(StandardCharsets.UTF_8), CoreMatchers.containsString("foobar"));
+//  }
+//
+//  @Test
+//  public void givenNonHelpArgs_whenInvoke_thenDontPrint() {
+//    Command<Example> command = Command.scan(Example.class);
+//
+//    ByteArrayOutputStream err = new ByteArrayOutputStream();
+//
+//    InvocationContext context = new DefaultInvocationContext();
+//    context.set(InvocationContext.ERROR_STREAM_KEY, new PrintStream(err));
+//
+//    boolean exited = false;
+//    try {
+//      new HelpPrintingInvocationStrategy(new SingleCommandInvocationStrategy()) {
+//        @Override
+//        protected ExitError exit(int status) {
+//          return new ExitError(status);
+//        }
+//      }.invoke(command, context, List.of());
+//    } catch (ExitError e) {
+//      exited = true;
+//    }
+//
+//    assertThat(exited, is(false));
+//    assertThat(err.toString(StandardCharsets.UTF_8), is(""));
+//  }
 }

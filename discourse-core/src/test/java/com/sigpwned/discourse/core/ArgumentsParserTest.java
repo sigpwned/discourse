@@ -28,25 +28,39 @@ import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.args.ArgumentsParser;
-import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.coordinate.NameCoordinate;
 import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import com.sigpwned.discourse.core.exception.syntax.FlagValuePresentSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.OptionValueMissingSyntaxException;
 import com.sigpwned.discourse.core.exception.syntax.UnrecognizedSwitchSyntaxException;
+import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  * Tests for {@link ArgumentsParser}.
  */
 public class ArgumentsParserTest {
+
+  public InvocationContext context;
+
+  @Before
+  public void setupArgumentsParserTest() {
+    context = new DefaultInvocationContext();
+  }
+
+  @After
+  public void cleanupArgumentsParserTest() {
+    context = null;
+  }
 
   @Configurable
   public static class Example {
@@ -66,7 +80,7 @@ public class ArgumentsParserTest {
    */
   @Test
   public void givenShortFlagThenLongDisconnectedOptionThenPositional_whenParse_thenSucceed() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Invocation.builder().scan(Example.class, context).getCommand();
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -103,7 +117,7 @@ public class ArgumentsParserTest {
    */
   @Test
   public void givenLongFlagThenLongConnectedOptionThenPositional_whenParse_thenSucceed() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Invocation.builder().scan(Example.class, context).getCommand();
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -139,7 +153,7 @@ public class ArgumentsParserTest {
    */
   @Test
   public void givenLongFlagThenShortOptionThenPositional_whenParse_thenSucceed() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Invocation.builder().scan(Example.class, context).getCommand();
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -175,7 +189,7 @@ public class ArgumentsParserTest {
    */
   @Test(expected = UnrecognizedSwitchSyntaxException.class)
   public void givenUnrecognizedShortOption_whenParse_thenFailWithUnrecognizedShortNameException() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Invocation.builder().scan(Example.class, context).getCommand();
 
     new ArgumentsParser(cc, new ArgumentsParser.Handler() {
     }).parse(List.of("-x"));
@@ -186,7 +200,7 @@ public class ArgumentsParserTest {
    */
   @Test
   public void givenShortFlagThenLongConnectedOptionThenPositional_whenParse_thenSucceed() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Invocation.builder().scan(Example.class, context).getCommand();
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -223,7 +237,7 @@ public class ArgumentsParserTest {
    */
   @Test
   public void givenBundleThenOptionValueThenPositional_whenParse_thenSucceed() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Invocation.builder().scan(Example.class, context).getCommand();
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -260,7 +274,7 @@ public class ArgumentsParserTest {
    */
   @Test(expected = OptionValueMissingSyntaxException.class)
   public void givenShortSwitchThenEof_whenParse_thenFailWithMissingShortNameValueException() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Invocation.builder().scan(Example.class, context).getCommand();
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -297,7 +311,7 @@ public class ArgumentsParserTest {
    */
   @Test(expected = OptionValueMissingSyntaxException.class)
   public void givenLongSwitchThenEof_whenParse_thenFailWithMissingLongNameValueException() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Invocation.builder().scan(Example.class, context).getCommand();
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -334,7 +348,7 @@ public class ArgumentsParserTest {
    */
   @Test(expected = OptionValueMissingSyntaxException.class)
   public void givenBundleNeedingValueThenEof_whenParse_thenFailWithMissingShortNameValueException() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Invocation.builder().scan(Example.class, context).getCommand();
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -371,7 +385,7 @@ public class ArgumentsParserTest {
    */
   @Test(expected = UnrecognizedSwitchSyntaxException.class)
   public void givenArgsWithUnknownLongSwitch_whenParse_thenFailWithUnrecognizedLongNameException() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Invocation.builder().scan(Example.class, context).getCommand();
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -408,7 +422,7 @@ public class ArgumentsParserTest {
    */
   @Test(expected = UnrecognizedSwitchSyntaxException.class)
   public void givenArgsWithUnknownShortSwitch_whenParse_thenFailWithUnrecognizedShortNameException() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Invocation.builder().scan(Example.class, context).getCommand();
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -445,7 +459,7 @@ public class ArgumentsParserTest {
    */
   @Test(expected = FlagValuePresentSyntaxException.class)
   public void givenConnectedValueOnFlagSwitch_whenParse_thenFailWithInvalidLongNameValueException() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Invocation.builder().scan(Example.class, context).getCommand();
 
     final String alpha = "alpha";
     final String foo = "foo";
@@ -482,7 +496,7 @@ public class ArgumentsParserTest {
    */
   @Test
   public void givenShortFlagThenLongConnectedOptionThenSeparatorThenPositional_whenParse_thenSucceed() {
-    SingleCommand<Example> cc = (SingleCommand<Example>) Command.scan(Example.class);
+    SingleCommand<Example> cc = (SingleCommand<Example>) Invocation.builder().scan(Example.class, context).getCommand();
 
     final String alpha = "alpha";
     final String foo = "-foo";

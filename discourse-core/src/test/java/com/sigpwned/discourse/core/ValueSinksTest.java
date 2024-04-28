@@ -27,9 +27,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
-import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
-import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -101,11 +99,12 @@ public class ValueSinksTest {
 
   @Test
   public void givenConfigurationClassWithParametersOfAllStockSinks_whenInvoke_thenSucceed() {
-    SinkExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
-        Command.scan(SinkExample.class), new DefaultInvocationContext(),
-        List.of("--assign", "alpha", "--list", "bravo", "--list", "charlie", "--set", "delta",
-            "--set", "echo", "--sortedSet", "foxtrot", "--sortedSet", "golf", "--array", "hotel",
-            "--array", "india")).getConfiguration();
+    InvocationContext context = new DefaultInvocationContext();
+    SinkExample observed = Invocation.builder().scan(SinkExample.class, context).resolve(
+            List.of("--assign", "alpha", "--list", "bravo", "--list", "charlie", "--set", "delta",
+                "--set", "echo", "--sortedSet", "foxtrot", "--sortedSet", "golf", "--array", "hotel",
+                "--array", "india"), context).parse(context).deserialize(context).prepare(context)
+        .build(context).getConfiguration();
 
     assertThat(observed, is(new SinkExample("alpha", ImmutableList.of("bravo", "charlie"),
         ImmutableSet.of("delta", "echo"), ImmutableSortedSet.of("foxtrot", "golf"),

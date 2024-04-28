@@ -23,16 +23,20 @@ public class InvocationBuilderResolveStep<T> {
     this.command = requireNonNull(command);
   }
 
+  public Command<T> getCommand() {
+    return command;
+  }
+
   public InvocationBuilderParseStep<T> resolve(List<String> arguments, InvocationContext context) {
     context.set(InvocationContext.ARGUMENTS_KEY, List.copyOf(arguments));
 
     context.get(InvocationContext.DISCOURSE_LISTENER_CHAIN_KEY).ifPresent(listenerChain -> {
-      listenerChain.beforeResolve(command, arguments, context);
+      listenerChain.beforeResolve(getCommand(), arguments, context);
     });
 
     ResolvedCommandAndRemainingArguments<T> resolved = doResolve(arguments, context);
 
-    return new InvocationBuilderParseStep<T>(command, resolved.dereferencedCommands(),
+    return new InvocationBuilderParseStep<T>(getCommand(), resolved.dereferencedCommands(),
         resolved.resolvedCommand(), resolved.remainingArguments());
   }
 

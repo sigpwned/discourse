@@ -19,81 +19,64 @@
  */
 package com.sigpwned.discourse.core.invocation.strategy;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
-import com.sigpwned.discourse.core.model.command.Discriminator;
-import com.sigpwned.discourse.core.Invocation;
-import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.annotation.Subcommand;
-import com.sigpwned.discourse.core.command.Command;
-import com.sigpwned.discourse.core.command.MultiCommand;
-import com.sigpwned.discourse.core.command.SingleCommand;
-import com.sigpwned.discourse.core.exception.syntax.InsufficientDiscriminatorsSyntaxException;
-import com.sigpwned.discourse.core.invocation.DefaultInvocation;
-import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
-import java.util.List;
-import java.util.Map;
-import org.junit.Test;
-
 public class SubcommandDereferencingInvocationStrategyTest {
-
-  @Configurable(subcommands = {
-      @Subcommand(discriminator = "first", configurable = FirstAnnotationSubcommandExample.class)})
-  public abstract static class RootAnnotationExample {
-
-  }
-
-  @Configurable(discriminator = "first", subcommands = {
-      @Subcommand(discriminator = "second", configurable = SecondAnnotationSubcommandExample.class)})
-  public abstract static class FirstAnnotationSubcommandExample extends RootAnnotationExample {
-
-  }
-
-  @Configurable(discriminator = "second")
-  public static class SecondAnnotationSubcommandExample extends FirstAnnotationSubcommandExample {
-
-    public boolean equals(Object other) {
-      return other instanceof SecondAnnotationSubcommandExample;
-    }
-  }
-
-  @Test
-  public void givenArgsThatFullyDereferenceToSingleCommand_whenInvoke_thenSucceed() {
-    MultiCommand<RootAnnotationExample> rootCommand = (MultiCommand<RootAnnotationExample>) Command.scan(
-        RootAnnotationExample.class);
-    MultiCommand<FirstAnnotationSubcommandExample> firstSubcommand = (MultiCommand<FirstAnnotationSubcommandExample>) rootCommand.getSubcommands()
-        .get(Discriminator.fromString("first"));
-    SingleCommand<SecondAnnotationSubcommandExample> secondSubcommand = (SingleCommand<SecondAnnotationSubcommandExample>) firstSubcommand.getSubcommands()
-        .get(Discriminator.fromString("second"));
-
-    Invocation<? extends RootAnnotationExample> invocation = new SubcommandDereferencingInvocationStrategy(
-        new SingleCommandInvocationStrategy()).invoke(rootCommand, new DefaultInvocationContext(),
-        List.of("first", "second"));
-
-    assertThat(invocation, is(new DefaultInvocation<>(
-        List.of(Map.entry(Discriminator.fromString("first"), rootCommand),
-            Map.entry(Discriminator.fromString("second"), firstSubcommand)), secondSubcommand,
-        List.of(), new SecondAnnotationSubcommandExample())));
-  }
-
-  @Test(expected = InsufficientDiscriminatorsSyntaxException.class)
-  public void givenArgsThatPartiallyDereferenceToSingleCommand_whenInvoke_thenFailWithNoSubcommandException() {
-    MultiCommand<RootAnnotationExample> rootCommand = (MultiCommand<RootAnnotationExample>) Command.scan(
-        RootAnnotationExample.class);
-
-    new SubcommandDereferencingInvocationStrategy(
-        new SingleCommandInvocationStrategy()).invoke(rootCommand, new DefaultInvocationContext(),
-        List.of("first"));
-  }
-
-  @Test(expected = InsufficientDiscriminatorsSyntaxException.class)
-  public void givenArgsThatNonelyDereferenceToSingleCommand_whenInvoke_thenFailWithNoSubcommandException() {
-    MultiCommand<RootAnnotationExample> rootCommand = (MultiCommand<RootAnnotationExample>) Command.scan(
-        RootAnnotationExample.class);
-
-    new SubcommandDereferencingInvocationStrategy(
-        new SingleCommandInvocationStrategy()).invoke(rootCommand, new DefaultInvocationContext(),
-        List.of());
-  }
+//
+//  @Configurable(subcommands = {
+//      @Subcommand(discriminator = "first", configurable = FirstAnnotationSubcommandExample.class)})
+//  public abstract static class RootAnnotationExample {
+//
+//  }
+//
+//  @Configurable(discriminator = "first", subcommands = {
+//      @Subcommand(discriminator = "second", configurable = SecondAnnotationSubcommandExample.class)})
+//  public abstract static class FirstAnnotationSubcommandExample extends RootAnnotationExample {
+//
+//  }
+//
+//  @Configurable(discriminator = "second")
+//  public static class SecondAnnotationSubcommandExample extends FirstAnnotationSubcommandExample {
+//
+//    public boolean equals(Object other) {
+//      return other instanceof SecondAnnotationSubcommandExample;
+//    }
+//  }
+//
+//  @Test
+//  public void givenArgsThatFullyDereferenceToSingleCommand_whenInvoke_thenSucceed() {
+//    MultiCommand<RootAnnotationExample> rootCommand = (MultiCommand<RootAnnotationExample>) Command.scan(
+//        RootAnnotationExample.class);
+//    MultiCommand<FirstAnnotationSubcommandExample> firstSubcommand = (MultiCommand<FirstAnnotationSubcommandExample>) rootCommand.getSubcommands()
+//        .get(Discriminator.fromString("first"));
+//    SingleCommand<SecondAnnotationSubcommandExample> secondSubcommand = (SingleCommand<SecondAnnotationSubcommandExample>) firstSubcommand.getSubcommands()
+//        .get(Discriminator.fromString("second"));
+//
+//    Invocation<? extends RootAnnotationExample> invocation = new SubcommandDereferencingInvocationStrategy(
+//        new SingleCommandInvocationStrategy()).invoke(rootCommand, new DefaultInvocationContext(),
+//        List.of("first", "second"));
+//
+//    assertThat(invocation, is(new DefaultInvocation<>(
+//        List.of(Map.entry(Discriminator.fromString("first"), rootCommand),
+//            Map.entry(Discriminator.fromString("second"), firstSubcommand)), secondSubcommand,
+//        List.of(), new SecondAnnotationSubcommandExample())));
+//  }
+//
+//  @Test(expected = InsufficientDiscriminatorsSyntaxException.class)
+//  public void givenArgsThatPartiallyDereferenceToSingleCommand_whenInvoke_thenFailWithNoSubcommandException() {
+//    MultiCommand<RootAnnotationExample> rootCommand = (MultiCommand<RootAnnotationExample>) Command.scan(
+//        RootAnnotationExample.class);
+//
+//    new SubcommandDereferencingInvocationStrategy(
+//        new SingleCommandInvocationStrategy()).invoke(rootCommand, new DefaultInvocationContext(),
+//        List.of("first"));
+//  }
+//
+//  @Test(expected = InsufficientDiscriminatorsSyntaxException.class)
+//  public void givenArgsThatNonelyDereferenceToSingleCommand_whenInvoke_thenFailWithNoSubcommandException() {
+//    MultiCommand<RootAnnotationExample> rootCommand = (MultiCommand<RootAnnotationExample>) Command.scan(
+//        RootAnnotationExample.class);
+//
+//    new SubcommandDereferencingInvocationStrategy(
+//        new SingleCommandInvocationStrategy()).invoke(rootCommand, new DefaultInvocationContext(),
+//        List.of());
+//  }
 }

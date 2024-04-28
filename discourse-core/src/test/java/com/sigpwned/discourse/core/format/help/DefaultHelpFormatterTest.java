@@ -23,6 +23,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.google.common.io.Resources;
+import com.sigpwned.discourse.core.Invocation;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
@@ -31,8 +33,11 @@ import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.PropertyParameter;
 import com.sigpwned.discourse.core.annotation.Subcommand;
 import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -41,6 +46,18 @@ import org.junit.Test;
  */
 @Ignore("actively working on help formatting")
 public class DefaultHelpFormatterTest {
+
+  public InvocationContext context;
+
+  @Before
+  public void setupDefaultHelpFormatterTest() {
+    context = new DefaultInvocationContext();
+  }
+
+  @After
+  public void cleanupDefaultHelpFormatterTest() {
+    context = null;
+  }
 
   @Configurable(name = "test", description = "This is a test. This is only a test.")
   public static class SingleExample {
@@ -63,7 +80,7 @@ public class DefaultHelpFormatterTest {
 
   @Test
   public void givenSingleCommand_whenFormatHelp_thenGenerateExpectedText() throws IOException {
-    Command<?> command = Command.scan(SingleExample.class);
+    Command<?> command = Invocation.builder().scan(SingleExample.class, context).getCommand();
     String observed = new DefaultHelpFormatter().formatHelp(command);
     String expected = Resources.toString(getClass().getResource("singlecommandhelp.txt"),
         StandardCharsets.UTF_8);
@@ -104,7 +121,7 @@ public class DefaultHelpFormatterTest {
 
   @Test
   public void givenMultiCommand_whenFormatHelp_thenGenerateExpectedText() throws IOException {
-    Command<?> command = Command.scan(MultiExample.class);
+    Command<?> command = Invocation.builder().scan(MultiExample.class, context).getCommand();
     String observed = new DefaultHelpFormatter().formatHelp(command);
     String expected = Resources.toString(getClass().getResource("multicommandhelp.txt"),
         StandardCharsets.UTF_8);

@@ -23,16 +23,33 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.google.common.io.Resources;
+import com.sigpwned.discourse.core.Invocation;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  * Test {@link DefaultVersionFormatter}
  */
 public class DefaultVersionFormatterTest {
+
+  public InvocationContext context;
+
+  @Before
+  public void setupDefaultHelpFormatterTest() {
+    context = new DefaultInvocationContext();
+  }
+
+  @After
+  public void cleanupDefaultHelpFormatterTest() {
+    context = null;
+  }
 
   @Configurable(name = "test", version = "1.0.0")
   public static class Example {
@@ -41,10 +58,9 @@ public class DefaultVersionFormatterTest {
 
   @Test
   public void givenMultiCommand_whenFormatVersion_thenGenerateExpectedText() throws IOException {
-    Command<?> command = Command.scan(DefaultVersionFormatterTest.Example.class);
+    Command<?> command = Invocation.builder().scan(Example.class, context).getCommand();
     String observed = new DefaultVersionFormatter().formatVersion(command);
-    String expected = Resources.toString(
-        getClass().getResource("commandversion.txt"),
+    String expected = Resources.toString(getClass().getResource("commandversion.txt"),
         StandardCharsets.UTF_8);
     assertThat(observed, is(expected));
   }

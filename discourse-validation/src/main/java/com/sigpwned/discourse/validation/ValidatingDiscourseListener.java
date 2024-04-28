@@ -21,13 +21,15 @@ package com.sigpwned.discourse.validation;
 
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.model.command.Discriminator;
-import com.sigpwned.discourse.core.Invocation;
-import com.sigpwned.discourse.core.command.MultiCommand;
+import com.sigpwned.discourse.core.InvocationContext;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.listener.DiscourseListener;
+import com.sigpwned.discourse.core.model.argument.PreparedArgument;
+import com.sigpwned.discourse.core.model.invocation.MultiCommandDereference;
 import com.sigpwned.discourse.validation.exception.argument.ValidationArgumentException;
+import com.sigpwned.discourse.validation.util.Validation;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
@@ -35,50 +37,33 @@ import javax.validation.Validator;
 /**
  * An invocation that validates the configuration object using Jakarta validation before returning
  * it.
- *
- * @param <T>
  */
-public class ValidatingInvocation<T> implements Invocation<T> {
+public class ValidatingDiscourseListener implements DiscourseListener {
 
-  private final Invocation<T> delegate;
+  public static Validator defaultValidator() {
+    return Validation.defaultValidator();
+  }
+
   private final Validator validator;
 
-  public ValidatingInvocation(Invocation<T> delegate, Validator validator) {
-    this.delegate = requireNonNull(delegate);
+  public ValidatingDiscourseListener() {
+    this(defaultValidator());
+  }
+
+  public ValidatingDiscourseListener(Validator validator) {
     this.validator = requireNonNull(validator);
   }
 
   @Override
-  public T getConfiguration() {
-    T result = getDelegate().getConfiguration();
-    @SuppressWarnings({"unchecked",
-        "rawtypes"}) Set<ConstraintViolation<?>> violations = (Set) getValidator().validate(result);
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public <T> void afterBuild(Command<T> rootCommand,
+      List<MultiCommandDereference<? extends T>> dereferencedCommands,
+      SingleCommand<? extends T> resolvedCommand, List<PreparedArgument> sinkedArguments,
+      T instance, InvocationContext context) {
+    Set<ConstraintViolation<T>> violations = getValidator().validate(instance);
     if (!violations.isEmpty()) {
-      throw new ValidationArgumentException(violations);
+      throw new ValidationArgumentException((Set) violations);
     }
-    return result;
-  }
-
-  @Override
-  public List<Entry<Discriminator, MultiCommand<? extends T>>> getSubcommands() {
-    return getDelegate().getSubcommands();
-  }
-
-  @Override
-  public SingleCommand<? extends T> getLeafCommand() {
-    return getDelegate().getLeafCommand();
-  }
-
-  @Override
-  public List<String> getLeafArgs() {
-    return getDelegate().getLeafArgs();
-  }
-
-  /**
-   * @return the delegate
-   */
-  private Invocation<T> getDelegate() {
-    return delegate;
   }
 
   /**

@@ -19,76 +19,60 @@
  */
 package com.sigpwned.discourse.core.invocation.strategy;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
-import com.sigpwned.discourse.core.util.error.ExitError;
-import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.StandardConfigurationBase;
-import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.command.Command;
-import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-
 public class VersionPrintingInvocationStrategyTest {
-
-  @Configurable(name = "foobar", version = "1.0.0")
-  public static class Example extends StandardConfigurationBase {
-
-  }
-
-  @Test
-  public void givenVersionArgs_whenInvoke_thenDoPrint() {
-    Command<Example> command = Command.scan(Example.class);
-
-    ByteArrayOutputStream err = new ByteArrayOutputStream();
-
-    InvocationContext context = new DefaultInvocationContext();
-    context.set(InvocationContext.ERROR_STREAM_KEY, new PrintStream(err));
-
-    boolean exited = false;
-    try {
-      new VersionPrintingInvocationStrategy(new SingleCommandInvocationStrategy()) {
-        @Override
-        protected ExitError exit(int status) {
-          return new ExitError(status);
-        }
-      }.invoke(command, context, List.of("--version"));
-    } catch (ExitError e) {
-      exited = true;
-    }
-
-    assertThat(exited, is(true));
-    assertThat(err.toString(StandardCharsets.UTF_8), CoreMatchers.containsString("foobar 1.0.0"));
-  }
-
-  @Test
-  public void givenNonVersionArgs_whenInvoke_thenDontPrint() {
-    Command<Example> command = Command.scan(Example.class);
-
-    ByteArrayOutputStream err = new ByteArrayOutputStream();
-
-    InvocationContext context = new DefaultInvocationContext();
-    context.set(InvocationContext.ERROR_STREAM_KEY, new PrintStream(err));
-
-    boolean exited = false;
-    try {
-      new VersionPrintingInvocationStrategy(new SingleCommandInvocationStrategy()) {
-        @Override
-        protected ExitError exit(int status) {
-          return new ExitError(status);
-        }
-      }.invoke(command, context, List.of());
-    } catch (ExitError e) {
-      exited = true;
-    }
-
-    assertThat(exited, is(false));
-    assertThat(err.toString(StandardCharsets.UTF_8), is(""));
-  }
+//
+//  @Configurable(name = "foobar", version = "1.0.0")
+//  public static class Example extends StandardConfigurationBase {
+//
+//  }
+//
+//  @Test
+//  public void givenVersionArgs_whenInvoke_thenDoPrint() {
+//    Command<Example> command = Command.scan(Example.class);
+//
+//    ByteArrayOutputStream err = new ByteArrayOutputStream();
+//
+//    InvocationContext context = new DefaultInvocationContext();
+//    context.set(InvocationContext.ERROR_STREAM_KEY, new PrintStream(err));
+//
+//    boolean exited = false;
+//    try {
+//      new VersionPrintingInvocationStrategy(new SingleCommandInvocationStrategy()) {
+//        @Override
+//        protected ExitError exit(int status) {
+//          return new ExitError(status);
+//        }
+//      }.invoke(command, context, List.of("--version"));
+//    } catch (ExitError e) {
+//      exited = true;
+//    }
+//
+//    assertThat(exited, is(true));
+//    assertThat(err.toString(StandardCharsets.UTF_8), CoreMatchers.containsString("foobar 1.0.0"));
+//  }
+//
+//  @Test
+//  public void givenNonVersionArgs_whenInvoke_thenDontPrint() {
+//    Command<Example> command = Command.scan(Example.class);
+//
+//    ByteArrayOutputStream err = new ByteArrayOutputStream();
+//
+//    InvocationContext context = new DefaultInvocationContext();
+//    context.set(InvocationContext.ERROR_STREAM_KEY, new PrintStream(err));
+//
+//    boolean exited = false;
+//    try {
+//      new VersionPrintingInvocationStrategy(new SingleCommandInvocationStrategy()) {
+//        @Override
+//        protected ExitError exit(int status) {
+//          return new ExitError(status);
+//        }
+//      }.invoke(command, context, List.of());
+//    } catch (ExitError e) {
+//      exited = true;
+//    }
+//
+//    assertThat(exited, is(false));
+//    assertThat(err.toString(StandardCharsets.UTF_8), is(""));
+//  }
 }

@@ -27,19 +27,33 @@ import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
-import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.invocation.InvocationBuilder;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
-import com.sigpwned.discourse.core.invocation.strategy.DefaultInvocationStrategy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  * Test {@link SingleCommand} specific features
  */
 public class SingleCommandTest {
+
+  public InvocationContext context;
+
+  @Before
+  public void setupSingleCommandTest() {
+    context = new DefaultInvocationContext();
+  }
+
+  @After
+  public void cleanupSingleCommandTest() {
+    context = null;
+  }
+
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,8 +63,9 @@ public class SingleCommandTest {
     final String alpha = "alpha";
     final String bravo = "bravo";
 
-    Example1 observed = DefaultInvocationStrategy.INSTANCE.invoke(Command.scan(Example1.class),
-        new DefaultInvocationContext(), List.of("-f", "-o", alpha, bravo)).getConfiguration();
+    Example1 observed = new InvocationBuilder().scan(Example1.class, context)
+        .resolve(List.of("-f", "-o", alpha, bravo), context).parse(context).deserialize(context)
+        .prepare(context).build(context).getConfiguration();
 
     Example1 expected = new Example1();
     expected.flag = true;
@@ -66,9 +81,9 @@ public class SingleCommandTest {
     final String bravo = "bravo";
     final String charlie = "charlie";
 
-    Example2 observed = DefaultInvocationStrategy.INSTANCE.invoke(Command.scan(Example2.class),
-            new DefaultInvocationContext(), List.of("-f", "-o", alpha, bravo, charlie))
-        .getConfiguration();
+    Example2 observed = new InvocationBuilder().scan(Example2.class, context)
+        .resolve(List.of("-f", "-o", alpha, bravo, charlie), context).parse(context)
+        .deserialize(context).prepare(context).build(context).getConfiguration();
 
     Example2 expected = new Example2();
     expected.flag = true;
@@ -86,9 +101,9 @@ public class SingleCommandTest {
   public void givenClassWithUnconfiguredField_whenInvoke_thenSucceedWithExpectedValue() {
     final String hello = "hello";
 
-    AllowUnconfiguredFieldExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
-        Command.scan(AllowUnconfiguredFieldExample.class), new DefaultInvocationContext(),
-        List.of(hello)).getConfiguration();
+    AllowUnconfiguredFieldExample observed = new InvocationBuilder().scan(
+            AllowUnconfiguredFieldExample.class, context).resolve(List.of(hello), context)
+        .parse(context).deserialize(context).prepare(context).build(context).getConfiguration();
 
     AllowUnconfiguredFieldExample expected = new AllowUnconfiguredFieldExample();
     expected.example2 = hello;
@@ -100,9 +115,9 @@ public class SingleCommandTest {
   public void givenClassWithSetters_whenInvoke_thenSucceedWithExpectedValue() {
     final String hello = "hello";
 
-    AccessorExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
-            Command.scan(AccessorExample.class), new DefaultInvocationContext(), List.of(hello))
-        .getConfiguration();
+    AccessorExample observed = new InvocationBuilder().scan(AccessorExample.class, context)
+        .resolve(List.of(hello), context).parse(context).deserialize(context).prepare(context)
+        .build(context).getConfiguration();
 
     AccessorExample expected = new AccessorExample();
     expected.example = hello;
@@ -112,9 +127,9 @@ public class SingleCommandTest {
 
   @Test
   public void givenClassWithPrimitives_whenInvoke_thenSucceedWithExpectedValue() {
-    PrimitivesExample observed = DefaultInvocationStrategy.INSTANCE.invoke(
-        Command.scan(PrimitivesExample.class), new DefaultInvocationContext(),
-        List.of("-x", "1", "2", "3")).getConfiguration();
+    PrimitivesExample observed = new InvocationBuilder().scan(PrimitivesExample.class, context)
+        .resolve(List.of("-x", "1", "2", "3"), context).parse(context).deserialize(context)
+        .prepare(context).build(context).getConfiguration();
 
     PrimitivesExample expected = new PrimitivesExample();
     expected.x = 1;
