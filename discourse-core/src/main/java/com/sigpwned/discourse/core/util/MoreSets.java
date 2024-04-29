@@ -17,29 +17,29 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.configurable.component;
+package com.sigpwned.discourse.core.util;
 
-import static java.util.Objects.requireNonNull;
+import static java.util.Collections.*;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-public final class GetterConfigurableComponent extends ConfigurableComponent {
+public final class MoreSets {
 
-  private final Method method;
-
-  public GetterConfigurableComponent(Method method) {
-    super(method.getName(), method.getReturnType(), method.getGenericReturnType(),
-        List.of(method.getAnnotations()));
-    this.method = requireNonNull(method);
+  private MoreSets() {
   }
 
-  public boolean isVisible() {
-    return Modifier.isPublic(getMethod().getModifiers());
-  }
-
-  private Method getMethod() {
-    return method;
+  /**
+   * Returns the set of elements that are in {@code xs} but not in {@code ys}.
+   *
+   * @param xs  the set of elements
+   * @param ys  the set of elements to exclude
+   * @param <T> the type of the elements in the sets
+   * @return the set of elements that are in {@code xs} but not in {@code ys}
+   */
+  public static <T> Set<T> difference(Set<T> xs, Set<T> ys) {
+    Set<T> result = new HashSet<>(xs);
+    result.removeAll(ys);
+    return unmodifiableSet(result);
   }
 }

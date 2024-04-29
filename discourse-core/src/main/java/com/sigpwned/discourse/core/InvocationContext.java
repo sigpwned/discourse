@@ -29,6 +29,7 @@ import com.sigpwned.discourse.core.chain.ExceptionFormatterChain;
 import com.sigpwned.discourse.core.chain.ValueDeserializerFactoryChain;
 import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
 import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.error.ExitErrorFactory;
 import com.sigpwned.discourse.core.format.help.HelpFormatter;
 import com.sigpwned.discourse.core.format.version.VersionFormatter;
 import com.sigpwned.discourse.core.listener.DiscourseListener;
@@ -111,6 +112,9 @@ public interface InvocationContext {
   @SuppressWarnings({"unchecked", "rawtypes"})
   public static final Key<List<String>> ARGUMENTS_KEY = (Key) Key.of("discourse.Arguments",
       List.class);
+
+  public static final Key<ExitErrorFactory> EXIT_ERROR_FACTORY_KEY = Key.of(
+      "discourse.ExitErrorFactory", ExitErrorFactory.class);
 
   /**
    * Registers a module with this invocation context. This is used to register additional resources

@@ -23,12 +23,12 @@ import static java.util.Arrays.asList;
 
 import com.sigpwned.discourse.core.Invocation;
 import com.sigpwned.discourse.core.InvocationContext;
+import com.sigpwned.discourse.core.error.exit.DefaultExitErrorFactory;
 import com.sigpwned.discourse.core.exception.ArgumentException;
 import com.sigpwned.discourse.core.exception.BeanException;
 import com.sigpwned.discourse.core.exception.ConfigurationException;
 import com.sigpwned.discourse.core.exception.SyntaxException;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
-import com.sigpwned.discourse.core.util.error.ExitError;
 import java.util.List;
 
 public final class Discourse {
@@ -73,37 +73,37 @@ public final class Discourse {
       // bug in the application, and therefore the developer's fault. Exit code 10.
       context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
           .getExceptionFormatter(e, context).formatException(e, context);
-      throw exit(10);
+      throw context.get(InvocationContext.EXIT_ERROR_FACTORY_KEY)
+          .orElse(DefaultExitErrorFactory.INSTANCE).createExitError(10);
     } catch (SyntaxException e) {
       // In this case, there was a problem with the structure of the user's CLI arguments. This is
       // the user's fault. Exit code 20.
       context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
           .getExceptionFormatter(e, context).formatException(e, context);
-      throw exit(20);
+      throw context.get(InvocationContext.EXIT_ERROR_FACTORY_KEY)
+          .orElse(DefaultExitErrorFactory.INSTANCE).createExitError(20);
     } catch (ArgumentException e) {
       // In this case, there was a problem with the content of the user's CLI arguments. This is
       // the user's fault. Exit code 30.
       context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
           .getExceptionFormatter(e, context).formatException(e, context);
-      throw exit(30);
+      throw context.get(InvocationContext.EXIT_ERROR_FACTORY_KEY)
+          .orElse(DefaultExitErrorFactory.INSTANCE).createExitError(30);
     } catch (BeanException e) {
       // In this case, there was a problem with creating the configuration bean. This is the
       // developer's fault. Exit code 40.
       context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
           .getExceptionFormatter(e, context).formatException(e, context);
-      throw exit(40);
+      throw context.get(InvocationContext.EXIT_ERROR_FACTORY_KEY)
+          .orElse(DefaultExitErrorFactory.INSTANCE).createExitError(40);
     } catch (Throwable e) {
       // Welp, you got me. This is probably a bug in the application? We print a helpful error message.
       context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
           .getExceptionFormatter(e, context).formatException(e, context);
-      throw exit(100);
+      throw context.get(InvocationContext.EXIT_ERROR_FACTORY_KEY)
+          .orElse(DefaultExitErrorFactory.INSTANCE).createExitError(100);
     }
 
     return result;
-  }
-
-  private static ExitError exit(int status) {
-    System.exit(status);
-    return new ExitError(status);
   }
 }

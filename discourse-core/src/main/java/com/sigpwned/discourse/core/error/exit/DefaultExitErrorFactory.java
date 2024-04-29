@@ -17,29 +17,21 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.configurable.component;
+package com.sigpwned.discourse.core.error.exit;
 
-import static java.util.Objects.requireNonNull;
+import com.sigpwned.discourse.core.error.ExitErrorFactory;
+import com.sigpwned.discourse.core.util.error.ExitError;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.List;
+/**
+ * A default implementation of {@link ExitErrorFactory} that simply calls {@link System#exit}.
+ */
+public class DefaultExitErrorFactory implements ExitErrorFactory {
 
-public final class GetterConfigurableComponent extends ConfigurableComponent {
+  public static final DefaultExitErrorFactory INSTANCE = new DefaultExitErrorFactory();
 
-  private final Method method;
-
-  public GetterConfigurableComponent(Method method) {
-    super(method.getName(), method.getReturnType(), method.getGenericReturnType(),
-        List.of(method.getAnnotations()));
-    this.method = requireNonNull(method);
-  }
-
-  public boolean isVisible() {
-    return Modifier.isPublic(getMethod().getModifiers());
-  }
-
-  private Method getMethod() {
-    return method;
+  @Override
+  public ExitError createExitError(int code) {
+    System.exit(code);
+    return new ExitError(code);
   }
 }

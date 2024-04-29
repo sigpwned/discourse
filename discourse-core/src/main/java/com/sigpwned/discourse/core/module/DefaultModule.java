@@ -23,6 +23,9 @@ import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.accessor.naming.BeanAccessorNamingScheme;
 import com.sigpwned.discourse.core.accessor.naming.DiscourseAttributeAnnotationAccessorNamingScheme;
 import com.sigpwned.discourse.core.accessor.naming.DiscourseIgnoreAnnotationAccessorNamingScheme;
+import com.sigpwned.discourse.core.accessor.naming.FieldAccessorNamingScheme;
+import com.sigpwned.discourse.core.accessor.naming.ParameterAccessorNamingScheme;
+import com.sigpwned.discourse.core.accessor.naming.RecordAccessorNamingScheme;
 import com.sigpwned.discourse.core.annotation.DiscourseIgnore;
 import com.sigpwned.discourse.core.chain.AccessorNamingSchemeChain;
 import com.sigpwned.discourse.core.chain.ConfigurableComponentScannerChain;
@@ -228,6 +231,9 @@ public class DefaultModule extends Module {
    *   <li>{@link DiscourseIgnoreAnnotationAccessorNamingScheme}</li>
    *   <li>{@link DiscourseAttributeAnnotationAccessorNamingScheme}</li>
    *   <li>{@link BeanAccessorNamingScheme}</li>
+   *   <li>{@link FieldAccessorNamingScheme}</li>
+   *   <li>{@link ParameterAccessorNamingScheme}</li>
+   *   <li>{@link RecordAccessorNamingScheme}</li>
    * </ul>
    *
    * <p>
@@ -243,6 +249,9 @@ public class DefaultModule extends Module {
     chain.addFirst(DiscourseIgnoreAnnotationAccessorNamingScheme.INSTANCE);
     chain.addLast(DiscourseAttributeAnnotationAccessorNamingScheme.INSTANCE);
     chain.addLast(BeanAccessorNamingScheme.INSTANCE);
+    chain.addLast(FieldAccessorNamingScheme.INSTANCE);
+    chain.addLast(ParameterAccessorNamingScheme.INSTANCE);
+    chain.addLast(RecordAccessorNamingScheme.INSTANCE);
   }
 
   /**

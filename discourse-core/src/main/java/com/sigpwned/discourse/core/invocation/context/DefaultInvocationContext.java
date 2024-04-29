@@ -21,9 +21,14 @@ package com.sigpwned.discourse.core.invocation.context;
 
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.Module;
+import com.sigpwned.discourse.core.chain.AccessorNamingSchemeChain;
+import com.sigpwned.discourse.core.chain.ConfigurableComponentScannerChain;
 import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
+import com.sigpwned.discourse.core.chain.DiscourseListenerChain;
+import com.sigpwned.discourse.core.chain.ExceptionFormatterChain;
 import com.sigpwned.discourse.core.chain.ValueDeserializerFactoryChain;
 import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
+import com.sigpwned.discourse.core.error.exit.DefaultExitErrorFactory;
 import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 import com.sigpwned.discourse.core.format.version.DefaultVersionFormatter;
 import com.sigpwned.discourse.core.module.DefaultModule;
@@ -89,6 +94,14 @@ public class DefaultInvocationContext implements InvocationContext {
     this.values.put(InvocationContext.VALUE_SINK_FACTORY_CHAIN_KEY, new ValueSinkFactoryChain());
     this.values.put(InvocationContext.CONFIGURABLE_INSTANCE_FACTORY_PROVIDER_CHAIN_KEY,
         new ConfigurableInstanceFactoryScannerChain());
+    this.values.put(InvocationContext.DISCOURSE_LISTENER_CHAIN_KEY, new DiscourseListenerChain());
+    this.values.put(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY, new ExceptionFormatterChain());
+    this.values.put(InvocationContext.ACCESSOR_NAMING_SCHEME_CHAIN_KEY,
+        new AccessorNamingSchemeChain());
+    this.values.put(InvocationContext.CONFIGURABLE_COMPONENT_SCANNER_CHAIN_KEY,
+        new ConfigurableComponentScannerChain());
+    this.values.put(InvocationContext.EXIT_ERROR_FACTORY_KEY, new DefaultExitErrorFactory());
+
     register(new DefaultModule());
   }
 
@@ -124,6 +137,21 @@ public class DefaultInvocationContext implements InvocationContext {
 
     module.registerValueSinkFactories(
         get(InvocationContext.VALUE_SINK_FACTORY_CHAIN_KEY).orElseThrow());
+
+    module.registerDiscourseListeners(
+        get(InvocationContext.DISCOURSE_LISTENER_CHAIN_KEY).orElseThrow());
+
+    module.registerExceptionFormatters(
+        get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow());
+
+    module.registerAccessorNamingSchemes(
+        get(InvocationContext.ACCESSOR_NAMING_SCHEME_CHAIN_KEY).orElseThrow());
+
+    module.registerConfigurableComponentScanners(
+        get(InvocationContext.CONFIGURABLE_COMPONENT_SCANNER_CHAIN_KEY).orElseThrow());
+
+    module.registerInstanceFactoryScanners(
+        get(InvocationContext.CONFIGURABLE_INSTANCE_FACTORY_PROVIDER_CHAIN_KEY).orElseThrow());
   }
 
   private Map<Key<?>, Object> getValues() {

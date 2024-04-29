@@ -17,29 +17,20 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.configurable.component;
+package com.sigpwned.discourse.core.error;
 
-import static java.util.Objects.requireNonNull;
+import com.sigpwned.discourse.core.module.DefaultModule;
+import com.sigpwned.discourse.core.util.error.ExitError;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.List;
+/**
+ * A factory for creating {@link ExitError} instances. Internally, discourse models exiting the
+ * application (e.g., when printing a help message and exiting) as throwing a special exception
+ * {@link ExitError}. This is useful (a) for massaging various and sundry compiler warnings, and (b)
+ * for testing. The {@link DefaultModule default runtime configuration} simply calls
+ * {@link System#exit}, but during testing, this can be overridden to return an exception instead.
+ */
+@FunctionalInterface
+public interface ExitErrorFactory {
 
-public final class GetterConfigurableComponent extends ConfigurableComponent {
-
-  private final Method method;
-
-  public GetterConfigurableComponent(Method method) {
-    super(method.getName(), method.getReturnType(), method.getGenericReturnType(),
-        List.of(method.getAnnotations()));
-    this.method = requireNonNull(method);
-  }
-
-  public boolean isVisible() {
-    return Modifier.isPublic(getMethod().getModifiers());
-  }
-
-  private Method getMethod() {
-    return method;
-  }
+  public ExitError createExitError(int code);
 }

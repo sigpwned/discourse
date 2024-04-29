@@ -1,3 +1,22 @@
+/*-
+ * =================================LICENSE_START==================================
+ * discourse-core
+ * ====================================SECTION=====================================
+ * Copyright (C) 2022 - 2024 Andy Boothe
+ * ====================================SECTION=====================================
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ==================================LICENSE_END===================================
+ */
 package com.sigpwned.discourse.core.invocation;
 
 import static java.util.Collections.*;
@@ -58,6 +77,8 @@ public class InvocationBuilderResolveStep<T> {
    */
   protected ResolvedCommandAndRemainingArguments<T> doResolve(List<String> arguments,
       InvocationContext context) {
+    arguments = new ArrayList<>(arguments);
+
     Command<? extends T> subcommand = command;
     List<MultiCommandDereference<? extends T>> subcommands = new ArrayList<>();
     while (subcommand instanceof MultiCommand<? extends T> multi) {
@@ -74,12 +95,12 @@ public class InvocationBuilderResolveStep<T> {
         throw new InvalidDiscriminatorSyntaxException(multi, discriminatorString);
       }
 
-      subcommands.add(new MultiCommandDereference<>(multi, discriminator));
-
       Command<? extends T> dereferencedSubcommand = multi.getSubcommands().get(discriminator);
       if (dereferencedSubcommand == null) {
         throw new UnrecognizedDiscriminatorSyntaxException(multi, discriminator);
       }
+
+      subcommands.add(new MultiCommandDereference<>(multi, discriminator));
 
       subcommand = dereferencedSubcommand;
     }

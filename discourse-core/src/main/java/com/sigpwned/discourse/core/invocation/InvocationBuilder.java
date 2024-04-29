@@ -1,7 +1,28 @@
+/*-
+ * =================================LICENSE_START==================================
+ * discourse-core
+ * ====================================SECTION=====================================
+ * Copyright (C) 2022 - 2024 Andy Boothe
+ * ====================================SECTION=====================================
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ==================================LICENSE_END===================================
+ */
 package com.sigpwned.discourse.core.invocation;
 
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
+import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.toSet;
 
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
@@ -27,6 +48,11 @@ import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
 import com.sigpwned.discourse.core.coordinate.PropertyNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.VariableNameCoordinate;
+import com.sigpwned.discourse.core.exception.bean.AssignmentFailureBeanException;
+import com.sigpwned.discourse.core.exception.bean.NewInstanceFailureBeanException;
+import com.sigpwned.discourse.core.exception.configuration.InvalidLongNameConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.InvalidShortNameConfigurationException;
+import com.sigpwned.discourse.core.exception.syntax.RequiredParametersMissingSyntaxException;
 import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
@@ -35,6 +61,7 @@ import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
 import com.sigpwned.discourse.core.util.MoreIterables;
+import com.sigpwned.discourse.core.util.MoreSets;
 import com.sigpwned.discourse.core.util.ParameterAnnotations;
 import com.sigpwned.discourse.core.util.Streams;
 import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
@@ -46,6 +73,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -103,10 +131,10 @@ public class InvocationBuilder {
         ConfigurableClass<M> configurable = doScanSingleCommand(discriminator, name, description,
             clazz, context);
 
-        SingleCommand.InstanceFactory<M> instanceFactory = resolveInstanceFactory(configurable,
-            context);
+        MyInstanceFactory<M> instanceFactory = resolveInstanceFactory(configurable, context);
 
         SingleCommand<M> single = new SingleCommand<>(name, description, "1.0", instanceFactory);
+        instanceFactory.setCommand(single);
         if (discriminator != null) {
           subcommandsStack.peek().put(discriminator, single);
         } else {
@@ -316,7 +344,7 @@ public class InvocationBuilder {
 
   }
 
-  protected <M> SingleCommand.InstanceFactory<M> resolveInstanceFactory(ConfigurableClass<M> clazz,
+  protected <M> MyInstanceFactory<M> resolveInstanceFactory(ConfigurableClass<M> clazz,
       InvocationContext context) {
 
     // Combine them together into one list
@@ -422,31 +450,7 @@ public class InvocationBuilder {
                   toConfigurationParameter(bucket, context), setter)).ifPresent(downstream);
         }).toList();
 
-    return new SingleCommand.InstanceFactory<>() {
-      @Override
-      public Class<M> getRawType() {
-        return clazz.getClazz();
-      }
-
-      @Override
-      public List<ConfigurationParameter> getParameters() {
-        return Streams.concat(inputParameters.stream(),
-            setterParameters.stream().map(AssignableConfigurationParameter::parameter),
-            fieldParameters.stream().map(AssignableConfigurationParameter::parameter)).toList();
-      }
-
-      @Override
-      public M createInstance(Map<String, Object> arguments) {
-        M instance = clazz.getInstanceFactory().createInstance(arguments);
-        for (AssignableConfigurationParameter parameter : setterParameters) {
-          parameter.assigner().accept(instance, arguments.get(parameter.parameter().getName()));
-        }
-        for (AssignableConfigurationParameter parameter : fieldParameters) {
-          parameter.assigner().accept(instance, arguments.get(parameter.parameter().getName()));
-        }
-        return instance;
-      }
-    };
+    return new MyInstanceFactory<>(clazz, inputParameters, setterParameters, fieldParameters);
   }
 
   private static ConfigurationParameter toConfigurationParameter(
@@ -463,9 +467,21 @@ public class InvocationBuilder {
 
     if (bucket.getAnnotation() instanceof FlagParameter flag) {
       ShortSwitchNameCoordinate shortName = Optional.ofNullable(flag.shortName())
-          .map(ShortSwitchNameCoordinate::new).orElse(null);
+          .filter(not(String::isEmpty)).map(s -> {
+            try {
+              return ShortSwitchNameCoordinate.fromString(s);
+            } catch (IllegalArgumentException e) {
+              throw new InvalidShortNameConfigurationException(flag.shortName());
+            }
+          }).orElse(null);
       LongSwitchNameCoordinate longName = Optional.ofNullable(flag.longName())
-          .map(LongSwitchNameCoordinate::new).orElse(null);
+          .filter(not(String::isEmpty)).map(s -> {
+            try {
+              return LongSwitchNameCoordinate.fromString(s);
+            } catch (IllegalArgumentException e) {
+              throw new InvalidLongNameConfigurationException(flag.longName());
+            }
+          }).orElse(null);
       if (shortName == null && longName == null) {
         // TODO better exception
         throw new IllegalArgumentException("no names");
@@ -474,9 +490,21 @@ public class InvocationBuilder {
           sink, shortName, longName, flag.help(), flag.version());
     } else if (bucket.getAnnotation() instanceof OptionParameter option) {
       ShortSwitchNameCoordinate shortName = Optional.ofNullable(option.shortName())
-          .map(ShortSwitchNameCoordinate::new).orElse(null);
+          .filter(not(String::isEmpty)).map(s -> {
+            try {
+              return ShortSwitchNameCoordinate.fromString(s);
+            } catch (IllegalArgumentException e) {
+              throw new InvalidShortNameConfigurationException(option.shortName());
+            }
+          }).orElse(null);
       LongSwitchNameCoordinate longName = Optional.ofNullable(option.longName())
-          .map(LongSwitchNameCoordinate::new).orElse(null);
+          .filter(not(String::isEmpty)).map(s -> {
+            try {
+              return LongSwitchNameCoordinate.fromString(s);
+            } catch (IllegalArgumentException e) {
+              throw new InvalidLongNameConfigurationException(option.longName());
+            }
+          }).orElse(null);
       if (shortName == null && longName == null) {
         // TODO better exception
         throw new IllegalArgumentException("no names");
@@ -516,5 +544,103 @@ public class InvocationBuilder {
       return naming.getAttributeSetterName(setter.getName(), setter.getAnnotations());
     }
     return Optional.empty();
+  }
+
+  protected static class MyInstanceFactory<M> implements SingleCommand.InstanceFactory<M> {
+
+    private final ConfigurableClass<M> clazz;
+    private final List<ConfigurationParameter> inputParameters;
+    private final List<AssignableConfigurationParameter> setterParameters;
+    private final List<AssignableConfigurationParameter> fieldParameters;
+    protected SingleCommand<M> command;
+
+    public MyInstanceFactory(ConfigurableClass<M> clazz,
+        List<ConfigurationParameter> inputParameters,
+        List<AssignableConfigurationParameter> setterParameters,
+        List<AssignableConfigurationParameter> fieldParameters) {
+      this.clazz = clazz;
+      this.inputParameters = inputParameters;
+      this.setterParameters = setterParameters;
+      this.fieldParameters = fieldParameters;
+    }
+
+    @Override
+    public Class<M> getRawType() {
+      return clazz.getClazz();
+    }
+
+    @Override
+    public List<ConfigurationParameter> getParameters() {
+      return Streams.concat(inputParameters.stream(),
+          setterParameters.stream().map(AssignableConfigurationParameter::parameter),
+          fieldParameters.stream().map(AssignableConfigurationParameter::parameter)).toList();
+    }
+
+    @Override
+    public M createInstance(Map<String, Object> arguments) {
+      List<ConfigurationParameter> parameters = getParameters();
+      Set<String> requiredParameters = parameters.stream()
+          .filter(ConfigurationParameter::isRequired).map(ConfigurationParameter::getName)
+          .collect(toSet());
+      Set<String> providedArguments = arguments.keySet();
+      if (!providedArguments.containsAll(requiredParameters)) {
+        // TODO better exception
+        throw new RequiredParametersMissingSyntaxException(getCommand(),
+            MoreSets.difference(requiredParameters, providedArguments));
+      }
+
+      // TODO We should probably log a warning if we have arguments that are not parameters
+
+      M instance;
+      try {
+        instance = clazz.getInstanceFactory().createInstance(arguments);
+      } catch (Exception e) {
+        Exception cause = e;
+        while (cause.getCause() instanceof ReflectiveOperationException roe) {
+          cause = roe;
+        }
+        throw new NewInstanceFailureBeanException(getCommand(), cause);
+      }
+      for (AssignableConfigurationParameter parameter : setterParameters) {
+        try {
+          parameter.assigner().accept(instance, arguments.get(parameter.parameter().getName()));
+        } catch (Exception e) {
+          Exception cause = e;
+          while (cause.getCause() instanceof ReflectiveOperationException roe) {
+            cause = roe;
+          }
+          throw new AssignmentFailureBeanException(getCommand(), parameter.parameter().getName(),
+              cause);
+        }
+      }
+      for (AssignableConfigurationParameter parameter : fieldParameters) {
+        try {
+          parameter.assigner().accept(instance, arguments.get(parameter.parameter().getName()));
+        } catch (Exception e) {
+          Exception cause = e;
+          while (cause.getCause() instanceof ReflectiveOperationException roe) {
+            cause = roe;
+          }
+          throw new AssignmentFailureBeanException(getCommand(), parameter.parameter().getName(),
+              cause);
+        }
+      }
+
+      return instance;
+    }
+
+    protected void setCommand(SingleCommand<M> command) {
+      if (this.command != null) {
+        throw new IllegalStateException("command already set");
+      }
+      this.command = requireNonNull(command);
+    }
+
+    private SingleCommand<M> getCommand() {
+      if (command == null) {
+        throw new IllegalStateException("command not set");
+      }
+      return command;
+    }
   }
 }
