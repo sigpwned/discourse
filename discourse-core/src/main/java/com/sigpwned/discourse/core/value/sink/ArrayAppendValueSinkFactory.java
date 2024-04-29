@@ -66,7 +66,7 @@ public class ArrayAppendValueSinkFactory implements ValueSinkFactory {
       public void put(Object value) {
         // Make sure our property value has exactly one empty new value at the top of the array
         int currentLength = Array.getLength(currentArray);
-        Object newArray = Types.newConcreteArrayInstance(getGenericType(), currentLength + 1);
+        Object newArray = Types.newConcreteArrayInstance(genericType, currentLength + 1);
         System.arraycopy(currentArray, 0, newArray, 0, currentLength);
         this.currentArray = newArray;
         Array.set(this.currentArray, currentLength, value);

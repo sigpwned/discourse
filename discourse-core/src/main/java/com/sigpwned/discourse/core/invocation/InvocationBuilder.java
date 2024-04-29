@@ -459,15 +459,17 @@ public class InvocationBuilder {
 
   private static ConfigurationParameter toConfigurationParameter(
       InvocationBuilder.AttributeBucket bucket, InvocationContext context) {
-    ValueDeserializer<?> deserializer = context.get(
-            InvocationContext.VALUE_DESERIALIZER_FACTORY_CHAIN_KEY).orElseThrow()
-        .getDeserializer(bucket.getGenericType(), null).orElseThrow(() -> {
-          // TODO better exception
-          return new IllegalArgumentException("No deserializer for " + bucket.getRawType());
-        });
+    // TODO Get list of annotations
 
     ValueSink sink = context.get(InvocationContext.VALUE_SINK_FACTORY_CHAIN_KEY).orElseThrow()
         .getSink(bucket.getGenericType(), null);
+
+    ValueDeserializer<?> deserializer = context.get(
+            InvocationContext.VALUE_DESERIALIZER_FACTORY_CHAIN_KEY).orElseThrow()
+        .getDeserializer(sink.getGenericType(), null).orElseThrow(() -> {
+          // TODO better exception
+          return new IllegalArgumentException("No deserializer for " + sink.getGenericType());
+        });
 
     if (bucket.getAnnotation() instanceof FlagParameter flag) {
       ShortSwitchNameCoordinate shortName = Optional.ofNullable(flag.shortName())
