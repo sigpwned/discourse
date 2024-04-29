@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,13 +19,13 @@
  */
 package com.sigpwned.discourse.core.error.exit;
 
-import com.sigpwned.discourse.core.error.ExitErrorFactory;
-import com.sigpwned.discourse.core.util.error.ExitError;
+import com.sigpwned.discourse.core.error.ExitError;
+import com.sigpwned.discourse.core.error.ExitError.Factory;
 
 /**
- * A default implementation of {@link ExitErrorFactory} that simply calls {@link System#exit}.
+ * A default implementation of {@link Factory} that simply calls {@link System#exit}.
  */
-public class DefaultExitErrorFactory implements ExitErrorFactory {
+public class DefaultExitErrorFactory implements ExitError.Factory {
 
   public static final DefaultExitErrorFactory INSTANCE = new DefaultExitErrorFactory();
 

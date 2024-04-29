@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,7 +51,12 @@ import com.sigpwned.discourse.core.coordinate.VariableNameCoordinate;
 import com.sigpwned.discourse.core.exception.bean.AssignmentFailureBeanException;
 import com.sigpwned.discourse.core.exception.bean.NewInstanceFailureBeanException;
 import com.sigpwned.discourse.core.exception.configuration.InvalidLongNameConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.InvalidPositionConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.InvalidPropertyNameConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.InvalidShortNameConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.InvalidVariableNameConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.NoNameConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.TooManyAnnotationsConfigurationException;
 import com.sigpwned.discourse.core.exception.syntax.RequiredParametersMissingSyntaxException;
 import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
@@ -109,15 +114,15 @@ public class InvocationBuilder {
 
       @Override
       public <M extends T> void enterMultiCommandClass(Discriminator discriminator, String name,
-          String description, Class<M> clazz) {
+          String description, String version, Class<M> clazz) {
         subcommandsStack.push(new HashMap<>());
       }
 
       @Override
       public <M extends T> void leaveMultiCommandClass(Discriminator discriminator, String name,
-          String description, Class<M> clazz) {
+          String description, String version, Class<M> clazz) {
         Map<Discriminator, Command<? extends M>> subcommands = (Map) subcommandsStack.pop();
-        MultiCommand<M> multi = new MultiCommand<>(clazz, name, description, "1.0", subcommands);
+        MultiCommand<M> multi = new MultiCommand<>(clazz, name, description, version, subcommands);
         if (discriminator != null) {
           subcommandsStack.peek().put(discriminator, multi);
         } else {
@@ -127,13 +132,13 @@ public class InvocationBuilder {
 
       @Override
       public <M extends T> void visitSingleCommandClass(Discriminator discriminator, String name,
-          String description, Class<M> clazz) {
+          String description, String version, Class<M> clazz) {
         ConfigurableClass<M> configurable = doScanSingleCommand(discriminator, name, description,
             clazz, context);
 
         MyInstanceFactory<M> instanceFactory = resolveInstanceFactory(configurable, context);
 
-        SingleCommand<M> single = new SingleCommand<>(name, description, "1.0", instanceFactory);
+        SingleCommand<M> single = new SingleCommand<>(name, description, version, instanceFactory);
         instanceFactory.setCommand(single);
         if (discriminator != null) {
           subcommandsStack.peek().put(discriminator, single);
@@ -360,8 +365,7 @@ public class InvocationBuilder {
     for (ConfigurableComponent component : components) {
       Annotation parameterAnnotation = ParameterAnnotations.findParameterAnnotation(
           component.getAnnotations()).orElse(null, () -> {
-        // TODO better exception
-        return new IllegalArgumentException("Multiple parameter annotations for " + component);
+        throw new TooManyAnnotationsConfigurationException(component.getName());
       });
       if (parameterAnnotation == null) {
         // This component is not annotated to be a parameter, which is just fine.
@@ -483,8 +487,7 @@ public class InvocationBuilder {
             }
           }).orElse(null);
       if (shortName == null && longName == null) {
-        // TODO better exception
-        throw new IllegalArgumentException("no names");
+        throw new NoNameConfigurationException(bucket.getName());
       }
       return new FlagConfigurationParameter(bucket.getName(), flag.description(), deserializer,
           sink, shortName, longName, flag.help(), flag.version());
@@ -506,23 +509,35 @@ public class InvocationBuilder {
             }
           }).orElse(null);
       if (shortName == null && longName == null) {
-        // TODO better exception
-        throw new IllegalArgumentException("no names");
+        throw new NoNameConfigurationException(bucket.getName());
       }
       return new OptionConfigurationParameter(bucket.getName(), option.description(),
           option.required(), deserializer, sink, shortName, longName);
     } else if (bucket.getAnnotation() instanceof PositionalParameter positional) {
-      PositionCoordinate position = new PositionCoordinate(positional.position());
+      PositionCoordinate position;
+      try {
+        position = new PositionCoordinate(positional.position());
+      } catch (IllegalArgumentException e) {
+        throw new InvalidPositionConfigurationException(bucket.getName(), positional.position());
+      }
       return new PositionalConfigurationParameter(bucket.getName(), positional.description(),
           positional.required(), deserializer, sink, position);
     } else if (bucket.getAnnotation() instanceof PropertyParameter property) {
-      PropertyNameCoordinate propertyName = PropertyNameCoordinate.fromString(
-          property.propertyName());
+      PropertyNameCoordinate propertyName;
+      try {
+        propertyName = PropertyNameCoordinate.fromString(property.propertyName());
+      } catch (IllegalArgumentException e) {
+        throw new InvalidPropertyNameConfigurationException(property.propertyName());
+      }
       return new PropertyConfigurationParameter(bucket.getName(), property.description(),
           property.required(), deserializer, sink, propertyName);
     } else if (bucket.getAnnotation() instanceof EnvironmentParameter environment) {
-      VariableNameCoordinate variableName = VariableNameCoordinate.fromString(
-          environment.variableName());
+      VariableNameCoordinate variableName;
+      try {
+        variableName = VariableNameCoordinate.fromString(environment.variableName());
+      } catch (IllegalArgumentException e) {
+        throw new InvalidVariableNameConfigurationException(environment.variableName());
+      }
       return new EnvironmentConfigurationParameter(bucket.getName(), environment.description(),
           environment.required(), deserializer, sink, variableName);
     }
@@ -602,27 +617,31 @@ public class InvocationBuilder {
         throw new NewInstanceFailureBeanException(getCommand(), cause);
       }
       for (AssignableConfigurationParameter parameter : setterParameters) {
-        try {
-          parameter.assigner().accept(instance, arguments.get(parameter.parameter().getName()));
-        } catch (Exception e) {
-          Exception cause = e;
-          while (cause.getCause() instanceof ReflectiveOperationException roe) {
-            cause = roe;
+        String parameterName = parameter.parameter().getName();
+        if (arguments.containsKey(parameterName)) {
+          try {
+            parameter.assigner().accept(instance, arguments.get(parameterName));
+          } catch (Exception e) {
+            Exception cause = e;
+            while (cause.getCause() instanceof ReflectiveOperationException roe) {
+              cause = roe;
+            }
+            throw new AssignmentFailureBeanException(getCommand(), parameterName, cause);
           }
-          throw new AssignmentFailureBeanException(getCommand(), parameter.parameter().getName(),
-              cause);
         }
       }
       for (AssignableConfigurationParameter parameter : fieldParameters) {
-        try {
-          parameter.assigner().accept(instance, arguments.get(parameter.parameter().getName()));
-        } catch (Exception e) {
-          Exception cause = e;
-          while (cause.getCause() instanceof ReflectiveOperationException roe) {
-            cause = roe;
+        String parameterName = parameter.parameter().getName();
+        if (arguments.containsKey(parameterName)) {
+          try {
+            parameter.assigner().accept(instance, arguments.get(parameterName));
+          } catch (Exception e) {
+            Exception cause = e;
+            while (cause.getCause() instanceof ReflectiveOperationException roe) {
+              cause = roe;
+            }
+            throw new AssignmentFailureBeanException(getCommand(), parameterName, cause);
           }
-          throw new AssignmentFailureBeanException(getCommand(), parameter.parameter().getName(),
-              cause);
         }
       }
 

@@ -22,19 +22,6 @@ package com.sigpwned.discourse.core.invocation.strategy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.sigpwned.discourse.core.util.error.ExitError;
-import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.StandardConfigurationBase;
-import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.command.Command;
-import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-
 public class HelpPrintingInvocationStrategyTest {
 //
 //  @Configurable(name = "foobar")

@@ -29,7 +29,7 @@ import com.sigpwned.discourse.core.chain.ExceptionFormatterChain;
 import com.sigpwned.discourse.core.chain.ValueDeserializerFactoryChain;
 import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
 import com.sigpwned.discourse.core.command.Command;
-import com.sigpwned.discourse.core.error.ExitErrorFactory;
+import com.sigpwned.discourse.core.error.ExitError;
 import com.sigpwned.discourse.core.format.help.HelpFormatter;
 import com.sigpwned.discourse.core.format.version.VersionFormatter;
 import com.sigpwned.discourse.core.listener.DiscourseListener;
@@ -113,8 +113,8 @@ public interface InvocationContext {
   public static final Key<List<String>> ARGUMENTS_KEY = (Key) Key.of("discourse.Arguments",
       List.class);
 
-  public static final Key<ExitErrorFactory> EXIT_ERROR_FACTORY_KEY = Key.of(
-      "discourse.ExitErrorFactory", ExitErrorFactory.class);
+  public static final Key<ExitError.Factory> EXIT_ERROR_FACTORY_KEY = Key.of(
+      "discourse.ExitErrorFactory", ExitError.Factory.class);
 
   /**
    * Registers a module with this invocation context. This is used to register additional resources

@@ -34,7 +34,30 @@ public class Streams {
   }
 
   /**
-   * Returns a stream that concatenates the input streams.
+   * Returns a stream that concatenates the given stream.
+   *
+   * @param only the stream to concatenate
+   * @param <T>  the type of the elements in the stream
+   * @return a stream that concatenates the input stream
+   */
+  public static <T> Stream<T> concat(Stream<T> only) {
+    return only;
+  }
+
+  /**
+   * Returns a stream that concatenates the given streams.
+   *
+   * @param first  the first stream
+   * @param second the second stream
+   * @param <T>    the type of the elements in the streams
+   * @return a stream that concatenates the input streams
+   */
+  public static <T> Stream<T> concat(Stream<? extends T> first, Stream<? extends T> second) {
+    return Stream.concat(first, second);
+  }
+
+  /**
+   * Returns a stream that concatenates the given streams.
    *
    * @param first  the first stream
    * @param second the second stream

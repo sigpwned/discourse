@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,8 @@ import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
+import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.format.version.DefaultVersionFormatter;
 import com.sigpwned.discourse.core.format.version.VersionFormatter;
 import com.sigpwned.discourse.core.model.invocation.MultiCommandDereference;
@@ -54,9 +56,10 @@ public class VersionFlagInterceptingDiscourseListener implements DiscourseListen
     Set<String> coordinates = resolvedCommand.getParameters().stream()
         .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
         .filter(FlagConfigurationParameter::isVersion).flatMap(flag -> Streams.concat(
-            Optional.ofNullable(flag.getShortName()).map(Object::toString).stream(),
-            Optional.ofNullable(flag.getLongName()).map(Object::toString).stream()))
-        .collect(toSet());
+            Optional.ofNullable(flag.getShortName()).map(ShortSwitchNameCoordinate::toSwitchString)
+                .stream(),
+            Optional.ofNullable(flag.getLongName()).map(LongSwitchNameCoordinate::toSwitchString)
+                .stream())).collect(toSet());
     if (coordinates.stream().anyMatch(remainingArgs::contains)) {
       VersionFormatter formatter = context.get(InvocationContext.VERSION_FORMATTER_KEY)
           .orElse(DefaultVersionFormatter.INSTANCE);

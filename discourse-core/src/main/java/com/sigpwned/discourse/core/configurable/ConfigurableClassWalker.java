@@ -133,11 +133,12 @@ public final class ConfigurableClassWalker<T> {
      *                      subcommand. if null, then this command is a root command.
      * @param name          the name of the command
      * @param description   the description of the command
+     * @param version       the version of the command
      * @param clazz         the class that represents the command
      * @param <M>           the type of this MutliCommand class
      */
     default <M extends T> void enterMultiCommandClass(Discriminator discriminator, String name,
-        String description, Class<M> clazz) {
+        String description, String version, Class<M> clazz) {
 
     }
 
@@ -157,11 +158,12 @@ public final class ConfigurableClassWalker<T> {
      *                      subcommand. if null, then this command is a root command.
      * @param name          the name of the command
      * @param description   the description of the command
+     * @param version       the version of the command
      * @param clazz         the class that represents the command
      * @param <M>           the type of this MutliCommand class
      */
     default <M extends T> void leaveMultiCommandClass(Discriminator discriminator, String name,
-        String description, Class<M> clazz) {
+        String description, String version, Class<M> clazz) {
 
     }
 
@@ -174,10 +176,11 @@ public final class ConfigurableClassWalker<T> {
      *                      subcommand. if null, then this command is a root command.
      * @param name          the name of the command
      * @param description   the description of the command
+     * @param version       the version of the command
      * @param clazz         the class that represents the command
      */
     default <S extends T> void visitSingleCommandClass(Discriminator discriminator, String name,
-        String description, Class<S> clazz) {
+        String description, String version, Class<S> clazz) {
 
     }
   }
@@ -209,22 +212,26 @@ public final class ConfigurableClassWalker<T> {
         // TODO New configurable exception
         throw new IllegalArgumentException("single command must not be abstract");
       }
-      visitor.visitSingleCommandClass(null, configurable.name(), configurable.description(), clazz);
+      visitor.visitSingleCommandClass(null, configurable.name(), configurable.description(),
+          configurable.version(), clazz);
     } else {
       if (!Modifier.isAbstract(clazz.getModifiers())) {
         // TODO New configurable exception
         throw new MultiCommandNotAbstractConfigurationException(clazz);
       }
-      visitor.enterMultiCommandClass(null, configurable.name(), configurable.description(), clazz);
+      visitor.enterMultiCommandClass(null, configurable.name(), configurable.description(),
+          configurable.version(), clazz);
       for (SubcommandClass<? extends T> subcommand : subcommands) {
-        subwalk(subcommand.expectedDiscriminator().orElse(null), subcommand.rawType(), visitor);
+        subwalk(subcommand.expectedDiscriminator().orElse(null), configurable.version(),
+            subcommand.rawType(), visitor);
       }
-      visitor.leaveMultiCommandClass(null, configurable.name(), configurable.description(), clazz);
+      visitor.leaveMultiCommandClass(null, configurable.name(), configurable.description(),
+          configurable.version(), clazz);
     }
   }
 
-  private void subwalk(Discriminator expectedDiscriminator, Class<? extends T> clazz,
-      Visitor<T> visitor) {
+  private void subwalk(Discriminator expectedDiscriminator, String version,
+      Class<? extends T> clazz, Visitor<T> visitor) {
     if (clazz.isInterface()) {
       // TODO New configurable exception
       throw new IllegalArgumentException("Cannot walk an interface");
@@ -233,6 +240,10 @@ public final class ConfigurableClassWalker<T> {
     Configurable configurable = clazz.getAnnotation(Configurable.class);
     if (configurable == null) {
       throw new NotConfigurableConfigurationException(clazz);
+    }
+    if (!configurable.version().isEmpty() && !configurable.version().equals(version)) {
+      // TODO New configurable exception
+      throw new IllegalArgumentException("Version mismatch");
     }
 
     Discriminator discriminator = discriminatorFromConfigurable(clazz, configurable).orElseThrow(
@@ -250,19 +261,20 @@ public final class ConfigurableClassWalker<T> {
         throw new IllegalArgumentException("single command must not be abstract");
       }
       visitor.visitSingleCommandClass(discriminator, configurable.name(),
-          configurable.description(), clazz);
+          configurable.description(), version, clazz);
     } else {
       if (!Modifier.isAbstract(clazz.getModifiers())) {
         // TODO New configurable exception
         throw new MultiCommandNotAbstractConfigurationException(clazz);
       }
       visitor.enterMultiCommandClass(discriminator, configurable.name(), configurable.description(),
-          clazz);
+          version, clazz);
       for (SubcommandClass<? extends T> subcommand : subcommands) {
-        subwalk(subcommand.expectedDiscriminator().orElse(null), subcommand.rawType(), visitor);
+        subwalk(subcommand.expectedDiscriminator().orElse(null), version, subcommand.rawType(),
+            visitor);
       }
       visitor.leaveMultiCommandClass(discriminator, configurable.name(), configurable.description(),
-          clazz);
+          version, clazz);
     }
   }
 
@@ -349,6 +361,9 @@ public final class ConfigurableClassWalker<T> {
    */
   private static Discriminator discriminatorFromSubcommand(Class<?> configurableClass,
       Subcommand subcommand) {
+    if (subcommand.discriminator().isEmpty()) {
+      throw new NoDiscriminatorConfigurationException(configurableClass);
+    }
     try {
       return Discriminators.fromSubcommand(subcommand);
     } catch (IllegalArgumentException e) {

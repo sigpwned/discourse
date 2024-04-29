@@ -37,7 +37,7 @@ import com.sigpwned.discourse.core.exception.syntax.UnrecognizedDiscriminatorSyn
 import com.sigpwned.discourse.core.invocation.InvocationBuilder;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import com.sigpwned.discourse.core.listener.EmptyArgsToMultiCommandInterceptingDiscourseListener;
-import com.sigpwned.discourse.core.util.error.ExitError;
+import com.sigpwned.discourse.core.error.ExitError;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
