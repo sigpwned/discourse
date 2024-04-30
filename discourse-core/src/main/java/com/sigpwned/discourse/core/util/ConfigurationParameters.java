@@ -44,6 +44,7 @@ import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
 import java.lang.annotation.Annotation;
 import java.util.Optional;
 
+// TODO Delete me?
 public final class ConfigurationParameters {
 
   private ConfigurationParameters() {

@@ -19,14 +19,19 @@
  */
 package com.sigpwned.discourse.core.parameter;
 
-import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
-import com.sigpwned.discourse.core.value.sink.ValueSink;
 import com.sigpwned.discourse.core.coordinate.Coordinate;
 import com.sigpwned.discourse.core.coordinate.PropertyNameCoordinate;
 import com.sigpwned.discourse.core.util.Generated;
+import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.value.sink.ValueSink;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * A {@link ConfigurationParameter} that is configured by a system property
+ *
+ * @see System#getProperty(String)
+ */
 public final class PropertyConfigurationParameter extends ConfigurationParameter {
 
   private final PropertyNameCoordinate propertyName;

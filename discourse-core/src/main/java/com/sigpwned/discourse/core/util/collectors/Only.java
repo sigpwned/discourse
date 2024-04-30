@@ -26,8 +26,13 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
+/**
+ * A collector for exactly one element. Like {@link Optional}, but with three states instead of two:
+ * empty, present, and overflowed.
+ *
+ * @param <T> the type of the element
+ */
 public final class Only<T> {
 
   public static <T> Collector<T, ?, Only<T>> toOnly() {
@@ -70,11 +75,11 @@ public final class Only<T> {
   public static <T> Only<T> fromIterable(Iterable<T> iterable) {
     Iterator<T> iterator = iterable.iterator();
     if (iterator.hasNext()) {
-      T first=iterator.next();
-      if(iterator.hasNext()) {
+      T first = iterator.next();
+      if (iterator.hasNext()) {
         return overflowed();
       }
-      Only<T> result=new Only<>();
+      Only<T> result = new Only<>();
       result.add(first);
       return result;
     }
@@ -88,7 +93,7 @@ public final class Only<T> {
   }
 
   private Only(int size) {
-    if(size < 0) {
+    if (size < 0) {
       throw new IllegalArgumentException("size must not be negative");
     }
     this.size = size;

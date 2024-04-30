@@ -19,15 +19,20 @@
  */
 package com.sigpwned.discourse.core.parameter;
 
-import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
-import com.sigpwned.discourse.core.value.sink.ValueSink;
 import com.sigpwned.discourse.core.coordinate.Coordinate;
 import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.util.Generated;
+import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.value.sink.ValueSink;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * A {@link ConfigurationParameter} that is configured by a flag, which is a boolean-valued
+ * attribute whose value is given by a switch that is either present or absent in command-line
+ * arguments, e.g., {@code --help}.
+ */
 public final class FlagConfigurationParameter extends ConfigurationParameter {
 
   private final ShortSwitchNameCoordinate shortName;

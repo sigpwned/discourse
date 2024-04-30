@@ -25,6 +25,8 @@ import java.util.Objects;
 
 /**
  * A "long name" argument token, e.g., {@code --foo}
+ *
+ * @see LongSwitchNameCoordinate
  */
 public final class LongNameArgumentToken extends ArgumentToken {
 

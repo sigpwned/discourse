@@ -19,23 +19,18 @@
  */
 package com.sigpwned.discourse.core.listener;
 
-import static java.util.stream.Collectors.toSet;
-
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
-import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
-import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.format.version.DefaultVersionFormatter;
 import com.sigpwned.discourse.core.format.version.VersionFormatter;
 import com.sigpwned.discourse.core.model.invocation.MultiCommandDereference;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
-import com.sigpwned.discourse.core.util.Streams;
+import com.sigpwned.discourse.core.util.Args;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * A {@link DiscourseListener} that looks for the presence of a
@@ -53,14 +48,17 @@ public class VersionFlagInterceptingDiscourseListener implements DiscourseListen
       List<MultiCommandDereference<? extends T>> dereferencedCommands,
       SingleCommand<? extends T> resolvedCommand, List<String> remainingArgs,
       InvocationContext context) {
-    Set<String> coordinates = resolvedCommand.getParameters().stream()
-        .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
-        .filter(FlagConfigurationParameter::isVersion).flatMap(flag -> Streams.concat(
-            Optional.ofNullable(flag.getShortName()).map(ShortSwitchNameCoordinate::toSwitchString)
-                .stream(),
-            Optional.ofNullable(flag.getLongName()).map(LongSwitchNameCoordinate::toSwitchString)
-                .stream())).collect(toSet());
-    if (coordinates.stream().anyMatch(remainingArgs::contains)) {
+    // Look for the version flag in the resolved command.
+    Optional<FlagConfigurationParameter> maybeVersionFlag = resolvedCommand.findVersionFlag();
+    if (maybeVersionFlag.isEmpty()) {
+      // There's no help flag, so there's no way to ask for help!
+      return;
+    }
+
+    // Given the version flag, look for it in the remaining arguments.
+    FlagConfigurationParameter versionFlag = maybeVersionFlag.orElseThrow();
+
+    if (Args.containsFlag(remainingArgs, versionFlag.getShortName(), versionFlag.getLongName())) {
       VersionFormatter formatter = context.get(InvocationContext.VERSION_FORMATTER_KEY)
           .orElse(DefaultVersionFormatter.INSTANCE);
       PrintStream out = context.get(InvocationContext.ERROR_STREAM_KEY).orElse(System.err);

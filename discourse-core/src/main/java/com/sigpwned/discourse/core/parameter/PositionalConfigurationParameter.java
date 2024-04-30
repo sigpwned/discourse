@@ -27,6 +27,9 @@ import com.sigpwned.discourse.core.util.Generated;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * A {@link ConfigurationParameter} that is configured by a positional argument.
+ */
 public final class PositionalConfigurationParameter extends ConfigurationParameter {
 
   private final PositionCoordinate position;

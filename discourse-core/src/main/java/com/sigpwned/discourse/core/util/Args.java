@@ -39,7 +39,7 @@ public final class Args {
    * not -- and cannot be -- perfect because it does not know whether or not each switch is valued,
    * i.e., takes a value. Knowing this would require a {@link SingleCommand}, and we're trying to
    * short-circuit that here. We could get some false positives if a flag is passed as a value to an
-   * option.
+   * option, but the user can always put in a separator to disambiguate.
    */
   public static boolean containsFlag(List<String> args, ShortSwitchNameCoordinate shortName,
       LongSwitchNameCoordinate longName) {

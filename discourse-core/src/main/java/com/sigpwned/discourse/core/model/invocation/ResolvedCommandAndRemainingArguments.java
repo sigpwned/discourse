@@ -17,35 +17,28 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.reflection;
+package com.sigpwned.discourse.core.model.invocation;
 
+import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
-import java.lang.reflect.Type;
+import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.SingleCommand;
+import java.util.List;
 
-public abstract class Attribute {
+public record ResolvedCommandAndRemainingArguments<T>(Command<T> rootCommand,
+    SingleCommand<? extends T> resolvedCommand,
+    List<MultiCommandDereference<? extends T>> dereferencedCommands,
+    List<String> remainingArguments) {
 
-  private final String name;
-  private final Class<?> rawType;
-  private final Type genericType;
-
-  public Attribute(String name, Class<?> rawType, Type genericType) {
-    this.name = requireNonNull(name);
-    this.rawType = requireNonNull(rawType);
-    this.genericType = requireNonNull(genericType);
+  public ResolvedCommandAndRemainingArguments {
+    // Some validations we could do:
+    // - rootCommand isAssignableFrom resolvedCommand
+    // - dereferencedCommands are all actually dereferenced from rootCommand
+    // TODO Should I do more validation here?
+    rootCommand = requireNonNull(rootCommand);
+    resolvedCommand = requireNonNull(resolvedCommand);
+    dereferencedCommands = unmodifiableList(dereferencedCommands);
+    remainingArguments = unmodifiableList(remainingArguments);
   }
-
-  public String getName() {
-    return name;
-  }
-
-  public Class<?> getRawType() {
-    return rawType;
-  }
-
-  public Type getGenericType() {
-    return genericType;
-  }
-
-
 }

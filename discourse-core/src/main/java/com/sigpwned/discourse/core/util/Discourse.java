@@ -31,6 +31,9 @@ import com.sigpwned.discourse.core.exception.SyntaxException;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import java.util.List;
 
+/**
+ * A utility class for creating configuration objects from command line arguments.
+ */
 public final class Discourse {
 
   private Discourse() {

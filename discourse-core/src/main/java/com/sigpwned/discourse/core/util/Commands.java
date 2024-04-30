@@ -23,7 +23,15 @@ import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.exception.syntax.InsufficientDiscriminatorsSyntaxException;
+import com.sigpwned.discourse.core.exception.syntax.InvalidDiscriminatorSyntaxException;
+import com.sigpwned.discourse.core.exception.syntax.UnrecognizedDiscriminatorSyntaxException;
+import com.sigpwned.discourse.core.model.command.Discriminator;
+import com.sigpwned.discourse.core.model.invocation.MultiCommandDereference;
+import com.sigpwned.discourse.core.model.invocation.ResolvedCommandAndRemainingArguments;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -93,5 +101,59 @@ public final class Commands {
     }
 
     return result;
+  }
+
+  /**
+   * Resolves the given command and arguments into a single command and a list of remaining
+   * arguments.
+   *
+   * @param command   the root command
+   * @param arguments the arguments
+   * @param <T>       the type of the root command
+   * @return the resolved command and remaining arguments
+   * @throws InsufficientDiscriminatorsSyntaxException if a {@link MultiCommand} is encountered and
+   *                                                   there are no more arguments available to
+   *                                                   resolve the next {@code Command}
+   * @throws InvalidDiscriminatorSyntaxException       if a {@link MultiCommand} is encountered and
+   *                                                   the next argument is not a syntactically
+   *                                                   valid discriminator
+   * @throws UnrecognizedDiscriminatorSyntaxException  if a {@link MultiCommand} is encountered and
+   *                                                   the next argument is a valid discriminator,
+   *                                                   but it does not correspond to any subcommand
+   *                                                   of the {@code MultiCommand}
+   */
+  public static <T> ResolvedCommandAndRemainingArguments<T> resolve(Command<T> command,
+      List<String> arguments) {
+    arguments = new ArrayList<>(arguments);
+
+    Command<? extends T> subcommand = command;
+    List<MultiCommandDereference<? extends T>> subcommands = new ArrayList<>();
+    while (subcommand instanceof MultiCommand<? extends T> multi) {
+      if (arguments.isEmpty()) {
+        throw new InsufficientDiscriminatorsSyntaxException(multi);
+      }
+
+      String discriminatorString = arguments.remove(0);
+
+      Discriminator discriminator;
+      try {
+        discriminator = Discriminator.fromString(discriminatorString);
+      } catch (IllegalArgumentException e) {
+        throw new InvalidDiscriminatorSyntaxException(multi, discriminatorString);
+      }
+
+      Command<? extends T> dereferencedSubcommand = multi.getSubcommands().get(discriminator);
+      if (dereferencedSubcommand == null) {
+        throw new UnrecognizedDiscriminatorSyntaxException(multi, discriminator);
+      }
+
+      subcommands.add(new MultiCommandDereference<>(multi, discriminator));
+
+      subcommand = dereferencedSubcommand;
+    }
+
+    SingleCommand<? extends T> single = (SingleCommand<? extends T>) subcommand;
+
+    return new ResolvedCommandAndRemainingArguments<>(command, single, subcommands, arguments);
   }
 }

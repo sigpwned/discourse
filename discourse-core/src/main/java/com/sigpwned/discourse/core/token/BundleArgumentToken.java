@@ -29,7 +29,10 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
- * A "bundle" token is a sequence of short switch names strung together, e.g., {@code -abc}.
+ * A "bundle" token is a sequence of short switch names strung together, e.g., {@code -abc} which
+ * represents the switches {@code -a}, {@code -b}, and {@code -c}.
+ *
+ * @see ShortSwitchNameCoordinate
  */
 public final class BundleArgumentToken extends ArgumentToken {
 

@@ -34,6 +34,7 @@ import com.sigpwned.discourse.core.coordinate.VariableNameCoordinate;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
+// TODO Delete me?
 public final class Coordinates {
 
   private Coordinates() {
@@ -42,7 +43,7 @@ public final class Coordinates {
   /**
    * <p>
    * Converts the given
-   * {@link ParameterAnnotations#isParameterAnnotation(Annotation)  parameter annotation} to a list
+   * {@link ParameterAnnotations#isParameterAnnotation(Annotation) parameter annotation} to a list
    * of coordinates. The annotation must be one of the following:
    * </p>
    *

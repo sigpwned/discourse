@@ -25,6 +25,8 @@ import java.util.Objects;
 
 /**
  * A "short name" argument token, e.g., {@code -f}
+ *
+ * @see ShortSwitchNameCoordinate
  */
 public final class ShortNameArgumentToken extends ArgumentToken {
 

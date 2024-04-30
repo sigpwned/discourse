@@ -19,15 +19,20 @@
  */
 package com.sigpwned.discourse.core.parameter;
 
-import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
-import com.sigpwned.discourse.core.value.sink.ValueSink;
 import com.sigpwned.discourse.core.coordinate.Coordinate;
 import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.util.Generated;
+import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.value.sink.ValueSink;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * A {@link ConfigurationParameter} that is configured by an option, which is a valued attribute
+ * whose value is given by a switch and a value in command-line arguments, e.g.,
+ * {@code --file /path/to/file}.
+ */
 public final class OptionConfigurationParameter extends ConfigurationParameter {
 
   private final ShortSwitchNameCoordinate shortName;

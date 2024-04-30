@@ -32,6 +32,13 @@ public final class Discriminators {
 
   public static final Discriminator HELP = Discriminator.fromString("help");
 
+  /**
+   * Extracts the discriminator from a configurable, if it exists.
+   *
+   * @param configurable the configurable
+   * @return the discriminator if it exists, otherwise {@link Optional#empty()}
+   * @throws InvalidDiscriminatorConfigurationException if the discriminator is invalid
+   */
   public static Optional<Discriminator> fromConfigurable(Configurable configurable) {
     if (configurable.discriminator().isEmpty()) {
       return Optional.empty();

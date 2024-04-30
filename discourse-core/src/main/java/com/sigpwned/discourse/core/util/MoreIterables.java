@@ -28,6 +28,15 @@ public final class MoreIterables {
   private MoreIterables() {
   }
 
+  /**
+   * Returns the first element of the given iterable, or {@link Optional#empty() empty} if the
+   * iterable is empty.
+   *
+   * @param iterable the iterable
+   * @param <T>      the type of the elements
+   * @return the first element of the given iterable, or {@link Optional#empty() empty} if the
+   * iterable is empty
+   */
   public static <T> Optional<T> first(Iterable<T> iterable) {
     Iterator<T> iterator = iterable.iterator();
     if (iterator.hasNext()) {
@@ -36,6 +45,15 @@ public final class MoreIterables {
     return Optional.empty();
   }
 
+  /**
+   * Returns the first and only element of the given iterable, or {@link Only#empty()} if the
+   * iterable is empty, or {@link Only#overflowed()} if the iterable has more than one element.
+   *
+   * @param iterable the iterable
+   * @param <T>      the type of the elements
+   * @return the first and only element of the given iterable, or {@link Only#empty()} if the
+   * iterable is empty, or {@link Only#overflowed()} if the iterable has more than one element.
+   */
   public static <T> Only<T> only(Iterable<T> iterable) {
     return Only.fromIterable(iterable);
   }

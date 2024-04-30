@@ -19,13 +19,18 @@
  */
 package com.sigpwned.discourse.core.parameter;
 
-import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
-import com.sigpwned.discourse.core.value.sink.ValueSink;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.coordinate.Coordinate;
 import com.sigpwned.discourse.core.util.Generated;
+import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.value.sink.ValueSink;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * A {@code ConfigurationParameter} is a logical attribute of a {@link Command} that can be
+ * configured by input from the user and environment.
+ */
 public abstract sealed class ConfigurationParameter permits EnvironmentConfigurationParameter,
     FlagConfigurationParameter, OptionConfigurationParameter, PositionalConfigurationParameter,
     PropertyConfigurationParameter {

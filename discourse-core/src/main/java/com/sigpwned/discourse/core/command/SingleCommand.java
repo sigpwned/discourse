@@ -156,6 +156,20 @@ public final class SingleCommand<T> extends Command<T> {
     return getInstanceFactory().getRawType();
   }
 
+  public Optional<FlagConfigurationParameter> findHelpFlag() {
+    // We know there will be exactly 0 or exactly 1 help flag because of constructor validation
+    return getParameters().stream()
+        .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
+        .filter(FlagConfigurationParameter::isHelp).findFirst();
+  }
+
+  public Optional<FlagConfigurationParameter> findVersionFlag() {
+    // We know there will be exactly 0 or exactly 1 version flag because of constructor validation
+    return getParameters().stream()
+        .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
+        .filter(FlagConfigurationParameter::isVersion).findFirst();
+  }
+
   public Set<ConfigurationParameter> getParameters() {
     return new HashSet<>(getInstanceFactory().getParameters());
   }
