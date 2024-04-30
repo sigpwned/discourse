@@ -32,7 +32,7 @@ import java.util.Optional;
  * </p>
  *
  * <p>
- * When parsing a method, field, or parameter, this naming scheme will look for the
+ * When parsing a method, field, or parameter, this naming scheme will look for
  * {@code DiscourseAttribute}, and if it is present, then it will use the value of the {@code name}
  * attribute as the name of the attribute. Otherwise, it will return
  * {@link Optional#empty() empty}.

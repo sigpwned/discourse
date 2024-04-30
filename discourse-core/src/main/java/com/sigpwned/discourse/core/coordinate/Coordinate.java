@@ -20,7 +20,7 @@
 package com.sigpwned.discourse.core.coordinate;
 
 /**
- * A coordinate that represents a logical configuration "position."
+ * A coordinate that uniquely identifies a logical configuration "position."
  */
 public abstract sealed class Coordinate permits NameCoordinate, PositionCoordinate {
 

@@ -20,7 +20,7 @@
 package com.sigpwned.discourse.core.coordinate;
 
 /**
- * A coordinate that represents an environment variable name.
+ * A {@link NameCoordinate} that represents an environment variable name.
  *
  * @see System#getenv(String)
  */

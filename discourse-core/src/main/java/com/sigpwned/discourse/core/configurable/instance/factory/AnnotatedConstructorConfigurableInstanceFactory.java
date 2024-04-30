@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,6 +34,10 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+/**
+ * A {@link ConfigurableInstanceFactory} that uses an
+ * {@link DiscourseCreator @DiscourseCreator}-annotated constructor to create instances.
+ */
 public class AnnotatedConstructorConfigurableInstanceFactory<T> implements
     ConfigurableInstanceFactory<T> {
 
@@ -42,8 +46,7 @@ public class AnnotatedConstructorConfigurableInstanceFactory<T> implements
   public static class Provider implements ConfigurableInstanceFactoryScanner {
 
     @Override
-    public <T> Optional<ConfigurableInstanceFactory<T>> scanForInstanceFactory(
-        Class<T> rawType) {
+    public <T> Optional<ConfigurableInstanceFactory<T>> scanForInstanceFactory(Class<T> rawType) {
       Constructor<T> constructor = Stream.of(rawType.getConstructors())
           .map(ci -> (Constructor<T>) ci)
           .filter(ci -> ci.isAnnotationPresent(DiscourseCreator.class)).collect(Only.toOnly())

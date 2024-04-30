@@ -29,6 +29,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 
+/**
+ * A chain of {@link ValueSinkFactory} instances. This is used to create sinks for command line
+ * arguments. A chain can handle one or more types of values. The chain is searched in order, and
+ * the first {@code ValueSinkFactory} that handles the given parameters is returned. If no
+ * {@code ValueSinkFactory} in the chain handles the parameters, then the default
+ * {@code ValueSinkFactory} is returned.
+ */
 public class ValueSinkFactoryChain extends Chain<ValueSinkFactory> {
 
   private ValueSinkFactory defaultSink;
@@ -38,11 +45,8 @@ public class ValueSinkFactoryChain extends Chain<ValueSinkFactory> {
   }
 
   public ValueSink getSink(Type genericType, List<Annotation> annotations) {
-    return Chains.stream(this)
-        .filter(f -> f.isSinkable(genericType, annotations))
-        .findFirst()
-        .orElse(getDefaultSink())
-        .getSink(genericType, annotations);
+    return Chains.stream(this).filter(f -> f.isSinkable(genericType, annotations)).findFirst()
+        .orElse(getDefaultSink()).getSink(genericType, annotations);
 
   }
 

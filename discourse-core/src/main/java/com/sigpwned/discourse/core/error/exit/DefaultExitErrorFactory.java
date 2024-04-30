@@ -20,10 +20,9 @@
 package com.sigpwned.discourse.core.error.exit;
 
 import com.sigpwned.discourse.core.error.ExitError;
-import com.sigpwned.discourse.core.error.ExitError.Factory;
 
 /**
- * A default implementation of {@link Factory} that simply calls {@link System#exit}.
+ * A default implementation of {@link ExitError.Factory} that simply calls {@link System#exit}.
  */
 public class DefaultExitErrorFactory implements ExitError.Factory {
 

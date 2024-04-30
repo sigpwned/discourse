@@ -27,6 +27,13 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * A chain of {@link ValueDeserializerFactory} instances. This is used to create deserializers for
+ * command line arguments. A factory can handle one or more types of values. The chain is searched
+ * in order, and the first {@code ValueDeserializerFactory} that handles the given parameters is
+ * returned. If no {@code ValueDeserializerFactory} in the chain handles the parameters, then
+ * {@link Optional#empty() empty} is returned.
+ */
 public class ValueDeserializerFactoryChain extends Chain<ValueDeserializerFactory<?>> {
 
   public Optional<ValueDeserializer<?>> getDeserializer(Type genericType,

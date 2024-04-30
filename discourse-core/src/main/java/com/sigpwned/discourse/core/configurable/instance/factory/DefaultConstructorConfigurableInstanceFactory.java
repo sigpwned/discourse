@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,14 +28,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * A {@link ConfigurableInstanceFactory} that uses a class' default constructor to create
+ * instances.
+ */
 public class DefaultConstructorConfigurableInstanceFactory<T> implements
     ConfigurableInstanceFactory<T> {
 
   public static class Provider implements ConfigurableInstanceFactoryScanner {
 
     @Override
-    public <T> Optional<ConfigurableInstanceFactory<T>> scanForInstanceFactory(
-        Class<T> type) {
+    public <T> Optional<ConfigurableInstanceFactory<T>> scanForInstanceFactory(Class<T> type) {
       Constructor<T> defaultConstructor;
       try {
         defaultConstructor = type.getConstructor();

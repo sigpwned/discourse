@@ -22,7 +22,7 @@ package com.sigpwned.discourse.core.coordinate;
 import java.util.regex.Pattern;
 
 /**
- * A coordinate that represents a short switch name, e.g., -x
+ * A {@link SwitchNameCoordinate} that represents a short switch name, e.g., {@code -x}.
  */
 public final class ShortSwitchNameCoordinate extends SwitchNameCoordinate {
 

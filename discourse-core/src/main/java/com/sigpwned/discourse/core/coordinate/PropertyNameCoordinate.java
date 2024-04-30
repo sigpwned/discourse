@@ -20,7 +20,7 @@
 package com.sigpwned.discourse.core.coordinate;
 
 /**
- * A coordinate that represents a system property name.
+ * A {@link NameCoordinate} that represents a system property name.
  *
  * @see System#getProperty(String)
  */

@@ -22,7 +22,20 @@ package com.sigpwned.discourse.core.command;
 import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.coordinate.Coordinate;
+import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
+import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
+import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
+import com.sigpwned.discourse.core.exception.configuration.DuplicateCoordinateConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.InvalidCollectionParameterPlacementConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.InvalidRequiredParameterPlacementConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.MissingPositionConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.MultipleHelpFlagsConfigurationException;
+import com.sigpwned.discourse.core.exception.configuration.MultipleVersionFlagsConfigurationException;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
+import com.sigpwned.discourse.core.util.Streams;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +84,72 @@ public final class SingleCommand<T> extends Command<T> {
       InstanceFactory<T> factory) {
     super(name, description, version);
     this.factory = requireNonNull(factory);
+
+    // We should not define the same shortName for multiple parameters
+    List<ShortSwitchNameCoordinate> shortNames = getParameters().stream()
+        .flatMap(p -> p.getCoordinates().stream())
+        .mapMulti(Streams.filterAndCast(ShortSwitchNameCoordinate.class)).toList();
+    if (Streams.duplicates(shortNames.stream()).findAny().isPresent()) {
+      throw new DuplicateCoordinateConfigurationException(
+          Streams.duplicates(shortNames.stream()).findFirst().orElseThrow());
+    }
+
+    // We should not define the same longName for multiple parameters
+    List<LongSwitchNameCoordinate> longNames = getParameters().stream()
+        .flatMap(p -> p.getCoordinates().stream())
+        .mapMulti(Streams.filterAndCast(LongSwitchNameCoordinate.class)).toList();
+    if (Streams.duplicates(longNames.stream()).findAny().isPresent()) {
+      throw new DuplicateCoordinateConfigurationException(
+          Streams.duplicates(longNames.stream()).findFirst().orElseThrow());
+    }
+
+    // We should not define multiple help flags
+    if (getParameters().stream().mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
+        .filter(FlagConfigurationParameter::isHelp).count() > 1) {
+      throw new MultipleHelpFlagsConfigurationException(getRawType());
+    }
+
+    // We should not define multiple version flags
+    if (getParameters().stream().mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
+        .filter(FlagConfigurationParameter::isVersion).count() > 1) {
+      throw new MultipleVersionFlagsConfigurationException(getRawType());
+    }
+
+    // We should define valid positional parameters
+    boolean optional = false;
+    List<PositionalConfigurationParameter> positionalParameters = getParameters().stream()
+        .mapMulti(Streams.filterAndCast(PositionalConfigurationParameter.class))
+        .sorted(Comparator.comparing(PositionalConfigurationParameter::getPosition)).toList();
+    for (int i = 0; i < positionalParameters.size(); i++) {
+      PositionalConfigurationParameter parameter = positionalParameters.get(i);
+      PositionCoordinate coordinate = parameter.getPosition();
+      int position = coordinate.getIndex();
+
+      if (position > i) {
+        if (i == 0) {
+          throw new MissingPositionConfigurationException(0);
+        } else {
+          throw new MissingPositionConfigurationException(
+              positionalParameters.get(i - 1).getPosition().getIndex() + 1);
+        }
+      } else if (position < i) {
+        throw new DuplicateCoordinateConfigurationException(coordinate);
+      }
+
+      if (parameter.isCollection() && i < positionalParameters.size() - 1) {
+        // If the parameter is a collection, it must be the last positional parameter. Otherwise,
+        // it would "eat" parameters that should be consumed by subsequent positional parameters.
+        throw new InvalidCollectionParameterPlacementConfigurationException(i);
+      }
+
+      if (optional && parameter.isRequired()) {
+        throw new InvalidRequiredParameterPlacementConfigurationException(i);
+      }
+
+      if (!parameter.isRequired()) {
+        optional = true;
+      }
+    }
   }
 
   public Class<T> getRawType() {

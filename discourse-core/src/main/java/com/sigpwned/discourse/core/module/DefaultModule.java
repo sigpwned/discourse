@@ -49,10 +49,6 @@ import com.sigpwned.discourse.core.format.exception.HelpUnrecognizedDiscriminato
 import com.sigpwned.discourse.core.format.exception.SyntaxExceptionFormatter;
 import com.sigpwned.discourse.core.listener.EmptyArgsToMultiCommandInterceptingDiscourseListener;
 import com.sigpwned.discourse.core.listener.HelpFlagInterceptingDiscourseListener;
-import com.sigpwned.discourse.core.listener.MultipleHelpFlagsCheckingDiscourseListener;
-import com.sigpwned.discourse.core.listener.MultipleVersionFlagsCheckingDiscourseListener;
-import com.sigpwned.discourse.core.listener.NamedParameterCheckingDiscourseListener;
-import com.sigpwned.discourse.core.listener.PositionalParameterCheckingDiscourseListener;
 import com.sigpwned.discourse.core.listener.VersionFlagInterceptingDiscourseListener;
 import com.sigpwned.discourse.core.value.deserializer.BigDecimalValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.BooleanValueDeserializerFactory;
@@ -288,12 +284,21 @@ public class DefaultModule extends Module {
     chain.addLast(CatchAllErrorFormatter.INSTANCE);
   }
 
+  /**
+   * <p>
+   * Registers the default discourse listeners.
+   * </p>
+   *
+   * <ul>
+   *   <li>{@link EmptyArgsToMultiCommandInterceptingDiscourseListener}</li>
+   *   <li>{@link HelpFlagInterceptingDiscourseListener}</li>
+   *   <li>{@link VersionFlagInterceptingDiscourseListener}</li>
+   * </ul>
+   *
+   * @param chain the chain to register the discourse listeners into
+   */
   @Override
   public void registerDiscourseListeners(DiscourseListenerChain chain) {
-    chain.addLast(NamedParameterCheckingDiscourseListener.INSTANCE);
-    chain.addLast(PositionalParameterCheckingDiscourseListener.INSTANCE);
-    chain.addLast(MultipleHelpFlagsCheckingDiscourseListener.INSTANCE);
-    chain.addLast(MultipleVersionFlagsCheckingDiscourseListener.INSTANCE);
     chain.addLast(EmptyArgsToMultiCommandInterceptingDiscourseListener.INSTANCE);
     chain.addLast(HelpFlagInterceptingDiscourseListener.INSTANCE);
     chain.addLast(VersionFlagInterceptingDiscourseListener.INSTANCE);

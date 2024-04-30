@@ -23,7 +23,7 @@ import java.util.Comparator;
 import java.util.Objects;
 
 /**
- * A coordinate that represents a position in a sequence.
+ * A {@link Coordinate} that represents a position in a sequence.
  */
 public final class PositionCoordinate extends Coordinate implements Comparable<PositionCoordinate> {
 

@@ -30,9 +30,9 @@ package com.sigpwned.discourse.core.command;
  *
  * <p>
  * A command can be a {@link SingleCommand single} or {@link MultiCommand multi} command. A single
- * command is a simple, standalone command that simply takes arguments. A multi command is a command
- * that can run any one of multiple subcommands based on a discriminator. This mode is modeled after
- * the AWS CLI and Git CLI.
+ * command is a standalone command that simply takes arguments. A multi command is a "container"
+ * command that can run any one of multiple subcommands based on a discriminator. This mode is
+ * modeled after the AWS CLI and Git CLI.
  * </p>
  *
  * @param <T> The type of the root configuration class.

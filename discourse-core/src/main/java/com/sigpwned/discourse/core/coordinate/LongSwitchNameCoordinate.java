@@ -22,7 +22,7 @@ package com.sigpwned.discourse.core.coordinate;
 import java.util.regex.Pattern;
 
 /**
- * A coordinate that represents a long switch name, e.g., --xray
+ * A {@link SwitchNameCoordinate} that represents a long switch name, e.g., {@code --xray}
  */
 public final class LongSwitchNameCoordinate extends SwitchNameCoordinate {
 

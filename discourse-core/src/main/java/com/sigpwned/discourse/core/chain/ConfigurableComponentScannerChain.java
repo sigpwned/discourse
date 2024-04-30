@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,7 +25,13 @@ import com.sigpwned.discourse.core.configurable.component.scanner.ConfigurableCo
 import com.sigpwned.discourse.core.util.Chains;
 import java.util.List;
 
-public class ConfigurableComponentScannerChain extends Chain<ConfigurableComponentScanner> {
+/**
+ * A {@link ConfigurableComponentScanner} implementation that delegates to a chain of
+ * {@code ConfigurableComponentScanner} instances. Each link in the chain is consulted in order and
+ * the results are concatenated.
+ */
+public class ConfigurableComponentScannerChain extends
+    Chain<ConfigurableComponentScanner> implements ConfigurableComponentScanner {
 
   public List<ConfigurableComponent> scanForComponents(Class<?> rawType,
       InvocationContext context) {

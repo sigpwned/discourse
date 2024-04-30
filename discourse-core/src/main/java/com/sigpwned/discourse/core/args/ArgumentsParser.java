@@ -22,6 +22,7 @@ package com.sigpwned.discourse.core.args;
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.coordinate.Coordinate;
 import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
@@ -48,19 +49,57 @@ import java.util.ListIterator;
 import java.util.Optional;
 
 /**
- * A parser for command line arguments.
+ * <p>
+ * An event parser for command line arguments. Given a {@link Command}, this parser will parse a
+ * list of command-line arguments and emit events to a {@link Handler} instance. It validates the
+ * syntax of the command line and ensures that it is well-formed, according to the command's
+ * configuration. (For example, it ensures that all {@link OptionConfigurationParameter}s have
+ * values and that {@link FlagConfigurationParameter}s do not.)
+ * </p>
+ *
+ * <p>
+ * This class does not check whether the values of the arguments are valid, or that all parameters
+ * marked required in the command are given. Those checks are performed elsewhere. This class only
+ * checks the syntax of the command line.
+ * </p>
  */
 public class ArgumentsParser {
 
   public static interface Handler {
 
+    /**
+     * Called when a flag is encountered in the command line. A flag is a boolean-valued switch that
+     * is either present or not, as opposed to having an explicit value. For example, {@code -h} and
+     * {@code --help} are flags.
+     *
+     * @param coordinate the coordinate (i.e., switch) of the flag
+     * @param property   the flag's configuration parameter annotation
+     */
     default void flag(NameCoordinate coordinate, FlagConfigurationParameter property) {
     }
 
+    /**
+     * Called when an option is encountered in the command line. An option is a switch that has an
+     * explicit value. For example, {@code -f file.txt} and {@code --file file.txt} are options.
+     *
+     * @param coordinate the coordinate (i.e., switch) of the option
+     * @param property   the option's configuration parameter annotation
+     * @param value      the value of the option
+     */
     default void option(NameCoordinate coordinate, OptionConfigurationParameter property,
         String value) {
     }
 
+    /**
+     * Called when a positional argument is encountered in the command line. A positional is a
+     * parameter that is not preceded by a switch and is instead identified by its position in the
+     * command line. For example, in the command {@code cp file1 file2}, {@code file1} and
+     * {@code file2} are positionals.
+     *
+     * @param coordinate the coordinate (i.e., position) of the positional
+     * @param property   the positional's configuration parameter annotation
+     * @param value      the value of the positional
+     */
     default void positional(PositionCoordinate coordinate,
         PositionalConfigurationParameter property, String value) {
     }

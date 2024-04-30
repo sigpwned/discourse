@@ -23,7 +23,7 @@ import java.util.Comparator;
 import java.util.Objects;
 
 /**
- * A coordinate with an explicit name, like "-x" or "--xray".
+ * A {@link Coordinate} with an explicit name, like {@code -x} or {@code --xray}.
  */
 public abstract sealed class NameCoordinate extends Coordinate implements
     Comparable<NameCoordinate> permits PropertyNameCoordinate, SwitchNameCoordinate,

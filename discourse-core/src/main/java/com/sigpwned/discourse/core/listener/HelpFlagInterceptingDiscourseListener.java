@@ -35,7 +35,6 @@ import com.sigpwned.discourse.core.util.Streams;
 import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -43,8 +42,7 @@ import java.util.stream.Stream;
 /**
  * A {@link DiscourseListener} that looks for the presence of a
  * {@link FlagParameter#help() help flag} in the arguments, and prints the help message and exits if
- * it is found. This interceptor runs during the
- * {@link DiscourseListener#beforeResolve(Command, List, InvocationContext) beforeResolve} event.
+ * it is found.
  */
 public class HelpFlagInterceptingDiscourseListener implements DiscourseListener {
 
@@ -60,8 +58,10 @@ public class HelpFlagInterceptingDiscourseListener implements DiscourseListener 
         command.getParameters().stream()
             .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
             .filter(FlagConfigurationParameter::isHelp).flatMap(flag -> Stream.concat(
-                Optional.ofNullable(flag.getShortName()).map(ShortSwitchNameCoordinate::toSwitchString).stream(),
-                Optional.ofNullable(flag.getLongName()).map(LongSwitchNameCoordinate::toSwitchString).stream()))
+                Optional.ofNullable(flag.getShortName()).map(ShortSwitchNameCoordinate::toSwitchString)
+                    .stream(),
+                Optional.ofNullable(flag.getLongName()).map(LongSwitchNameCoordinate::toSwitchString)
+                    .stream()))
             .forEach(coordinates::add);
       }
     });

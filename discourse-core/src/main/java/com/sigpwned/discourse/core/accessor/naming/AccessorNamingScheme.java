@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,29 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * <p>
+ * Has two primary functions:
+ * </p>
+ *
+ * <ol>
+ *   <li>
+ *     Discovery. Given the name and annotations from a method, field, parameter, etc., return the
+ *     name of the attribute that code element represents according to this naming scheme. For
+ *     example, given a method named {@code getFoo}, this style might return {@code foo} because
+ *     the method is named like a getter for the attribute {@code foo}. This style of name
+ *     "discovery" is used to determine the name of all logical attributes a class defines.
+ *   </li>
+ *   <li>
+ *     Matching. Give the name and annotations from a method, field, parameter, etc., and the name
+ *     of an attribute known to exist, return whether the code element manipulates the attribute.
+ *     For example, given a method {@code int foo()} and the attribute name {@code foo}, this style
+ *     might return {@code true} because the method looks like a getter and has the same name as
+ *     the attribute. This style of name "matching" is used to determine all the code elements
+ *     associated with a logical attribute.
+ *   </li>
+ * </ol>
+ */
 public interface AccessorNamingScheme {
 
   /**
