@@ -19,12 +19,16 @@
  */
 package com.sigpwned.discourse.core.coordinate;
 
+import java.util.regex.Pattern;
+
 /**
  * A {@link NameCoordinate} that represents a system property name.
  *
  * @see System#getProperty(String)
  */
 public final class PropertyNameCoordinate extends NameCoordinate {
+
+  public static final Pattern PATTERN = Pattern.compile("[a-zA-Z0-9_.-]+");
 
   public static PropertyNameCoordinate fromString(String s) {
     return new PropertyNameCoordinate(s);
@@ -34,6 +38,9 @@ public final class PropertyNameCoordinate extends NameCoordinate {
     super(text);
     if (text.isEmpty()) {
       throw new IllegalArgumentException("property names must not be blank");
+    }
+    if (!PATTERN.matcher(text).matches()) {
+      throw new IllegalArgumentException("invalid property name: " + text);
     }
   }
 

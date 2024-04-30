@@ -21,15 +21,9 @@ package com.sigpwned.discourse.core.invocation;
 
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
-import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 
 import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
-import com.sigpwned.discourse.core.annotation.FlagParameter;
-import com.sigpwned.discourse.core.annotation.OptionParameter;
-import com.sigpwned.discourse.core.annotation.PositionalParameter;
-import com.sigpwned.discourse.core.annotation.PropertyParameter;
 import com.sigpwned.discourse.core.chain.AccessorNamingSchemeChain;
 import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
 import com.sigpwned.discourse.core.command.Command;
@@ -43,28 +37,13 @@ import com.sigpwned.discourse.core.configurable.component.GetterConfigurableComp
 import com.sigpwned.discourse.core.configurable.component.InputConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.component.SetterConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.instance.factory.ConfigurableInstanceFactory;
-import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
-import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
-import com.sigpwned.discourse.core.coordinate.PropertyNameCoordinate;
-import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
-import com.sigpwned.discourse.core.coordinate.VariableNameCoordinate;
 import com.sigpwned.discourse.core.exception.bean.AssignmentFailureBeanException;
 import com.sigpwned.discourse.core.exception.bean.NewInstanceFailureBeanException;
-import com.sigpwned.discourse.core.exception.configuration.InvalidLongNameConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.InvalidPositionConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.InvalidPropertyNameConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.InvalidShortNameConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.InvalidVariableNameConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.NoNameConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.TooManyAnnotationsConfigurationException;
 import com.sigpwned.discourse.core.exception.syntax.RequiredParametersMissingSyntaxException;
 import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
-import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
-import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
-import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
-import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
-import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
+import com.sigpwned.discourse.core.util.ConfigurationParameters;
 import com.sigpwned.discourse.core.util.MoreIterables;
 import com.sigpwned.discourse.core.util.MoreSets;
 import com.sigpwned.discourse.core.util.ParameterAnnotations;
@@ -471,80 +450,8 @@ public class InvocationBuilder {
           return new IllegalArgumentException("No deserializer for " + sink.getGenericType());
         });
 
-    if (bucket.getAnnotation() instanceof FlagParameter flag) {
-      ShortSwitchNameCoordinate shortName = Optional.ofNullable(flag.shortName())
-          .filter(not(String::isEmpty)).map(s -> {
-            try {
-              return ShortSwitchNameCoordinate.fromString(s);
-            } catch (IllegalArgumentException e) {
-              throw new InvalidShortNameConfigurationException(flag.shortName());
-            }
-          }).orElse(null);
-      LongSwitchNameCoordinate longName = Optional.ofNullable(flag.longName())
-          .filter(not(String::isEmpty)).map(s -> {
-            try {
-              return LongSwitchNameCoordinate.fromString(s);
-            } catch (IllegalArgumentException e) {
-              throw new InvalidLongNameConfigurationException(flag.longName());
-            }
-          }).orElse(null);
-      if (shortName == null && longName == null) {
-        throw new NoNameConfigurationException(bucket.getName());
-      }
-      return new FlagConfigurationParameter(bucket.getName(), flag.description(), deserializer,
-          sink, shortName, longName, flag.help(), flag.version());
-    } else if (bucket.getAnnotation() instanceof OptionParameter option) {
-      ShortSwitchNameCoordinate shortName = Optional.ofNullable(option.shortName())
-          .filter(not(String::isEmpty)).map(s -> {
-            try {
-              return ShortSwitchNameCoordinate.fromString(s);
-            } catch (IllegalArgumentException e) {
-              throw new InvalidShortNameConfigurationException(option.shortName());
-            }
-          }).orElse(null);
-      LongSwitchNameCoordinate longName = Optional.ofNullable(option.longName())
-          .filter(not(String::isEmpty)).map(s -> {
-            try {
-              return LongSwitchNameCoordinate.fromString(s);
-            } catch (IllegalArgumentException e) {
-              throw new InvalidLongNameConfigurationException(option.longName());
-            }
-          }).orElse(null);
-      if (shortName == null && longName == null) {
-        throw new NoNameConfigurationException(bucket.getName());
-      }
-      return new OptionConfigurationParameter(bucket.getName(), option.description(),
-          option.required(), deserializer, sink, shortName, longName);
-    } else if (bucket.getAnnotation() instanceof PositionalParameter positional) {
-      PositionCoordinate position;
-      try {
-        position = new PositionCoordinate(positional.position());
-      } catch (IllegalArgumentException e) {
-        throw new InvalidPositionConfigurationException(bucket.getName(), positional.position());
-      }
-      return new PositionalConfigurationParameter(bucket.getName(), positional.description(),
-          positional.required(), deserializer, sink, position);
-    } else if (bucket.getAnnotation() instanceof PropertyParameter property) {
-      PropertyNameCoordinate propertyName;
-      try {
-        propertyName = PropertyNameCoordinate.fromString(property.propertyName());
-      } catch (IllegalArgumentException e) {
-        throw new InvalidPropertyNameConfigurationException(property.propertyName());
-      }
-      return new PropertyConfigurationParameter(bucket.getName(), property.description(),
-          property.required(), deserializer, sink, propertyName);
-    } else if (bucket.getAnnotation() instanceof EnvironmentParameter environment) {
-      VariableNameCoordinate variableName;
-      try {
-        variableName = VariableNameCoordinate.fromString(environment.variableName());
-      } catch (IllegalArgumentException e) {
-        throw new InvalidVariableNameConfigurationException(environment.variableName());
-      }
-      return new EnvironmentConfigurationParameter(bucket.getName(), environment.description(),
-          environment.required(), deserializer, sink, variableName);
-    }
-
-    throw new IllegalArgumentException("Unknown parameter annotation: " + bucket.getAnnotation());
+    return ConfigurationParameters.createConfigurationParameter(bucket.getAnnotation(),
+        bucket.getName(), deserializer, sink);
   }
 
   private static Optional<String> attributeName(AccessorNamingSchemeChain naming,

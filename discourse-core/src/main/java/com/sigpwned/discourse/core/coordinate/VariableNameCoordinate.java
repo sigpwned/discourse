@@ -19,12 +19,16 @@
  */
 package com.sigpwned.discourse.core.coordinate;
 
+import java.util.regex.Pattern;
+
 /**
  * A {@link NameCoordinate} that represents an environment variable name.
  *
  * @see System#getenv(String)
  */
 public final class VariableNameCoordinate extends NameCoordinate {
+
+  public static final Pattern PATTERN = Pattern.compile("[a-zA-Z0-9_.-]+");
 
   public static VariableNameCoordinate fromString(String text) {
     return new VariableNameCoordinate(text);
@@ -34,6 +38,9 @@ public final class VariableNameCoordinate extends NameCoordinate {
     super(text);
     if (text.isEmpty()) {
       throw new IllegalArgumentException("variable names must not be blank");
+    }
+    if (!PATTERN.matcher(text).matches()) {
+      throw new IllegalArgumentException("invalid variable name: " + text);
     }
   }
 

@@ -22,10 +22,10 @@ package com.sigpwned.discourse.core.format.help;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.joining;
 
-import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
 import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
@@ -433,7 +433,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
               }
               buf.append(" <").append(toString(option.getGenericType())).append(">");
               out.print(buf);
-              if (option.getDescription().isEmpty()) {
+              if (option.getDescription() == null) {
                 out.println();
               } else {
                 if (buf.length() < COLUMN_WIDTH) {

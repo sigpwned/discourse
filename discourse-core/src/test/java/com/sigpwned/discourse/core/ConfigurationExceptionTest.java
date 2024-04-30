@@ -219,7 +219,7 @@ public class ConfigurationExceptionTest {
   @Configurable
   public static class InvalidVariableExample {
 
-    @EnvironmentParameter(variableName = "")
+    @EnvironmentParameter(variableName = "!@#$%^&*()")
     public String example;
   }
 
@@ -234,7 +234,7 @@ public class ConfigurationExceptionTest {
   @Configurable
   public static class InvalidPropertyExample {
 
-    @PropertyParameter(propertyName = "")
+    @PropertyParameter(propertyName = "!@#$%^&*()")
     public String example;
   }
 
