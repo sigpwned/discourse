@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,12 +19,14 @@
  */
 package com.sigpwned.discourse.core.util.collectors;
 
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public final class Only<T> {
 
@@ -35,10 +37,61 @@ public final class Only<T> {
     });
   }
 
+  private static final Only<?> EMPTY = new Only<>();
+
+  @SuppressWarnings("unchecked")
+  public static <T> Only<T> empty() {
+    return (Only<T>) EMPTY;
+  }
+
+  private static final Only<?> OVERFLOWED = new Only<>(2);
+
+  @SuppressWarnings("unchecked")
+  public static <T> Only<T> overflowed() {
+    return (Only<T>) OVERFLOWED;
+  }
+
+  public static <T> Only<T> of(T value) {
+    if (value == null) {
+      throw new NullPointerException();
+    }
+    return ofNullable(value);
+  }
+
+  public static <T> Only<T> ofNullable(T value) {
+    if (value == null) {
+      return empty();
+    }
+    Only<T> only = new Only<>();
+    only.add(value);
+    return only;
+  }
+
+  public static <T> Only<T> fromIterable(Iterable<T> iterable) {
+    Iterator<T> iterator = iterable.iterator();
+    if (iterator.hasNext()) {
+      T first=iterator.next();
+      if(iterator.hasNext()) {
+        return overflowed();
+      }
+      Only<T> result=new Only<>();
+      result.add(first);
+      return result;
+    }
+    return Only.empty();
+  }
+
   private T firstValue;
   private int size;
 
   public Only() {
+  }
+
+  private Only(int size) {
+    if(size < 0) {
+      throw new IllegalArgumentException("size must not be negative");
+    }
+    this.size = size;
   }
 
   private void add(T value) {

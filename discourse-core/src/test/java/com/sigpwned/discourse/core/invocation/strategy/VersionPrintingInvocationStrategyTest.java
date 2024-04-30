@@ -74,7 +74,7 @@ public class VersionPrintingInvocationStrategyTest {
 
     boolean exited = false;
     try {
-      Invocation.builder().scan(Example.class, context).resolve(List.of("--version"), context)
+      Invocation.builder().scan(Example.class, context).resolve(List.of(), context)
           .parse(context).deserialize(context).prepare(context).build(context);
     } catch (ExitError e) {
       exited = true;

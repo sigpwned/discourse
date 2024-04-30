@@ -24,6 +24,8 @@ import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.CommandWalker;
 import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
+import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.error.exit.DefaultExitErrorFactory;
 import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 import com.sigpwned.discourse.core.format.help.HelpFormatter;
@@ -58,8 +60,8 @@ public class HelpFlagInterceptingDiscourseListener implements DiscourseListener 
         command.getParameters().stream()
             .mapMulti(Streams.filterAndCast(FlagConfigurationParameter.class))
             .filter(FlagConfigurationParameter::isHelp).flatMap(flag -> Stream.concat(
-                Optional.ofNullable(flag.getShortName()).map(Objects::toString).stream(),
-                Optional.ofNullable(flag.getLongName()).map(Objects::toString).stream()))
+                Optional.ofNullable(flag.getShortName()).map(ShortSwitchNameCoordinate::toSwitchString).stream(),
+                Optional.ofNullable(flag.getLongName()).map(LongSwitchNameCoordinate::toSwitchString).stream()))
             .forEach(coordinates::add);
       }
     });
