@@ -2,14 +2,14 @@
  * =================================LICENSE_START==================================
  * discourse-core
  * ====================================SECTION=====================================
- * Copyright (C) 2022 Andy Boothe
+ * Copyright (C) 2022 - 2024 Andy Boothe
  * ====================================SECTION=====================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,20 +17,19 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.value.deserializer;
+package com.sigpwned.discourse.core.annotation;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.List;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * A factory for creating {@link ValueDeserializer} objects. This is used to create deserializers
- * for command line arguments. A factory can handle one or more types of values.
- */
-public interface ValueDeserializerFactory<T> {
+import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations);
+@Retention(RUNTIME)
+@Target({FIELD, METHOD})
+public @interface DiscourseDeserialize {
 
-  public ValueDeserializer<? extends T> getDeserializer(Type genericType,
-      List<Annotation> annotations);
+  public Class<? extends ValueDeserializer<?>> using();
 }

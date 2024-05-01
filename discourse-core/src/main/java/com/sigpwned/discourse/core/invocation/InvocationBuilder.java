@@ -130,15 +130,16 @@ public class InvocationBuilder {
     return (Command<T>) result.get();
   }
 
-  protected static record AttributeDefinition(String name, Annotation parameterAnnotation,
-      Class<?> rawType, Type genericType) {
+  protected static record AttributeDefinition(String name, List<Annotation> annotations,
+      Annotation parameterAnnotation, Class<?> rawType, Type genericType) {
 
   }
 
   protected static class AttributeBucketBuilder {
 
     private final String name;
-    private final Annotation annotation;
+    private final List<Annotation> annotations;
+    private final Annotation parameterAnnotation;
     private final Class<?> rawType;
     private final Type genericType;
     private final List<InputConfigurableComponent> inputs;
@@ -147,16 +148,17 @@ public class InvocationBuilder {
     private final List<SetterConfigurableComponent> setters;
 
     public static AttributeBucketBuilder fromAttributeDefinition(AttributeDefinition definition) {
-      return new AttributeBucketBuilder(definition.name(), definition.parameterAnnotation(),
-          definition.rawType(), definition.genericType());
+      return new AttributeBucketBuilder(definition.name(), definition.annotations(),
+          definition.parameterAnnotation(), definition.rawType(), definition.genericType());
     }
 
-    public AttributeBucketBuilder(String name, Annotation annotation, Class<?> rawType,
-        Type genericType) {
-      this.name = name;
-      this.annotation = annotation;
-      this.rawType = rawType;
-      this.genericType = genericType;
+    public AttributeBucketBuilder(String name, List<Annotation> annotations,
+        Annotation parameterAnnotation, Class<?> rawType, Type genericType) {
+      this.name = requireNonNull(name);
+      this.annotations = unmodifiableList(annotations);
+      this.parameterAnnotation = requireNonNull(parameterAnnotation);
+      this.rawType = requireNonNull(rawType);
+      this.genericType = requireNonNull(genericType);
       this.inputs = new ArrayList<>();
       this.fields = new ArrayList<>();
       this.getters = new ArrayList<>();
@@ -167,8 +169,12 @@ public class InvocationBuilder {
       return name;
     }
 
-    public Annotation getAnnotation() {
-      return annotation;
+    public List<Annotation> getAnnotations() {
+      return annotations;
+    }
+
+    public Annotation getParameterAnnotation() {
+      return parameterAnnotation;
     }
 
     public Class<?> getRawType() {
@@ -233,7 +239,7 @@ public class InvocationBuilder {
         throw new IllegalArgumentException("Multiple inputs for attribute: " + name);
       }
       // TODO We should probably log a warning if we choose a component that was not annotated
-      return new AttributeBucket(name, annotation, rawType, genericType,
+      return new AttributeBucket(name, annotations, parameterAnnotation, rawType, genericType,
           MoreIterables.first(inputs).orElse(null), MoreIterables.first(fields).orElse(null),
           MoreIterables.first(getters).orElse(null), MoreIterables.first(setters).orElse(null));
     }
@@ -242,7 +248,8 @@ public class InvocationBuilder {
   protected static class AttributeBucket {
 
     private final String name;
-    private final Annotation annotation;
+    private final List<Annotation> annotations;
+    private final Annotation parameterAnnotation;
     private final Class<?> rawType;
     private final Type genericType;
     private final InputConfigurableComponent input;
@@ -250,11 +257,13 @@ public class InvocationBuilder {
     private final GetterConfigurableComponent getter;
     private final SetterConfigurableComponent setter;
 
-    public AttributeBucket(String name, Annotation annotation, Class<?> rawType, Type genericType,
+    public AttributeBucket(String name, List<Annotation> annotations,
+        Annotation parameterAnnotation, Class<?> rawType, Type genericType,
         InputConfigurableComponent input, FieldConfigurableComponent field,
         GetterConfigurableComponent getter, SetterConfigurableComponent setter) {
       this.name = requireNonNull(name);
-      this.annotation = requireNonNull(annotation);
+      this.annotations = unmodifiableList(annotations);
+      this.parameterAnnotation = requireNonNull(parameterAnnotation);
       this.rawType = requireNonNull(rawType);
       this.genericType = requireNonNull(genericType);
 
@@ -272,8 +281,12 @@ public class InvocationBuilder {
       return name;
     }
 
-    public Annotation getAnnotation() {
-      return annotation;
+    public List<Annotation> getAnnotations() {
+      return annotations;
+    }
+
+    public Annotation getParameterAnnotation() {
+      return parameterAnnotation;
     }
 
     public Class<?> getRawType() {
@@ -357,8 +370,8 @@ public class InvocationBuilder {
       });
 
       anchors.add(
-          new AttributeDefinition(attributeName, parameterAnnotation, component.getRawType(),
-              component.getGenericType()));
+          new AttributeDefinition(attributeName, component.getAnnotations(), parameterAnnotation,
+              component.getRawType(), component.getGenericType()));
     }
     Streams.duplicates(anchors.stream()).findFirst().ifPresent(duplicate -> {
       // TODO better exception
@@ -438,19 +451,17 @@ public class InvocationBuilder {
 
   private static ConfigurationParameter toConfigurationParameter(
       InvocationBuilder.AttributeBucket bucket, InvocationContext context) {
-    // TODO Get list of annotations
-
     ValueSink sink = context.get(InvocationContext.VALUE_SINK_FACTORY_CHAIN_KEY).orElseThrow()
-        .getSink(bucket.getGenericType(), null);
+        .getSink(bucket.getGenericType(), bucket.getAnnotations());
 
     ValueDeserializer<?> deserializer = context.get(
             InvocationContext.VALUE_DESERIALIZER_FACTORY_CHAIN_KEY).orElseThrow()
-        .getDeserializer(sink.getGenericType(), null).orElseThrow(() -> {
+        .getDeserializer(sink.getGenericType(), bucket.getAnnotations()).orElseThrow(() -> {
           // TODO better exception
           return new IllegalArgumentException("No deserializer for " + sink.getGenericType());
         });
 
-    return ConfigurationParameters.createConfigurationParameter(bucket.getAnnotation(),
+    return ConfigurationParameters.createConfigurationParameter(bucket.getParameterAnnotation(),
         bucket.getName(), deserializer, sink);
   }
 

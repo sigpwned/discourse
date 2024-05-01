@@ -54,6 +54,7 @@ import com.sigpwned.discourse.core.value.deserializer.BigDecimalValueDeserialize
 import com.sigpwned.discourse.core.value.deserializer.BooleanValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.ByteValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.CharValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.deserializer.DiscourseDeserializeValueSerializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.DoubleValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.EnumValueDeserializerFactory;
 import com.sigpwned.discourse.core.value.deserializer.FileValueDeserializerFactory;
@@ -101,6 +102,7 @@ public class DefaultModule extends Module {
    *   <li>{@link BooleanValueDeserializerFactory}</li>
    *   <li>{@link ByteValueDeserializerFactory}</li>
    *   <li>{@link CharValueDeserializerFactory}</li>
+   *   <li>{@link DiscourseDeserializeValueSerializerFactory}</li>
    *   <li>{@link DoubleValueDeserializerFactory}</li>
    *   <li>{@link EnumValueDeserializerFactory}</li>
    *   <li>{@link FileValueDeserializerFactory}</li>
@@ -156,6 +158,9 @@ public class DefaultModule extends Module {
     resolver.addLast(FileValueDeserializerFactory.INSTANCE);
     resolver.addLast(PathValueDeserializerFactory.INSTANCE);
     resolver.addLast(PatternValueDeserializerFactory.INSTANCE);
+
+    // This should be the first resort.
+    resolver.addFirst(DiscourseDeserializeValueSerializerFactory.INSTANCE);
 
     // This should be the last resort.
     resolver.addLast(FromStringValueDeserializerFactory.INSTANCE);
