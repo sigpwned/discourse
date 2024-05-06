@@ -20,13 +20,13 @@
 package com.sigpwned.discourse.core.util;
 
 import com.sigpwned.discourse.core.command.SingleCommand;
-import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
-import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
-import com.sigpwned.discourse.core.token.ArgumentToken;
-import com.sigpwned.discourse.core.token.BundleArgumentToken;
-import com.sigpwned.discourse.core.token.LongNameArgumentToken;
-import com.sigpwned.discourse.core.token.SeparatorArgumentToken;
-import com.sigpwned.discourse.core.token.ShortNameArgumentToken;
+import com.sigpwned.discourse.core.model.coordinate.LongSwitchNameCoordinate;
+import com.sigpwned.discourse.core.model.coordinate.ShortSwitchNameCoordinate;
+import com.sigpwned.discourse.core.phase.parse.model.token.ArgumentToken;
+import com.sigpwned.discourse.core.phase.parse.model.token.BundleArgumentToken;
+import com.sigpwned.discourse.core.phase.parse.model.token.LongNameArgumentToken;
+import com.sigpwned.discourse.core.phase.parse.model.token.SeparatorArgumentToken;
+import com.sigpwned.discourse.core.phase.parse.model.token.ShortNameArgumentToken;
 import java.util.List;
 
 public final class Args {

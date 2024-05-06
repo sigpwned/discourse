@@ -24,7 +24,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.exception.SyntaxException;
 import com.sigpwned.discourse.core.command.SingleCommand;
-import com.sigpwned.discourse.core.coordinate.SwitchNameCoordinate;
+import com.sigpwned.discourse.core.model.coordinate.SwitchNameCoordinate;
 
 /**
  * Thrown when a long name is not recognized. For example, if a command only defines the long names

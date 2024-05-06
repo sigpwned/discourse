@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.exception.ArgumentException;
 import com.sigpwned.discourse.core.command.SingleCommand;
-import com.sigpwned.discourse.core.coordinate.Coordinate;
+import com.sigpwned.discourse.core.model.coordinate.Coordinate;
 
 public class DeserializationFailureArgumentException extends ArgumentException {
 

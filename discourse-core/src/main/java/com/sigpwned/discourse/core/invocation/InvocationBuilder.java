@@ -135,7 +135,7 @@ public class InvocationBuilder {
 
   }
 
-  protected static class AttributeBucketBuilder {
+  public static class AttributeBucketBuilder {
 
     private final String name;
     private final List<Annotation> annotations;
@@ -331,7 +331,7 @@ public class InvocationBuilder {
     // is, fields, getters, and setters.
     List<ConfigurableComponent> instanceComponents = context.get(
             InvocationContext.CONFIGURABLE_COMPONENT_SCANNER_CHAIN_KEY).orElseThrow()
-        .scanForComponents(clazz, context);
+        .scanForComponents(clazz);
 
     return new ConfigurableClass<>(clazz, instanceFactory, instanceComponents);
   }

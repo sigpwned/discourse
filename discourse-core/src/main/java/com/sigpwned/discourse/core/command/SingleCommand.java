@@ -21,10 +21,10 @@ package com.sigpwned.discourse.core.command;
 
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.coordinate.Coordinate;
-import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
-import com.sigpwned.discourse.core.coordinate.PositionCoordinate;
-import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
+import com.sigpwned.discourse.core.model.coordinate.Coordinate;
+import com.sigpwned.discourse.core.model.coordinate.LongSwitchNameCoordinate;
+import com.sigpwned.discourse.core.model.coordinate.PositionCoordinate;
+import com.sigpwned.discourse.core.model.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.exception.configuration.DuplicateCoordinateConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.InvalidCollectionParameterPlacementConfigurationException;
 import com.sigpwned.discourse.core.exception.configuration.InvalidRequiredParameterPlacementConfigurationException;

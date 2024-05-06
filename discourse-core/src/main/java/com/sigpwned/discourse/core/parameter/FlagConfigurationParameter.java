@@ -19,9 +19,9 @@
  */
 package com.sigpwned.discourse.core.parameter;
 
-import com.sigpwned.discourse.core.coordinate.Coordinate;
-import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
-import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
+import com.sigpwned.discourse.core.model.coordinate.Coordinate;
+import com.sigpwned.discourse.core.model.coordinate.LongSwitchNameCoordinate;
+import com.sigpwned.discourse.core.model.coordinate.ShortSwitchNameCoordinate;
 import com.sigpwned.discourse.core.util.Generated;
 import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
 import com.sigpwned.discourse.core.value.sink.ValueSink;

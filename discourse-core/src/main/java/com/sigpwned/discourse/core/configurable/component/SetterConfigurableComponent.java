@@ -21,50 +21,60 @@ package com.sigpwned.discourse.core.configurable.component;
 
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.configurable.component.element.ConfigurableElement;
+import com.sigpwned.discourse.core.configurable.component.element.SetterConfigurableElement;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.BiConsumer;
 
 /**
- * A {@link ConfigurableComponent} backed by a setter method.
+ * A {@link ConfigurableComponent} that is backed by a setter method.
  */
-public final class SetterConfigurableComponent extends ConfigurableComponent {
+public final class SetterConfigurableComponent implements ConfigurableComponent {
 
   private final Method method;
+  private final SetterConfigurableElement element;
 
   public SetterConfigurableComponent(Method method) {
-    super(method.getName(), method.getParameterTypes()[0], method.getGenericParameterTypes()[0],
-        List.of(method.getAnnotations()));
     this.method = requireNonNull(method);
+    this.element = new SetterConfigurableElement(method);
+    if (method.getParameterCount() != 1) {
+      throw new IllegalArgumentException("method must have exactly one parameter");
+    }
+    if (method.getReturnType() != void.class) {
+      throw new IllegalArgumentException("method must have a void return type");
+    }
+    if (Modifier.isStatic(method.getModifiers())) {
+      throw new IllegalArgumentException("method must not be static");
+    }
   }
 
-  public boolean isVisible() {
+  @Override
+  public Class<?> getDeclaringClass() {
+    return getMethod().getDeclaringClass();
+  }
+
+  @Override
+  public AccessibleObject getAccessibleObject() {
+    return getMethod();
+  }
+
+  @Override
+  public boolean isSink() {
     return Modifier.isPublic(getMethod().getModifiers());
   }
 
-  public Method getMethod() {
+  @Override
+  public List<ConfigurableElement> getElements() {
+    return List.of(getElement());
+  }
+
+  private Method getMethod() {
     return method;
   }
 
-  /**
-   * Returns a setter for the component, if it is visible.
-   *
-   * @return a setter for the component, if it is visible
-   * @throws RuntimeException if there was an error invoking the setter
-   */
-  public Optional<BiConsumer<Object, Object>> getSetter() {
-    if (isVisible()) {
-      return Optional.of((object, value) -> {
-        try {
-          getMethod().invoke(object, value);
-        } catch (ReflectiveOperationException e) {
-          // TODO better exception?
-          throw new RuntimeException("Failed to invoke setter", e);
-        }
-      });
-    }
-    return Optional.empty();
+  private SetterConfigurableElement getElement() {
+    return element;
   }
 }

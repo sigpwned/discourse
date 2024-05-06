@@ -22,6 +22,7 @@ package com.sigpwned.discourse.core.configurable.instance.factory;
 import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.configurable.component.InputConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.instance.factory.scanner.ConfigurableInstanceFactoryScanner;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.List;
@@ -34,23 +35,6 @@ import java.util.Optional;
  */
 public class DefaultConstructorConfigurableInstanceFactory<T> implements
     ConfigurableInstanceFactory<T> {
-
-  public static class Provider implements ConfigurableInstanceFactoryScanner {
-
-    @Override
-    public <T> Optional<ConfigurableInstanceFactory<T>> scanForInstanceFactory(Class<T> type) {
-      Constructor<T> defaultConstructor;
-      try {
-        defaultConstructor = type.getConstructor();
-      } catch (NoSuchMethodException e) {
-        return Optional.empty();
-      }
-      if (!Modifier.isPublic(defaultConstructor.getModifiers())) {
-        return Optional.empty();
-      }
-      return Optional.of(new DefaultConstructorConfigurableInstanceFactory<>(defaultConstructor));
-    }
-  }
 
   private final Constructor<T> defaultConstructor;
 

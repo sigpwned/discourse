@@ -21,6 +21,7 @@ package com.sigpwned.discourse.core.util;
 
 import com.sigpwned.discourse.core.util.collectors.Only;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 public final class MoreIterables {
@@ -43,6 +44,30 @@ public final class MoreIterables {
       return Optional.ofNullable(iterator.next());
     }
     return Optional.empty();
+  }
+
+  /**
+   * Returns the last element of the given iterable, or {@link Optional#empty() empty} if the
+   * iterable is empty.
+   *
+   * @param iterable the iterable
+   * @param <T>      the type of the elements
+   * @return the last element of the given iterable, or {@link Optional#empty() empty} if the
+   * iterable is empty
+   */
+  public static <T> Optional<T> last(Iterable<T> iterable) {
+    if (iterable instanceof List) {
+      List<T> list = (List<T>) iterable;
+      if (list.isEmpty()) {
+        return Optional.empty();
+      }
+      return Optional.of(list.get(list.size() - 1));
+    }
+    T last = null;
+    for (T element : iterable) {
+      last = element;
+    }
+    return Optional.ofNullable(last);
   }
 
   /**

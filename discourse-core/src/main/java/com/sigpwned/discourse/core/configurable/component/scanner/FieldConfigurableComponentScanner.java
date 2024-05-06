@@ -19,7 +19,6 @@
  */
 package com.sigpwned.discourse.core.configurable.component.scanner;
 
-import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.component.FieldConfigurableComponent;
 import com.sigpwned.discourse.core.util.ClassWalkers;
@@ -37,8 +36,7 @@ public class FieldConfigurableComponentScanner implements ConfigurableComponentS
   public static final FieldConfigurableComponentScanner INSTANCE = new FieldConfigurableComponentScanner();
 
   @Override
-  public List<ConfigurableComponent> scanForComponents(Class<?> rawType,
-      InvocationContext context) {
+  public List<ConfigurableComponent> scanForComponents(Class<?> rawType) {
     return ClassWalkers.streamClassAndSuperclasses(rawType)
         .mapMulti(Streams.filterAndCast(Field.class))
         .filter(field -> !Modifier.isStatic(field.getModifiers()))

@@ -20,7 +20,7 @@
 package com.sigpwned.discourse.core.chain;
 
 import com.sigpwned.discourse.core.configurable.instance.factory.ConfigurableInstanceFactory;
-import com.sigpwned.discourse.core.configurable.instance.factory.ConfigurableInstanceFactoryScanner;
+import com.sigpwned.discourse.core.configurable.instance.factory.scanner.ConfigurableInstanceFactoryScanner;
 import com.sigpwned.discourse.core.util.Chains;
 import java.util.Optional;
 

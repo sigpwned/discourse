@@ -19,7 +19,6 @@
  */
 package com.sigpwned.discourse.core.configurable.component.scanner;
 
-import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.component.SetterConfigurableComponent;
 import com.sigpwned.discourse.core.util.ClassWalkers;
@@ -38,8 +37,7 @@ public class SetterConfigurableComponentScanner implements ConfigurableComponent
   public static SetterConfigurableComponentScanner INSTANCE = new SetterConfigurableComponentScanner();
 
   @Override
-  public List<ConfigurableComponent> scanForComponents(Class<?> rawType,
-      InvocationContext context) {
+  public List<ConfigurableComponent> scanForComponents(Class<?> rawType) {
     return ClassWalkers.streamClassAndSuperclasses(rawType)
         .mapMulti(Streams.filterAndCast(Method.class)).filter(
             method -> method.getParameterCount() == 1 && void.class.equals(method.getReturnType())

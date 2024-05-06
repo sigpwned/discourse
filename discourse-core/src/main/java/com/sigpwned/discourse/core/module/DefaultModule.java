@@ -37,8 +37,8 @@ import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
 import com.sigpwned.discourse.core.configurable.component.scanner.FieldConfigurableComponentScanner;
 import com.sigpwned.discourse.core.configurable.component.scanner.GetterConfigurableComponentScanner;
 import com.sigpwned.discourse.core.configurable.component.scanner.SetterConfigurableComponentScanner;
-import com.sigpwned.discourse.core.configurable.instance.factory.AnnotatedConstructorConfigurableInstanceFactory;
-import com.sigpwned.discourse.core.configurable.instance.factory.DefaultConstructorConfigurableInstanceFactory;
+import com.sigpwned.discourse.core.configurable.instance.factory.scanner.DefaultConstructorConfigurableInstanceFactoryScanner;
+import com.sigpwned.discourse.core.configurable.instance.factory.scanner.AnnotatedConstructorConfigurableInstanceFactoryScanner;
 import com.sigpwned.discourse.core.format.exception.ArgumentExceptionFormatter;
 import com.sigpwned.discourse.core.format.exception.BeanExceptionFormatter;
 import com.sigpwned.discourse.core.format.exception.CatchAllErrorFormatter;
@@ -195,16 +195,16 @@ public class DefaultModule extends Module {
    * </p>
    *
    * <ul>
-   *   <li>{@link DefaultConstructorConfigurableInstanceFactory.Provider}</li>
-   *   <li>{@link AnnotatedConstructorConfigurableInstanceFactory.Provider}</li>
+   *   <li>{@link DefaultConstructorConfigurableInstanceFactoryScanner}</li>
+   *   <li>{@link AnnotatedConstructorConfigurableInstanceFactoryScanner}</li>
    * </ul>
    *
    * @param chain the chain to register the instance factory providers into
    */
   @Override
   public void registerInstanceFactoryScanners(ConfigurableInstanceFactoryScannerChain chain) {
-    chain.addLast(new DefaultConstructorConfigurableInstanceFactory.Provider());
-    chain.addLast(new AnnotatedConstructorConfigurableInstanceFactory.Provider());
+    chain.addLast(new DefaultConstructorConfigurableInstanceFactoryScanner());
+    chain.addLast(new AnnotatedConstructorConfigurableInstanceFactoryScanner());
   }
 
   /**

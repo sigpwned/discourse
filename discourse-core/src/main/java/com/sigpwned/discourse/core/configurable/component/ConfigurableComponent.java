@@ -19,47 +19,23 @@
  */
 package com.sigpwned.discourse.core.configurable.component;
 
-import static java.util.Collections.*;
-import static java.util.Objects.requireNonNull;
-
-import com.sigpwned.discourse.core.annotation.Configurable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
+import com.sigpwned.discourse.core.configurable.ConfigurableClass;
+import com.sigpwned.discourse.core.configurable.component.element.ConfigurableElement;
+import java.lang.reflect.AccessibleObject;
 import java.util.List;
 
 /**
- * A {@code ConfigurableComponent} is a code element (e.g., field, method, etc.) in a
- * {@link Configurable @Configurable}-annotated class that is related to a logical attribute.
+ * A container for {@link ConfigurableElement}s in a {@link ConfigurableClass}. It is one-to-one
+ * with a {@link java.lang.reflect.AccessibleObject} of some type (e.g., a
+ * {@link java.lang.reflect.Constructor} or a {@link java.lang.reflect.Field}).
  */
-public abstract sealed class ConfigurableComponent permits FieldConfigurableComponent,
-    GetterConfigurableComponent, InputConfigurableComponent, SetterConfigurableComponent {
+public interface ConfigurableComponent {
 
-  private final String name;
-  private final Class<?> rawType;
-  private final Type genericType;
-  private final List<Annotation> annotations;
+  public Class<?> getDeclaringClass();
 
-  public ConfigurableComponent(String name, Class<?> rawType, Type genericType,
-      List<Annotation> annotations) {
-    this.name = requireNonNull(name);
-    this.rawType = requireNonNull(rawType);
-    this.genericType = requireNonNull(genericType);
-    this.annotations = unmodifiableList(annotations);
-  }
+  public AccessibleObject getAccessibleObject();
 
-  public String getName() {
-    return name;
-  }
+  public List<ConfigurableElement> getElements();
 
-  public Class<?> getRawType() {
-    return rawType;
-  }
-
-  public Type getGenericType() {
-    return genericType;
-  }
-
-  public List<Annotation> getAnnotations() {
-    return annotations;
-  }
+  public boolean isSink();
 }

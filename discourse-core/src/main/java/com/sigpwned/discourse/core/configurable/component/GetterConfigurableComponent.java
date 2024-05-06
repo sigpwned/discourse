@@ -21,28 +21,60 @@ package com.sigpwned.discourse.core.configurable.component;
 
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.configurable.component.element.ConfigurableElement;
+import com.sigpwned.discourse.core.configurable.component.element.GetterConfigurableElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
 
 /**
- * A {@link ConfigurableComponent} that is a getter method.
+ * A {@link ConfigurableComponent} that is backed by a getter method.
  */
-public final class GetterConfigurableComponent extends ConfigurableComponent {
+public final class GetterConfigurableComponent implements ConfigurableComponent {
 
   private final Method method;
+  private final GetterConfigurableElement element;
 
   public GetterConfigurableComponent(Method method) {
-    super(method.getName(), method.getReturnType(), method.getGenericReturnType(),
-        List.of(method.getAnnotations()));
     this.method = requireNonNull(method);
+    this.element = new GetterConfigurableElement(method);
+    if (method.getParameterCount() != 0) {
+      throw new IllegalArgumentException("method must not have parameters");
+    }
+    if (method.getReturnType() == void.class) {
+      throw new IllegalArgumentException("method must have a non-void return type");
+    }
+    if (Modifier.isStatic(method.getModifiers())) {
+      throw new IllegalArgumentException("method must not be static");
+    }
   }
 
-  public boolean isVisible() {
-    return Modifier.isPublic(getMethod().getModifiers());
+  @Override
+  public Class<?> getDeclaringClass() {
+    return getMethod().getDeclaringClass();
+  }
+
+  @Override
+  public Method getAccessibleObject() {
+    return getMethod();
+  }
+
+  @Override
+  public boolean isSink() {
+    // A getter is never a sink, by definition.
+    return false;
+  }
+
+  @Override
+  public List<ConfigurableElement> getElements() {
+    return List.of(getElement());
   }
 
   private Method getMethod() {
     return method;
+  }
+
+  private GetterConfigurableElement getElement() {
+    return element;
   }
 }

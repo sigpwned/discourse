@@ -22,8 +22,8 @@ package com.sigpwned.discourse.core.util;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.sigpwned.discourse.core.coordinate.LongSwitchNameCoordinate;
-import com.sigpwned.discourse.core.coordinate.ShortSwitchNameCoordinate;
+import com.sigpwned.discourse.core.model.coordinate.LongSwitchNameCoordinate;
+import com.sigpwned.discourse.core.model.coordinate.ShortSwitchNameCoordinate;
 import java.util.List;
 import org.junit.Test;
 

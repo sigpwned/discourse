@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.exception.SyntaxException;
 import com.sigpwned.discourse.core.command.SingleCommand;
-import com.sigpwned.discourse.core.coordinate.SwitchNameCoordinate;
+import com.sigpwned.discourse.core.model.coordinate.SwitchNameCoordinate;
 
 /**
  * Thrown when a flag parameter -- which is a parameter type that should never be given a value --

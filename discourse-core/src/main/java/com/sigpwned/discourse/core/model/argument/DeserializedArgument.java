@@ -21,7 +21,7 @@ package com.sigpwned.discourse.core.model.argument;
 
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.coordinate.Coordinate;
+import com.sigpwned.discourse.core.model.coordinate.Coordinate;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 
 public record DeserializedArgument(Coordinate coordinate, ConfigurationParameter parameter,

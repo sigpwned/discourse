@@ -19,17 +19,15 @@
  */
 package com.sigpwned.discourse.core.configurable.component.scanner;
 
-import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
 import java.util.List;
 
 /**
- * A scanner that scans a
- * {@link Configurable @Configurable}-annotated class for
+ * A scanner that scans a {@link Configurable @Configurable}-annotated class for
  * {@link ConfigurableComponent}s.
  */
 public interface ConfigurableComponentScanner {
 
-  public List<ConfigurableComponent> scanForComponents(Class<?> rawType, InvocationContext context);
+  public List<ConfigurableComponent> scanForComponents(Class<?> rawType);
 }

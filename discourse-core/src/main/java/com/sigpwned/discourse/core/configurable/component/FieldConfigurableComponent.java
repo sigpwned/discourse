@@ -21,54 +21,51 @@ package com.sigpwned.discourse.core.configurable.component;
 
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.configurable.component.element.ConfigurableElement;
+import com.sigpwned.discourse.core.configurable.component.element.FieldConfigurableElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.BiConsumer;
 
 /**
  * A {@link ConfigurableComponent} that is backed by a field.
  */
-public final class FieldConfigurableComponent extends ConfigurableComponent {
+public final class FieldConfigurableComponent implements ConfigurableComponent {
 
   private final Field field;
+  private final FieldConfigurableElement element;
 
   public FieldConfigurableComponent(Field field) {
-    super(field.getName(), field.getType(), field.getGenericType(),
-        List.of(field.getAnnotations()));
     this.field = requireNonNull(field);
+    this.element = new FieldConfigurableElement(field);
   }
 
-  public boolean isVisible() {
-    return Modifier.isPublic(getField().getModifiers());
+  @Override
+  public Class<?> getDeclaringClass() {
+    return getField().getDeclaringClass();
   }
 
-  public boolean isMutable() {
-    return !Modifier.isFinal(getField().getModifiers());
+  @Override
+  public Field getAccessibleObject() {
+    return getField();
+  }
+
+  @Override
+  public List<ConfigurableElement> getElements() {
+    return List.of(getElement());
+  }
+
+  @Override
+  public boolean isSink() {
+    return Modifier.isPublic(getField().getModifiers()) && !Modifier.isFinal(
+        getField().getModifiers());
   }
 
   private Field getField() {
     return field;
   }
 
-  /**
-   * Returns a setter for the component, if it is visible and mutable.
-   *
-   * @return a setter for the component, if it is visible and mutable
-   * @throws RuntimeException if there was an error setting the field
-   */
-  public Optional<BiConsumer<Object, Object>> getSetter() {
-    if (isVisible() && isMutable()) {
-      return Optional.of((object, value) -> {
-        try {
-          getField().set(object, value);
-        } catch (IllegalAccessException e) {
-          // TODO better exception?
-          throw new RuntimeException("Failed to set field", e);
-        }
-      });
-    }
-    return Optional.empty();
+  private FieldConfigurableElement getElement() {
+    return element;
   }
 }

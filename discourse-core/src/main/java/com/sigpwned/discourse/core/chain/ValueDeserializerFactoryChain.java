@@ -34,11 +34,19 @@ import java.util.Optional;
  * returned. If no {@code ValueDeserializerFactory} in the chain handles the parameters, then
  * {@link Optional#empty() empty} is returned.
  */
-public class ValueDeserializerFactoryChain extends Chain<ValueDeserializerFactory<?>> {
+public class ValueDeserializerFactoryChain extends Chain<ValueDeserializerFactory<?>> implements
+    ValueDeserializerFactory<Object> {
 
-  public Optional<ValueDeserializer<?>> getDeserializer(Type genericType,
-      List<Annotation> annotations) {
-    return Chains.stream(this).filter(f -> f.isDeserializable(genericType, annotations)).findFirst()
-        .map(f -> f.getDeserializer(genericType, annotations));
+  @Override
+  public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
+    return Chains.stream(this).anyMatch(f -> f.isDeserializable(genericType, annotations));
+  }
+
+  public ValueDeserializer<?> getDeserializer(Type genericType, List<Annotation> annotations) {
+    return Chains.stream(this).map(f -> f.getDeserializer(genericType, annotations)).findFirst()
+        .orElseThrow(() -> {
+          // TODO better exception?
+          return new IllegalArgumentException("No deserializer found for " + genericType);
+        });
   }
 }
