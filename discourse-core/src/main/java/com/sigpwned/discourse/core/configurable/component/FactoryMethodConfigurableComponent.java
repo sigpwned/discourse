@@ -21,13 +21,14 @@ package com.sigpwned.discourse.core.configurable.component;
 
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.configurable.ConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.component.element.ConfigurableElement;
-import com.sigpwned.discourse.core.configurable.component.element.FactoryMethodConfigurableElement;
-import com.sigpwned.discourse.core.configurable.component.element.InputConfigurableElement;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 /**
@@ -35,63 +36,72 @@ import java.util.stream.IntStream;
  */
 public final class FactoryMethodConfigurableComponent implements ConfigurableComponent {
 
-  private final Method factoryMethod;
-  private final FactoryMethodConfigurableElement instanceElement;
-  private final List<InputConfigurableElement> inputElements;
+  private final Method method;
+  private final List<ConfigurableElement> parameters;
+  private final ConfigurableElement result;
 
-  public FactoryMethodConfigurableComponent(Method factoryMethod) {
-    this.factoryMethod = requireNonNull(factoryMethod);
-    this.instanceElement = new FactoryMethodConfigurableElement(factoryMethod);
-    this.inputElements = IntStream.range(0, getFactoryMethod().getParameterCount()).mapToObj(
-        i -> new InputConfigurableElement(i, getFactoryMethod().getParameters()[i],
-            getFactoryMethod().getGenericParameterTypes()[i])).toList();
-    if (!Modifier.isPublic(factoryMethod.getModifiers())) {
-      throw new IllegalArgumentException("factory method must be public");
-    }
-    if (!Modifier.isStatic(factoryMethod.getModifiers())) {
-      throw new IllegalArgumentException("factory method must be static");
-    }
-    if (factoryMethod.getReturnType() == void.class) {
-      throw new IllegalArgumentException("factory method must have a non-void return type");
-    }
-    if (!factoryMethod.getReturnType().isAssignableFrom(getDeclaringClass())) {
-      throw new IllegalArgumentException(
-          "factory method must return a type assignable to the declaring class");
-    }
+  public FactoryMethodConfigurableComponent(Method method) {
+    this.method = requireNonNull(method);
+    this.result = new ConfigurableElement() {
+      @Override
+      public String getName() {
+        return ConfigurableElement.INSTANCE_NAME;
+      }
+
+      @Override
+      public Type getGenericType() {
+        return method.getDeclaringClass();
+      }
+
+      @Override
+      public List<Annotation> getAnnotations() {
+        return List.of(method.getAnnotatedReturnType().getAnnotations());
+      }
+    };
+    this.parameters = IntStream.range(0, getMethod().getParameterCount()).mapToObj(i -> {
+      final Parameter parameter = getMethod().getParameters()[i];
+      final Type genericType = parameter.getParameterizedType();
+      return (ConfigurableElement) new ConfigurableElement() {
+        @Override
+        public String getName() {
+          // TODO Uh-oh...
+          return parameter.getName();
+        }
+
+        @Override
+        public Type getGenericType() {
+          return genericType;
+        }
+
+        @Override
+        public List<Annotation> getAnnotations() {
+          return List.of(parameter.getAnnotations());
+        }
+      };
+    }).toList();
   }
 
   @Override
-  public Class<?> getDeclaringClass() {
-    return getFactoryMethod().getDeclaringClass();
+  public Method getCodeObject() {
+    return getMethod();
   }
 
   @Override
-  public Method getAccessibleObject() {
-    return getFactoryMethod();
+  public List<Annotation> getAnnotations() {
+    return List.of(getMethod().getAnnotations());
   }
 
   @Override
-  public List<ConfigurableElement> getElements() {
-    List<ConfigurableElement> elements = new ArrayList<>();
-    elements.add(getInstanceElement());
-    elements.addAll(getInputElements());
-    return elements;
-  }
-
-  public FactoryMethodConfigurableElement getInstanceElement() {
-    return instanceElement;
-  }
-
-  public List<InputConfigurableElement> getInputElements() {
-    return inputElements;
+  public List<ConfigurableElement> getSinks() {
+    return parameters;
   }
 
   @Override
-  public boolean isSink() {
-    return true;
+  public Optional<ConfigurableElement> getSource() {
+    return Optional.of(result);
   }
 
-  private Method getFactoryMethod() {
-    return factoryMethod;
+  private Method getMethod() {
+    return method;
   }
 }

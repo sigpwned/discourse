@@ -3,7 +3,7 @@ package com.sigpwned.discourse.core.phase;
 import com.sigpwned.discourse.core.configurable.ConfigurableClass;
 import com.sigpwned.discourse.core.configurable.ConfigurableClassScanner;
 import com.sigpwned.discourse.core.configurable.ConfigurableClassWalker;
-import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.ConfigurableComponent;
 import com.sigpwned.discourse.core.model.command.Discriminator;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +80,7 @@ public class CommandPhaseListener<T> implements PhaseListener {
       return;
     }
 
-    for(ConfigurableComponent )
+    for(ConfigurableComponent)
   }
 
   @Override

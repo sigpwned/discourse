@@ -2,8 +2,8 @@ package com.sigpwned.discourse.core.foo;
 
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
-import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
-import com.sigpwned.discourse.core.configurable.component.scanner.ConfigurableComponentScanner;
+import com.sigpwned.discourse.core.configurable.ConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.component.scanner.ConfigurableCandidateComponentScanner;
 import com.sigpwned.discourse.core.foo.BuildableClassWalker.ConstructorSelector;
 import com.sigpwned.discourse.core.foo.BuildableClassWalker.Visitor;
 import java.lang.reflect.Constructor;
@@ -27,7 +27,7 @@ public class ComponentStuff {
 
     ConfigurableInstanceFactoryScannerChain instanceFactoryScanner = context.get(
         InvocationContext.CONFIGURABLE_INSTANCE_FACTORY_PROVIDER_CHAIN_KEY).orElseThrow();
-    ConfigurableComponentScanner componentScanner = context.get(
+    ConfigurableCandidateComponentScanner componentScanner = context.get(
         InvocationContext.CONFIGURABLE_COMPONENT_SCANNER_CHAIN_KEY).orElseThrow();
 
     new BuildableClassWalker(new ConstructorSelector() {

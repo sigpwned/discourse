@@ -21,11 +21,15 @@ package com.sigpwned.discourse.core.configurable.component;
 
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.configurable.ConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.ConfigurableSink;
+import com.sigpwned.discourse.core.configurable.ConfigurableSource;
 import com.sigpwned.discourse.core.configurable.component.element.ConfigurableElement;
-import com.sigpwned.discourse.core.configurable.component.element.FieldConfigurableElement;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A {@link ConfigurableComponent} that is backed by a field.
@@ -33,39 +37,57 @@ import java.util.List;
 public final class FieldConfigurableComponent implements ConfigurableComponent {
 
   private final Field field;
-  private final FieldConfigurableElement element;
+  private final ConfigurableSource source;
+  private final ConfigurableSink sink;
 
-  public FieldConfigurableComponent(Field field) {
+  public FieldConfigurableComponent(String name, Field field) {
+    if (name == null) {
+      throw new NullPointerException();
+    }
     this.field = requireNonNull(field);
-    this.element = new FieldConfigurableElement(field);
+    this.element = new ConfigurableElement() {
+      @Override
+      public String getName() {
+        return name;
+      }
+
+      @Override
+      public Type getGenericType() {
+        return getField().getGenericType();
+      }
+
+      @Override
+      public List<Annotation> getAnnotations() {
+        return List.of(getField().getAnnotations());
+      }
+    };
   }
 
   @Override
-  public Class<?> getDeclaringClass() {
-    return getField().getDeclaringClass();
-  }
-
-  @Override
-  public Field getAccessibleObject() {
+  public Field getCodeObject() {
     return getField();
   }
 
   @Override
-  public List<ConfigurableElement> getElements() {
+  public List<Annotation> getAnnotations() {
+    return List.of(getField().getAnnotations());
+  }
+
+  @Override
+  public List<ConfigurableElement> getSinks() {
     return List.of(getElement());
   }
 
   @Override
-  public boolean isSink() {
-    return Modifier.isPublic(getField().getModifiers()) && !Modifier.isFinal(
-        getField().getModifiers());
+  public Optional<ConfigurableElement> getSource() {
+    return Optional.of(getElement());
   }
 
   private Field getField() {
     return field;
   }
 
-  private FieldConfigurableElement getElement() {
+  private ConfigurableElement getElement() {
     return element;
   }
 }

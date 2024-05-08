@@ -19,18 +19,18 @@
  */
 package com.sigpwned.discourse.core.chain;
 
-import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
-import com.sigpwned.discourse.core.configurable.component.scanner.ConfigurableComponentScanner;
+import com.sigpwned.discourse.core.configurable.ConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.component.scanner.ConfigurableCandidateComponentScanner;
 import com.sigpwned.discourse.core.util.Chains;
 import java.util.List;
 
 /**
- * A {@link ConfigurableComponentScanner} implementation that delegates to a chain of
+ * A {@link ConfigurableCandidateComponentScanner} implementation that delegates to a chain of
  * {@code ConfigurableComponentScanner} instances. Each link in the chain is consulted in order and
  * the results are concatenated.
  */
 public class ConfigurableComponentScannerChain extends
-    Chain<ConfigurableComponentScanner> implements ConfigurableComponentScanner {
+    Chain<ConfigurableCandidateComponentScanner> implements ConfigurableCandidateComponentScanner {
 
   public List<ConfigurableComponent> scanForComponents(Class<?> rawType) {
     return Chains.stream(this)

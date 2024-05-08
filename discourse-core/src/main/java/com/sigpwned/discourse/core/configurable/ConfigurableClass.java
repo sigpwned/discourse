@@ -23,7 +23,6 @@ import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.instance.factory.ConfigurableInstanceFactory;
 import java.util.List;
 import java.util.stream.Stream;

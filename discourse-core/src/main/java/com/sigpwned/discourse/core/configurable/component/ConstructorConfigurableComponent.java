@@ -22,13 +22,16 @@ package com.sigpwned.discourse.core.configurable.component;
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.configurable.ConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.ConfigurableSink;
+import com.sigpwned.discourse.core.configurable.ConfigurableSource;
 import com.sigpwned.discourse.core.configurable.component.element.ConfigurableElement;
-import com.sigpwned.discourse.core.configurable.component.element.ConstructorConfigurableElement;
-import com.sigpwned.discourse.core.configurable.component.element.InputConfigurableElement;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 /**
@@ -37,49 +40,43 @@ import java.util.stream.IntStream;
 public final class ConstructorConfigurableComponent implements ConfigurableComponent {
 
   private final Constructor<?> constructor;
-  private final ConstructorConfigurableElement instanceElement;
-  private final List<InputConfigurableElement> inputElements;
+  private final List<ConfigurableSink> sinks;
+  private final ConfigurableSource source;
 
   public ConstructorConfigurableComponent(Constructor<?> constructor) {
     this.constructor = requireNonNull(constructor);
-    this.instanceElement = new ConstructorConfigurableElement(constructor);
-    this.inputElements = IntStream.range(0, getConstructor().getParameterCount()).mapToObj(
-        i -> new InputConfigurableElement(i, getConstructor().getParameters()[i],
-            getConstructor().getGenericParameterTypes()[i])).toList();
-    if (!Modifier.isPublic(constructor.getModifiers())) {
-      throw new IllegalArgumentException("constructor must be public");
-    }
+    // TODO Is this the right return type?
+    this.source = new ConfigurableSource(ConfigurableElement.INSTANCE_NAME,
+        constructor.getAnnotatedReturnType().getType(),
+        List.of(constructor.getAnnotatedReturnType().getAnnotations()));
+    // TODO Where do we get parameter names?
+    // TODO Where do we get parameter coordinates?
+    this.sinks = IntStream.range(0, getConstructor().getParameterCount()).mapToObj(i -> {
+      final Parameter parameter = getConstructor().getParameters()[i];
+      final Type genericType = parameter.getParameterizedType();
+      return new ConfigurableSink(parameter.getName(), genericType,
+          List.of(parameter.getAnnotations()), emptyMap());
+    }).toList();
   }
 
   @Override
-  public Class<?> getDeclaringClass() {
-    return getConstructor().getDeclaringClass();
-  }
-
-  @Override
-  public Constructor<?> getAccessibleObject() {
+  public Constructor<?> getCodeObject() {
     return getConstructor();
   }
 
   @Override
-  public List<ConfigurableElement> getElements() {
-    List<ConfigurableElement> result = new ArrayList<>();
-    result.add(getInstanceElement());
-    result.addAll(getInputElements());
-    return unmodifiableList(result);
-  }
-
-  public ConstructorConfigurableElement getInstanceElement() {
-    return instanceElement;
-  }
-
-  public List<InputConfigurableElement> getInputElements() {
-    return inputElements;
+  public List<Annotation> getAnnotations() {
+    return List.of(getConstructor().getAnnotations());
   }
 
   @Override
-  public boolean isSink() {
-    return true;
+  public List<ConfigurableSink> getSinks() {
+    return sinks;
+  }
+
+  @Override
+  public Optional<ConfigurableSource> getSource() {
+    return Optional.of(source);
   }
 
   private Constructor<?> getConstructor() {

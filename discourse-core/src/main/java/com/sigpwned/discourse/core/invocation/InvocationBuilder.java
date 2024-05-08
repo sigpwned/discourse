@@ -31,7 +31,7 @@ import com.sigpwned.discourse.core.command.MultiCommand;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.configurable.ConfigurableClass;
 import com.sigpwned.discourse.core.configurable.ConfigurableClassWalker;
-import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.ConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.component.FieldConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.component.GetterConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.component.InputConfigurableComponent;

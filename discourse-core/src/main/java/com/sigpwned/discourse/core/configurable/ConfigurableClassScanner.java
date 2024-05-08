@@ -1,8 +1,7 @@
 package com.sigpwned.discourse.core.configurable;
 
 import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
-import com.sigpwned.discourse.core.configurable.component.scanner.ConfigurableComponentScanner;
+import com.sigpwned.discourse.core.configurable.component.scanner.ConfigurableCandidateComponentScanner;
 import com.sigpwned.discourse.core.configurable.instance.factory.ConfigurableInstanceFactory;
 import com.sigpwned.discourse.core.configurable.instance.factory.scanner.ConfigurableInstanceFactoryScanner;
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.List;
 public class ConfigurableClassScanner {
 
   private final ConfigurableInstanceFactoryScanner instanceFactoryScanner;
-  private final ConfigurableComponentScanner componentScanner;
+  private final ConfigurableCandidateComponentScanner componentScanner;
 
   public <T> ConfigurableClass<T> scan(Class<T> clazz) {
     // If we're not @Configurable, then this is not a valid class to scan.
@@ -19,6 +18,8 @@ public class ConfigurableClassScanner {
       throw new IllegalArgumentException(
           "Class %s is not @Configurable".formatted(clazz.getName()));
     }
+
+    List<Object> candidateComponents
 
     // The first thing we need to do is compute the set of "components" for this class, which is all
     // inputs, fields, getters, and setters. The set of all components for this class could include
@@ -41,7 +42,7 @@ public class ConfigurableClassScanner {
     return instanceFactoryScanner;
   }
 
-  private ConfigurableComponentScanner getComponentScanner() {
+  private ConfigurableCandidateComponentScanner getComponentScanner() {
     return componentScanner;
   }
 }

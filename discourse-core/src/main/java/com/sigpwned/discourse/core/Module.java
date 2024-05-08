@@ -27,7 +27,7 @@ import com.sigpwned.discourse.core.chain.DiscourseListenerChain;
 import com.sigpwned.discourse.core.chain.ExceptionFormatterChain;
 import com.sigpwned.discourse.core.chain.ValueDeserializerFactoryChain;
 import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
-import com.sigpwned.discourse.core.configurable.component.scanner.ConfigurableComponentScanner;
+import com.sigpwned.discourse.core.configurable.component.scanner.ConfigurableCandidateComponentScanner;
 import com.sigpwned.discourse.core.configurable.instance.factory.scanner.ConfigurableInstanceFactoryScanner;
 import com.sigpwned.discourse.core.format.exception.ExceptionFormatter;
 import com.sigpwned.discourse.core.listener.DiscourseListener;
@@ -63,7 +63,7 @@ public abstract class Module {
   }
 
   /**
-   * Register new {@link ConfigurableComponentScanner} instances with the given chain
+   * Register new {@link ConfigurableCandidateComponentScanner} instances with the given chain
    */
   public void registerConfigurableComponentScanners(ConfigurableComponentScannerChain chain) {
   }

@@ -34,9 +34,9 @@ import com.sigpwned.discourse.core.chain.DiscourseListenerChain;
 import com.sigpwned.discourse.core.chain.ExceptionFormatterChain;
 import com.sigpwned.discourse.core.chain.ValueDeserializerFactoryChain;
 import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
-import com.sigpwned.discourse.core.configurable.component.scanner.FieldConfigurableComponentScanner;
-import com.sigpwned.discourse.core.configurable.component.scanner.GetterConfigurableComponentScanner;
-import com.sigpwned.discourse.core.configurable.component.scanner.SetterConfigurableComponentScanner;
+import com.sigpwned.discourse.core.configurable.component.scanner.FieldConfigurableCandidateComponentScanner;
+import com.sigpwned.discourse.core.configurable.component.scanner.GetterConfigurableCandidateComponentScanner;
+import com.sigpwned.discourse.core.configurable.component.scanner.SetterConfigurableCandidateComponentScanner;
 import com.sigpwned.discourse.core.configurable.instance.factory.scanner.DefaultConstructorConfigurableInstanceFactoryScanner;
 import com.sigpwned.discourse.core.configurable.instance.factory.scanner.AnnotatedConstructorConfigurableInstanceFactoryScanner;
 import com.sigpwned.discourse.core.format.exception.ArgumentExceptionFormatter;
@@ -213,18 +213,18 @@ public class DefaultModule extends Module {
    * </p>
    *
    * <ul>
-   *   <li>{@link FieldConfigurableComponentScanner}</li>
-   *   <li>{@link GetterConfigurableComponentScanner}</li>
-   *   <li>{@link SetterConfigurableComponentScanner}</li>
+   *   <li>{@link FieldConfigurableCandidateComponentScanner}</li>
+   *   <li>{@link GetterConfigurableCandidateComponentScanner}</li>
+   *   <li>{@link SetterConfigurableCandidateComponentScanner}</li>
    * </ul>
    *
    * @param chain the chain to register the component scanners into
    */
   @Override
   public void registerConfigurableComponentScanners(ConfigurableComponentScannerChain chain) {
-    chain.addLast(FieldConfigurableComponentScanner.INSTANCE);
-    chain.addLast(GetterConfigurableComponentScanner.INSTANCE);
-    chain.addLast(SetterConfigurableComponentScanner.INSTANCE);
+    chain.addLast(FieldConfigurableCandidateComponentScanner.INSTANCE);
+    chain.addLast(GetterConfigurableCandidateComponentScanner.INSTANCE);
+    chain.addLast(SetterConfigurableCandidateComponentScanner.INSTANCE);
   }
 
   /**

@@ -13,11 +13,15 @@ import static java.util.stream.Collectors.toUnmodifiableSet;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.accessor.naming.AccessorNamingScheme;
 import com.sigpwned.discourse.core.command.attribute.AttributeScanner;
+import com.sigpwned.discourse.core.configurable.CandidateConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.ConfigurableClass;
 import com.sigpwned.discourse.core.configurable.ConfigurableClassScanner;
-import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.ConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.ConfigurableComponentFactory;
+import com.sigpwned.discourse.core.configurable.ConfigurableSink;
 import com.sigpwned.discourse.core.configurable.component.ConfigurableComponentComparator;
 import com.sigpwned.discourse.core.configurable.component.element.ConfigurableElement;
+import com.sigpwned.discourse.core.configurable.component.scanner.ConfigurableCandidateComponentScanner;
 import com.sigpwned.discourse.core.configurable.instance.factory.ConfigurableInstanceFactory;
 import com.sigpwned.discourse.core.exception.bean.AssignmentFailureBeanException;
 import com.sigpwned.discourse.core.exception.bean.NewInstanceFailureBeanException;
@@ -25,6 +29,7 @@ import com.sigpwned.discourse.core.exception.syntax.RequiredParametersMissingSyn
 import com.sigpwned.discourse.core.model.command.Discriminator;
 import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
 import com.sigpwned.discourse.core.phase2.FooAttribute;
+import com.sigpwned.discourse.core.phase2.FooFactory;
 import com.sigpwned.discourse.core.util.ConfigurationParameters;
 import com.sigpwned.discourse.core.util.MoreLists;
 import com.sigpwned.discourse.core.util.MoreSets;
@@ -48,7 +53,6 @@ public class CommandScanner {
 
   public static record ComponentElement(ConfigurableComponent component,
       ConfigurableElement element) {
-
   }
 
   public static record NamedComponentElement(String name, ConfigurableComponent component,
@@ -60,6 +64,11 @@ public class CommandScanner {
       Map<Object, String> coordinates) {
 
   }
+
+  public static record ComponentSink(ConfigurableComponent component, ConfigurableSink sink) {
+
+  }
+
 
   protected static class AttributeBucketBuilder {
 
@@ -162,6 +171,28 @@ public class CommandScanner {
   private final AttributeScanner attributeScanner;
 
   public <T> Command<T> scan(Class<T> clazz) {
+    // TODO how do we do the ignore?
+    ConfigurableCandidateComponentScanner candidateComponentScanner = getCandidateComponentScanner();
+    List<CandidateConfigurableComponent> candidateComponents = candidateComponentScanner.scanForCandidateComponents(
+        clazz).stream().distinct().toList();
+
+    // TODO how do we do the naming?
+    ConfigurableComponentFactory componentFactory = getComponentFactory();
+    List<ConfigurableComponent> components = candidateComponents.stream().flatMap(
+        candidateComponent -> componentFactory.createConfigurableComponent(candidateComponent)
+            .stream()).toList();
+
+    components.stream().flatMap(component -> component.getSinks().stream()
+            .map(sink -> new ComponentSink(component, sink)))
+        .filter(cs -> !cs.sink().getCoordinates().isEmpty())
+        .map(cs -> new FooAttribute(cs.sink().getName(), cs.sink().getCoordinates(),
+            component.component().getMapper(), component.component().getReducer()))
+        .toList();
+
+    Map<String,Object> args=Map.of();
+
+
+
     ConfigurableClass<T> configurableClazz = getConfigurableScanner().scan(clazz);
 
     // Combine them together into one list
@@ -169,7 +200,7 @@ public class CommandScanner {
 
     // Unpack the elements
     List<ComponentElement> elements = components.stream().flatMap(
-        component -> component.getElements().stream()
+        component -> component.getSinks().stream()
             .map(element -> new ComponentElement(component, element))).toList();
 
     // Name them
@@ -273,24 +304,26 @@ public class CommandScanner {
       String name = bucket.getName();
       Type genericType = bucket.getGenericType();
       Map<Object, String> coordinates = bucket.getCoordinates();
-      Function<String, Object> mapper = bucket.getComponents().stream().map(
-          named -> named.component().getMapper()).reduce(Function.identity(), Function::andThen);
-      Function<List<Object>, Object> reducer = bucket.getComponents().stream().map(
-          named -> named.component().getReducer()).reduce(Function.identity(), Function::andThen);
+      Function<String, Object> mapper = bucket.getComponents().stream()
+          .map(named -> named.component().getMapper())
+          .reduce(Function.identity(), Function::andThen);
+      Function<List<Object>, Object> reducer = bucket.getComponents().stream()
+          .map(named -> named.component().getReducer())
+          .reduce(Function.identity(), Function::andThen);
       return new FooAttribute(name, genericType, coordinates, mapper, reducer);
     }).toList();
 
     // This is Copilot Generated code. Need to review.
-    List<Consumer<Map<String, Object>>> assemblySteps = derived.stream().sorted(
-        Comparator.comparing(AttributeBucket::getName, Comparator.reverseOrder())).map(
-        bucket -> {
+    List<Consumer<Map<String, Object>>> assemblySteps = derived.stream()
+        .sorted(Comparator.comparing(AttributeBucket::getName, Comparator.reverseOrder()))
+        .map(bucket -> {
           String name = bucket.getName();
           List<NamedComponentElement> components = bucket.getComponents();
           Set<String> expectedArgNames = components.stream().map(NamedComponentElement::name)
               .collect(toSet());
           Function<Map<String, Object>, Object> factoryFunction = arguments -> {
-            Map<String, Object> expectedArgs = components.stream().collect(
-                toUnmodifiableMap(NamedComponentElement::name, named -> {
+            Map<String, Object> expectedArgs = components.stream()
+                .collect(toUnmodifiableMap(NamedComponentElement::name, named -> {
                   ConfigurableComponent component = named.component();
                   ConfigurableElement element = named.element();
                   return component.getMapper().apply(arguments.get(element.getName()));

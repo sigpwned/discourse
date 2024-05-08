@@ -67,7 +67,7 @@ public final class Reflection {
    * @param method the method to check
    * @return {@code true} if the given method is a factory method
    */
-  public static boolean isFactoryMethod(Method method) {
+  public static boolean hasFactoryMethodSignature(Method method) {
     return !void.class.equals(method.getReturnType()) && Modifier.isStatic(method.getModifiers());
   }
 

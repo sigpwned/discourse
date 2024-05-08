@@ -21,11 +21,14 @@ package com.sigpwned.discourse.core.configurable.component;
 
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.configurable.ConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.component.element.ConfigurableElement;
-import com.sigpwned.discourse.core.configurable.component.element.GetterConfigurableElement;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A {@link ConfigurableComponent} that is backed by a getter method.
@@ -33,11 +36,10 @@ import java.util.List;
 public final class GetterConfigurableComponent implements ConfigurableComponent {
 
   private final Method method;
-  private final GetterConfigurableElement element;
+  private final ConfigurableElement element;
 
-  public GetterConfigurableComponent(Method method) {
+  public GetterConfigurableComponent(String name, Method method) {
     this.method = requireNonNull(method);
-    this.element = new GetterConfigurableElement(method);
     if (method.getParameterCount() != 0) {
       throw new IllegalArgumentException("method must not have parameters");
     }
@@ -47,34 +49,47 @@ public final class GetterConfigurableComponent implements ConfigurableComponent 
     if (Modifier.isStatic(method.getModifiers())) {
       throw new IllegalArgumentException("method must not be static");
     }
+
+    this.element = new ConfigurableElement() {
+      private final List<Annotation> annotations = List.of(
+          method.getAnnotatedReturnType().getAnnotations());
+
+      @Override
+      public String getName() {
+        return name;
+      }
+
+      @Override
+      public Type getGenericType() {
+        return method.getGenericReturnType();
+      }
+
+      @Override
+      public List<Annotation> getAnnotations() {
+        return annotations;
+      }
+    };
   }
 
   @Override
-  public Class<?> getDeclaringClass() {
-    return getMethod().getDeclaringClass();
-  }
-
-  @Override
-  public Method getAccessibleObject() {
+  public Method getCodeObject() {
     return getMethod();
   }
 
   @Override
-  public boolean isSink() {
-    // A getter is never a sink, by definition.
-    return false;
+  public List<Annotation> getAnnotations() {
+    return List.of(getMethod().getAnnotations());
   }
 
-  @Override
-  public List<ConfigurableElement> getElements() {
-    return List.of(getElement());
+  public List<ConfigurableElement> getSinks() {
+    return List.of();
+  }
+
+  public Optional<ConfigurableElement> getSource() {
+    return Optional.of(element);
   }
 
   private Method getMethod() {
     return method;
-  }
-
-  private GetterConfigurableElement getElement() {
-    return element;
   }
 }

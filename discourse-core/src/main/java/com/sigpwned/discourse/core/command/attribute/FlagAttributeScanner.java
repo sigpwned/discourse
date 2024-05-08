@@ -2,7 +2,7 @@ package com.sigpwned.discourse.core.command.attribute;
 
 import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.command.model.AttributeMetadata;
-import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.ConfigurableComponent;
 import com.sigpwned.discourse.core.phase.parse.ParsePhase;
 import com.sigpwned.discourse.core.util.Streams;
 import java.util.HashMap;

@@ -17,12 +17,12 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.configurable.component;
+package com.sigpwned.discourse.core.configurable;
 
-import com.sigpwned.discourse.core.configurable.ConfigurableClass;
 import com.sigpwned.discourse.core.configurable.component.element.ConfigurableElement;
-import java.lang.reflect.AccessibleObject;
+import java.lang.annotation.Annotation;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A container for {@link ConfigurableElement}s in a {@link ConfigurableClass}. It is one-to-one
@@ -31,11 +31,11 @@ import java.util.List;
  */
 public interface ConfigurableComponent {
 
-  public Class<?> getDeclaringClass();
+  public Object getCodeObject();
 
-  public AccessibleObject getAccessibleObject();
+  public List<Annotation> getAnnotations();
 
-  public List<ConfigurableElement> getElements();
+  public List<ConfigurableSink> getSinks();
 
-  public boolean isSink();
+  public Optional<ConfigurableSource> getSource();
 }

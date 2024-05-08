@@ -1,7 +1,7 @@
 package com.sigpwned.discourse.core.command.attribute;
 
 import com.sigpwned.discourse.core.command.model.AttributeMetadata;
-import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.ConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.component.element.ConfigurableElement;
 import java.util.Optional;
 

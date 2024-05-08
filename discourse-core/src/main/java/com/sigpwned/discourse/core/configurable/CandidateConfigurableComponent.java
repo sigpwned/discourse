@@ -17,17 +17,16 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.configurable.component.scanner;
+package com.sigpwned.discourse.core.configurable;
 
-import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.component.element.ConfigurableElement;
+import java.lang.annotation.Annotation;
 import java.util.List;
+import java.util.Optional;
 
-/**
- * A scanner that scans a {@link Configurable @Configurable}-annotated class for
- * {@link ConfigurableComponent}s.
- */
-public interface ConfigurableComponentScanner {
+public interface CandidateConfigurableComponent {
 
-  public List<ConfigurableComponent> scanForComponents(Class<?> rawType);
+  public Object getCodeObject();
+
+  public List<Annotation> getAnnotations();
 }

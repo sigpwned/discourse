@@ -19,29 +19,39 @@
  */
 package com.sigpwned.discourse.core.configurable.component.scanner;
 
-import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
-import com.sigpwned.discourse.core.configurable.component.SetterConfigurableComponent;
-import com.sigpwned.discourse.core.util.ClassWalkers;
-import com.sigpwned.discourse.core.util.Streams;
+import com.sigpwned.discourse.core.configurable.CandidateConfigurableComponent;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.List;
 
 /**
- * A {@link ConfigurableComponentScanner} that scans for instance setter {@link Method methods}. An
- * instance setter method is a method that takes exactly one argument, returns void, and is not
- * static. This scanner does not care about a method's name or visibility.
+ * A {@link ConfigurableCandidateComponentScanner} that scans for instance setter
+ * {@link Method methods}. An instance setter method is a method that takes exactly one argument,
+ * returns void, and is not static. This scanner does not care about a method's name or visibility.
  */
-public class SetterConfigurableComponentScanner implements ConfigurableComponentScanner {
+public class SetterConfigurableCandidateComponentScanner implements
+    ConfigurableCandidateComponentScanner {
 
-  public static SetterConfigurableComponentScanner INSTANCE = new SetterConfigurableComponentScanner();
+  public static SetterConfigurableCandidateComponentScanner INSTANCE = new SetterConfigurableCandidateComponentScanner();
 
   @Override
-  public List<ConfigurableComponent> scanForComponents(Class<?> rawType) {
-    return ClassWalkers.streamClassAndSuperclasses(rawType)
-        .mapMulti(Streams.filterAndCast(Method.class)).filter(
+  public List<CandidateConfigurableComponent> scanForCandidateComponents(Class<?> rawType) {
+    return Arrays.stream(rawType.getDeclaredMethods()).filter(
             method -> method.getParameterCount() == 1 && void.class.equals(method.getReturnType())
                 && !Modifier.isStatic(method.getModifiers()))
-        .<ConfigurableComponent>map(SetterConfigurableComponent::new).toList();
+        .<CandidateConfigurableComponent>map(method -> new CandidateConfigurableComponent() {
+
+          @Override
+          public Object getCodeObject() {
+            return method;
+          }
+
+          @Override
+          public List<Annotation> getAnnotations() {
+            return List.of(method.getAnnotations());
+          }
+        }).toList();
   }
 }

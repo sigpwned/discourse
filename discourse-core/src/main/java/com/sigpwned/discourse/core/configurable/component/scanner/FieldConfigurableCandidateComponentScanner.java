@@ -19,27 +19,36 @@
  */
 package com.sigpwned.discourse.core.configurable.component.scanner;
 
-import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
-import com.sigpwned.discourse.core.configurable.component.FieldConfigurableComponent;
-import com.sigpwned.discourse.core.util.ClassWalkers;
-import com.sigpwned.discourse.core.util.Streams;
+import com.sigpwned.discourse.core.configurable.CandidateConfigurableComponent;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.List;
 
 /**
- * A {@link ConfigurableComponentScanner} that scans for instance (i.e., non-static)
+ * A {@link ConfigurableCandidateComponentScanner} that scans for instance (i.e., non-static)
  * {@link Field fields}. This implementation does not care about the visibility of this field.
  */
-public class FieldConfigurableComponentScanner implements ConfigurableComponentScanner {
+public class FieldConfigurableCandidateComponentScanner implements
+    ConfigurableCandidateComponentScanner {
 
-  public static final FieldConfigurableComponentScanner INSTANCE = new FieldConfigurableComponentScanner();
+  public static final FieldConfigurableCandidateComponentScanner INSTANCE = new FieldConfigurableCandidateComponentScanner();
 
   @Override
-  public List<ConfigurableComponent> scanForComponents(Class<?> rawType) {
-    return ClassWalkers.streamClassAndSuperclasses(rawType)
-        .mapMulti(Streams.filterAndCast(Field.class))
+  public List<CandidateConfigurableComponent> scanForCandidateComponents(Class<?> rawType) {
+    return Arrays.stream(rawType.getDeclaredFields())
         .filter(field -> !Modifier.isStatic(field.getModifiers()))
-        .<ConfigurableComponent>map(FieldConfigurableComponent::new).toList();
+        .<CandidateConfigurableComponent>map(field -> new CandidateConfigurableComponent() {
+          @Override
+          public Object getCodeObject() {
+            return field;
+          }
+
+          @Override
+          public List<Annotation> getAnnotations() {
+            return List.of(field.getAnnotations());
+          }
+        }).toList();
   }
 }

@@ -21,7 +21,7 @@ package com.sigpwned.discourse.core.configurable.component.element;
 
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.configurable.component.ConfigurableComponent;
+import com.sigpwned.discourse.core.configurable.ConfigurableComponent;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;

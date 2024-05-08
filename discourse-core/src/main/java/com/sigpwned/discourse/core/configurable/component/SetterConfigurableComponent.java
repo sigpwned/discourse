@@ -21,60 +21,74 @@ package com.sigpwned.discourse.core.configurable.component;
 
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.configurable.ConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.component.element.ConfigurableElement;
-import com.sigpwned.discourse.core.configurable.component.element.SetterConfigurableElement;
-import java.lang.reflect.AccessibleObject;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * A {@link ConfigurableComponent} that is backed by a setter method.
+ * A {@link ConfigurableComponent} that is backed by a getter method.
  */
 public final class SetterConfigurableComponent implements ConfigurableComponent {
 
   private final Method method;
-  private final SetterConfigurableElement element;
+  private final ConfigurableElement element;
 
-  public SetterConfigurableComponent(Method method) {
+  public SetterConfigurableComponent(String name, Method method) {
     this.method = requireNonNull(method);
-    this.element = new SetterConfigurableElement(method);
     if (method.getParameterCount() != 1) {
-      throw new IllegalArgumentException("method must have exactly one parameter");
+      throw new IllegalArgumentException("method must have exactly 1 parameter");
     }
     if (method.getReturnType() != void.class) {
-      throw new IllegalArgumentException("method must have a void return type");
+      throw new IllegalArgumentException("method must have void return type");
     }
     if (Modifier.isStatic(method.getModifiers())) {
       throw new IllegalArgumentException("method must not be static");
     }
+
+    this.element = new ConfigurableElement() {
+      private final List<Annotation> annotations = List.of(method.getParameterAnnotations()[0]);
+
+      @Override
+      public String getName() {
+        return name;
+      }
+
+      @Override
+      public Type getGenericType() {
+        return method.getGenericParameterTypes()[0];
+      }
+
+      @Override
+      public List<Annotation> getAnnotations() {
+        return annotations;
+      }
+    };
   }
 
   @Override
-  public Class<?> getDeclaringClass() {
-    return getMethod().getDeclaringClass();
-  }
-
-  @Override
-  public AccessibleObject getAccessibleObject() {
+  public Method getCodeObject() {
     return getMethod();
   }
 
   @Override
-  public boolean isSink() {
-    return Modifier.isPublic(getMethod().getModifiers());
+  public List<Annotation> getAnnotations() {
+    return List.of(getMethod().getAnnotations());
   }
 
-  @Override
-  public List<ConfigurableElement> getElements() {
-    return List.of(getElement());
+  public List<ConfigurableElement> getElement() {
+    return List.of(element);
+  }
+
+  public Optional<ConfigurableElement> getElement() {
+    return Optional.empty();
   }
 
   private Method getMethod() {
     return method;
-  }
-
-  private SetterConfigurableElement getElement() {
-    return element;
   }
 }
