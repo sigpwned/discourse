@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 public class PhasePipeline {
 
-  public Object go(List<String> args) {
+  public Map<String, Object> go(List<String> args) {
     // Resolve Phase. Does this belong in the phase pipeline?
     Map.Entry<List<String>, Object> choice = resolvePhase(args);
     List<String> prefix = choice.getKey();

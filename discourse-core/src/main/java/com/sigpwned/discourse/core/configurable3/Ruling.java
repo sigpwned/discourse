@@ -25,7 +25,7 @@ public class Ruling {
   }
 
   /**
-   * Given a set of start symbols, return the minimal sets of symbols are guaranteed to be
+   * Given a set of start symbols, return the maximal sets of symbols are guaranteed to be
    * producible and consumable under the given rules.
    *
    * @param start the set of start symbols

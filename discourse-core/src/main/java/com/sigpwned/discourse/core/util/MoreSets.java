@@ -22,6 +22,7 @@ package com.sigpwned.discourse.core.util;
 import static java.util.Collections.*;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 public final class MoreSets {
@@ -62,5 +63,17 @@ public final class MoreSets {
       result.retainAll(xs);
     }
     return unmodifiableSet(result);
+  }
+
+  /**
+   * Returns a set containing either the contents of value if it is present or an empty set if it is
+   * not.
+   *
+   * @param value the optional value
+   * @param <T>   the type of the value
+   * @return a set containing either the contents of value if it is present or an empty set if it is
+   */
+  public static <T> Set<T> of(Optional<T> value) {
+    return value.map(Set::of).orElseGet(Set::of);
   }
 }

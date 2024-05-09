@@ -2,6 +2,7 @@ package com.sigpwned.discourse.core.configurable3;
 
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.configurable3.rule.CandidateRule;
 import com.sigpwned.discourse.core.configurable3.rule.DetectedRule;
 import com.sigpwned.discourse.core.configurable3.rule.NamedRule;
@@ -35,7 +36,27 @@ public class ConfigurableClassScanner {
     this.listener = requireNonNull(listener);
   }
 
+  /**
+   * There must be a way to instantiate these classes. That does not mean they must not be abstract,
+   * or that they must have a public default constructor, or even a public constructor. It just
+   * means that there must be a way to instantiate them. A public static factory method, for
+   * example, would be sufficient.
+   *
+   * @param clazz
+   * @param <T>
+   * @return
+   */
   public <T> ConfigurableClass<T> scan(Class<T> clazz) {
+    if (clazz.isPrimitive()) {
+      // We disallow primitive functions explicitly
+      throw new IllegalArgumentException("Cannot scan primitive class " + clazz);
+    }
+
+    Configurable configurable = clazz.getAnnotation(Configurable.class);
+    if (configurable == null) {
+      throw new IllegalArgumentException("Class " + clazz + " is not annotated with @Configurable");
+    }
+
     List<CandidateSyntax> candidateSyntax = nominateSyntax(clazz);
     List<DetectedSyntax> detectedSyntax = detectSyntax(clazz, candidateSyntax);
     List<NamedSyntax> syntax = nameSyntax(clazz, detectedSyntax);

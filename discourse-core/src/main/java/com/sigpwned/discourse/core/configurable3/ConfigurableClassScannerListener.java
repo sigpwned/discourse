@@ -8,48 +8,48 @@ import com.sigpwned.discourse.core.configurable3.syntax.DetectedSyntax;
 import com.sigpwned.discourse.core.configurable3.syntax.NamedSyntax;
 import java.util.List;
 
-public class ConfigurableClassScannerListener {
+public interface ConfigurableClassScannerListener {
 
-  public void beforeNominateSyntax(Class<?> clazz) {
+  default void beforeNominateSyntax(Class<?> clazz) {
   }
 
-  public void afterNominateSyntax(Class<?> clazz, List<CandidateSyntax> candidateSyntaxes) {
+  default void afterNominateSyntax(Class<?> clazz, List<CandidateSyntax> candidateSyntaxes) {
   }
 
-  public void beforeDetectSyntax(Class<?> clazz, List<CandidateSyntax> candidateSyntaxes) {
+  default void beforeDetectSyntax(Class<?> clazz, List<CandidateSyntax> candidateSyntaxes) {
   }
 
-  public void afterDetectSyntax(Class<?> clazz, List<CandidateSyntax> candidateSyntaxes,
+  default void afterDetectSyntax(Class<?> clazz, List<CandidateSyntax> candidateSyntaxes,
       List<DetectedSyntax> detectedSyntaxes) {
   }
 
-  public void beforeNameSyntax(Class<?> clazz, List<DetectedSyntax> detectedSyntaxes) {
+  default void beforeNameSyntax(Class<?> clazz, List<DetectedSyntax> detectedSyntaxes) {
   }
 
-  public void afterNameSyntax(Class<?> clazz, List<DetectedSyntax> detectedSyntaxes,
+  default void afterNameSyntax(Class<?> clazz, List<DetectedSyntax> detectedSyntaxes,
       List<NamedSyntax> namedSyntaxes) {
   }
 
-  public void beforeNominateRules(Class<?> clazz, List<NamedSyntax> namedSyntaxes) {
+  default void beforeNominateRules(Class<?> clazz, List<NamedSyntax> namedSyntaxes) {
   }
 
-  public void afterNominateRules(Class<?> clazz, List<NamedSyntax> namedSyntaxes,
+  default void afterNominateRules(Class<?> clazz, List<NamedSyntax> namedSyntaxes,
       List<CandidateRule> candidateRules) {
   }
 
-  public void beforeDetectRules(Class<?> clazz, List<NamedSyntax> namedSyntaxes,
+  default void beforeDetectRules(Class<?> clazz, List<NamedSyntax> namedSyntaxes,
       List<CandidateRule> candidateRules) {
   }
 
-  public void afterDetectRules(Class<?> clazz, List<NamedSyntax> namedSyntaxes,
+  default void afterDetectRules(Class<?> clazz, List<NamedSyntax> namedSyntaxes,
       List<CandidateRule> candidateRules, List<DetectedRule> detectedRules) {
   }
 
-  public void beforeNameRules(Class<?> clazz, List<NamedSyntax> namedSyntaxes,
+  default void beforeNameRules(Class<?> clazz, List<NamedSyntax> namedSyntaxes,
       List<DetectedRule> detectedRules) {
   }
 
-  public void afterNameRules(Class<?> clazz, List<NamedSyntax> namedSyntaxes,
+  default void afterNameRules(Class<?> clazz, List<NamedSyntax> namedSyntaxes,
       List<DetectedRule> detectedRules, List<NamedRule> namedRules) {
   }
 

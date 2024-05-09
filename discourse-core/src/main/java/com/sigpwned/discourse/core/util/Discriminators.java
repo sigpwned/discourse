@@ -24,10 +24,17 @@ import com.sigpwned.discourse.core.annotation.Subcommand;
 import com.sigpwned.discourse.core.exception.configuration.InvalidDiscriminatorConfigurationException;
 import com.sigpwned.discourse.core.model.command.Discriminator;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public final class Discriminators {
 
   private Discriminators() {
+  }
+
+  public static final Pattern PATTERN = Pattern.compile("[a-zA-Z0-9](?:[-._]?[a-zA-Z0-9])*");
+
+  public static boolean isValid(String s) {
+    return PATTERN.matcher(s).matches();
   }
 
   public static final Discriminator HELP = Discriminator.fromString("help");
