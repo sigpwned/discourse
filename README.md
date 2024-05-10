@@ -82,13 +82,14 @@ As you can see, basic Discourse usage is pretty straightforward:
 
 * Create a "command" class and annotate it with `@Configurable`
 * Add parameters to the class using `@FlagParameter`, `@OptionParameter`,
-  and `@PositionalParameter`. There are many ways to do this, but public fields are the easiest.
+  and `@PositionalParameter`. There are many ways to do this, but public non-final fields are the
+  easiest.
 * Use the discourse framework to parse the command line arguments and build the command object, as
   in `Discourse.configuration(HelloWorld.class, args)` above
 * Given the newly-created command object representing the command line arguments, perform your
   application's business logic. You can do this by adding a `run()` method to the command class and
   calling it directly, as above; treating the command object as a parameter to an alternative main
-  method; or many, may other ways. It's up to you!
+  method; or many, may other ways. It's just a Java object. It's up to you!
 
 Discourse supports a wide variety of Java types out of the box:
 
@@ -123,6 +124,36 @@ Discourse supports a wide variety of command line idioms, including:
 * Help and version tags
 * Validation methods
 * And more!
+
+## Framework Structure
+
+Discourse uses a 4-step process called the "invocation pipeline" to interpret command line arguments
+and build a command object. The pipeline looks like this:
+
+         ┌────────────────────────────────────────────────────────────┐
+         │                       Invocation Pipeline                  │
+         ├───────────┬─────────────────┬───────────────┬──────────────┤
+         │  Scan ────┼───> Resolve ────┼───> Parse ────┼───> Eval     │
+         └───────────┴─────────────────┴───────────────┴──────────────┘
+
+The `InvocationPipeline` object is a user-facing object that encapsulates the entire pipeline. For
+reference, the `Discourse` util class is simply a wrapper around the invocation pipeline. Pipeline
+instances are created using the `InvocationPipelineBuilder` object, which has many built-in hooks
+designed to allow the user to extend the framework.
+
+### The Invocation Pipeline
+
+The invocation pipeline steps perform the following functions:
+
+1. `scan` -- Scan the given command class to extract instructions for how to interpret command line
+   arguments and how to build the command object.
+2. `resolve` -- Determine which specific command among all available commands the user is trying to
+   invoke
+3. `parse` -- Parse the command line arguments into a map of keys and values
+4. `eval` -- Evaluate the rules embedded in the command class to instantiate and initialize the
+   command class instance to return to the user
+
+
 
 ## Structure
 
@@ -179,7 +210,6 @@ The `Command` object is created by
 
 ArgsParameter = Name + Coordinates
 ConfigurationProperty = Name + Type + Coordinates
-
 
 ### Architecture
 

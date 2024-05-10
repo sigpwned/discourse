@@ -1,18 +1,18 @@
 package com.sigpwned.discourse.core.phase2;
 
-import com.sigpwned.discourse.core.phase.PhaseListener;
-import com.sigpwned.discourse.core.phase.parse.ParsePhase;
+import com.sigpwned.discourse.core.invocation.phase.parse.ParsePipelineListener;
+import com.sigpwned.discourse.core.invocation.phase.parse.parse.ParsePhase;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class FooPhaseListener implements PhaseListener {
+public class FooPhaseListener implements ParsePipelineListener {
 
   private final FooFactory factory;
 
   @Override
-  public void beforeParse(Map<String, String> vocabulary, List<String> args) {
+  public void beforeParse(Map<String, String> vocabulary, List<String> commandArgs) {
     // Register all our syntax. The syntax to add is determined by the
     for (FooAttribute attribute : factory.getAttributes()) {
       for (Map.Entry<Object, String> coordinate : attribute.getCoordinates().entrySet()) {

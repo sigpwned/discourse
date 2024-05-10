@@ -2,7 +2,7 @@
  * =================================LICENSE_START==================================
  * discourse-core
  * ====================================SECTION=====================================
- * Copyright (C) 2022 - 2024 Andy Boothe
+ * Copyright (C) 2022 Andy Boothe
  * ====================================SECTION=====================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,42 +17,19 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.chain;
-
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
+package com.sigpwned.discourse.core.invocation.phase.parse.parse.model.token;
 
 /**
- * Implements the chain of responsibility pattern.
+ * A logical "end of input" token. This token does not appear in the input, but is added to the
+ * arguments during parsing to demarcate the end of the input.
  */
-public class Chain<T> implements Iterable<T> {
+public final class EofArgumentToken extends ArgumentToken {
 
-  private final LinkedList<T> elements = new LinkedList<>();
+  public static final EofArgumentToken INSTANCE = new EofArgumentToken();
 
-  public void addFirst(T element) {
-    elements.addFirst(element);
-  }
+  public static final String TEXT = "$";
 
-  public void addLast(T element) {
-    elements.addLast(element);
-  }
-
-  public boolean remove(T element) {
-    return elements.remove(element);
-  }
-
-  public void removeIf(Predicate<T> predicate) {
-    elements.removeIf(predicate);
-  }
-
-  @Override
-  public Iterator<T> iterator() {
-    return elements.iterator();
-  }
-
-  public Stream<T> stream() {
-    return elements.stream();
+  public EofArgumentToken() {
+    super(TEXT);
   }
 }

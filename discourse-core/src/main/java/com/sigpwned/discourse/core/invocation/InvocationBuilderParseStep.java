@@ -23,8 +23,8 @@ import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.phase.parse.ArgumentsParser;
-import com.sigpwned.discourse.core.phase.parse.ArgumentsParser.Handler;
+import com.sigpwned.discourse.core.invocation.phase.parse.parse.ArgumentsParser;
+import com.sigpwned.discourse.core.invocation.phase.parse.parse.ArgumentsParser.Handler;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.model.coordinate.NameCoordinate;

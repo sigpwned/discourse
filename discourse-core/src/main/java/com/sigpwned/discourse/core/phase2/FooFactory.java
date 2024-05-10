@@ -3,7 +3,7 @@ package com.sigpwned.discourse.core.phase2;
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.toUnmodifiableMap;
 
-import com.sigpwned.discourse.core.phase.assemble.AssemblePhase;
+import com.sigpwned.discourse.core.invocation.phase.parse.assemble.AssemblePhase;
 import com.sigpwned.discourse.core.util.MoreSets;
 import java.util.List;
 import java.util.Map;

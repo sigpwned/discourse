@@ -4,7 +4,7 @@ import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.configurable2.syntax.ConfigurableSyntax;
 import com.sigpwned.discourse.core.configurable2.syntax.ConfigurableSyntaxCandidate;
 import com.sigpwned.discourse.core.configurable2.syntax.ConfigurableSyntaxFactory;
-import com.sigpwned.discourse.core.phase.parse.ParsePhase;
+import com.sigpwned.discourse.core.invocation.phase.parse.parse.ParsePhase;
 import com.sigpwned.discourse.core.util.Streams;
 import java.util.Map;
 import java.util.Optional;
