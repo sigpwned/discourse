@@ -1,8 +1,8 @@
 package com.sigpwned.discourse.core.invocation.phase.resolve.impl;
 
-import com.sigpwned.discourse.core.invocation.model.command.Command;
-import com.sigpwned.discourse.core.invocation.model.command.RootCommand;
-import com.sigpwned.discourse.core.invocation.phase.resolve.model.CommandDereference;
+import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.RootCommand;
+import com.sigpwned.discourse.core.invocation.model.CommandDereference;
 import java.util.List;
 
 public interface DefaultResolvePhaseListener {

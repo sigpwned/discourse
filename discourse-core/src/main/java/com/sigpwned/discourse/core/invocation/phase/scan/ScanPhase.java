@@ -1,6 +1,6 @@
 package com.sigpwned.discourse.core.invocation.phase.scan;
 
-import com.sigpwned.discourse.core.invocation.model.command.RootCommand;
+import com.sigpwned.discourse.core.command.RootCommand;
 
 public interface ScanPhase {
 

@@ -1,6 +1,6 @@
 package com.sigpwned.discourse.core.invocation.phase;
 
-import com.sigpwned.discourse.core.invocation.model.command.Command;
+import com.sigpwned.discourse.core.command.Command;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;

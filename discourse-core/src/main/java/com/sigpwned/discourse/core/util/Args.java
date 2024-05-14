@@ -22,11 +22,11 @@ package com.sigpwned.discourse.core.util;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.model.coordinate.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.model.coordinate.ShortSwitchNameCoordinate;
-import com.sigpwned.discourse.core.invocation.phase.parse.parse.model.token.ArgumentToken;
-import com.sigpwned.discourse.core.invocation.phase.parse.parse.model.token.BundleArgumentToken;
-import com.sigpwned.discourse.core.invocation.phase.parse.parse.model.token.LongNameArgumentToken;
-import com.sigpwned.discourse.core.invocation.phase.parse.parse.model.token.SeparatorArgumentToken;
-import com.sigpwned.discourse.core.invocation.phase.parse.parse.model.token.ShortNameArgumentToken;
+import com.sigpwned.discourse.core.args.impl.model.token.ArgumentToken;
+import com.sigpwned.discourse.core.args.impl.model.token.BundleArgumentToken;
+import com.sigpwned.discourse.core.args.impl.model.token.LongNameArgumentToken;
+import com.sigpwned.discourse.core.args.impl.model.token.SeparatorArgumentToken;
+import com.sigpwned.discourse.core.args.impl.model.token.ShortNameArgumentToken;
 import java.util.List;
 
 public final class Args {

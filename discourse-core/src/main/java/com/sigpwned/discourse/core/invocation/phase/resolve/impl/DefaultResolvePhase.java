@@ -1,22 +1,25 @@
 package com.sigpwned.discourse.core.invocation.phase.resolve.impl;
 
-import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.invocation.model.command.Command;
-import com.sigpwned.discourse.core.invocation.model.command.RootCommand;
+import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.RootCommand;
+import com.sigpwned.discourse.core.invocation.model.CommandDereference;
+import com.sigpwned.discourse.core.invocation.model.CommandResolution;
 import com.sigpwned.discourse.core.invocation.phase.ResolvePhase;
-import com.sigpwned.discourse.core.invocation.phase.resolve.model.CommandDereference;
-import com.sigpwned.discourse.core.invocation.phase.resolve.model.CommandResolution;
+import com.sigpwned.discourse.core.command.resolve.CommandResolver;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class DefaultResolvePhase implements ResolvePhase {
 
+  private final Supplier<CommandResolver> commandResolverSupplier;
   private final DefaultResolvePhaseListener listener;
 
-  public DefaultResolvePhase(DefaultResolvePhaseListener listener) {
+  public DefaultResolvePhase(Supplier<CommandResolver> commandResolverSupplier,
+      DefaultResolvePhaseListener listener) {
+    this.commandResolverSupplier = requireNonNull(commandResolverSupplier);
     this.listener = requireNonNull(listener);
   }
 
@@ -35,34 +38,21 @@ public class DefaultResolvePhase implements ResolvePhase {
 
     getListener().beforeResolve(rootCommand, originalArgs);
 
-    Command<? extends T> command = rootCommand;
-    List<String> remainingArgs = new ArrayList<>(originalArgs);
-    Iterator<String> iterator = remainingArgs.iterator();
-    List<CommandDereference<? extends T>> commandDereferences = new ArrayList<>();
-    while (iterator.hasNext()) {
-      String nextArg = remainingArgs.get(0);
+    CommandResolution<? extends T> resolution = (CommandResolution<? extends T>) getCommandResolverSupplier().get()
+        .resolveCommand(rootCommand, originalArgs);
 
-      Command<? extends T> subcommand = command.getSubcommands().get(nextArg);
-      if (subcommand == null) {
-        break;
-      }
+    List<CommandDereference<? extends T>> dereferences = (List) resolution.dereferences();
+    Command<? extends T> resolvedCommand = resolution.resolvedCommand();
+    List<String> remainingArgs = resolution.remainingArgs();
 
-      commandDereferences.add(new CommandDereference<>(command, nextArg));
+    getListener().afterResolve(rootCommand, originalArgs, dereferences, resolvedCommand,
+        remainingArgs);
 
-      command = subcommand;
+    return resolution;
+  }
 
-      iterator.remove();
-    }
-
-    final Command<? extends T> resolvedCommand = command;
-
-    getListener().afterResolve(rootCommand, unmodifiableList(originalArgs), commandDereferences,
-        command, remainingArgs);
-
-    // If resolvedCommand is of type `T`, then we know the dereferences are of type `? super T`, since
-    // a subcommand has to be a subtype of the parent. The compiler, however, does not know this,
-    // so we use a raw type.
-    return new CommandResolution(rootCommand, resolvedCommand, commandDereferences, remainingArgs);
+  protected Supplier<CommandResolver> getCommandResolverSupplier() {
+    return commandResolverSupplier;
   }
 
   protected DefaultResolvePhaseListener getListener() {

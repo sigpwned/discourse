@@ -2,9 +2,9 @@ package com.sigpwned.discourse.core.invocation;
 
 import static java.util.Objects.requireNonNull;
 
-import com.sigpwned.discourse.core.invocation.phase.resolve.model.CommandDereference;
-import com.sigpwned.discourse.core.invocation.model.command.Command;
-import com.sigpwned.discourse.core.invocation.model.command.RootCommand;
+import com.sigpwned.discourse.core.invocation.model.CommandDereference;
+import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.RootCommand;
 import java.util.List;
 
 public class Invocation<T> {

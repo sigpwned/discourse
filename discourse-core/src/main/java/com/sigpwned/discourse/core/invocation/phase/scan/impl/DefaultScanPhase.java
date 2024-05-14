@@ -1,9 +1,10 @@
 package com.sigpwned.discourse.core.invocation.phase.scan.impl;
 
-import com.sigpwned.discourse.core.invocation.model.command.RootCommand;
+import com.sigpwned.discourse.core.command.walk.CommandWalker;
+import com.sigpwned.discourse.core.command.RootCommand;
+import com.sigpwned.discourse.core.command.walk.SubCommandScanner;
 import com.sigpwned.discourse.core.invocation.phase.ScanPhase;
 import com.sigpwned.discourse.core.invocation.phase.scan.CommandScanner;
-import com.sigpwned.discourse.core.invocation.phase.scan.CommandWalker;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleDetector;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleNominator;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RulesEngine;
@@ -38,7 +39,7 @@ public class DefaultScanPhase implements ScanPhase {
         getNamingScheme(), getSyntaxNominator(), getSyntaxDetector(), getRuleNominator(),
         getRuleDetector(), new ConfigurableClassScannerListener() {
     });
-    final CommandWalker commandWalker = new DefaultCommandWalker(getSubCommandScanner());
+    final CommandWalker commandWalker = new CommandWalker(getSubCommandScanner());
     final CommandScanner commandScanner = new DefaultCommandScanner(commandWalker,
         configurableScanner,
         getRulesEngine());

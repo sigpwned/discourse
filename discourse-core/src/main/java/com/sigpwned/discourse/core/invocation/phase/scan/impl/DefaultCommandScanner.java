@@ -6,10 +6,10 @@ import static java.util.function.Predicate.not;
 
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.invocation.phase.scan.CommandScanner;
-import com.sigpwned.discourse.core.invocation.phase.scan.CommandWalker;
-import com.sigpwned.discourse.core.invocation.phase.scan.CommandWalkerListener;
-import com.sigpwned.discourse.core.invocation.model.command.RootCommand;
-import com.sigpwned.discourse.core.invocation.model.command.SubCommand;
+import com.sigpwned.discourse.core.command.walk.CommandWalker;
+import com.sigpwned.discourse.core.command.CommandWalkerListener;
+import com.sigpwned.discourse.core.command.RootCommand;
+import com.sigpwned.discourse.core.command.SubCommand;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.model.ConfigurableClass;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RulesEngine;
 import java.util.HashMap;
