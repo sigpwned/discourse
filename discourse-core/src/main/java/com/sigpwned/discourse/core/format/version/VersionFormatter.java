@@ -22,7 +22,7 @@ package com.sigpwned.discourse.core.format.version;
 import com.sigpwned.discourse.core.command.Command;
 
 /**
- * A function that formats a command's version into a string for display.
+ * A function that formats a resolvedCommand's version into a string for display.
  */
 @FunctionalInterface
 public interface VersionFormatter {

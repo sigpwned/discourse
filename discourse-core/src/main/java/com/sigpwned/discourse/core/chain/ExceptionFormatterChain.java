@@ -21,6 +21,7 @@ package com.sigpwned.discourse.core.chain;
 
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.format.exception.DefaultExceptionFormatter;
 import com.sigpwned.discourse.core.format.exception.ExceptionFormatter;

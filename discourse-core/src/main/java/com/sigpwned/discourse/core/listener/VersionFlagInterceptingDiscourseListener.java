@@ -48,7 +48,7 @@ public class VersionFlagInterceptingDiscourseListener implements DiscourseListen
       List<MultiCommandDereference<? extends T>> dereferencedCommands,
       SingleCommand<? extends T> resolvedCommand, List<String> remainingArgs,
       InvocationContext context) {
-    // Look for the version flag in the resolved command.
+    // Look for the version flag in the resolved resolvedCommand.
     Optional<FlagConfigurationParameter> maybeVersionFlag = resolvedCommand.findVersionFlag();
     if (maybeVersionFlag.isEmpty()) {
       // There's no help flag, so there's no way to ask for help!

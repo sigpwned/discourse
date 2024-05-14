@@ -21,7 +21,7 @@ package com.sigpwned.discourse.core.util;
 
 import static java.util.Arrays.asList;
 
-import com.sigpwned.discourse.core.Invocation;
+import com.sigpwned.discourse.core.invocation.model.Invocation;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.error.exit.DefaultExitErrorFactory;
 import com.sigpwned.discourse.core.exception.ArgumentException;
@@ -32,7 +32,7 @@ import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import java.util.List;
 
 /**
- * A utility class for creating configuration objects from command line arguments.
+ * A utility class for creating configuration objects from resolvedCommand line arguments.
  */
 public final class Discourse {
 
@@ -48,7 +48,7 @@ public final class Discourse {
 
   /**
    * Create a configuration object of the given type from the given arguments using the given
-   * command builder.
+   * resolvedCommand builder.
    */
   public static <T> T configuration(Class<T> rawType, InvocationContext context, String[] args) {
     return configuration(rawType, context, List.of(args));
@@ -63,7 +63,7 @@ public final class Discourse {
 
   /**
    * Create a configuration object of the given type from the given arguments using the given
-   * command builder.
+   * resolvedCommand builder.
    */
   public static <T> T configuration(Class<T> rawType, InvocationContext context,
       List<String> args) {

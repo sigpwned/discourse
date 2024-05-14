@@ -30,12 +30,12 @@ public class ParsePipeline {
   }
 
   public Map<String, Object> execute(List<String> commandArgs) {
-    // Parse Phase. Convert command-line arguments into a structured form. The result is a list of
+    // Parse Phase. Convert resolvedCommand-line arguments into a structured form. The result is a list of
     // pairs, where each pair is a mapping from a coordinate to a string. The coordinate is a syntax
-    // identifier that is used to identify the position of the argument in the command line (e.g.,
+    // identifier that is used to identify the position of the argument in the resolvedCommand line (e.g.,
     // "-x" for an argument to the short option "x", "--xray" for an argument to the long option
     // "xray", or 0 for the first positional argument). The order reflects the order of the syntax
-    // elements in the command line.
+    // elements in the resolvedCommand line.
     List<Map.Entry<Object, String>> parsedArgs = parsePhase(commandArgs);
 
     // Group Phase. Convert the coordinates in the parsed from into parameter names, and then group

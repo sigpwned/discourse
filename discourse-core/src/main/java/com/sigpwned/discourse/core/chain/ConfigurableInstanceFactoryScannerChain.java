@@ -19,6 +19,7 @@
  */
 package com.sigpwned.discourse.core.chain;
 
+import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.configurable.instance.factory.ConfigurableInstanceFactory;
 import com.sigpwned.discourse.core.configurable.instance.factory.scanner.ConfigurableInstanceFactoryScanner;
 import com.sigpwned.discourse.core.util.Chains;

@@ -21,7 +21,7 @@ package com.sigpwned.discourse.core.invocation.phase.parse.parse.model.token;
 
 /**
  * A token "--" that indicates that no more flags or switches appear in the rest of the
- * command line arguments. It is very useful when (a) generating command lines programmatically, and
+ * resolvedCommand line arguments. It is very useful when (a) generating resolvedCommand lines programmatically, and
  * (b) to disambiguate between flags/switches and positional parameters that happen to start with
  * "-".
  */

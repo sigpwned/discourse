@@ -25,7 +25,7 @@ import java.util.List;
 
 /**
  * A factory for creating {@link ValueDeserializer} objects. This is used to create deserializers
- * for command line arguments. A factory can handle one or more types of values.
+ * for resolvedCommand line arguments. A factory can handle one or more types of values.
  */
 public interface ValueDeserializerFactory<T> {
 

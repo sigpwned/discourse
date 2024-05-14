@@ -25,7 +25,7 @@ import java.util.Objects;
 
 /**
  * A base class for configuration objects that have standard options. Provides {@code --help} and
- * {@code --version} options that are common to many command-line tools and handled appropriately by
+ * {@code --version} options that are common to many resolvedCommand-line tools and handled appropriately by
  * {@link InvocationBuilder}
  */
 public class StandardConfigurationBase {

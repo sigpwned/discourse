@@ -20,7 +20,7 @@
 package com.sigpwned.discourse.core.value.deserializer;
 
 /**
- * A function that deserializes a string into a value. This is used to convert command line
+ * A function that deserializes a string into a value. This is used to convert resolvedCommand line
  * arguments into the appropriate types.
  */
 @FunctionalInterface

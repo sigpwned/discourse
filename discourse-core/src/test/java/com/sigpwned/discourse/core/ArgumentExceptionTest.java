@@ -36,6 +36,7 @@ import com.sigpwned.discourse.core.exception.syntax.RequiredParametersMissingSyn
 import com.sigpwned.discourse.core.exception.syntax.UnrecognizedDiscriminatorSyntaxException;
 import com.sigpwned.discourse.core.invocation.InvocationBuilder;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
+import com.sigpwned.discourse.core.invocation.model.Invocation;
 import com.sigpwned.discourse.core.listener.EmptyArgsToMultiCommandInterceptingDiscourseListener;
 import com.sigpwned.discourse.core.error.ExitError;
 import java.util.List;

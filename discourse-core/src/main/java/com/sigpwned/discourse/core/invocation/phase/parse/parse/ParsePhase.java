@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 /**
  * <p>
- * Implements Unix-style command-line parsing. Implementations must recognize at least the following
+ * Implements Unix-style resolvedCommand-line parsing. Implementations must recognize at least the following
  * syntax. They are free to recognize additional syntax as well.
  * </p>
  *
@@ -63,15 +63,15 @@ public interface ParsePhase {
    *                   consists of key-value pairs where the key is a string that represents a
    *                   syntax atom, and the value is a string that represents the type of that atom.
    *                   For example, in an implementation that implements the typical UNIX-style
-   *                   command line syntax, the vocabulary might contain the following mappings:
+   *                   resolvedCommand line syntax, the vocabulary might contain the following mappings:
    *                   {@code {"-h": "flag", "--help": "flag", "-f": "option", "--file":
    *                   "option"}}.
    * @param args       The arguments to parse. The arguments are a list of strings that represent
-   *                   the command line arguments from the user. For example, in the command
+   *                   the resolvedCommand line arguments from the user. For example, in the resolvedCommand
    *                   {@code cp file1 file2}, the arguments would be {@code ["file1", "file2"]}.
    * @return A list of key-value pairs where the key is an object that represents the parsed
    * argument, and the value is a string that represents the "coordinate"" of that argument. For
-   * example, in an implementation that implements the typical UNIX-style command line syntax, for
+   * example, in an implementation that implements the typical UNIX-style resolvedCommand line syntax, for
    * the inputs {@code {"-h": "flag", "--help": "flag", "-f": "option", "--file": "option"}} and
    * {@code ["-h", "-f", "file.txt", "hello"]}, the output might be
    * {@code [{"key": "-h", "value": "true"}, {"key": "-f", "value": "file.txt"}, {"key": 0, "value":

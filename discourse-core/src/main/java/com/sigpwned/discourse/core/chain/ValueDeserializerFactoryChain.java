@@ -19,6 +19,7 @@
  */
 package com.sigpwned.discourse.core.chain;
 
+import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.util.Chains;
 import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
 import com.sigpwned.discourse.core.value.deserializer.ValueDeserializerFactory;
@@ -29,7 +30,7 @@ import java.util.Optional;
 
 /**
  * A chain of {@link ValueDeserializerFactory} instances. This is used to create deserializers for
- * command line arguments. A factory can handle one or more types of values. The chain is searched
+ * resolvedCommand line arguments. A factory can handle one or more types of values. The chain is searched
  * in order, and the first {@code ValueDeserializerFactory} that handles the given parameters is
  * returned. If no {@code ValueDeserializerFactory} in the chain handles the parameters, then
  * {@link Optional#empty() empty} is returned.

@@ -10,7 +10,7 @@ public interface ParsePipelineListener {
   /**
    * Called before {@link ParsePhase the parse phase} starts.
    *
-   * @param vocabulary  The vocabulary of the command line. This map is mutable, so listeners can
+   * @param vocabulary  The vocabulary of the resolvedCommand line. This map is mutable, so listeners can
    *                    change the vocabulary. For more information about the vocabulary, see
    *                    {@link ParsePhase}. Example value: {@code {"-h": "flag", "-t": "option"}}.
    * @param commandArgs The arguments from the user. This list is mutable, so listeners can modify
@@ -22,7 +22,7 @@ public interface ParsePipelineListener {
   /**
    * Called before {@link ParsePhase the parse phase} starts.
    *
-   * @param vocabulary  The vocabulary of the command line. This map is now immutable.
+   * @param vocabulary  The vocabulary of the resolvedCommand line. This map is now immutable.
    * @param commandArgs The arguments from the user. This list is mutable, so listeners can modify
    *                    the arguments.
    * @param parsedArgs  The parsed arguments. This list is deeply mutable, so listeners can modify

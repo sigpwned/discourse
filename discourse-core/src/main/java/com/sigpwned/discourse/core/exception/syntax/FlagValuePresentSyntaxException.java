@@ -56,9 +56,9 @@ public class FlagValuePresentSyntaxException extends SyntaxException {
   }
 
   /**
-   * The command that was being parsed when the exception was thrown.
+   * The resolvedCommand that was being parsed when the exception was thrown.
    *
-   * @return the command
+   * @return the resolvedCommand
    */
   @Override
   public SingleCommand<?> getCommand() {

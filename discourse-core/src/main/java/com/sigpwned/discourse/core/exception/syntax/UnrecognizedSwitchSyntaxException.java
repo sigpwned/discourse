@@ -27,7 +27,7 @@ import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.model.coordinate.SwitchNameCoordinate;
 
 /**
- * Thrown when a long name is not recognized. For example, if a command only defines the long names
+ * Thrown when a long name is not recognized. For example, if a resolvedCommand only defines the long names
  * "alpha" and "bravo", but the user provides "--charlie", then this exception would be thrown with
  * the long name "charlie".
  */
@@ -49,9 +49,9 @@ public class UnrecognizedSwitchSyntaxException extends SyntaxException {
   }
 
   /**
-   * The command that was being parsed when the exception was thrown.
+   * The resolvedCommand that was being parsed when the exception was thrown.
    *
-   * @return the command
+   * @return the resolvedCommand
    */
   @Override
   public SingleCommand<?> getCommand() {

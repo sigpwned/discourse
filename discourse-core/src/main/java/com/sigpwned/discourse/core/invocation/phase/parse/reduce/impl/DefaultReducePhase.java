@@ -2,7 +2,6 @@ package com.sigpwned.discourse.core.invocation.phase.parse.reduce.impl;
 
 import static java.util.Collections.*;
 
-import com.sigpwned.discourse.core.invocation.phase.parse.reduce.ReducePhase;
 import com.sigpwned.discourse.core.util.MoreSets;
 import java.util.HashMap;
 import java.util.List;

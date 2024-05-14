@@ -27,21 +27,21 @@ import com.sigpwned.discourse.core.command.Command;
 /**
  * <p>
  * Indicates a problem with the arguments given by the user, e.g. an {@link OptionParameter} was not
- * given a value on the command line. Broadly speaking, this exception indicates that the command
- * line arguments cannot be mapped onto the command object. This is the user's fault.
+ * given a value on the resolvedCommand line. Broadly speaking, this exception indicates that the resolvedCommand
+ * line arguments cannot be mapped onto the resolvedCommand object. This is the user's fault.
  * </p>
  *
  * <p>
- * Exceptions of this type are thrown during the process of (a) parsing of the command line, (b)
- * resolving the correct subcommand, and (c) associating the command line arguments with the
- * command's parameters, e.g., to make sure that all the given options actually exist. Therefore,
- * user errors involving discriminators -- e.g., a command line that gives an unrecognized
+ * Exceptions of this type are thrown during the process of (a) parsing of the resolvedCommand line, (b)
+ * resolving the correct subcommand, and (c) associating the resolvedCommand line arguments with the
+ * resolvedCommand's parameters, e.g., to make sure that all the given options actually exist. Therefore,
+ * user errors involving dereferences -- e.g., a resolvedCommand line that gives an unrecognized
  * subcommand discriminator, but is otherwise syntactically correct -- are included in this category
  * because they affect the ability to resolve the correct subcommand.
  * </p>
  *
  * <p>
- * This is distinct from {@link ArgumentException}, which indicates that the command line was
+ * This is distinct from {@link ArgumentException}, which indicates that the resolvedCommand line was
  * understood, but the specific values given were invalid.
  * </p>
  */
@@ -55,10 +55,10 @@ public abstract class SyntaxException extends DiscourseException {
   }
 
   /**
-   * Returns a {@link Command} relevant to the exception. The exact semantics of the command differ
+   * Returns a {@link Command} relevant to the exception. The exact semantics of the resolvedCommand differ
    * depending on the specific exception.
    *
-   * @return the command
+   * @return the resolvedCommand
    */
   public Command<?> getCommand() {
     return command;

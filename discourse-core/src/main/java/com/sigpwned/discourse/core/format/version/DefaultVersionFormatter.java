@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * <p>
  * The default version formatter. This formatter formats the version as a string with the name of
- * the command followed by the version of the command:
+ * the resolvedCommand followed by the version of the resolvedCommand:
  * </p>
  *
  * <pre>

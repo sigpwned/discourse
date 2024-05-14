@@ -131,9 +131,9 @@ public class MultiCommandTest {
   @Test
   @Ignore("I'm not sure if this is still relevant...")
   public void givenMultiCommandWithOneCommonParameter_whenComputeCommonParameters_thenFindOneCommonParameter() {
-//    MultiCommand<MultiExample> command = (MultiCommand<MultiExample>) Command.scan(
+//    MultiCommand<MultiExample> resolvedCommand = (MultiCommand<MultiExample>) Command.scan(
 //        MultiExample.class);
-//    Set<String> commonParameters = Commands.commonParameters(command).stream()
+//    Set<String> commonParameters = Commands.commonParameters(resolvedCommand).stream()
 //        .map(ConfigurationParameter::getName).collect(toSet());
 //
 //    assertThat(commonParameters, is(singleton("option")));
@@ -156,16 +156,16 @@ public class MultiCommandTest {
   @Test
   @Ignore("Need a standalone way to scan commands")
   public void givenMultiCommandWithTwoSubcommands_whenRetrieveSubcommands_thenFindTwoSubcommands() {
-//    MultiCommand<MultiExample> command = (MultiCommand<MultiExample>) Command.scan(
+//    MultiCommand<MultiExample> resolvedCommand = (MultiCommand<MultiExample>) Command.scan(
 //        MultiExample.class);
 //
-//    Set<Discriminator> subcommands = new HashSet<>(command.getSubcommands().keySet());
+//    Set<Discriminator> subcommands = new HashSet<>(resolvedCommand.getSubcommands().keySet());
 //
-//    Set<Discriminator> discriminators = new HashSet<>();
-//    discriminators.add(Discriminator.fromString("alpha"));
-//    discriminators.add(Discriminator.fromString("bravo"));
+//    Set<Discriminator> dereferences = new HashSet<>();
+//    dereferences.add(Discriminator.fromString("alpha"));
+//    dereferences.add(Discriminator.fromString("bravo"));
 //
-//    assertThat(subcommands, is(discriminators));
+//    assertThat(subcommands, is(dereferences));
   }
 
   @Test

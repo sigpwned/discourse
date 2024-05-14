@@ -27,7 +27,7 @@ import com.sigpwned.discourse.core.command.MultiCommand;
 
 /**
  * Thrown when a user provides a discriminator that does not match any subcommand. For example, if a
- * command defines two subcommands "foo" and "bar", but the user provides the discriminator "baz",
+ * resolvedCommand defines two subcommands "foo" and "bar", but the user provides the discriminator "baz",
  * then this exception would be thrown with the value "baz".
  */
 public class UnrecognizedDiscriminatorSyntaxException extends SyntaxException {
@@ -54,9 +54,9 @@ public class UnrecognizedDiscriminatorSyntaxException extends SyntaxException {
   }
 
   /**
-   * The command that would have been dereferenced, if the discriminator were recognized.
+   * The resolvedCommand that would have been dereferenced, if the discriminator were recognized.
    *
-   * @return the command
+   * @return the resolvedCommand
    */
   @Override
   public MultiCommand<?> getCommand() {

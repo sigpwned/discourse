@@ -22,7 +22,7 @@ package com.sigpwned.discourse.core.format.help;
 import com.sigpwned.discourse.core.command.Command;
 
 /**
- * A formatter that formats help for a command for display.
+ * A formatter that formats help for a resolvedCommand for display.
  */
 @FunctionalInterface
 public interface HelpFormatter {

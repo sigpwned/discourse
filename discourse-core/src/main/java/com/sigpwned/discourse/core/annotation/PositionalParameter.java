@@ -29,10 +29,10 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * A configuration property that appears positionally after all options and switches in the command
+ * A configuration property that appears positionally after all options and switches in the resolvedCommand
  * line. Parameter positions are zero-based, so position 0 is the first parameter after all options
  * and switches, position 1 is the second, and so on. For example, the following field will be set
- * to {@code foo} if the command line were {@code --flag --option1 value1 foo}:
+ * to {@code foo} if the resolvedCommand line were {@code --flag --option1 value1 foo}:
  * </p>
  *
  * <pre>
@@ -45,10 +45,10 @@ import java.lang.annotation.Target;
 public @interface PositionalParameter {
 
   /**
-   * The position of the parameter in the command line. Positions are zero-based, so position 0 is
+   * The position of the parameter in the resolvedCommand line. Positions are zero-based, so position 0 is
    * the first parameter after all options and switches, position 1 is the second, and so on.
    *
-   * @return the position of the parameter in the command line
+   * @return the position of the parameter in the resolvedCommand line
    */
   public int position();
 
@@ -58,7 +58,7 @@ public @interface PositionalParameter {
   public String description() default "";
 
   /**
-   * If the parameter is required, then it must appear on the command line, or else a
+   * If the parameter is required, then it must appear on the resolvedCommand line, or else a
    * {@link RequiredParametersMissingSyntaxException} is thrown.
    *
    * @return whether the parameter is required

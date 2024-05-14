@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * <p>
- * A listener for the command walker. This listener is called as the walker walks the command
+ * A listener for the resolvedCommand walker. This listener is called as the walker walks the resolvedCommand
  * hierarchy. For a class hierarchy like:
  * </p>
  *
@@ -46,7 +46,7 @@ import java.util.Map;
  * </ol>
  *
  * <p>
- *   Broadly, the walker implements a depth-first walk of the command hierarchy. For a given class,
+ *   Broadly, the walker implements a depth-first walk of the resolvedCommand hierarchy. For a given class,
  *   the class is {@link #enterClazz(String, Class, Configurable, Map) entered}, then
  *   {@link #visitClazz(String, Class, Configurable, Map) visited}, and finally
  *   {@link #leaveClazz(String, Class, Configurable, Map) left}. A class is visited before any of

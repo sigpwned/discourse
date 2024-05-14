@@ -30,7 +30,7 @@ import java.io.PrintStream;
 /**
  * An {@link ExceptionFormatter} that handles {@link UnrecognizedDiscriminatorSyntaxException}s when
  * the unrecognized discriminator is exactly {@link Discriminators#HELP}. The formatter works under
- * the interpretation that the user is asking for help, and prints the help message for the command
+ * the interpretation that the user is asking for help, and prints the help message for the resolvedCommand
  * and exits.
  */
 public class HelpUnrecognizedDiscriminatorSyntaxExceptionFormatter implements ExceptionFormatter {

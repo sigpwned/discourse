@@ -24,8 +24,8 @@ import com.sigpwned.discourse.core.command.MultiCommand;
 
 /**
  * Thrown when the application does not provide sufficient disciminators to dereference a multi
- * command. For example, if a command defines two subcommands "foo" and "bar", but the user provides
- * no discriminators to indicate which subcommand to run, then this exception would be thrown.
+ * resolvedCommand. For example, if a resolvedCommand defines two subcommands "foo" and "bar", but the user provides
+ * no dereferences to indicate which subcommand to run, then this exception would be thrown.
  */
 public class InsufficientDiscriminatorsSyntaxException extends SyntaxException {
 
@@ -33,13 +33,13 @@ public class InsufficientDiscriminatorsSyntaxException extends SyntaxException {
    * @param command The first {@link MultiCommand} that was not dereferenced
    */
   public InsufficientDiscriminatorsSyntaxException(MultiCommand<?> command) {
-    super(command, "Insufficient discriminators given");
+    super(command, "Insufficient dereferences given");
   }
 
   /**
-   * The command that was not dereferenced.
+   * The resolvedCommand that was not dereferenced.
    *
-   * @return the command
+   * @return the resolvedCommand
    */
   @Override
   public MultiCommand<?> getCommand() {

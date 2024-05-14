@@ -55,9 +55,9 @@ public class OptionValueMissingSyntaxException extends SyntaxException {
   }
 
   /**
-   * The first command that was being parsed when the exception was thrown.
+   * The first resolvedCommand that was being parsed when the exception was thrown.
    *
-   * @return the command
+   * @return the resolvedCommand
    */
   @Override
   public SingleCommand<?> getCommand() {

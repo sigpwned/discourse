@@ -19,6 +19,7 @@
  */
 package com.sigpwned.discourse.core.chain;
 
+import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.SingleCommand;

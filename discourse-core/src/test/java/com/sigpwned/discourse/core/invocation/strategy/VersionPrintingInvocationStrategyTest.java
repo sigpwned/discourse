@@ -23,7 +23,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.sigpwned.discourse.core.Invocation;
+import com.sigpwned.discourse.core.invocation.model.Invocation;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.StandardConfigurationBase;
 import com.sigpwned.discourse.core.TestModule;

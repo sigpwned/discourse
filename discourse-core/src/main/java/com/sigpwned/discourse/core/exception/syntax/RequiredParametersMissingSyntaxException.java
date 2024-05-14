@@ -26,7 +26,7 @@ import com.sigpwned.discourse.core.command.SingleCommand;
 import java.util.Set;
 
 /**
- * Thrown when a required parameter is not given a value in a command line.
+ * Thrown when a required parameter is not given a value in a resolvedCommand line.
  */
 public class RequiredParametersMissingSyntaxException extends SyntaxException {
 
@@ -47,9 +47,9 @@ public class RequiredParametersMissingSyntaxException extends SyntaxException {
   }
 
   /**
-   * The command that was being parsed when the exception was thrown.
+   * The resolvedCommand that was being parsed when the exception was thrown.
    *
-   * @return the command
+   * @return the resolvedCommand
    */
   @Override
   public SingleCommand<?> getCommand() {

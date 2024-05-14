@@ -63,7 +63,7 @@ public @interface Configurable {
   public String version() default "";
 
   /**
-   * The subcommands of this configurable object. This list "points" to this logical command's
+   * The subcommands of this configurable object. This list "points" to this logical resolvedCommand's
    * subcommands and is used to create a {@link MultiCommand} object.
    *
    * @see MultiCommand#getSubcommands()

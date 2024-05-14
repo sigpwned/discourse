@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
+import com.sigpwned.discourse.core.invocation.model.Invocation;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;

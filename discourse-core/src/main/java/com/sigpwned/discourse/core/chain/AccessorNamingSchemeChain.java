@@ -19,6 +19,7 @@
  */
 package com.sigpwned.discourse.core.chain;
 
+import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.accessor.naming.AccessorNamingScheme;
 import com.sigpwned.discourse.core.util.Chains;
 import java.lang.annotation.Annotation;

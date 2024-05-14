@@ -1,6 +1,6 @@
 package com.sigpwned.discourse.core.invocation.phase.parse;
 
-import com.sigpwned.discourse.core.chain.Chain;
+import com.sigpwned.discourse.core.Chain;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;

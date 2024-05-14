@@ -21,6 +21,7 @@ package com.sigpwned.discourse.core.chain;
 
 import static java.util.Objects.requireNonNull;
 
+import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.util.Chains;
 import com.sigpwned.discourse.core.value.sink.AssignValueSinkFactory;
 import com.sigpwned.discourse.core.value.sink.ValueSink;
@@ -30,7 +31,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 /**
- * A chain of {@link ValueSinkFactory} instances. This is used to create sinks for command line
+ * A chain of {@link ValueSinkFactory} instances. This is used to create sinks for resolvedCommand line
  * arguments. A chain can handle one or more types of values. The chain is searched in order, and
  * the first {@code ValueSinkFactory} that handles the given parameters is returned. If no
  * {@code ValueSinkFactory} in the chain handles the parameters, then the default

@@ -44,7 +44,7 @@ public class DefaultCommandWalker implements CommandWalker {
     } else {
       // This is a non-leaf node. It must be abstract. It can be a class or an interface.
       if (!clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers())) {
-        throw new IllegalArgumentException("Non-leaf command " + clazz + " must be abstract");
+        throw new IllegalArgumentException("Non-leaf resolvedCommand " + clazz + " must be abstract");
       }
       for (Map.Entry<String, Class<? extends U>> entry : subcommands.entrySet()) {
         String subdiscriminator = entry.getKey();

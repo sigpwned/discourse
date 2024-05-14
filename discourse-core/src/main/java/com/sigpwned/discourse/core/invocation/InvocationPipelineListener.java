@@ -1,8 +1,8 @@
 package com.sigpwned.discourse.core.invocation;
 
+import com.sigpwned.discourse.core.invocation.model.command.Command;
+import com.sigpwned.discourse.core.invocation.model.command.RootCommand;
 import com.sigpwned.discourse.core.invocation.phase.resolve.model.CommandDereference;
-import com.sigpwned.discourse.core.invocation.phase.scan.Command;
-import com.sigpwned.discourse.core.invocation.phase.scan.RootCommand;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +21,12 @@ public interface InvocationPipelineListener {
   public <T> void beforeParse(Command<T> resolvedCommand, List<String> resolvedArgs);
 
   public <T> void afterParse(Command<T> resolvedCommand, List<String> resolvedArgs,
+      List<Map.Entry<String, String>> parsedArgs);
+
+  public <T> void beforeEval(Command<T> resolvedCommand,
+      List<Map.Entry<String, String>> parsedArgs);
+
+  public <T> void afterEval(Command<T> resolvedCommand, List<Map.Entry<String, String>> parsedArgs,
       Map<String, Object> initialState);
 
   public <T> void beforeFactory(Command<T> resolvedCommand, Map<String, Object> initialState);

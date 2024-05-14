@@ -57,9 +57,9 @@ import java.util.Set;
  * <h2>Single Command</h2>
  *
  * <pre>
- *   Usage: command [ flags | options ] [ positional ... ]
+ *   Usage: resolvedCommand [ flags | options ] [ positional ... ]
  *
- *   Description of the command.
+ *   Description of the resolvedCommand.
  *
  *   Flags:
  *   -f, --flag1
@@ -95,9 +95,9 @@ import java.util.Set;
  * <h2>Multi Command</h2>
  *
  * <pre>
- *   Usage: command &lt;subcommand&gt; [ flags | options ] [ positional ... ]
+ *   Usage: resolvedCommand &lt;subcommand&gt; [ flags | options ] [ positional ... ]
  *
- *   Description of the command.
+ *   Description of the resolvedCommand.
  *
  *   Common Flags:
  *   -f, --flag1
@@ -115,7 +115,7 @@ import java.util.Set;
  *
  *   First parameter must be a subcommand specifier: subcommand1, subcommand2, ...
  *
- *   Usage: command subcommand1 [ flags | options ] [ positional ... ]
+ *   Usage: resolvedCommand subcommand1 [ flags | options ] [ positional ... ]
  *
  *   Description of subcommand1.
  *
@@ -133,7 +133,7 @@ import java.util.Set;
  *   -p, --option2 &lt;type&gt;
  *     Description of option2.
  *
- *   Usage: command subcommand2 [ flags | options ] [ positional ... ]
+ *   Usage: resolvedCommand subcommand2 [ flags | options ] [ positional ... ]
  *
  *   Description of subcommand2.
  *
@@ -194,7 +194,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
     } else if (command instanceof MultiCommand<?> multi) {
       return formatHelp(multi);
     }
-    throw new AssertionError("Unknown command type: " + command.getClass());
+    throw new AssertionError("Unknown resolvedCommand type: " + command.getClass());
   }
 
   public String formatHelp(SingleCommand<?> command) {

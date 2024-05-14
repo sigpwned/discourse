@@ -26,7 +26,7 @@ import com.sigpwned.discourse.core.exception.SyntaxException;
 import com.sigpwned.discourse.core.command.MultiCommand;
 
 /**
- * Thrown when a user provides a command line argument in a position where the application expects a
+ * Thrown when a user provides a resolvedCommand line argument in a position where the application expects a
  * discriminator, but the argument is not a valid discriminator. A discriminator must match the
  * pattern "[a-zA-Z0-9][-a-zA-Z0-9_]*".
  *
@@ -49,9 +49,9 @@ public class InvalidDiscriminatorSyntaxException extends SyntaxException {
   }
 
   /**
-   * The command that the discriminator would have dereferenced if it were valid.
+   * The resolvedCommand that the discriminator would have dereferenced if it were valid.
    *
-   * @return the command
+   * @return the resolvedCommand
    */
   @Override
   public MultiCommand<?> getCommand() {

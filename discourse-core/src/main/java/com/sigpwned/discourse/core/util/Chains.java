@@ -19,7 +19,7 @@
  */
 package com.sigpwned.discourse.core.util;
 
-import com.sigpwned.discourse.core.chain.Chain;
+import com.sigpwned.discourse.core.Chain;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 

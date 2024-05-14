@@ -36,7 +36,7 @@ public class ArgumentExceptionFormatter implements ExceptionFormatter {
   public void formatException(Throwable e, InvocationContext context) {
     ArgumentException argument = (ArgumentException) e;
 
-    // In this case, the user has made a mistake in the command line arguments. The command line
+    // In this case, the user has made a mistake in the resolvedCommand line arguments. The resolvedCommand line
     // is understood, but the arguments are not valid. We print a helpful error message.
     PrintStream err = context.get(InvocationContext.ERROR_STREAM_KEY).orElse(System.err);
     err.println("ERROR: " + e.getMessage());

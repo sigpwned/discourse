@@ -1,6 +1,6 @@
 package com.sigpwned.discourse.core.util;
 
-import com.sigpwned.discourse.core.com.sigpwned.discourse.core.thirdparty.com.google.guava.collect.CartesianList;
+import com.sigpwned.discourse.core.thirdparty.com.google.guava.collect.CartesianList;
 import java.util.List;
 
 public final class MoreLists {

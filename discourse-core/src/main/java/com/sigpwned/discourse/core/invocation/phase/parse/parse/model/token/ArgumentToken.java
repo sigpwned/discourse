@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 /**
- * A token used during the parsing of command-line arguments.
+ * A token used during the parsing of resolvedCommand-line arguments.
  */
 public abstract sealed class ArgumentToken permits BundleArgumentToken, EofArgumentToken,
     LongNameArgumentToken, LongNameValueArgumentToken, SeparatorArgumentToken,

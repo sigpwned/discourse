@@ -19,6 +19,7 @@
  */
 package com.sigpwned.discourse.core.chain;
 
+import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.configurable.ConfigurableComponent;
 import com.sigpwned.discourse.core.configurable.component.scanner.ConfigurableCandidateComponentScanner;
 import com.sigpwned.discourse.core.util.Chains;

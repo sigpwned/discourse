@@ -8,11 +8,10 @@ import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.invocation.phase.scan.CommandScanner;
 import com.sigpwned.discourse.core.invocation.phase.scan.CommandWalker;
 import com.sigpwned.discourse.core.invocation.phase.scan.CommandWalkerListener;
-import com.sigpwned.discourse.core.invocation.phase.scan.RootCommand;
-import com.sigpwned.discourse.core.invocation.phase.scan.SubCommand;
-import com.sigpwned.discourse.core.configurable3.ConfigurableClass;
-import com.sigpwned.discourse.core.configurable3.ConfigurableClassScanner;
-import com.sigpwned.discourse.core.configurable3.RulesEngine;
+import com.sigpwned.discourse.core.invocation.model.command.RootCommand;
+import com.sigpwned.discourse.core.invocation.model.command.SubCommand;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.model.ConfigurableClass;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RulesEngine;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -54,7 +53,7 @@ public class DefaultCommandScanner implements CommandScanner {
         String description = Optional.of(configurable.description()).filter(not(String::isBlank))
             .orElse(null);
         if (discriminator == null) {
-          // This is a root command
+          // This is a root resolvedCommand
           if (name == null) {
             // TODO log
           }
@@ -94,7 +93,7 @@ public class DefaultCommandScanner implements CommandScanner {
           Configurable configurable, Map<String, Class<? extends U>> subcommandClazzes) {
         EnteredCommand<U> entered = (EnteredCommand<U>) stack.pop();
         if (stack.isEmpty()) {
-          // This is the root command
+          // This is the root resolvedCommand
           result.set(
               new RootCommand<>(entered.clazz, entered.name, entered.version, entered.description,
                   entered.body, entered.subclasses));

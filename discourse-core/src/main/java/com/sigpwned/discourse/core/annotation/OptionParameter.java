@@ -29,8 +29,8 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * A configuration property that encodes its value according to a name/value pair in a command line.
- * For example, the following field will be set to {@code foo} if the command line contains
+ * A configuration property that encodes its value according to a name/value pair in a resolvedCommand line.
+ * For example, the following field will be set to {@code foo} if the resolvedCommand line contains
  * {@code --xray=foo}:
  * </p>
  *
@@ -59,7 +59,7 @@ public @interface OptionParameter {
   public String description() default "";
 
   /**
-   * If this option is required, then it must appear on the command line. Otherwise, a
+   * If this option is required, then it must appear on the resolvedCommand line. Otherwise, a
    * {@link RequiredParametersMissingSyntaxException} is thrown.
    *
    * @return whether the option is required

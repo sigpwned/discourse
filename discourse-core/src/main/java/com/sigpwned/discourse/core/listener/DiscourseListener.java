@@ -29,7 +29,7 @@ import com.sigpwned.discourse.core.model.invocation.MultiCommandDereference;
 import java.util.List;
 
 /**
- * A listener that is informed of various stages of the command invocation process.
+ * A listener that is informed of various stages of the resolvedCommand invocation process.
  */
 public interface DiscourseListener {
 

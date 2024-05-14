@@ -3,8 +3,8 @@ package com.sigpwned.discourse.core.invocation;
 import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.invocation.phase.resolve.model.CommandDereference;
-import com.sigpwned.discourse.core.invocation.phase.scan.Command;
-import com.sigpwned.discourse.core.invocation.phase.scan.RootCommand;
+import com.sigpwned.discourse.core.invocation.model.command.Command;
+import com.sigpwned.discourse.core.invocation.model.command.RootCommand;
 import java.util.List;
 
 public class Invocation<T> {

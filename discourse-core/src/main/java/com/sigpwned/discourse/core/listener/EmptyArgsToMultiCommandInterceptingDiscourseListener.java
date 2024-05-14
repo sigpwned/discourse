@@ -30,7 +30,7 @@ import java.util.List;
 
 /**
  * A {@link DiscourseListener} that looks for the presence of an empty argument list when a
- * {@link MultiCommand} is the root command, and prints the help message and exits if it is found. A
+ * {@link MultiCommand} is the root resolvedCommand, and prints the help message and exits if it is found. A
  * {@link MultiCommand} always requires at least one argument (the discriminator) to resolve to a
  * subcommand that can be executed. If no arguments are provided, the user probably just wants help.
  * So oblige by printing the help message and exiting.

@@ -25,7 +25,7 @@ import com.sigpwned.discourse.core.command.SingleCommand;
 
 /**
  * <p>
- * Thrown when the bean for a command cannot be created. This is (probably) the developer's fault.
+ * Thrown when the bean for a resolvedCommand cannot be created. This is (probably) the developer's fault.
  * </p>
  */
 public abstract class BeanException extends DiscourseException {

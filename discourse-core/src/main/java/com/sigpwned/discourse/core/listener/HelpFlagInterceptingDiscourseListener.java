@@ -47,7 +47,7 @@ public class HelpFlagInterceptingDiscourseListener implements DiscourseListener 
       List<MultiCommandDereference<? extends T>> dereferencedCommands,
       SingleCommand<? extends T> resolvedCommand, List<String> remainingArgs,
       InvocationContext context) {
-    // Look for the help flag in the resolved command.
+    // Look for the help flag in the resolved resolvedCommand.
     Optional<FlagConfigurationParameter> maybeHelpFlag = resolvedCommand.findHelpFlag();
     if (maybeHelpFlag.isEmpty()) {
       // There's no help flag, so there's no way to ask for help!

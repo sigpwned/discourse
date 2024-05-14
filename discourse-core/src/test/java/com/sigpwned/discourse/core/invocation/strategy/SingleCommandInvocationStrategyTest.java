@@ -19,7 +19,7 @@
  */
 package com.sigpwned.discourse.core.invocation.strategy;
 
-import com.sigpwned.discourse.core.Invocation;
+import com.sigpwned.discourse.core.invocation.model.Invocation;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.TestModule;
 import com.sigpwned.discourse.core.annotation.Configurable;

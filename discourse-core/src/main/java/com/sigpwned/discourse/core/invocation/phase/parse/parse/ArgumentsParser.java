@@ -42,16 +42,16 @@ import java.util.ListIterator;
 
 /**
  * <p>
- * An event parser for command line arguments. Given a set of
+ * An event parser for resolvedCommand line arguments. Given a set of
  * {@link com.sigpwned.discourse.core.model.coordinate.SwitchNameCoordinate switches} comprising
- * either flags or options, this class will parse a list of command-line arguments and emit events
+ * either flags or options, this class will parse a list of resolvedCommand-line arguments and emit events
  * to a {@link Handler} instance corresponding to the arguments being parsed.
  * </p>
  *
  * <p>
  * This class does not check whether the values of the arguments are valid, or that all parameters
- * marked required in the command are given. Those checks are performed elsewhere. This class only
- * checks the syntax of the command line.
+ * marked required in the resolvedCommand are given. Those checks are performed elsewhere. This class only
+ * checks the syntax of the resolvedCommand line.
  * </p>
  */
 public class ArgumentsParser {
@@ -59,7 +59,7 @@ public class ArgumentsParser {
   public static interface Handler {
 
     /**
-     * Called when a flag is encountered in the command line. A flag is a boolean-valued switch that
+     * Called when a flag is encountered in the resolvedCommand line. A flag is a boolean-valued switch that
      * is either present or not, as opposed to having an explicit value. For example, {@code -h} and
      * {@code --help} are flags.
      *
@@ -69,7 +69,7 @@ public class ArgumentsParser {
     }
 
     /**
-     * Called when an option is encountered in the command line. An option is a switch that has an
+     * Called when an option is encountered in the resolvedCommand line. An option is a switch that has an
      * explicit value. For example, {@code -f file.txt} and {@code --file file.txt} are options.
      *
      * @param s     the coordinate (i.e., switch) of the option
@@ -79,9 +79,9 @@ public class ArgumentsParser {
     }
 
     /**
-     * Called when a positional argument is encountered in the command line. A positional is a
+     * Called when a positional argument is encountered in the resolvedCommand line. A positional is a
      * parameter that is not preceded by a switch and is instead identified by its position in the
-     * command line. For example, in the command {@code cp file1 file2}, {@code file1} and
+     * resolvedCommand line. For example, in the resolvedCommand {@code cp file1 file2}, {@code file1} and
      * {@code file2} are positionals.
      *
      * @param position the position of the positional argument
@@ -103,7 +103,7 @@ public class ArgumentsParser {
    * Parses the given arguments, emitting events to the instance's {@link Handler handler}.
    *
    * @param args the arguments to parse
-   * @throws SyntaxException if the command line could not be parsed
+   * @throws SyntaxException if the resolvedCommand line could not be parsed
    */
   public void parse(List<String> args, Handler handler) {
     iterator = unmodifiableList(args).listIterator();

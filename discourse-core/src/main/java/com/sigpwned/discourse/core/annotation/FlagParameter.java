@@ -29,9 +29,9 @@ import java.lang.annotation.Target;
 /**
  * <p>
  * A configuration property that encodes a boolean value by its presence or absence. If the flag
- * appears on the command line, then it is assigned {@code true}. Otherwise, it is assigned
+ * appears on the resolvedCommand line, then it is assigned {@code true}. Otherwise, it is assigned
  * {@code false}. For example, the following field will be set to {@code true} if the flag
- * {@code --verbose} appears on the command line:
+ * {@code --verbose} appears on the resolvedCommand line:
  * </p>
  *
  * <pre>

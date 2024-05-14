@@ -44,12 +44,12 @@ public final class Commands {
   }
 
   /**
-   * Returns a stream of all parameters in the given command and all subcommands, if any exist. The
+   * Returns a stream of all parameters in the given resolvedCommand and all subcommands, if any exist. The
    * stream is not deduplicated. If one parameter appears in multiple subcommands, it will appear
    * multiple times in the stream.
    *
-   * @param command the command
-   * @return a stream of all parameters in the given command
+   * @param command the resolvedCommand
+   * @return a stream of all parameters in the given resolvedCommand
    */
   public static Stream<ConfigurationParameter> deepParameters(Command<?> command) {
     if (command instanceof SingleCommand<?> single) {
@@ -57,15 +57,15 @@ public final class Commands {
     } else if (command instanceof MultiCommand<?> multi) {
       return multi.getSubcommands().values().stream().flatMap(Commands::deepParameters);
     }
-    throw new AssertionError("unrecognized command type: " + command.getClass().getName());
+    throw new AssertionError("unrecognized resolvedCommand type: " + command.getClass().getName());
   }
 
 
   /**
-   * Returns a set of all parameters that are common to all subcommands of the given multi-command.
+   * Returns a set of all parameters that are common to all subcommands of the given multi-resolvedCommand.
    * A parameter is common if it appears in every subcommand.
    *
-   * @param multi the multi-command
+   * @param multi the multi-resolvedCommand
    */
   public static Set<ConfigurationParameter> commonParameters(MultiCommand<?> multi) {
     return deepParameters(multi).collect(
@@ -82,12 +82,12 @@ public final class Commands {
   }
 
   /**
-   * Returns the raw type of the "root" command of the give command. The root command is the highest
-   * superclass of the given command that is annotated with {@link Configurable}.
+   * Returns the raw type of the "root" resolvedCommand of the give resolvedCommand. The root resolvedCommand is the highest
+   * superclass of the given resolvedCommand that is annotated with {@link Configurable}.
    *
    * @param rawType the raw type
    * @param <T>     the type of the raw type
-   * @return the root command raw type of the given raw type
+   * @return the root resolvedCommand raw type of the given raw type
    * @throws IllegalArgumentException if the given raw type is not configurable
    */
   public static <T> Class<? super T> getRootCommandRawType(Class<T> rawType) {
@@ -104,13 +104,13 @@ public final class Commands {
   }
 
   /**
-   * Resolves the given command and arguments into a single command and a list of remaining
+   * Resolves the given resolvedCommand and arguments into a single resolvedCommand and a list of remaining
    * arguments.
    *
-   * @param command   the root command
+   * @param command   the root resolvedCommand
    * @param arguments the arguments
-   * @param <T>       the type of the root command
-   * @return the resolved command and remaining arguments
+   * @param <T>       the type of the root resolvedCommand
+   * @return the resolved resolvedCommand and remaining arguments
    * @throws InsufficientDiscriminatorsSyntaxException if a {@link MultiCommand} is encountered and
    *                                                   there are no more arguments available to
    *                                                   resolve the next {@code Command}

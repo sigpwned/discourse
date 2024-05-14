@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * An {@link ExceptionFormatter} that handles {@link RequiredParametersMissingSyntaxException}s when
  * the user provides no arguments. The formatter works under the interpretation that the user
- * doesn't know what arguments to give the command, so prints the help message for the command and
+ * doesn't know what arguments to give the resolvedCommand, so prints the help message for the resolvedCommand and
  * exits.
  */
 public class EmptyArgsRequiredParametersMissingSyntaxExceptionFormatter implements
