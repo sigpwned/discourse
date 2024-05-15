@@ -30,24 +30,18 @@ import java.util.Optional;
 
 /**
  * A chain of {@link ValueDeserializerFactory} instances. This is used to create deserializers for
- * resolvedCommand line arguments. A factory can handle one or more types of values. The chain is searched
- * in order, and the first {@code ValueDeserializerFactory} that handles the given parameters is
- * returned. If no {@code ValueDeserializerFactory} in the chain handles the parameters, then
- * {@link Optional#empty() empty} is returned.
+ * resolvedCommand line arguments. A factory can handle one or more types of values. The chain is
+ * searched in order, and the first {@code ValueDeserializerFactory} that handles the given
+ * parameters is returned. If no {@code ValueDeserializerFactory} in the chain handles the
+ * parameters, then {@link Optional#empty() empty} is returned.
  */
 public class ValueDeserializerFactoryChain extends Chain<ValueDeserializerFactory<?>> implements
     ValueDeserializerFactory<Object> {
 
   @Override
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
-    return Chains.stream(this).anyMatch(f -> f.isDeserializable(genericType, annotations));
-  }
-
-  public ValueDeserializer<?> getDeserializer(Type genericType, List<Annotation> annotations) {
-    return Chains.stream(this).map(f -> f.getDeserializer(genericType, annotations)).findFirst()
-        .orElseThrow(() -> {
-          // TODO better exception?
-          return new IllegalArgumentException("No deserializer found for " + genericType);
-        });
+  public Optional<ValueDeserializer<?>> getDeserializer(Type genericType,
+      List<Annotation> annotations) {
+    return (Optional<ValueDeserializer<?>>) Chains.stream(this)
+        .flatMap(f -> f.getDeserializer(genericType, annotations).stream()).findFirst();
   }
 }

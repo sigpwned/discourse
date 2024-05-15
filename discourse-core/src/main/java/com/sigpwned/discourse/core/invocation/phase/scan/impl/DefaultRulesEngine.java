@@ -1,6 +1,7 @@
 package com.sigpwned.discourse.core.invocation.phase.scan.impl;
 
 import static java.util.Collections.*;
+import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleEvaluator;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RulesEngine;
@@ -15,6 +16,10 @@ import java.util.Optional;
 public class DefaultRulesEngine implements RulesEngine {
 
   private final RuleEvaluator evaluator;
+
+  public DefaultRulesEngine(RuleEvaluator evaluator) {
+    this.evaluator = requireNonNull(evaluator);
+  }
 
   public Map<String, Object> run(Map<String, Object> input, List<NamedRule> rules) {
     rules = new ArrayList<>(rules);

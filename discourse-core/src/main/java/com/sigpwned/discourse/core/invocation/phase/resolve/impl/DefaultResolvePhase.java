@@ -4,10 +4,10 @@ import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.RootCommand;
+import com.sigpwned.discourse.core.command.resolve.CommandResolver;
 import com.sigpwned.discourse.core.invocation.model.CommandDereference;
 import com.sigpwned.discourse.core.invocation.model.CommandResolution;
 import com.sigpwned.discourse.core.invocation.phase.ResolvePhase;
-import com.sigpwned.discourse.core.command.resolve.CommandResolver;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -38,10 +38,12 @@ public class DefaultResolvePhase implements ResolvePhase {
 
     getListener().beforeResolve(rootCommand, originalArgs);
 
-    CommandResolution<? extends T> resolution = (CommandResolution<? extends T>) getCommandResolverSupplier().get()
-        .resolveCommand(rootCommand, originalArgs);
+    CommandResolver commandResolver = getCommandResolverSupplier().get();
 
-    List<CommandDereference<? extends T>> dereferences = (List) resolution.dereferences();
+    CommandResolution<? extends T> resolution = (CommandResolution<? extends T>) commandResolver.resolveCommand(
+        rootCommand, originalArgs);
+
+    List<CommandDereference<? extends T>> dereferences = (List<CommandDereference<? extends T>>) resolution.dereferences();
     Command<? extends T> resolvedCommand = resolution.resolvedCommand();
     List<String> remainingArgs = resolution.remainingArgs();
 

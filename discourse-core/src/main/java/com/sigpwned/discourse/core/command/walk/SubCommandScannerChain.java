@@ -2,11 +2,12 @@ package com.sigpwned.discourse.core.command.walk;
 
 import static java.util.Collections.*;
 
-import java.util.LinkedHashMap;
+import com.sigpwned.discourse.core.Chain;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-public class SubCommandScannerChain implements SubCommandScanner {
+public class SubCommandScannerChain extends Chain<SubCommandScanner> implements SubCommandScanner {
 
   private final List<SubCommandScanner> delegates;
 
@@ -15,18 +16,14 @@ public class SubCommandScannerChain implements SubCommandScanner {
   }
 
   @Override
-  public <T> Map<String, Class<? extends T>> scanForSubCommands(Class<T> clazz) {
-    Map<String, Class<? extends T>> result = new LinkedHashMap<>();
+  public <T> Optional<Map<String, Class<? extends T>>> scanForSubCommands(Class<T> clazz) {
     for (SubCommandScanner delegate : getDelegates()) {
-      Map<String, Class<? extends T>> subcommands = delegate.scanForSubCommands(clazz);
-      for (Map.Entry<String, Class<? extends T>> entry : subcommands.entrySet()) {
-        if (result.containsKey(entry.getKey())) {
-          throw new IllegalArgumentException("Duplicate discriminator: " + entry.getKey());
-        }
-        result.put(entry.getKey(), entry.getValue());
+      Map<String, Class<? extends T>> subcommands = delegate.scanForSubCommands(clazz).orElse(null);
+      if (subcommands != null) {
+        return Optional.of(subcommands);
       }
     }
-    return unmodifiableMap(result);
+    return Optional.empty();
   }
 
   private List<SubCommandScanner> getDelegates() {

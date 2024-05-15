@@ -22,6 +22,7 @@ package com.sigpwned.discourse.core.value.deserializer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A factory for creating {@link ValueDeserializer} objects. This is used to create deserializers
@@ -29,8 +30,6 @@ import java.util.List;
  */
 public interface ValueDeserializerFactory<T> {
 
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations);
-
-  public ValueDeserializer<? extends T> getDeserializer(Type genericType,
+  public Optional<ValueDeserializer<? extends T>> getDeserializer(Type genericType,
       List<Annotation> annotations);
 }

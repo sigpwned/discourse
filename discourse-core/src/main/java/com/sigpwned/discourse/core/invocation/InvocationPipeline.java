@@ -4,13 +4,13 @@ import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.RootCommand;
+import com.sigpwned.discourse.core.invocation.model.CommandDereference;
+import com.sigpwned.discourse.core.invocation.model.CommandResolution;
 import com.sigpwned.discourse.core.invocation.phase.EvalPhase;
 import com.sigpwned.discourse.core.invocation.phase.FactoryPhase;
 import com.sigpwned.discourse.core.invocation.phase.ParsePhase;
 import com.sigpwned.discourse.core.invocation.phase.ResolvePhase;
 import com.sigpwned.discourse.core.invocation.phase.ScanPhase;
-import com.sigpwned.discourse.core.invocation.model.CommandDereference;
-import com.sigpwned.discourse.core.invocation.model.CommandResolution;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

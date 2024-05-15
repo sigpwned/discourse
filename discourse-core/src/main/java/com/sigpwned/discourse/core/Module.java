@@ -19,70 +19,49 @@
  */
 package com.sigpwned.discourse.core;
 
-import com.sigpwned.discourse.core.accessor.naming.AccessorNamingScheme;
-import com.sigpwned.discourse.core.chain.AccessorNamingSchemeChain;
-import com.sigpwned.discourse.core.chain.ConfigurableComponentScannerChain;
-import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
-import com.sigpwned.discourse.core.chain.DiscourseListenerChain;
-import com.sigpwned.discourse.core.chain.ExceptionFormatterChain;
-import com.sigpwned.discourse.core.chain.ValueDeserializerFactoryChain;
-import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
-import com.sigpwned.discourse.core.configurable.component.scanner.ConfigurableCandidateComponentScanner;
-import com.sigpwned.discourse.core.configurable.instance.factory.scanner.ConfigurableInstanceFactoryScanner;
-import com.sigpwned.discourse.core.format.exception.ExceptionFormatter;
-import com.sigpwned.discourse.core.listener.DiscourseListener;
-import com.sigpwned.discourse.core.value.sink.ValueSinkFactory;
+import com.sigpwned.discourse.core.command.walk.SubCommandScanner;
+import com.sigpwned.discourse.core.invocation.InvocationPipelineListener;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.NamingScheme;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleDetector;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleEvaluator;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleNominator;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.syntax.SyntaxDetector;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.syntax.SyntaxNominator;
+import com.sigpwned.discourse.core.value.deserializer.ValueDeserializerFactory;
+import com.sigpwned.discourse.core.value.sink.ValueSinkFactory;<SyntaxNominator>;
 
 /**
  * Container for registering various components of a Discourse application.
  */
 public abstract class Module {
 
-  /**
-   * Perform any necessary registration for the given {@link InvocationContext}.
-   */
-  public void register(InvocationContext context) {
+  public void registerSubCommandScanners(Chain<SubCommandScanner> chain) {
   }
 
-  /**
-   * Register new {@link ValueSinkFactory} instances with the given {@link ValueSinkFactoryChain}.
-   */
-  public void registerValueDeserializerFactories(ValueDeserializerFactoryChain resolver) {
+  public void registerSyntaxNominators(Chain<SyntaxNominator> chain) {
   }
 
-  /**
-   * Register new {@link ValueSinkFactory} instances with the given {@link ValueSinkFactoryChain}.
-   */
-  public void registerValueSinkFactories(ValueSinkFactoryChain resolver) {
+  public void registerSyntaxDetectors(Chain<SyntaxDetector> chain) {
   }
 
-  /**
-   * Register new {@link ConfigurableInstanceFactoryScanner} instances with the given chain
-   */
-  public void registerInstanceFactoryScanners(ConfigurableInstanceFactoryScannerChain chain) {
+  public void registerRuleNominators(Chain<RuleNominator> chain) {
   }
 
-  /**
-   * Register new {@link ConfigurableCandidateComponentScanner} instances with the given chain
-   */
-  public void registerConfigurableComponentScanners(ConfigurableComponentScannerChain chain) {
+  public void registerRuleDetectors(Chain<RuleDetector> chain) {
   }
 
-  /**
-   * Register new {@link AccessorNamingScheme} instances with the given chain
-   */
-  public void registerAccessorNamingSchemes(AccessorNamingSchemeChain chain) {
+  public void registerNamingSchemes(Chain<NamingScheme> chain) {
   }
 
-  /**
-   * Register new {@link ExceptionFormatter} instances with the given chain
-   */
-  public void registerExceptionFormatters(ExceptionFormatterChain chain) {
+  public void registerRuleEvaluators(Chain<RuleEvaluator> chain) {
   }
 
-  /**
-   * Register new {@link DiscourseListener} instances with the given chain
-   */
-  public void registerDiscourseListeners(DiscourseListenerChain chain) {
+  public void registerValueSinkFactories(Chain<ValueSinkFactory> chain) {
+  }
+
+  public void registerValueDeserializerFactories(Chain<ValueDeserializerFactory<?>> chain) {
+  }
+
+  public void registerListeners(Chain<InvocationPipelineListener> chain) {
   }
 }

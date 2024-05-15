@@ -22,13 +22,12 @@ package com.sigpwned.discourse.core.value.sink;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A factory for creating {@link ValueSink} instances.
  */
 public interface ValueSinkFactory {
 
-  public boolean isSinkable(Type genericType, List<Annotation> annotations);
-
-  public ValueSink getSink(Type genericType, List<Annotation> annotations);
+  public Optional<ValueSink> getSink(Type genericType, List<Annotation> annotations);
 }

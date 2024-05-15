@@ -7,7 +7,6 @@ import com.sigpwned.discourse.core.command.CommandBody;
 import com.sigpwned.discourse.core.invocation.phase.FactoryPhase;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RulesEngine;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.model.NamedRule;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -15,7 +14,6 @@ import java.util.function.Supplier;
 public class DefaultFactoryPhase implements FactoryPhase {
 
   private final Supplier<RulesEngine> rulesEngineSupplier;
-
   private final DefaultFactoryPhaseListener listener;
 
   public DefaultFactoryPhase(Supplier<RulesEngine> rulesEngineSupplier,
@@ -25,48 +23,72 @@ public class DefaultFactoryPhase implements FactoryPhase {
   }
 
   @Override
-  public <T> T create(Command<T> command, Map<String, Object> initialState) {
-    CommandBody<T> body = command.getBody().orElseThrow(() -> {
+  public final <T> T create(Command<T> command, Map<String, Object> initialState) {
+    T result;
+    try {
+      getListener().beforeFactoryPhase();
+      result = doCreate(command, initialState);
+      getListener().afterFactoryPhase(result);
+    } catch (Throwable problem) {
+      getListener().catchFactoryPhase(problem);
+      throw problem;
+    } finally {
+      getListener().finallyFactoryPhase();
+    }
+    return result;
+  }
+
+  private <T> T doCreate(Command<T> command, Map<String, Object> initialState) {
+    final CommandBody<T> body = command.getBody().orElseThrow(() -> {
       // TODO better exception
       return new IllegalArgumentException("Command has no body");
     });
+    final List<NamedRule> rules = body.getRules();
+    final Class<T> clazz = command.getClazz();
+    final RulesEngine rulesEngine = getRulesEngineSupplier().get();
 
-    RulesEngine rulesEngine = getRulesEngineSupplier().get();
+    Map<String, Object> newState;
+    try {
+      getListener().beforeFactoryPhaseRulesStep(rulesEngine, initialState, rules);
+      newState = rulesStep(rulesEngine, initialState, rules);
+      getListener().afterFactoryPhaseRulesStep(rulesEngine, initialState, rules, newState);
+    } catch (Throwable problem) {
+      getListener().catchFactoryPhaseRulesStep(rulesEngine, initialState, rules, problem);
+      throw problem;
+    } finally {
+      getListener().finallyFactoryPhaseRulesStep(rulesEngine, initialState, rules);
+    }
 
-    Map<String, Object> newState = rulesStep(rulesEngine, initialState, body.getRules());
-
-    T instance = factoryStep(command.getClazz(), newState);
+    T instance;
+    try {
+      getListener().beforeFactoryPhaseCreateStep(newState);
+      instance = factoryStep(clazz, newState);
+      getListener().afterFactoryPhaseCreateStep(newState, instance);
+    } catch (Throwable problem) {
+      getListener().catchFactoryPhaseCreateStep(newState, problem);
+      throw problem;
+    } finally {
+      getListener().finallyFactoryPhaseCreateStep(newState);
+    }
 
     return instance;
   }
 
-  protected Map<String, Object> rulesStep(RulesEngine rulesEngine, Map<String, Object> state,
+  protected Map<String, Object> rulesStep(RulesEngine rulesEngine, Map<String, Object> initialState,
       List<NamedRule> rules) {
-    // defensive copy
-    state = new HashMap<>(state);
-
-    getListener().beforeFactory(state);
-
-    Map<String, Object> newState = rulesEngine.run(state, rules);
-
-    return newState;
+    return rulesEngine.run(initialState, rules);
   }
 
   protected <T> T factoryStep(Class<T> clazz, Map<String, Object> newState) {
-    getListener().beforeFactory(newState);
-
-    T instance = clazz.cast(newState.get(""));
-
-    getListener().afterFactory(newState, instance);
-
-    return instance;
+    // TODO constant
+    return clazz.cast(newState.get(""));
   }
 
-  protected Supplier<RulesEngine> getRulesEngineSupplier() {
+  private Supplier<RulesEngine> getRulesEngineSupplier() {
     return rulesEngineSupplier;
   }
 
-  protected DefaultFactoryPhaseListener getListener() {
+  private DefaultFactoryPhaseListener getListener() {
     return listener;
   }
 }
