@@ -1,41 +1,54 @@
 package com.sigpwned.discourse.core.invocation.phase.eval.impl;
 
-import com.sigpwned.discourse.core.command.Command;
-import com.sigpwned.discourse.core.command.CommandBody;
-import com.sigpwned.discourse.core.command.CommandProperty;
-import com.sigpwned.discourse.core.invocation.phase.EvalPhase;
+import static java.util.Objects.requireNonNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.sigpwned.discourse.core.invocation.phase.EvalPhase;
 
 public class DefaultEvalPhase implements EvalPhase {
+  private final DefaultEvalPhaseListener listener;
+
+  public DefaultEvalPhase(DefaultEvalPhaseListener listener) {
+    this.listener = requireNonNull(listener);
+  }
 
   @Override
-  public <T> Map<String, Object> eval(Command<T> command,
+  public final Map<String, Object> eval(Map<String, Function<String, Object>> mappers,
+      Map<String, Function<List<Object>, Object>> reducers,
       List<Map.Entry<String, String>> parsedArgs) {
-    CommandBody<T> body = command.getBody().orElseThrow(() -> {
-      // TODO better exception
-      return new IllegalArgumentException("Command has no body");
-    });
+    Map<String, List<String>> groupedArgs = doGroupStep(parsedArgs);
 
-    Map<String, List<String>> groupedArgs = groupStep(parsedArgs);
 
-    Map<String, List<Object>> mappedArgs = mapStep(body.getProperties().stream()
-            .collect(Collectors.toMap(CommandProperty::getName, CommandProperty::getMapper)),
-        groupedArgs);
+    Map<String, List<Object>> mappedArgs = doMapStep(mappers, groupedArgs);
 
-    Map<String, Object> reducedArgs = reduceStep(body.getProperties().stream()
-            .collect(Collectors.toMap(CommandProperty::getName, CommandProperty::getReducer)),
-        mappedArgs);
+
+    Map<String, Object> reducedArgs = doReduceStep(reducers, mappedArgs);
 
     return reducedArgs;
   }
 
-  protected <T> Map<String, List<String>> groupStep(List<Map.Entry<String, String>> parsedArgs) {
+  private Map<String, List<String>> doGroupStep(List<Entry<String, String>> parsedArgs) {
+    Map<String, List<String>> groupedArgs;
+    try {
+      getListener().beforeEvalPhaseGroupStep(parsedArgs);
+      groupedArgs = groupStep(parsedArgs);
+      getListener().afterEvalPhaseGroupStep(parsedArgs, groupedArgs);
+    } catch (Throwable problem) {
+      getListener().catchEvalPhaseGroupStep(problem);
+      throw problem;
+    } finally {
+      getListener().finallyEvalPhaseGroupStep();
+    }
+    return groupedArgs;
+  }
+
+
+  protected Map<String, List<String>> groupStep(List<Map.Entry<String, String>> parsedArgs) {
     Map<String, List<String>> groupedArgs = new HashMap<>();
 
     for (Map.Entry<String, String> parsedArg : parsedArgs) {
@@ -50,7 +63,23 @@ public class DefaultEvalPhase implements EvalPhase {
     return groupedArgs;
   }
 
-  protected <T> Map<String, List<Object>> mapStep(Map<String, Function<String, Object>> mappers,
+  private Map<String, List<Object>> doMapStep(Map<String, Function<String, Object>> mappers,
+      Map<String, List<String>> groupedArgs) {
+    Map<String, List<Object>> mappedArgs;
+    try {
+      getListener().beforeEvalPhaseEvalStep(mappers, groupedArgs);
+      mappedArgs = mapStep(mappers, groupedArgs);
+      getListener().afterEvalPhaseEvalStep(mappers, groupedArgs, mappedArgs);
+    } catch (Throwable problem) {
+      getListener().catchEvalPhaseEvalStep(problem);
+      throw problem;
+    } finally {
+      getListener().finallyEvalPhaseEvalStep();
+    }
+    return mappedArgs;
+  }
+
+  protected Map<String, List<Object>> mapStep(Map<String, Function<String, Object>> mappers,
       Map<String, List<String>> groupedArgs) {
     Map<String, List<Object>> mappedArgs = new HashMap<>(groupedArgs.size());
 
@@ -75,7 +104,23 @@ public class DefaultEvalPhase implements EvalPhase {
     return mappedArgs;
   }
 
-  protected <T> Map<String, Object> reduceStep(Map<String, Function<List<Object>, Object>> reducers,
+  private Map<String, Object> doReduceStep(Map<String, Function<List<Object>, Object>> reducers,
+      Map<String, List<Object>> mappedArgs) {
+    Map<String, Object> reducedArgs;
+    try {
+      getListener().beforeEvalPhaseReduceStep(reducers, mappedArgs);
+      reducedArgs = reduceStep(reducers, mappedArgs);
+      getListener().afterEvalPhaseReduceStep(reducers, mappedArgs, reducedArgs);
+    } catch (Throwable problem) {
+      getListener().catchEvalPhaseReduceStep(problem);
+      throw problem;
+    } finally {
+      getListener().finallyEvalPhaseReduceStep();
+    }
+    return reducedArgs;
+  }
+
+  protected Map<String, Object> reduceStep(Map<String, Function<List<Object>, Object>> reducers,
       Map<String, List<Object>> mappedArgs) {
     Map<String, Object> reducedArgs = new HashMap<>(mappedArgs.size());
 
@@ -83,8 +128,8 @@ public class DefaultEvalPhase implements EvalPhase {
       String name = entry.getKey();
       List<Object> mappedValues = entry.getValue();
 
-      Function<List<Object>, Object> reducer = Optional.ofNullable(reducers.get(name))
-          .orElseThrow(() -> {
+      Function<List<Object>, Object> reducer =
+          Optional.ofNullable(reducers.get(name)).orElseThrow(() -> {
             // TODO better exception
             return new IllegalArgumentException("no reducer for " + name);
           });
@@ -95,5 +140,9 @@ public class DefaultEvalPhase implements EvalPhase {
     }
 
     return reducedArgs;
+  }
+
+  private DefaultEvalPhaseListener getListener() {
+    return listener;
   }
 }

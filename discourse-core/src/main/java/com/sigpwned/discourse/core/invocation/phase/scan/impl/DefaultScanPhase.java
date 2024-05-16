@@ -1,7 +1,7 @@
 package com.sigpwned.discourse.core.invocation.phase.scan.impl;
 
-import com.sigpwned.discourse.core.command.walk.CommandWalker;
 import com.sigpwned.discourse.core.command.RootCommand;
+import com.sigpwned.discourse.core.command.walk.CommandWalker;
 import com.sigpwned.discourse.core.command.walk.SubCommandScanner;
 import com.sigpwned.discourse.core.invocation.phase.ScanPhase;
 import com.sigpwned.discourse.core.invocation.phase.scan.CommandScanner;
@@ -35,14 +35,12 @@ public class DefaultScanPhase implements ScanPhase {
 
   @Override
   public <T> RootCommand<T> scan(Class<T> clazz) {
-    final ConfigurableClassScanner configurableScanner = new ConfigurableClassScanner(
-        getNamingScheme(), getSyntaxNominator(), getSyntaxDetector(), getRuleNominator(),
-        getRuleDetector(), new ConfigurableClassScannerListener() {
-    });
+    final ConfigurableClassScanner configurableScanner =
+        new ConfigurableClassScanner(getNamingScheme(), getSyntaxNominator(), getSyntaxDetector(),
+            getRuleNominator(), getRuleDetector(), new ConfigurableClassScannerListener() {});
     final CommandWalker commandWalker = new CommandWalker(getSubCommandScanner());
-    final CommandScanner commandScanner = new DefaultCommandScanner(commandWalker,
-        configurableScanner,
-        getRulesEngine());
+    final CommandScanner commandScanner =
+        new DefaultCommandScanner(commandWalker, configurableScanner, getRulesEngine());
     return commandScanner.scanForCommand(clazz);
   }
 

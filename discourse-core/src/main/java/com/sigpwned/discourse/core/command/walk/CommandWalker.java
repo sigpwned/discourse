@@ -1,11 +1,11 @@
 package com.sigpwned.discourse.core.command.walk;
 
 import static java.util.Objects.requireNonNull;
-
+import java.lang.reflect.Modifier;
+import java.util.Collections;
+import java.util.Map;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.util.Discriminators;
-import java.lang.reflect.Modifier;
-import java.util.Map;
 
 public class CommandWalker {
 
@@ -32,52 +32,47 @@ public class CommandWalker {
    * </p>
    *
    * <ol>
-   *   <li><code>beginWalk(RootCommand)</code></li>
-   *   <li><code>enterClazz(RootCommand, @Configurable, {})</code></li>
-   *   <li><code>visitClazz(RootCommand, @Configurable, {SubCommand1, SubCommand2})</code></li>
-   *   <li><code>enterClazz(SubCommand1, @Configurable, {})</code></li>
-   *   <li><code>visitClazz(SubCommand1, @Configurable, {SubCommand1A, SubCommand1B})</code></li>
-   *   <li><code>enterClazz(SubCommand1A, @Configurable, {})</code></li>
-   *   <li><code>visitClazz(SubCommand1A, @Configurable, {})</code></li>
-   *   <li><code>leaveClazz(SubCommand1A, @Configurable, {})</code></li>
-   *   <li><code>enterClazz(SubCommand1B, @Configurable, {})</code></li>
-   *   <li><code>visitClazz(SubCommand1B, @Configurable, {})</code></li>
-   *   <li><code>leaveClazz(SubCommand1B, @Configurable, {})</code></li>
-   *   <li><code>leaveClazz(SubCommand1, @Configurable, {SubCommand1A, SubCommand1B})</code></li>
-   *   <li><code>enterClazz(SubCommand2, @Configurable, {})</code></li>
-   *   <li><code>visitClazz(SubCommand2, @Configurable, {})</code></li>
-   *   <li><code>leaveClazz(SubCommand2, @Configurable, {})</code></li>
-   *   <li><code>leaveClazz(RootCommand, @Configurable, {SubCommand1, SubCommand2})</code></li>
-   *   <li><code>endWalk(RootCommand)</code></li>
+   * <li><code>beginWalk(RootCommand)</code></li>
+   * <li><code>enterClazz(RootCommand, @Configurable, {})</code></li>
+   * <li><code>visitClazz(RootCommand, @Configurable, {SubCommand1, SubCommand2})</code></li>
+   * <li><code>enterClazz(SubCommand1, @Configurable, {})</code></li>
+   * <li><code>visitClazz(SubCommand1, @Configurable, {SubCommand1A, SubCommand1B})</code></li>
+   * <li><code>enterClazz(SubCommand1A, @Configurable, {})</code></li>
+   * <li><code>visitClazz(SubCommand1A, @Configurable, {})</code></li>
+   * <li><code>leaveClazz(SubCommand1A, @Configurable, {})</code></li>
+   * <li><code>enterClazz(SubCommand1B, @Configurable, {})</code></li>
+   * <li><code>visitClazz(SubCommand1B, @Configurable, {})</code></li>
+   * <li><code>leaveClazz(SubCommand1B, @Configurable, {})</code></li>
+   * <li><code>leaveClazz(SubCommand1, @Configurable, {SubCommand1A, SubCommand1B})</code></li>
+   * <li><code>enterClazz(SubCommand2, @Configurable, {})</code></li>
+   * <li><code>visitClazz(SubCommand2, @Configurable, {})</code></li>
+   * <li><code>leaveClazz(SubCommand2, @Configurable, {})</code></li>
+   * <li><code>leaveClazz(RootCommand, @Configurable, {SubCommand1, SubCommand2})</code></li>
+   * <li><code>endWalk(RootCommand)</code></li>
    * </ol>
    *
    * <p>
-   *   Broadly, the walker implements a depth-first walk of the resolvedCommand hierarchy. For a given class,
-   *   the class is {@link #enterClazz(String, Class, Configurable, Map) entered}, then
-   *   {@link #visitClazz(String, Class, Configurable, Map) visited}, and finally
-   *   {@link #leaveClazz(String, Class, Configurable, Map) left}. A class is visited before any of
-   *   its subclasses are visited. Any subclasses are visited before the parent is left.
+   * Broadly, the walker implements a depth-first walk of the resolvedCommand hierarchy. For a given
+   * class, the class is {@link #enterClazz(String, Class, Configurable, Map) entered}, then
+   * {@link #visitClazz(String, Class, Configurable, Map) visited}, and finally
+   * {@link #leaveClazz(String, Class, Configurable, Map) left}. A class is visited before any of
+   * its subclasses are visited. Any subclasses are visited before the parent is left.
    * </p>
    */
   public static interface Listener<T> {
 
-    default void beginWalk(Class<T> rootClazz) {
-    }
+    default void beginWalk(Class<T> rootClazz) {}
 
     default <U extends T> void enterClazz(String discriminator, Class<U> commandClazz,
-        Configurable configurable, Map<String, Class<? extends U>> subcommandClazzes) {
-    }
+        Configurable configurable, Map<String, Class<? extends U>> subcommandClazzes) {}
 
     default <U extends T> void visitClazz(String discriminator, Class<U> commandClazz,
-        Configurable configurable, Map<String, Class<? extends U>> subcommandClazzes) {
-    }
+        Configurable configurable, Map<String, Class<? extends U>> subcommandClazzes) {}
 
     default <U extends T> void leaveClazz(String discriminator, Class<U> commandClazz,
-        Configurable configurable, Map<String, Class<? extends U>> subcommandClazzes) {
-    }
+        Configurable configurable, Map<String, Class<? extends U>> subcommandClazzes) {}
 
-    default void endWalk(Class<T> rootClazz) {
-    }
+    default void endWalk(Class<T> rootClazz) {}
   }
 
   private final SubCommandScanner scanner;
@@ -103,7 +98,8 @@ public class CommandWalker {
       throw new IllegalArgumentException("clazz must be a Configurable");
     }
 
-    Map<String, Class<? extends U>> subcommands = getScanner().scanForSubCommands(clazz);
+    Map<String, Class<? extends U>> subcommands =
+        getScanner().scanForSubCommands(clazz).orElseGet(Collections::emptyMap);
 
     if (subcommands.isEmpty()) {
       // This is a leaf node. It doesn't have to be concrete, since an abstract class with a factory

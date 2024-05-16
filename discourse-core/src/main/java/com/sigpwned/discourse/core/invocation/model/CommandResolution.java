@@ -1,12 +1,11 @@
 package com.sigpwned.discourse.core.invocation.model;
 
-import static java.util.Collections.*;
+import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
-
+import java.util.List;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.RootCommand;
 import com.sigpwned.discourse.core.command.SubCommand;
-import java.util.List;
 
 public record CommandResolution<T>(RootCommand<? super T> rootCommand, Command<T> resolvedCommand,
     List<CommandDereference<? super T>> dereferences, List<String> remainingArgs) {

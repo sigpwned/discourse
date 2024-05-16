@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface ResolvePhase {
 
-  public <T> CommandResolution<? extends T> resolveCommand(RootCommand<T> rootCommand,
+  public <T> CommandResolution<? extends T> resolve(RootCommand<T> rootCommand,
       List<String> args);
 }

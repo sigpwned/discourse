@@ -1,9 +1,10 @@
 package com.sigpwned.discourse.core.invocation.phase;
 
-import com.sigpwned.discourse.core.command.Command;
+import java.util.List;
 import java.util.Map;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.model.NamedRule;
 
 public interface FactoryPhase {
 
-  public <T> T create(Command<T> command, Map<String, Object> state);
+  public Object create(List<NamedRule> rules, Map<String, Object> state);
 }

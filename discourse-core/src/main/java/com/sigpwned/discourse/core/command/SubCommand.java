@@ -1,22 +1,19 @@
 package com.sigpwned.discourse.core.command;
 
-import static java.util.Collections.*;
+import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
-
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 public final class SubCommand<T> implements Command<T> {
 
   private final Class<T> clazz;
   private final String discriminator;
   private final String description;
-  private final Function<Map<String, Object>, ? extends T> body;
+  private final CommandBody<T> body;
   private final Map<String, SubCommand<? extends T>> subcommands;
 
-  public SubCommand(Class<T> clazz, String discriminator, String description,
-      Function<Map<String, Object>, ? extends T> body,
+  public SubCommand(Class<T> clazz, String discriminator, String description, CommandBody<T> body,
       Map<String, SubCommand<? extends T>> subcommands) {
     this.clazz = requireNonNull(clazz);
     this.discriminator = requireNonNull(discriminator);
@@ -41,7 +38,7 @@ public final class SubCommand<T> implements Command<T> {
   }
 
   @Override
-  public Optional<Function<Map<String, Object>, ? extends T>> getBody() {
+  public Optional<CommandBody<T>> getBody() {
     return Optional.ofNullable(body);
   }
 

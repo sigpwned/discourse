@@ -1,11 +1,12 @@
 package com.sigpwned.discourse.core.invocation.phase;
 
-import com.sigpwned.discourse.core.command.Command;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.function.Function;
 
 public interface EvalPhase {
 
-  public <T> Map<String, Object> eval(Command<T> command, List<Entry<String, String>> state);
+  public Map<String, Object> eval(Map<String, Function<String, Object>> mappers,
+      Map<String, Function<List<Object>, Object>> reducers,
+      List<Map.Entry<String, String>> parsedArgs);
 }

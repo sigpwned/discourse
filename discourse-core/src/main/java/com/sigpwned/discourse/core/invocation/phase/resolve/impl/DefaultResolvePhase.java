@@ -1,16 +1,16 @@
 package com.sigpwned.discourse.core.invocation.phase.resolve.impl;
 
+import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.RootCommand;
 import com.sigpwned.discourse.core.command.resolve.CommandResolver;
 import com.sigpwned.discourse.core.invocation.model.CommandDereference;
 import com.sigpwned.discourse.core.invocation.model.CommandResolution;
 import com.sigpwned.discourse.core.invocation.phase.ResolvePhase;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
 
 public class DefaultResolvePhase implements ResolvePhase {
 
@@ -24,31 +24,45 @@ public class DefaultResolvePhase implements ResolvePhase {
   }
 
   @Override
-  public <T> CommandResolution<? extends T> resolveCommand(RootCommand<T> rootCommand,
+  public final <T> CommandResolution<? extends T> resolve(RootCommand<T> rootCommand,
       List<String> args) {
-    CommandResolution<? extends T> resolution = resolveStep(rootCommand, args);
+    CommandResolution<? extends T> resolution = doResolveStep(rootCommand, args);
+
+    return resolution;
+  }
+
+  private <T> CommandResolution<? extends T> doResolveStep(RootCommand<T> rootCommand,
+      List<String> originalArgs) {
+    CommandResolution<? extends T> resolution;
+    try {
+      getListener().beforeResolvePhaseResolveStep(rootCommand, originalArgs);
+
+      CommandResolution<? extends T> r = resolveStep(rootCommand, originalArgs);
+
+      List<CommandDereference<? extends T>> dereferences = new ArrayList(r.dereferences());
+      Command<? extends T> resolvedCommand = r.resolvedCommand();
+      List<String> remainingArgs = new ArrayList<>(r.remainingArgs());
+
+      getListener().afterResolvePhaseResolveStep(rootCommand, originalArgs, dereferences,
+          resolvedCommand, originalArgs);
+
+      resolution = new CommandResolution(rootCommand, resolvedCommand, dereferences, remainingArgs);
+    } catch (Throwable problem) {
+      getListener().catchResolvePhaseResolveStep(problem);
+      throw problem;
+    } finally {
+      getListener().finallyResolvePhaseResolveStep();
+    }
 
     return resolution;
   }
 
   protected <T> CommandResolution<? extends T> resolveStep(RootCommand<T> rootCommand,
       List<String> originalArgs) {
-    // defensive copy
-    originalArgs = new ArrayList<>(originalArgs);
-
-    getListener().beforeResolve(rootCommand, originalArgs);
-
     CommandResolver commandResolver = getCommandResolverSupplier().get();
 
-    CommandResolution<? extends T> resolution = (CommandResolution<? extends T>) commandResolver.resolveCommand(
-        rootCommand, originalArgs);
-
-    List<CommandDereference<? extends T>> dereferences = (List<CommandDereference<? extends T>>) resolution.dereferences();
-    Command<? extends T> resolvedCommand = resolution.resolvedCommand();
-    List<String> remainingArgs = resolution.remainingArgs();
-
-    getListener().afterResolve(rootCommand, originalArgs, dereferences, resolvedCommand,
-        remainingArgs);
+    CommandResolution<? extends T> resolution = (CommandResolution<? extends T>) commandResolver
+        .resolveCommand(rootCommand, unmodifiableList(originalArgs));
 
     return resolution;
   }
@@ -57,7 +71,7 @@ public class DefaultResolvePhase implements ResolvePhase {
     return commandResolverSupplier;
   }
 
-  protected DefaultResolvePhaseListener getListener() {
+  private DefaultResolvePhaseListener getListener() {
     return listener;
   }
 }

@@ -1,12 +1,13 @@
 package com.sigpwned.discourse.core.invocation.phase.scan.impl;
 
 import static java.util.Objects.requireNonNull;
-
+import java.util.List;
+import java.util.Optional;
 import com.sigpwned.discourse.core.annotation.Configurable;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.model.ConfigurableClass;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleDetector;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleNominator;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.model.CandidateRule;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.model.ConfigurableClass;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.model.DetectedRule;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.model.NamedRule;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.syntax.CandidateSyntax;
@@ -14,8 +15,6 @@ import com.sigpwned.discourse.core.invocation.phase.scan.impl.syntax.DetectedSyn
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.syntax.NamedSyntax;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.syntax.SyntaxDetector;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.syntax.SyntaxNominator;
-import java.util.List;
-import java.util.Optional;
 
 public class ConfigurableClassScanner {
 
@@ -47,7 +46,7 @@ public class ConfigurableClassScanner {
    * @param <T>
    * @return
    */
-  public <T> ConfigurableClass<T> scan(Class<T> clazz) {
+  public final <T> ConfigurableClass<T> scan(Class<T> clazz) {
     if (clazz.isPrimitive()) {
       // We disallow primitive functions explicitly
       throw new IllegalArgumentException("Cannot scan primitive class " + clazz);
@@ -55,6 +54,7 @@ public class ConfigurableClassScanner {
 
     Configurable configurable = clazz.getAnnotation(Configurable.class);
     if (configurable == null) {
+      // TODO better exception
       throw new IllegalArgumentException("Class " + clazz + " is not annotated with @Configurable");
     }
 
