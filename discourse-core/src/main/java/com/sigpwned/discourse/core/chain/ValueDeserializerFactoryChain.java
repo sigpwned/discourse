@@ -20,9 +20,9 @@
 package com.sigpwned.discourse.core.chain;
 
 import com.sigpwned.discourse.core.Chain;
+import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFactory;
 import com.sigpwned.discourse.core.util.Chains;
-import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
-import com.sigpwned.discourse.core.value.deserializer.ValueDeserializerFactory;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;

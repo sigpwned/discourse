@@ -5,15 +5,15 @@ import java.util.Map;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.RootCommand;
 import com.sigpwned.discourse.core.invocation.model.CommandDereference;
-import com.sigpwned.discourse.core.invocation.phase.eval.impl.DefaultEvalPhaseListener;
-import com.sigpwned.discourse.core.invocation.phase.factory.impl.DefaultFactoryPhaseListener;
-import com.sigpwned.discourse.core.invocation.phase.parse.impl.DefaultParsePhaseListener;
-import com.sigpwned.discourse.core.invocation.phase.resolve.impl.DefaultResolvePhaseListener;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.DefaultScanPhaseListener;
+import com.sigpwned.discourse.core.invocation.phase.eval.EvalPhaseListener;
+import com.sigpwned.discourse.core.invocation.phase.factory.FactoryPhaseListener;
+import com.sigpwned.discourse.core.invocation.phase.parse.ParsePhaseListener;
+import com.sigpwned.discourse.core.invocation.phase.resolve.ResolvePhaseListener;
+import com.sigpwned.discourse.core.invocation.phase.scan.ScanPhaseListener;
 
 public interface InvocationPipelineListener
-    extends DefaultScanPhaseListener, DefaultResolvePhaseListener, DefaultParsePhaseListener,
-    DefaultEvalPhaseListener, DefaultFactoryPhaseListener {
+    extends ScanPhaseListener, ResolvePhaseListener, ParsePhaseListener,
+    EvalPhaseListener, FactoryPhaseListener {
 
   default <T> void beforeInvocation(Class<T> rootClazz, List<String> args) {}
 

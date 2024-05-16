@@ -22,10 +22,10 @@ package com.sigpwned.discourse.core.chain;
 import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.Chain;
+import com.sigpwned.discourse.core.module.value.sink.AssignValueSinkFactory;
+import com.sigpwned.discourse.core.module.value.sink.ValueSink;
+import com.sigpwned.discourse.core.module.value.sink.ValueSinkFactory;
 import com.sigpwned.discourse.core.util.Chains;
-import com.sigpwned.discourse.core.value.sink.AssignValueSinkFactory;
-import com.sigpwned.discourse.core.value.sink.ValueSink;
-import com.sigpwned.discourse.core.value.sink.ValueSinkFactory;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;

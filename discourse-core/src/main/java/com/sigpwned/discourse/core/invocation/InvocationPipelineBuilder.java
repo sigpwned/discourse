@@ -10,22 +10,17 @@ import com.sigpwned.discourse.core.invocation.phase.FactoryPhase;
 import com.sigpwned.discourse.core.invocation.phase.ParsePhase;
 import com.sigpwned.discourse.core.invocation.phase.ResolvePhase;
 import com.sigpwned.discourse.core.invocation.phase.ScanPhase;
-import com.sigpwned.discourse.core.invocation.phase.eval.impl.DefaultEvalPhase;
-import com.sigpwned.discourse.core.invocation.phase.factory.impl.DefaultFactoryPhase;
-import com.sigpwned.discourse.core.invocation.phase.parse.impl.ArgumentsParser;
-import com.sigpwned.discourse.core.invocation.phase.parse.impl.DefaultParsePhase;
-import com.sigpwned.discourse.core.invocation.phase.resolve.impl.CommandResolver;
-import com.sigpwned.discourse.core.invocation.phase.resolve.impl.DefaultResolvePhase;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.DefaultScanPhase;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.NamingSchemeChain;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.RulesEngine;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.SubCommandScannerChain;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.DefaultRulesEngine;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleDetectorChain;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleEvaluatorChain;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleNominatorChain;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.syntax.SyntaxDetectorChain;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.syntax.SyntaxNominatorChain;
+import com.sigpwned.discourse.core.invocation.phase.parse.ArgumentsParser;
+import com.sigpwned.discourse.core.invocation.phase.resolve.CommandResolver;
+import com.sigpwned.discourse.core.invocation.phase.scan.NamingSchemeChain;
+import com.sigpwned.discourse.core.invocation.phase.scan.RulesEngine;
+import com.sigpwned.discourse.core.invocation.phase.scan.SubCommandScannerChain;
+import com.sigpwned.discourse.core.invocation.phase.scan.rules.DefaultRulesEngine;
+import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleDetectorChain;
+import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleEvaluatorChain;
+import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleNominatorChain;
+import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxDetectorChain;
+import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxNominatorChain;
 import java.util.function.Supplier;
 
 public class InvocationPipelineBuilder {
@@ -80,19 +75,19 @@ public class InvocationPipelineBuilder {
   }
 
   public InvocationPipeline build() {
-    final ScanPhase scanPhase = new DefaultScanPhase(getSubCommandScannerChain(),
+    final ScanPhase scanPhase = new ScanPhase(getSubCommandScannerChain(),
         getSyntaxNominatorChain(), getSyntaxDetectorChain(), getRuleNominatorChain(),
         getRuleDetectorChain(), getNamingSchemeChain(),
         new DefaultRulesEngine(getRuleEvaluatorChain()));
 
-    final ResolvePhase resolvePhase = new DefaultResolvePhase(getCommandResolverSupplier(),
+    final ResolvePhase resolvePhase = new ResolvePhase(getCommandResolverSupplier(),
         getListenerChain());
 
-    final ParsePhase parsePhase = new DefaultParsePhase(getArgumentsParserSupplier());
+    final ParsePhase parsePhase = new ParsePhase(getArgumentsParserSupplier());
 
-    final EvalPhase evalPhase = new DefaultEvalPhase();
+    final EvalPhase evalPhase = new EvalPhase();
 
-    final FactoryPhase factoryPhase = new DefaultFactoryPhase(getRulesEngineSupplier(),
+    final FactoryPhase factoryPhase = new FactoryPhase(getRulesEngineSupplier(),
         getListenerChain());
 
     return new InvocationPipeline(scanPhase, resolvePhase, parsePhase, evalPhase, factoryPhase,

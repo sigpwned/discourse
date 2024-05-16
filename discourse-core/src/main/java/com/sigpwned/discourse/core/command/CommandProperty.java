@@ -3,8 +3,8 @@ package com.sigpwned.discourse.core.command;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
 import java.util.Map;
-import com.sigpwned.discourse.core.value.deserializer.ValueDeserializer;
-import com.sigpwned.discourse.core.value.sink.ValueSink;
+import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.module.value.sink.ValueSink;
 
 public class CommandProperty {
 

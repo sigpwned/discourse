@@ -20,11 +20,11 @@
 package com.sigpwned.discourse.core.util;
 
 import com.sigpwned.discourse.core.command.SingleCommand;
-import com.sigpwned.discourse.core.invocation.phase.parse.impl.args.model.token.ArgumentToken;
-import com.sigpwned.discourse.core.invocation.phase.parse.impl.args.model.token.BundleArgumentToken;
-import com.sigpwned.discourse.core.invocation.phase.parse.impl.args.model.token.LongNameArgumentToken;
-import com.sigpwned.discourse.core.invocation.phase.parse.impl.args.model.token.SeparatorArgumentToken;
-import com.sigpwned.discourse.core.invocation.phase.parse.impl.args.model.token.ShortNameArgumentToken;
+import com.sigpwned.discourse.core.invocation.phase.parse.args.model.token.ArgumentToken;
+import com.sigpwned.discourse.core.invocation.phase.parse.args.model.token.BundleArgumentToken;
+import com.sigpwned.discourse.core.invocation.phase.parse.args.model.token.LongNameArgumentToken;
+import com.sigpwned.discourse.core.invocation.phase.parse.args.model.token.SeparatorArgumentToken;
+import com.sigpwned.discourse.core.invocation.phase.parse.args.model.token.ShortNameArgumentToken;
 import com.sigpwned.discourse.core.model.coordinate.LongSwitchNameCoordinate;
 import com.sigpwned.discourse.core.model.coordinate.ShortSwitchNameCoordinate;
 import java.util.List;

@@ -46,7 +46,7 @@ public @interface DiscourseDefaultValue {
    * The default value for the attribute, serialized as a string.
    *
    * @return the default value for the attribute
-   * @see com.sigpwned.discourse.core.value.deserializer.ValueDeserializer
+   * @see com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializer
    */
   public String value();
 }

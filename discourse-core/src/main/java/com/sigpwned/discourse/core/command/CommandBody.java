@@ -2,7 +2,7 @@ package com.sigpwned.discourse.core.command;
 
 import static java.util.Collections.*;
 import java.util.List;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.model.rules.NamedRule;
+import com.sigpwned.discourse.core.invocation.phase.scan.model.rules.NamedRule;
 
 public class CommandBody<T> {
 
