@@ -19,7 +19,7 @@ import com.sigpwned.discourse.core.invocation.phase.FactoryPhase;
 import com.sigpwned.discourse.core.invocation.phase.ParsePhase;
 import com.sigpwned.discourse.core.invocation.phase.ResolvePhase;
 import com.sigpwned.discourse.core.invocation.phase.ScanPhase;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.model.NamedRule;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.model.rules.NamedRule;
 
 public class InvocationPipeline {
 

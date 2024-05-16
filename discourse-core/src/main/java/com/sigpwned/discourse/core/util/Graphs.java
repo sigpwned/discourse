@@ -72,13 +72,13 @@ public final class Graphs {
    * </ul>
    * 
    * <p>
-   * Only elements of the given collection are compared. If an element is not in the collection,
-   * then an <code>IllegalArgumentException</code> is thrown.
+   * The given graph must be acyclic. If a circular dependency is detected, then an
+   * <code>IllegalArgumentException</code> is thrown. Remember that self-dependencies are cyclic.
    * </p>
    * 
    * <p>
-   * The given graph must be acyclic. If a circular dependency is detected, then an
-   * <code>IllegalArgumentException</code> is thrown. Remember that self-dependencies are cyclic.
+   * Only elements of the given collection are compared. If an element is not in the collection,
+   * then an <code>IllegalArgumentException</code> is thrown.
    * </p>
    * 
    * <p>

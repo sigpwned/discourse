@@ -21,11 +21,9 @@ package com.sigpwned.discourse.core.annotation;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import com.sigpwned.discourse.core.command.Command;
-import com.sigpwned.discourse.core.command.MultiCommand;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import com.sigpwned.discourse.core.command.Command;
 
 /**
  * An annotation that marks a class as a configurable object. Configurable objects can be used to
@@ -63,8 +61,8 @@ public @interface Configurable {
   public String version() default "";
 
   /**
-   * The subcommands of this configurable object. This list "points" to this logical resolvedCommand's
-   * subcommands and is used to create a {@link MultiCommand} object.
+   * The subcommands of this configurable object. This list "points" to this logical
+   * resolvedCommand's subcommands and is used to create a {@link MultiCommand} object.
    *
    * @see MultiCommand#getSubcommands()
    */

@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import com.sigpwned.discourse.core.invocation.phase.FactoryPhase;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RulesEngine;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.model.NamedRule;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.RulesEngine;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.model.rules.NamedRule;
 
 public class DefaultFactoryPhase implements FactoryPhase {
 

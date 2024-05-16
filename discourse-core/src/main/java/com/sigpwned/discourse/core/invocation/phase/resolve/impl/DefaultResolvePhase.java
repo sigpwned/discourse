@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.function.Supplier;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.RootCommand;
-import com.sigpwned.discourse.core.command.resolve.CommandResolver;
 import com.sigpwned.discourse.core.invocation.model.CommandDereference;
 import com.sigpwned.discourse.core.invocation.model.CommandResolution;
 import com.sigpwned.discourse.core.invocation.phase.ResolvePhase;

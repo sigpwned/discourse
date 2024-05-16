@@ -28,7 +28,7 @@ import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.invocation.model.Invocation;
-import com.sigpwned.discourse.core.args.ArgumentsParser;
+import com.sigpwned.discourse.core.invocation.phase.parse.impl.ArgumentsParser;
 import com.sigpwned.discourse.core.command.SingleCommand;
 import com.sigpwned.discourse.core.model.coordinate.NameCoordinate;
 import com.sigpwned.discourse.core.model.coordinate.PositionCoordinate;

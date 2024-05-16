@@ -1,8 +1,8 @@
 package com.sigpwned.discourse.core.invocation.phase.scan.impl.rules;
 
 import com.sigpwned.discourse.core.Chain;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.model.CandidateRule;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.syntax.NamedSyntax;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.model.rules.CandidateRule;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.model.syntax.NamedSyntax;
 import java.util.ArrayList;
 import java.util.List;
 

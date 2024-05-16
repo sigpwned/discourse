@@ -19,14 +19,13 @@
  */
 package com.sigpwned.discourse.core;
 
-import com.sigpwned.discourse.core.annotation.FlagParameter;
-import com.sigpwned.discourse.core.invocation.InvocationBuilder;
 import java.util.Objects;
+import com.sigpwned.discourse.core.annotation.FlagParameter;
 
 /**
  * A base class for configuration objects that have standard options. Provides {@code --help} and
- * {@code --version} options that are common to many resolvedCommand-line tools and handled appropriately by
- * {@link InvocationBuilder}
+ * {@code --version} options that are common to many resolvedCommand-line tools and handled
+ * appropriately by {@link InvocationBuilder}
  */
 public class StandardConfigurationBase {
 
@@ -47,7 +46,8 @@ public class StandardConfigurationBase {
     this.help = help;
   }
 
-  @FlagParameter(longName = "version", version = true, description = " The current version of this software")
+  @FlagParameter(longName = "version", version = true,
+      description = " The current version of this software")
   private boolean version = false;
 
   /**

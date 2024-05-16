@@ -1,6 +1,8 @@
 package com.sigpwned.discourse.core.invocation.phase.scan.impl.syntax;
 
 import com.sigpwned.discourse.core.Chain;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.model.syntax.CandidateSyntax;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.model.syntax.DetectedSyntax;
 import java.util.Optional;
 
 public class SyntaxDetectorChain extends Chain<SyntaxDetector> implements SyntaxDetector {

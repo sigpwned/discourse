@@ -1,9 +1,8 @@
 package com.sigpwned.discourse.core.command;
 
 import static java.util.Collections.*;
-
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.model.NamedRule;
 import java.util.List;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.model.rules.NamedRule;
 
 public class CommandBody<T> {
 

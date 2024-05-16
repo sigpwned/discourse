@@ -8,9 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Supplier;
-import com.sigpwned.discourse.core.args.ArgumentsParser;
-import com.sigpwned.discourse.core.args.impl.UnixStyleArgumentsParser;
 import com.sigpwned.discourse.core.invocation.phase.ParsePhase;
+import com.sigpwned.discourse.core.invocation.phase.parse.impl.args.UnixStyleArgumentsParser;
 
 public class DefaultParsePhase implements ParsePhase {
   private final Supplier<ArgumentsParser> argumentsParserFactory;

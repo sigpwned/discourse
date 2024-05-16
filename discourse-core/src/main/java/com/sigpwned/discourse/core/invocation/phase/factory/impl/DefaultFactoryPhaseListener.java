@@ -2,8 +2,8 @@ package com.sigpwned.discourse.core.invocation.phase.factory.impl;
 
 import java.util.List;
 import java.util.Map;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RulesEngine;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.model.NamedRule;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.RulesEngine;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.model.rules.NamedRule;
 
 public interface DefaultFactoryPhaseListener {
   // RULES STEP ///////////////////////////////////////////////////////////////////////////////////

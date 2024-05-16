@@ -19,9 +19,9 @@
  */
 package com.sigpwned.discourse.core;
 
-import com.sigpwned.discourse.core.command.walk.SubCommandScanner;
 import com.sigpwned.discourse.core.invocation.InvocationPipelineListener;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.NamingScheme;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.SubCommandScanner;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleDetector;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleEvaluator;
 import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleNominator;

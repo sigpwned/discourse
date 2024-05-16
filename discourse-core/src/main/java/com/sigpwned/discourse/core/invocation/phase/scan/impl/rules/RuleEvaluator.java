@@ -1,8 +1,8 @@
 package com.sigpwned.discourse.core.invocation.phase.scan.impl.rules;
 
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.model.NamedRule;
 import java.util.Map;
 import java.util.Optional;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.model.rules.NamedRule;
 
 public interface RuleEvaluator {
 

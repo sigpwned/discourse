@@ -1,6 +1,7 @@
 package com.sigpwned.discourse.core.invocation.phase.scan.impl.syntax;
 
 import com.sigpwned.discourse.core.Chain;
+import com.sigpwned.discourse.core.invocation.phase.scan.impl.model.syntax.CandidateSyntax;
 import java.util.ArrayList;
 import java.util.List;
 
