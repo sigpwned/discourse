@@ -21,28 +21,38 @@ package com.sigpwned.discourse.core.module.value.deserializer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class EnumValueDeserializerFactory implements ValueDeserializerFactory<Enum<?>> {
-  public static final EnumValueDeserializerFactory INSTANCE=new EnumValueDeserializerFactory();
-  
-  @Override
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
-    if(genericType instanceof Class<?>) {
-      Class<?> classType = (Class<?>) genericType;
-      return classType.getEnumConstants() != null;
-    }
-    return false;
-  }
+  public static final EnumValueDeserializerFactory INSTANCE = new EnumValueDeserializerFactory();
 
   @Override
-  public ValueDeserializer<Enum<?>> getDeserializer(Type genericType, List<Annotation> annotations) {
-    Class<?> classType = (Class<?>) genericType;
-    return s -> Arrays.stream(classType.getEnumConstants())
-        .map(o -> (Enum<?>) o)
-        .filter(e -> e.name().equals(s))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("No such enum value: "+s));
+  public Optional<ValueDeserializer<? extends Enum<?>>> getDeserializer(Type genericType,
+      List<Annotation> annotations) {
+    List<Enum<?>> cs = null;
+    if (genericType instanceof Class<?>) {
+      Class<?> classType = (Class<?>) genericType;
+      if (classType.getEnumConstants() != null) {
+        cs = new ArrayList<>(classType.getEnumConstants().length);
+        for (Object o : classType.getEnumConstants()) {
+          cs.add((Enum<?>) o);
+        }
+      }
+    }
+
+    if (cs == null)
+      return Optional.empty();
+
+    final List<Enum<?>> constants = cs;
+    return Optional.of(s -> {
+      for (Enum<?> constant : constants) {
+        if (constant.name().equals(s))
+          return constant;
+      }
+      // TODO better exception?
+      throw new IllegalArgumentException("No such enum value: " + s);
+    });
   }
 }

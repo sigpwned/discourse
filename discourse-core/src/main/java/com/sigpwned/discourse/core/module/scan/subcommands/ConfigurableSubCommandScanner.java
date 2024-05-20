@@ -1,7 +1,7 @@
 package com.sigpwned.discourse.core.module.scan.subcommands;
 
-import static com.sigpwned.discourse.core.util.MoreCollectors.entriesToMap;
-import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -18,14 +18,15 @@ import com.sigpwned.discourse.core.util.Streams;
 public class ConfigurableSubCommandScanner implements SubCommandScanner {
 
   @Override
-  public <T> Optional<Map<String, Class<? extends T>>> scanForSubCommands(Class<T> clazz) {
+  public <T> Optional<List<Map.Entry<String, Class<? extends T>>>> scanForSubCommands(
+      Class<T> clazz) {
     Configurable annotation = clazz.getAnnotation(Configurable.class);
     if (annotation == null) {
       return Optional.empty();
     }
 
     if (annotation.subcommands().length == 0) {
-      return Optional.of(emptyMap());
+      return Optional.of(emptyList());
     }
 
     List<Map.Entry<String, Class<? extends T>>> subcommands =
@@ -51,6 +52,6 @@ public class ConfigurableSubCommandScanner implements SubCommandScanner {
       throw new IllegalArgumentException("Duplicate discriminator");
     }
 
-    return Optional.of(subcommands.stream().collect(entriesToMap()));
+    return Optional.of(unmodifiableList(subcommands));
   }
 }

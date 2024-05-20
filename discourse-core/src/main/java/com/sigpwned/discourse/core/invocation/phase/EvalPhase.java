@@ -6,9 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.function.Function;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.invocation.phase.eval.EvalPhaseListener;
+import com.sigpwned.discourse.core.invocation.phase.eval.exception.MapFailedEvalPhaseException;
+import com.sigpwned.discourse.core.invocation.phase.eval.exception.MissingMapperException;
+import com.sigpwned.discourse.core.invocation.phase.eval.exception.MissingReducerException;
+import com.sigpwned.discourse.core.invocation.phase.eval.exception.ReduceFailedEvalPhaseException;
 
 public class EvalPhase {
   private final EvalPhaseListener listener;
@@ -19,23 +23,24 @@ public class EvalPhase {
 
   public final Map<String, Object> eval(Map<String, Function<String, Object>> mappers,
       Map<String, Function<List<Object>, Object>> reducers,
-      List<Map.Entry<String, String>> parsedArgs) {
-    Map<String, List<String>> groupedArgs = doGroupStep(parsedArgs);
+      List<Map.Entry<String, String>> parsedArgs, InvocationContext context) {
+    Map<String, List<String>> groupedArgs = doGroupStep(parsedArgs, context);
 
 
-    Map<String, List<Object>> mappedArgs = doMapStep(mappers, groupedArgs);
+    Map<String, List<Object>> mappedArgs = doMapStep(mappers, groupedArgs, context);
 
 
-    Map<String, Object> reducedArgs = doReduceStep(reducers, mappedArgs);
+    Map<String, Object> reducedArgs = doReduceStep(reducers, mappedArgs, context);
 
     return reducedArgs;
   }
 
-  private Map<String, List<String>> doGroupStep(List<Entry<String, String>> parsedArgs) {
+  private Map<String, List<String>> doGroupStep(List<Entry<String, String>> parsedArgs,
+      InvocationContext context) {
     Map<String, List<String>> groupedArgs;
     try {
       getListener().beforeEvalPhaseGroupStep(parsedArgs);
-      groupedArgs = groupStep(parsedArgs);
+      groupedArgs = groupStep(parsedArgs, context);
       getListener().afterEvalPhaseGroupStep(parsedArgs, groupedArgs);
     } catch (Throwable problem) {
       getListener().catchEvalPhaseGroupStep(problem);
@@ -47,7 +52,8 @@ public class EvalPhase {
   }
 
 
-  protected Map<String, List<String>> groupStep(List<Map.Entry<String, String>> parsedArgs) {
+  protected Map<String, List<String>> groupStep(List<Map.Entry<String, String>> parsedArgs,
+      InvocationContext context) {
     Map<String, List<String>> groupedArgs = new HashMap<>();
 
     for (Map.Entry<String, String> parsedArg : parsedArgs) {
@@ -63,11 +69,11 @@ public class EvalPhase {
   }
 
   private Map<String, List<Object>> doMapStep(Map<String, Function<String, Object>> mappers,
-      Map<String, List<String>> groupedArgs) {
+      Map<String, List<String>> groupedArgs, InvocationContext context) {
     Map<String, List<Object>> mappedArgs;
     try {
       getListener().beforeEvalPhaseEvalStep(mappers, groupedArgs);
-      mappedArgs = mapStep(mappers, groupedArgs);
+      mappedArgs = mapStep(mappers, groupedArgs, context);
       getListener().afterEvalPhaseEvalStep(mappers, groupedArgs, mappedArgs);
     } catch (Throwable problem) {
       getListener().catchEvalPhaseEvalStep(problem);
@@ -79,21 +85,25 @@ public class EvalPhase {
   }
 
   protected Map<String, List<Object>> mapStep(Map<String, Function<String, Object>> mappers,
-      Map<String, List<String>> groupedArgs) {
+      Map<String, List<String>> groupedArgs, InvocationContext context) {
     Map<String, List<Object>> mappedArgs = new HashMap<>(groupedArgs.size());
 
     for (Map.Entry<String, List<String>> entry : groupedArgs.entrySet()) {
       String name = entry.getKey();
       List<String> stringValues = entry.getValue();
 
-      Function<String, Object> mapper = Optional.ofNullable(mappers.get(name)).orElseThrow(() -> {
-        // TODO better exception
-        return new IllegalArgumentException("no mapper for " + name);
-      });
+      Function<String, Object> mapper = mappers.get(name);
+      if (mapper == null)
+        throw new MissingMapperException(name);
 
       List<Object> mappedValues = new ArrayList<>();
       for (String stringValue : stringValues) {
-        Object mappedValue = mapper.apply(stringValue);
+        Object mappedValue;
+        try {
+          mappedValue = mapper.apply(stringValue);
+        } catch (Exception e) {
+          throw new MapFailedEvalPhaseException(name, stringValue, e);
+        }
         mappedValues.add(mappedValue);
       }
 
@@ -104,11 +114,11 @@ public class EvalPhase {
   }
 
   private Map<String, Object> doReduceStep(Map<String, Function<List<Object>, Object>> reducers,
-      Map<String, List<Object>> mappedArgs) {
+      Map<String, List<Object>> mappedArgs, InvocationContext context) {
     Map<String, Object> reducedArgs;
     try {
       getListener().beforeEvalPhaseReduceStep(reducers, mappedArgs);
-      reducedArgs = reduceStep(reducers, mappedArgs);
+      reducedArgs = reduceStep(reducers, mappedArgs, context);
       getListener().afterEvalPhaseReduceStep(reducers, mappedArgs, reducedArgs);
     } catch (Throwable problem) {
       getListener().catchEvalPhaseReduceStep(problem);
@@ -120,20 +130,23 @@ public class EvalPhase {
   }
 
   protected Map<String, Object> reduceStep(Map<String, Function<List<Object>, Object>> reducers,
-      Map<String, List<Object>> mappedArgs) {
+      Map<String, List<Object>> mappedArgs, InvocationContext context) {
     Map<String, Object> reducedArgs = new HashMap<>(mappedArgs.size());
 
     for (Map.Entry<String, List<Object>> entry : mappedArgs.entrySet()) {
       String name = entry.getKey();
       List<Object> mappedValues = entry.getValue();
 
-      Function<List<Object>, Object> reducer =
-          Optional.ofNullable(reducers.get(name)).orElseThrow(() -> {
-            // TODO better exception
-            return new IllegalArgumentException("no reducer for " + name);
-          });
+      Function<List<Object>, Object> reducer = reducers.get(name);
+      if (name != null)
+        throw new MissingReducerException(name);
 
-      Object reducedValue = reducer.apply(mappedValues);
+      Object reducedValue;
+      try {
+        reducedValue = reducer.apply(mappedValues);
+      } catch (Exception e) {
+        throw new ReduceFailedEvalPhaseException(name, mappedValues, e);
+      }
 
       reducedArgs.put(name, reducedValue);
     }

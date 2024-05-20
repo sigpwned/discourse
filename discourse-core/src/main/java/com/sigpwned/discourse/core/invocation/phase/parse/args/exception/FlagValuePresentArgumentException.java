@@ -1,17 +1,18 @@
 package com.sigpwned.discourse.core.invocation.phase.parse.args.exception;
 
-import com.sigpwned.discourse.core.invocation.phase.parse.args.model.coordinate.SwitchNameArgumentCoordinate;
+import com.sigpwned.discourse.core.args.coordinate.OptionCoordinate;
 
 public class FlagValuePresentArgumentException extends ArgumentException {
+  private static final long serialVersionUID = -577024825611557318L;
 
-  private final SwitchNameArgumentCoordinate name;
+  private final OptionCoordinate name;
 
-  public FlagValuePresentArgumentException(SwitchNameArgumentCoordinate name) {
+  public FlagValuePresentArgumentException(OptionCoordinate name) {
     super("Flag \"%s\" takes no value but one was given".formatted(name));
     this.name = name;
   }
 
-  public SwitchNameArgumentCoordinate getName() {
+  public OptionCoordinate getName() {
     return name;
   }
 }

@@ -23,17 +23,16 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 public class UriValueDeserializerFactory implements ValueDeserializerFactory<URI> {
   public static final UriValueDeserializerFactory INSTANCE = new UriValueDeserializerFactory();
 
   @Override
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
-    return genericType.equals(URI.class);
-  }
-
-  @Override
-  public ValueDeserializer<URI> getDeserializer(Type genericType, List<Annotation> annotations) {
-    return URI::create;
+  public Optional<ValueDeserializer<? extends URI>> getDeserializer(Type genericType,
+      List<Annotation> annotations) {
+    if (genericType != URI.class)
+      return Optional.empty();
+    return Optional.of(URI::create);
   }
 }

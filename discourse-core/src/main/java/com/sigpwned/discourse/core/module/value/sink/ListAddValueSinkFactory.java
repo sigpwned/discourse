@@ -19,14 +19,13 @@
  */
 package com.sigpwned.discourse.core.module.value.sink;
 
-import com.sigpwned.discourse.core.util.Generated;
-import com.sigpwned.discourse.core.util.type.ListType;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import com.sigpwned.discourse.core.util.type.ListType;
 
 /**
  * A value sink that stores values by appending them to a list.
@@ -36,19 +35,14 @@ public class ListAddValueSinkFactory implements ValueSinkFactory {
   public static final ListAddValueSinkFactory INSTANCE = new ListAddValueSinkFactory();
 
   @Override
-  public boolean isSinkable(Type genericType, List<Annotation> annotations) {
+  public Optional<ValueSink> getSink(Type genericType, List<Annotation> annotations) {
+    final ListType listType;
     try {
-      ListType.parse(genericType);
+      listType = ListType.parse(genericType);
     } catch (IllegalArgumentException e) {
-      return false;
+      return Optional.empty();
     }
-    return true;
-  }
-
-  @Override
-  public ValueSink getSink(Type genericType, List<Annotation> annotations) {
-    final ListType listType = ListType.parse(genericType);
-    return new ValueSink() {
+    return Optional.of(new ValueSink() {
       private final List list = new ArrayList<>();
 
       @Override
@@ -75,13 +69,11 @@ public class ListAddValueSinkFactory implements ValueSinkFactory {
       }
 
       @Override
-      @Generated
       public int hashCode() {
         return getGenericType().hashCode();
       }
 
       @Override
-      @Generated
       public boolean equals(Object other) {
         if (other == null) {
           return false;
@@ -93,9 +85,9 @@ public class ListAddValueSinkFactory implements ValueSinkFactory {
           return false;
         }
         ValueSink that = (ValueSink) other;
-        return isCollection() == that.isCollection() && Objects.equals(getGenericType(),
-            that.getGenericType());
+        return isCollection() == that.isCollection()
+            && Objects.equals(getGenericType(), that.getGenericType());
       }
-    };
+    });
   }
 }

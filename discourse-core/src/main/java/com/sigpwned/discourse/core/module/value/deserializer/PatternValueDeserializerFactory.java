@@ -22,20 +22,19 @@ package com.sigpwned.discourse.core.module.value.deserializer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class PatternValueDeserializerFactory implements ValueDeserializerFactory<Pattern> {
 
-  public static final PatternValueDeserializerFactory INSTANCE = new PatternValueDeserializerFactory();
+  public static final PatternValueDeserializerFactory INSTANCE =
+      new PatternValueDeserializerFactory();
 
   @Override
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
-    return genericType.equals(Pattern.class);
-  }
-
-  @Override
-  public ValueDeserializer<Pattern> getDeserializer(Type genericType,
+  public Optional<ValueDeserializer<? extends Pattern>> getDeserializer(Type genericType,
       List<Annotation> annotations) {
-    return Pattern::compile;
+    if (genericType != Pattern.class)
+      return Optional.empty();
+    return Optional.of(Pattern::compile);
   }
 }

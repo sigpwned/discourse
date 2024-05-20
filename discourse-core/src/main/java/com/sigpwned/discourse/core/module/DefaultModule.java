@@ -19,26 +19,20 @@
  */
 package com.sigpwned.discourse.core.module;
 
+import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.Module;
-import com.sigpwned.discourse.core.accessor.naming.BeanAccessorNamingScheme;
-import com.sigpwned.discourse.core.accessor.naming.DiscourseAttributeAnnotationAccessorNamingScheme;
-import com.sigpwned.discourse.core.accessor.naming.DiscourseIgnoreAnnotationAccessorNamingScheme;
-import com.sigpwned.discourse.core.accessor.naming.FieldAccessorNamingScheme;
-import com.sigpwned.discourse.core.accessor.naming.ParameterAccessorNamingScheme;
-import com.sigpwned.discourse.core.accessor.naming.RecordAccessorNamingScheme;
 import com.sigpwned.discourse.core.annotation.DiscourseIgnore;
 import com.sigpwned.discourse.core.chain.AccessorNamingSchemeChain;
 import com.sigpwned.discourse.core.chain.ConfigurableComponentScannerChain;
 import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
 import com.sigpwned.discourse.core.chain.DiscourseListenerChain;
 import com.sigpwned.discourse.core.chain.ExceptionFormatterChain;
-import com.sigpwned.discourse.core.chain.ValueDeserializerFactoryChain;
 import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
 import com.sigpwned.discourse.core.configurable.component.scanner.FieldConfigurableCandidateComponentScanner;
 import com.sigpwned.discourse.core.configurable.component.scanner.GetterConfigurableCandidateComponentScanner;
 import com.sigpwned.discourse.core.configurable.component.scanner.SetterConfigurableCandidateComponentScanner;
-import com.sigpwned.discourse.core.configurable.instance.factory.scanner.DefaultConstructorConfigurableInstanceFactoryScanner;
 import com.sigpwned.discourse.core.configurable.instance.factory.scanner.AnnotatedConstructorConfigurableInstanceFactoryScanner;
+import com.sigpwned.discourse.core.configurable.instance.factory.scanner.DefaultConstructorConfigurableInstanceFactoryScanner;
 import com.sigpwned.discourse.core.format.exception.ArgumentExceptionFormatter;
 import com.sigpwned.discourse.core.format.exception.BeanExceptionFormatter;
 import com.sigpwned.discourse.core.format.exception.CatchAllErrorFormatter;
@@ -50,6 +44,12 @@ import com.sigpwned.discourse.core.format.exception.SyntaxExceptionFormatter;
 import com.sigpwned.discourse.core.listener.EmptyArgsToMultiCommandInterceptingDiscourseListener;
 import com.sigpwned.discourse.core.listener.HelpFlagInterceptingDiscourseListener;
 import com.sigpwned.discourse.core.listener.VersionFlagInterceptingDiscourseListener;
+import com.sigpwned.discourse.core.module.scan.naming.BeanAccessorNamingScheme;
+import com.sigpwned.discourse.core.module.scan.naming.DiscourseAttributeAnnotationNamingScheme;
+import com.sigpwned.discourse.core.module.scan.naming.DiscourseIgnoreAnnotationNamingScheme;
+import com.sigpwned.discourse.core.module.scan.naming.FieldNamingScheme;
+import com.sigpwned.discourse.core.module.scan.naming.ParameterNamingScheme;
+import com.sigpwned.discourse.core.module.scan.naming.RecordAccessorNamingScheme;
 import com.sigpwned.discourse.core.module.value.deserializer.BigDecimalValueDeserializerFactory;
 import com.sigpwned.discourse.core.module.value.deserializer.BooleanValueDeserializerFactory;
 import com.sigpwned.discourse.core.module.value.deserializer.ByteValueDeserializerFactory;
@@ -72,6 +72,7 @@ import com.sigpwned.discourse.core.module.value.deserializer.ShortValueDeseriali
 import com.sigpwned.discourse.core.module.value.deserializer.StringValueDeserializerFactory;
 import com.sigpwned.discourse.core.module.value.deserializer.UriValueDeserializerFactory;
 import com.sigpwned.discourse.core.module.value.deserializer.UrlValueDeserializerFactory;
+import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFactory;
 import com.sigpwned.discourse.core.module.value.sink.ArrayAppendValueSinkFactory;
 import com.sigpwned.discourse.core.module.value.sink.AssignValueSinkFactory;
 import com.sigpwned.discourse.core.module.value.sink.ListAddValueSinkFactory;
@@ -85,6 +86,7 @@ import com.sigpwned.discourse.core.module.value.sink.SortedSetAddValueSinkFactor
  * noted.
  */
 public class DefaultModule extends Module {
+  
 
   /**
    * <p>
@@ -137,7 +139,7 @@ public class DefaultModule extends Module {
    * @param resolver the serialization resolver to register the deserializers into
    */
   @Override
-  public void registerValueDeserializerFactories(ValueDeserializerFactoryChain resolver) {
+  public void registerValueDeserializerFactories(Chain<ValueDeserializerFactory> resolver) {
     resolver.addLast(StringValueDeserializerFactory.INSTANCE);
     resolver.addLast(LongValueDeserializerFactory.INSTANCE);
     resolver.addLast(IntValueDeserializerFactory.INSTANCE);
@@ -233,16 +235,16 @@ public class DefaultModule extends Module {
    * </p>
    *
    * <ul>
-   *   <li>{@link DiscourseIgnoreAnnotationAccessorNamingScheme}</li>
-   *   <li>{@link DiscourseAttributeAnnotationAccessorNamingScheme}</li>
+   *   <li>{@link DiscourseIgnoreAnnotationNamingScheme}</li>
+   *   <li>{@link DiscourseAttributeAnnotationNamingScheme}</li>
    *   <li>{@link BeanAccessorNamingScheme}</li>
-   *   <li>{@link FieldAccessorNamingScheme}</li>
-   *   <li>{@link ParameterAccessorNamingScheme}</li>
+   *   <li>{@link FieldNamingScheme}</li>
+   *   <li>{@link ParameterNamingScheme}</li>
    *   <li>{@link RecordAccessorNamingScheme}</li>
    * </ul>
    *
    * <p>
-   *   {@link DiscourseIgnoreAnnotationAccessorNamingScheme} is registered at the front of the chain
+   *   {@link DiscourseIgnoreAnnotationNamingScheme} is registered at the front of the chain
    *   so that it can be used to ignore fields that are annotated with {@link DiscourseIgnore}.
    *   This means it will supersede any existing schemes already in the chain.
    * </p>
@@ -251,11 +253,11 @@ public class DefaultModule extends Module {
    */
   @Override
   public void registerAccessorNamingSchemes(AccessorNamingSchemeChain chain) {
-    chain.addFirst(DiscourseIgnoreAnnotationAccessorNamingScheme.INSTANCE);
-    chain.addLast(DiscourseAttributeAnnotationAccessorNamingScheme.INSTANCE);
+    chain.addFirst(DiscourseIgnoreAnnotationNamingScheme.INSTANCE);
+    chain.addLast(DiscourseAttributeAnnotationNamingScheme.INSTANCE);
     chain.addLast(BeanAccessorNamingScheme.INSTANCE);
-    chain.addLast(FieldAccessorNamingScheme.INSTANCE);
-    chain.addLast(ParameterAccessorNamingScheme.INSTANCE);
+    chain.addLast(FieldNamingScheme.INSTANCE);
+    chain.addLast(ParameterNamingScheme.INSTANCE);
     chain.addLast(RecordAccessorNamingScheme.INSTANCE);
   }
 

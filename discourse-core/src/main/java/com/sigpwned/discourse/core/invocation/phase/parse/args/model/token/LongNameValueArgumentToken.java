@@ -19,8 +19,6 @@
  */
 package com.sigpwned.discourse.core.invocation.phase.parse.args.model.token;
 
-import com.sigpwned.discourse.core.model.coordinate.LongSwitchNameCoordinate;
-import com.sigpwned.discourse.core.util.Generated;
 import java.util.Objects;
 
 /**
@@ -29,12 +27,11 @@ import java.util.Objects;
  * that the switch and value may be separate as well, which would be represented by two separate
  * tokens.
  *
- * @see LongSwitchNameCoordinate
+ * @see LongSwitchNameArgumentCoordinate
  * @see LongNameArgumentToken
  * @see ValueArgumentToken
  */
 public final class LongNameValueArgumentToken extends ArgumentToken {
-
   private final String longName;
   private final String value;
 
@@ -43,8 +40,11 @@ public final class LongNameValueArgumentToken extends ArgumentToken {
     if (longName == null) {
       throw new NullPointerException();
     }
-    if (!LongSwitchNameCoordinate.PATTERN.matcher(longName).matches()) {
+    if (!LongNameArgumentToken.PATTERN.matcher(longName).matches()) {
       throw new IllegalArgumentException("invalid long name: " + longName);
+    }
+    if (!text.startsWith(LongNameArgumentToken.PREFIX + longName + "=")) {
+      throw new IllegalArgumentException("invalid text: " + text);
     }
     if (value == null) {
       throw new NullPointerException();
@@ -68,7 +68,6 @@ public final class LongNameValueArgumentToken extends ArgumentToken {
   }
 
   @Override
-  @Generated
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -77,7 +76,6 @@ public final class LongNameValueArgumentToken extends ArgumentToken {
   }
 
   @Override
-  @Generated
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;

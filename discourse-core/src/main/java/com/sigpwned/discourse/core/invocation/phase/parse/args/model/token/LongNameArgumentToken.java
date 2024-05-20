@@ -19,16 +19,19 @@
  */
 package com.sigpwned.discourse.core.invocation.phase.parse.args.model.token;
 
-import com.sigpwned.discourse.core.model.coordinate.LongSwitchNameCoordinate;
-import com.sigpwned.discourse.core.util.Generated;
+import static java.lang.String.format;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * A "long name" argument token, e.g., {@code --foo}
  *
- * @see LongSwitchNameCoordinate
+ * @see LongSwitchNameArgumentCoordinate
  */
 public final class LongNameArgumentToken extends ArgumentToken {
+  /* default */ static final String PREFIX = "--";
+
+  /* default */ static final Pattern PATTERN = Pattern.compile(format("%s(?:[-._]?[a-zA-Z0-9])+"));
 
   private final String longName;
 
@@ -37,21 +40,24 @@ public final class LongNameArgumentToken extends ArgumentToken {
     if (longName == null) {
       throw new NullPointerException();
     }
-    if (!LongSwitchNameCoordinate.PATTERN.matcher(longName).matches()) {
+    if (!PATTERN.matcher(longName).matches()) {
       throw new IllegalArgumentException("invalid long name: " + longName);
+    }
+    if (!text.equals(PREFIX + longName)) {
+      throw new IllegalArgumentException(
+          "text does not match long name: " + text + " != " + PREFIX + longName);
     }
     this.longName = longName;
   }
 
   /**
-   * @return the shortName
+   * @return the longName
    */
   public String getLongName() {
     return longName;
   }
 
   @Override
-  @Generated
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -60,7 +66,6 @@ public final class LongNameArgumentToken extends ArgumentToken {
   }
 
   @Override
-  @Generated
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;

@@ -19,13 +19,9 @@
  */
 package com.sigpwned.discourse.core.invocation.phase.parse.args.model.token;
 
-import static java.lang.String.*;
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
-
-import com.sigpwned.discourse.core.model.coordinate.LongSwitchNameCoordinate;
-import com.sigpwned.discourse.core.model.coordinate.ShortSwitchNameCoordinate;
-import com.sigpwned.discourse.core.util.Generated;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,31 +30,30 @@ import java.util.stream.IntStream;
 /**
  * A token used during the parsing of resolvedCommand-line arguments.
  */
-public abstract sealed class ArgumentToken permits BundleArgumentToken, EofArgumentToken,
-    LongNameArgumentToken, LongNameValueArgumentToken, SeparatorArgumentToken,
-    ShortNameArgumentToken, ValueArgumentToken {
+public abstract sealed class ArgumentToken
+    permits BundleArgumentToken, EofArgumentToken, LongNameArgumentToken,
+    LongNameValueArgumentToken, SeparatorArgumentToken, ShortNameArgumentToken, ValueArgumentToken {
 
-  public static final Pattern SEPARATOR = Pattern.compile("--");
+  public static final Pattern SEPARATOR = Pattern.compile(SeparatorArgumentToken.TEXT);
 
-  public static final Pattern LONG_NAME_PREFIX = Pattern.compile("--");
+  public static final Pattern LONG_NAME_PREFIX = Pattern.compile(LongNameArgumentToken.PREFIX);
 
   public static final Pattern LONG_NAME_VALUE_SEPARATOR = Pattern.compile("=");
 
-  public static final Pattern SHORT_NAME_PREFIX = Pattern.compile("-");
+  public static final Pattern SHORT_NAME_PREFIX = Pattern.compile(ShortNameArgumentToken.PREFIX);
 
   public static final Pattern BUNDLE = Pattern.compile(
-      format("%s(%s{2,})", SHORT_NAME_PREFIX.pattern(),
-          ShortSwitchNameCoordinate.PATTERN.pattern()));
+      format("%s(%s{2,})", SHORT_NAME_PREFIX.pattern(), ShortNameArgumentToken.PATTERN.pattern()));
 
   public static final Pattern SHORT_NAME = Pattern.compile(
-      format("%s(%s)", SHORT_NAME_PREFIX.pattern(), ShortSwitchNameCoordinate.PATTERN.pattern()));
+      format("%s(%s)", SHORT_NAME_PREFIX.pattern(), ShortNameArgumentToken.PATTERN.pattern()));
 
   public static final Pattern LONG_NAME = Pattern.compile(
-      format("%s(%s)", LONG_NAME_PREFIX.pattern(), LongSwitchNameCoordinate.PATTERN.pattern()));
+      format("%s(%s)", LONG_NAME_PREFIX.pattern(), LongNameArgumentToken.PATTERN.pattern()));
 
-  public static final Pattern LONG_NAME_VALUE = Pattern.compile(
-      format("%s(%s)%s(%s)", LONG_NAME_PREFIX.pattern(), LongSwitchNameCoordinate.PATTERN.pattern(),
-          LONG_NAME_VALUE_SEPARATOR.pattern(), ".*"));
+  public static final Pattern LONG_NAME_VALUE =
+      Pattern.compile(format("%s(%s)%s(%s)", LONG_NAME_PREFIX.pattern(),
+          LongNameArgumentToken.PATTERN.pattern(), LONG_NAME_VALUE_SEPARATOR.pattern(), ".*"));
 
   public static ArgumentToken fromString(String s) {
     if (s == null) {
@@ -80,9 +75,8 @@ public abstract sealed class ArgumentToken permits BundleArgumentToken, EofArgum
       Matcher m = BUNDLE.matcher(s);
       m.matches();
       String bundle = m.group(1);
-      return new BundleArgumentToken(s,
-          IntStream.range(0, bundle.length()).mapToObj(i -> bundle.substring(i, i + 1))
-              .collect(toList()));
+      return new BundleArgumentToken(s, IntStream.range(0, bundle.length())
+          .mapToObj(i -> bundle.substring(i, i + 1)).collect(toList()));
     } else if (SHORT_NAME.matcher(s).matches()) {
       Matcher m = SHORT_NAME.matcher(s);
       m.matches();
@@ -135,13 +129,11 @@ public abstract sealed class ArgumentToken permits BundleArgumentToken, EofArgum
   }
 
   @Override
-  @Generated
   public int hashCode() {
     return Objects.hash(text);
   }
 
   @Override
-  @Generated
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;

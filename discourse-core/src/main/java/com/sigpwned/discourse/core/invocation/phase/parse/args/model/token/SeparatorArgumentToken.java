@@ -21,13 +21,13 @@ package com.sigpwned.discourse.core.invocation.phase.parse.args.model.token;
 
 /**
  * A token "--" that indicates that no more flags or switches appear in the rest of the
- * resolvedCommand line arguments. It is very useful when (a) generating resolvedCommand lines programmatically, and
- * (b) to disambiguate between flags/switches and positional parameters that happen to start with
- * "-".
+ * resolvedCommand line arguments. It is very useful when (a) generating resolvedCommand lines
+ * programmatically, and (b) to disambiguate between flags/switches and positional parameters that
+ * happen to start with "-".
  */
 public final class SeparatorArgumentToken extends ArgumentToken {
 
-  public static final SeparatorArgumentToken INSTANCE = new SeparatorArgumentToken();
+  /* default */ static final SeparatorArgumentToken INSTANCE = new SeparatorArgumentToken();
 
   public static final String TEXT = "--";
 

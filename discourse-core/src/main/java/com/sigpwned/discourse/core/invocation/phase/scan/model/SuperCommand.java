@@ -1,6 +1,8 @@
 package com.sigpwned.discourse.core.invocation.phase.scan.model;
 
-public record SuperCommand<T>(Class<T> clazz, String discriminator) {
+import com.sigpwned.discourse.core.command.Discriminator;
+
+public record SuperCommand<T>(Class<T> clazz, Discriminator discriminator) {
 
 }
 

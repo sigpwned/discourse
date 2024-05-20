@@ -2,6 +2,8 @@ package com.sigpwned.discourse.core.invocation.phase;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,13 +14,33 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.command.CommandBody;
 import com.sigpwned.discourse.core.command.CommandProperty;
+import com.sigpwned.discourse.core.command.Discriminator;
 import com.sigpwned.discourse.core.command.RootCommand;
 import com.sigpwned.discourse.core.command.SubCommand;
+import com.sigpwned.discourse.core.invocation.model.RuleDetection;
+import com.sigpwned.discourse.core.invocation.model.SyntaxDetection;
 import com.sigpwned.discourse.core.invocation.phase.scan.NamingScheme;
 import com.sigpwned.discourse.core.invocation.phase.scan.SubCommandScanner;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.DiscriminatorMismatchConfigurationException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.DuplicateCoordinatesScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.DuplicateDiscriminatorScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.DuplicatePropertyNamesScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.InvalidDiscriminatorScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.MultipleHelpFlagsScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.MultipleVersionFlagsScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.NoDiscriminatorScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.NotConfigurableScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.SubCommandDoesNotExtendSuperCommandScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.SuperCommandNotAbstractScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.UnexpectedDiscriminatorScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.internal.DuplicateRuleNomineesException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.internal.DuplicateSyntaxNomineesException;
 import com.sigpwned.discourse.core.invocation.phase.scan.model.PreparedClass;
 import com.sigpwned.discourse.core.invocation.phase.scan.model.SuperCommand;
 import com.sigpwned.discourse.core.invocation.phase.scan.model.WalkedClass;
@@ -37,8 +59,11 @@ import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFa
 import com.sigpwned.discourse.core.module.value.sink.ValueSink;
 import com.sigpwned.discourse.core.module.value.sink.ValueSinkFactory;
 import com.sigpwned.discourse.core.util.Graphs;
+import com.sigpwned.discourse.core.util.Streams;
 
 public class ScanPhase {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ScanPhase.class);
+
   private final SubCommandScanner subCommandScanner;
   private final SyntaxNominator syntaxNominator;
   private final SyntaxDetector syntaxDetector;
@@ -62,7 +87,7 @@ public class ScanPhase {
     this.valueDeserializerFactory = requireNonNull(valueDeserializerFactory);
   }
 
-  public <T> RootCommand<T> scan(Class<T> clazz) {
+  public <T> RootCommand<T> scan(Class<T> clazz, InvocationContext context) {
     List<WalkedClass<? extends T>> walkedClasses = walkStep(clazz);
 
     List<PreparedClass<? extends T>> bodiedClasses = prepareStep(walkedClasses);
@@ -72,63 +97,136 @@ public class ScanPhase {
     return gatheredClasses;
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   protected <T> List<WalkedClass<? extends T>> walkStep(Class<T> clazz) {
-    record WalkingClass<T>(Class<? super T> superclazz, Class<T> clazz) {
+    record WalkingClass<T>(Optional<SuperCommand<? super T>> supercommand, Class<T> clazz) {
     }
 
-    List<WalkedClass<? extends T>> result = new ArrayList<>();
+    List<WalkedClass<? extends T>> walkedClasses = new ArrayList<>();
 
-    Set<Class<? extends T>> touched = new HashSet<>();
     Queue<WalkingClass<? extends T>> queue = new LinkedList<>();
-    queue.add(new WalkingClass<>(null, clazz));
+    queue.add(new WalkingClass<>(Optional.empty(), clazz));
     do {
       WalkingClass<? extends T> current = queue.poll();
-      Class<? extends T> currentSuperclazz = (Class) current.superclazz();
+      SuperCommand<? super T> supercommand = (SuperCommand) current.supercommand().orElse(null);
       Class<? extends T> currentClazz = (Class) current.clazz();
 
-      if (touched.contains(currentClazz)) {
-        // TODO better exception
-        throw new IllegalStateException("cycle");
-      }
-
-      if (currentSuperclazz != null && !currentSuperclazz.isAssignableFrom(currentClazz)) {
-        // TODO better exception
-        throw new IllegalStateException(
-            "superclazz " + currentSuperclazz + " not assignable from " + currentClazz);
-      }
-
+      // It's a hard requirement that all command classes have a @Configurable annotation. This is
+      // how we know that a class is a command class, and it's how we know what the discriminator
+      // is, plus various other metadata.
       Configurable configurable = currentClazz.getAnnotation(Configurable.class);
       if (configurable == null) {
-        // TODO better exception
-        throw new IllegalStateException("no @Configurable on " + current);
+        throw new NotConfigurableScanException(currentClazz);
       }
 
-      Map<String, Class<? extends T>> subcommands =
-          (Map) subCommandScanner.scanForSubCommands(currentClazz).orElseGet(Collections::emptyMap);
+      // We need to validate some things about our command structure, depending on whether or not
+      // we have a supercommand.
+      if (supercommand != null) {
+        // This is an important test. We want to ensure that the superclazz is actually a superclass
+        // of the clazz to enforce that the result of a subcommand is assignable to the type of the
+        // supercommand. This is a useful invariant, but it also guarantees that there are no cycles
+        // in the inheritance graph.
+        if (!supercommand.clazz().isAssignableFrom(currentClazz)) {
+          throw new SubCommandDoesNotExtendSuperCommandScanException(supercommand.clazz(),
+              currentClazz);
+        }
 
-      SuperCommand<? extends T> supercommand = null;
-      if (currentSuperclazz != null) {
-        supercommand = new SuperCommand<>(currentSuperclazz, configurable.discriminator());
+        // If we have a supercommand, then we need to have a discriminator.
+        if (configurable.discriminator().isEmpty()) {
+          throw new NoDiscriminatorScanException(currentClazz);
+        }
+
+        // If we have a supercommand, then we need to ensure that the discriminator matches the
+        // discriminator of the supercommand.
+        Discriminator configurableDiscriminator;
+        try {
+          configurableDiscriminator = Discriminator.of(configurable.discriminator());
+        } catch (IllegalArgumentException e) {
+          throw new InvalidDiscriminatorScanException(currentClazz, configurable.discriminator());
+        }
+        if (!configurableDiscriminator.equals(supercommand.discriminator())) {
+          throw new DiscriminatorMismatchConfigurationException(currentClazz,
+              supercommand.discriminator(), configurableDiscriminator);
+        }
       } else {
-        supercommand = null;
+        // If we don't have a supercommand, then we should not have a discriminator.
+        if (!configurable.discriminator().isEmpty()) {
+          throw new UnexpectedDiscriminatorScanException(currentClazz);
+        }
       }
 
-      result.add(new WalkedClass(Optional.ofNullable(supercommand), currentClazz, configurable));
+      List<Map.Entry<String, Class<? extends T>>> subcommands = (List) subCommandScanner
+          .scanForSubCommands(currentClazz).orElseGet(Collections::emptyList);
 
-      for (Class<? extends T> subcommand : subcommands.values()) {
-        queue.add(new WalkingClass(currentClazz, subcommand));
+      // A Command with SubCommands (i.e., a SuperCommand) has some special requirements. A Command
+      // with no SubCommands has some special requirements, too. Let's enforce them both here.
+      if (subcommands.isEmpty()) {
+        // This is a leaf command.
+
+        // Leaf commands must not be abstract.
+        if (Modifier.isAbstract(currentClazz.getModifiers())) {
+          // TODO better exception
+          throw new IllegalArgumentException("leaf node must not be abstract");
+        }
+      } else {
+        // This is a super command.
+
+        // Super commands must be abstract.
+        if (!Modifier.isAbstract(currentClazz.getModifiers())) {
+          throw new SuperCommandNotAbstractScanException(currentClazz);
+        }
       }
 
-      touched.add(currentClazz);
+      walkedClasses
+          .add(new WalkedClass(Optional.ofNullable(supercommand), currentClazz, configurable));
+
+      for (Map.Entry<String, Class<? extends T>> e : subcommands) {
+        // This is a little ticklish. Depending on the subcommand scanner(s) in use, the
+        // discriminator might come from the class itself, or it might come from the subcommand. We
+        // do our best providing a pointer to the offending discriminator.
+        Discriminator expectedDiscriminator;
+        try {
+          expectedDiscriminator = Discriminator.of(e.getKey());
+        } catch (IllegalArgumentException x) {
+          throw new InvalidDiscriminatorScanException(currentClazz, e.getKey());
+        }
+
+        Class<? extends T> subcommand = e.getValue();
+
+        queue.add(new WalkingClass(
+            Optional.of(new SuperCommand<>(currentClazz, expectedDiscriminator)), subcommand));
+      }
     } while (!queue.isEmpty());
 
-    return result;
-  }
+    // For each class, we need to ensure that there are no duplicate discriminators. This is a
+    // requirement for the command hierarchy to be well-defined. It's fine if two different
+    // supercommands have subcommands with the same distriminator. It's not fine if one supercommand
+    // has two subcommands with the same discriminator.
+    for (WalkedClass<? extends T> walkedClass : walkedClasses) {
+      // Let's look for all subcommands of this class.
+      final Class<?> superclazz = walkedClass.clazz();
 
+      // Here are the subcommands of this class.
+      List<WalkedClass<?>> subcommands =
+          (List) walkedClasses.stream().filter(wc -> wc.supercommand().isPresent())
+              .filter(wc -> wc.supercommand().orElseThrow().clazz() == superclazz).toList();
+
+      // Are there any duplicate discriminators?
+      Set<Discriminator> duplicateDiscriminators = Streams
+          .duplicates(
+              subcommands.stream().map(sc -> sc.supercommand().orElseThrow().discriminator()))
+          .collect(toSet());
+      if (!duplicateDiscriminators.isEmpty()) {
+        throw new DuplicateDiscriminatorScanException(superclazz, duplicateDiscriminators);
+      }
+    }
+
+    return walkedClasses;
+  }
 
   protected <T> List<PreparedClass<? extends T>> prepareStep(
       List<WalkedClass<? extends T>> walkedClasses) {
-    List<PreparedClass<? extends T>> result = new ArrayList<>(walkedClasses.size());
+    List<PreparedClass<? extends T>> preparedClasses = new ArrayList<>(walkedClasses.size());
 
     for (WalkedClass<? extends T> walkedClass : walkedClasses) {
       boolean hasSubcommands = walkedClasses.stream().flatMap(wc -> wc.supercommand().stream())
@@ -143,42 +241,112 @@ public class ScanPhase {
         // If a class doesn't have subcommands, we'll create a body for it.
         Class<?> clazz = walkedClass.clazz();
 
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        // SYNTAX /////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
+
+        // Nominate all our candidate syntax. That is, we want to identify all the various and
+        // sundry class members that might be syntax-bearing.
         List<CandidateSyntax> candidateSyntax = syntaxNominator.nominateSyntax(clazz);
 
+        // Let's deduplicate our candidates at the record level. We don't want to process
+        // duplicates. In theory, it's an error if our syntax nominators nominate the same thing
+        // twice, but if we can just remove duplicates and carry on with our lives, then we should.
+        if (new HashSet<>(candidateSyntax).size() != candidateSyntax.size()) {
+          // Welp, we have duplicates. Remove them, preserving order, and log an error.
+          if (LOGGER.isDebugEnabled())
+            LOGGER.debug("Ignoring exact duplicates for syntax nominees {}",
+                Streams.duplicates(candidateSyntax.stream()).map(CandidateSyntax::nominated)
+                    .collect(toSet()));
+          candidateSyntax = candidateSyntax.stream().distinct().toList();
+        }
+
+        // If we still have duplicates at the nominee level after removing duplicates at the record
+        // level, then we have a problem.
+        Set<Object> duplicateSyntaxNominees = Streams
+            .duplicates(candidateSyntax.stream().map(CandidateSyntax::nominated)).collect(toSet());
+        if (!duplicateSyntaxNominees.isEmpty()) {
+          throw new DuplicateSyntaxNomineesException(clazz, duplicateSyntaxNominees);
+        }
+
+        // Detect all the syntax. That is, we want to identify all the syntax-bearing class members
+        // from among the candidates that are actually syntax. The detector must preserve the
+        // nominee from the candidate exactly. If the detector nominates something different, then
+        // an exception is thrown.
         List<DetectedSyntax> detectedSyntax = new ArrayList<>();
         for (CandidateSyntax csi : candidateSyntax) {
-          Optional<DetectedSyntax> maybeDetectedSyntax = syntaxDetector.detectSyntax(clazz, csi);
-          if (maybeDetectedSyntax.isPresent()) {
-            detectedSyntax.add(maybeDetectedSyntax.get());
+          Optional<SyntaxDetection> maybeSyntaxDetection = syntaxDetector.detectSyntax(clazz, csi);
+          if (maybeSyntaxDetection.isPresent()) {
+            detectedSyntax.add(
+                DetectedSyntax.fromCandidateAndDetection(csi, maybeSyntaxDetection.orElseThrow()));
           } else {
             // This is fine. Not every candidate is actually syntax.
           }
         }
 
+        // Now that we have all our syntax, let's name it.
         List<NamedSyntax> syntax = new ArrayList<>();
         for (DetectedSyntax dsi : detectedSyntax) {
           Optional<String> maybeName = namingScheme.name(dsi.nominated());
           if (maybeName.isPresent()) {
-            syntax.add(new NamedSyntax(dsi.nominated(), dsi.genericType(), dsi.annotations(),
-                dsi.required(), dsi.coordinates(), maybeName.get()));
+            String name = maybeName.orElseThrow();
+            syntax.add(NamedSyntax.fromDetectedSyntax(dsi, name));
           } else {
             // This is not OK. Everything has to be named.
+            // TODO better exception
             throw new IllegalStateException("No name for " + dsi.nominated());
           }
         }
 
+        // Did we end up with any duplicate names?
+        Set<String> duplicateSyntaxNames =
+            Streams.duplicates(syntax.stream().map(NamedSyntax::name)).collect(toSet());
+        if (!duplicateSyntaxNames.isEmpty()) {
+          throw new DuplicateSyntaxNamesScanException(clazz, duplicateSyntaxNames);
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        // RULES //////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
+
+        // Nominate all our candidate rules. That is, we want to identify all the various and
+        // sundry class members that might be rules.
         List<CandidateRule> candidateRules = ruleNominator.nominateRules(clazz, syntax);
 
+        // Let's deduplicate our candidates at the record level. We don't want to process
+        // duplicates. In theory, it's an error if our syntax nominators nominate the same thing
+        // twice, but if we can just remove duplicates and carry on with our lives, then we should.
+        if (new HashSet<>(candidateRules).size() != candidateRules.size()) {
+          // Welp, we have duplicates. Remove them, preserving order, and log an error.
+          if (LOGGER.isDebugEnabled())
+            LOGGER.debug("Ignoring exact duplicates for rule nominees {}",
+                Streams.duplicates(candidateRules.stream()).map(CandidateRule::nominated)
+                    .collect(toSet()));
+          candidateRules = candidateRules.stream().distinct().toList();
+        }
+
+        // If we still have duplicates at the nominee level after removing duplicates at the record
+        // level, then we have a problem.
+        Set<Object> duplicateRuleNominees = Streams
+            .duplicates(candidateRules.stream().map(CandidateRule::nominated)).collect(toSet());
+        if (!duplicateRuleNominees.isEmpty()) {
+          throw new DuplicateRuleNomineesException(clazz, duplicateRuleNominees);
+        }
+
+        // Detect all the rules. That is, we want to identify all the rule-bearing class members
+        // from among the candidates that are actually rules.
         List<DetectedRule> detectedRules = new ArrayList<>();
         for (CandidateRule cri : candidateRules) {
-          Optional<DetectedRule> maybeDetectedRule = ruleDetector.detectRule(clazz, syntax, cri);
-          if (maybeDetectedRule.isPresent()) {
-            detectedRules.add(maybeDetectedRule.get());
+          Optional<RuleDetection> maybeRuleDetection = ruleDetector.detectRule(clazz, syntax, cri);
+          if (maybeRuleDetection.isPresent()) {
+            detectedRules
+                .add(DetectedRule.fromCandidateAndDetection(cri, maybeRuleDetection.orElseThrow()));
           } else {
             // This is fine. Not every candidate is actually a rule.
           }
         }
 
+        // Now that we have all our rules, let's name them.
         List<NamedRule> rules = new ArrayList<>();
         for (DetectedRule dri : detectedRules) {
           if (dri.hasConsequent()) {
@@ -197,6 +365,13 @@ public class ScanPhase {
             rules.add(new NamedRule(dri.nominated(), dri.genericType(), dri.annotations(),
                 dri.antecedents(), Optional.empty()));
           }
+        }
+
+        // Did we end up with any duplicate names?
+        Set<String> duplicateRuleNames =
+            Streams.duplicates(rules.stream().map(NamedRule::name)).collect(toSet());
+        if (!duplicateRuleNames.isEmpty()) {
+          throw new DuplicateRuleNamesScanException(clazz, duplicateRuleNames);
         }
 
         List<CommandProperty> properties = new ArrayList<>();
@@ -222,11 +397,55 @@ public class ScanPhase {
         body = new CommandBody<>(properties, rules);
       }
 
-      result.add(new PreparedClass(walkedClass.supercommand(), walkedClass.clazz(),
+      preparedClasses.add(new PreparedClass(walkedClass.supercommand(), walkedClass.clazz(),
           walkedClass.configurable(), Optional.ofNullable(body)));
     }
 
-    return result;
+    // Do we have any duplicate usage of coordinates?
+    for (PreparedClass<? extends T> preparedClass : preparedClasses) {
+      Set<String> duplicateCoordinates =
+          preparedClass.body().stream().flatMap(b -> b.getProperties().stream())
+              .flatMap(p -> p.getSyntax().keySet().stream()).collect(toSet());
+      if (!duplicateCoordinates.isEmpty()) {
+        throw new DuplicateCoordinatesScanException(preparedClass.clazz(), duplicateCoordinates);
+      }
+    }
+
+    // Do we have any duplicate usage of property names?
+    for (PreparedClass<? extends T> preparedClass : preparedClasses) {
+      Set<String> duplicatePropertyNames = preparedClass.body().stream()
+          .flatMap(b -> b.getProperties().stream()).map(p -> p.getName()).collect(toSet());
+      if (!duplicatePropertyNames.isEmpty()) {
+        throw new DuplicatePropertyNamesScanException(preparedClass.clazz(),
+            duplicatePropertyNames);
+      }
+    }
+
+    // Do any of our classes have multiple help flags?
+    for (PreparedClass<? extends T> preparedClass : preparedClasses) {
+      if (preparedClass.body().isPresent()) {
+        Set<String> helpFlags = preparedClasses.stream().flatMap(pc -> pc.body().stream())
+            .flatMap(b -> b.getProperties().stream()).filter(CommandProperty::isHelp)
+            .map(CommandProperty::getName).collect(toSet());
+        if (helpFlags.size() > 1) {
+          throw new MultipleHelpFlagsScanException(preparedClass.clazz(), helpFlags);
+        }
+      }
+    }
+
+    // Do any of our classes have multiple version flags?
+    for (PreparedClass<? extends T> preparedClass : preparedClasses) {
+      if (preparedClass.body().isPresent()) {
+        Set<String> versionFlags = preparedClasses.stream().flatMap(pc -> pc.body().stream())
+            .flatMap(b -> b.getProperties().stream()).filter(CommandProperty::isHelp)
+            .map(CommandProperty::getName).collect(toSet());
+        if (versionFlags.size() > 1) {
+          throw new MultipleVersionFlagsScanException(preparedClass.clazz(), versionFlags);
+        }
+      }
+    }
+
+    return preparedClasses;
   }
 
   public <T> RootCommand<T> gatherStep(List<PreparedClass<? extends T>> bodiedClasses) {
@@ -243,15 +462,14 @@ public class ScanPhase {
     }
 
     // Now compute the topological ordering of our graph. In other words, we want to sort our
-    // classes
-    // in dependency order. We want to process a node only after all of its dependencies have been
-    // processed. So leaves first, root last.
+    // classes in dependency order. We want to process a node only after all of its dependencies
+    // have been processed. So leaves first, root last.
     List<Class<?>> sortedClasses = new ArrayList<>(shallowDependencies.keySet());
     sortedClasses.sort(Graphs.topologicalOrdering(shallowDependencies));
 
 
     // Let's gather our discriminators
-    Map<Class<?>, String> discriminators = new HashMap<>();
+    Map<Class<?>, Discriminator> discriminators = new HashMap<>();
     for (PreparedClass<? extends T> bodiedClass : bodiedClasses) {
       if (bodiedClass.supercommand().isPresent()) {
         discriminators.put(bodiedClass.clazz(), bodiedClass.supercommand().get().discriminator());
@@ -270,14 +488,14 @@ public class ScanPhase {
         throw new AssertionError("no dependencies for " + clazz);
       }
 
-      Map<String, SubCommand<?>> subs = new HashMap<>();
+      Map<Discriminator, SubCommand<?>> subs = new HashMap<>();
       for (Class<?> dep : deps) {
         SubCommand<?> sub = subcommands.get(dep);
         if (sub == null) {
           throw new AssertionError("no subcommand for " + dep);
         }
 
-        String discriminator = discriminators.get(dep);
+        Discriminator discriminator = discriminators.get(dep);
         if (discriminator == null) {
           throw new AssertionError("no discriminator for " + dep);
         }
@@ -288,7 +506,7 @@ public class ScanPhase {
 
       if (bodiedClass.supercommand().isPresent()) {
         // This is a subcommand
-        String discriminator = discriminators.get(clazz);
+        Discriminator discriminator = discriminators.get(clazz);
         if (discriminator == null) {
           throw new AssertionError("no discriminator for " + clazz);
         }

@@ -19,8 +19,6 @@
  */
 package com.sigpwned.discourse.core.module.value.sink;
 
-import com.sigpwned.discourse.core.util.Generated;
-import com.sigpwned.discourse.core.util.type.SortedSetType;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -28,6 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import com.sigpwned.discourse.core.util.type.SortedSetType;
 
 /**
  * A value sink that stores values by appending them to a list.
@@ -37,19 +36,14 @@ public class SortedSetAddValueSinkFactory implements ValueSinkFactory {
   public static final SortedSetAddValueSinkFactory INSTANCE = new SortedSetAddValueSinkFactory();
 
   @Override
-  public boolean isSinkable(Type genericType, List<Annotation> annotations) {
+  public Optional<ValueSink> getSink(Type genericType, List<Annotation> annotations) {
+    final SortedSetType setType;
     try {
-      SortedSetType.parse(genericType);
+      setType = SortedSetType.parse(genericType);
     } catch (IllegalArgumentException e) {
-      return false;
+      return Optional.empty();
     }
-    return true;
-  }
-
-  @Override
-  public ValueSink getSink(Type genericType, List<Annotation> annotations) {
-    final SortedSetType setType = SortedSetType.parse(genericType);
-    return new ValueSink() {
+    return Optional.of(new ValueSink() {
       private final SortedSet set = new TreeSet<>();
 
       @Override
@@ -76,13 +70,11 @@ public class SortedSetAddValueSinkFactory implements ValueSinkFactory {
       }
 
       @Override
-      @Generated
       public int hashCode() {
         return getGenericType().hashCode();
       }
 
       @Override
-      @Generated
       public boolean equals(Object other) {
         if (other == null) {
           return false;
@@ -94,9 +86,9 @@ public class SortedSetAddValueSinkFactory implements ValueSinkFactory {
           return false;
         }
         ValueSink that = (ValueSink) other;
-        return isCollection() == that.isCollection() && Objects.equals(getGenericType(),
-            that.getGenericType());
+        return isCollection() == that.isCollection()
+            && Objects.equals(getGenericType(), that.getGenericType());
       }
-    };
+    });
   }
 }

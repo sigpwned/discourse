@@ -22,17 +22,17 @@ package com.sigpwned.discourse.core.module.value.deserializer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 
 public class StringValueDeserializerFactory implements ValueDeserializerFactory<String> {
-  public static final StringValueDeserializerFactory INSTANCE=new StringValueDeserializerFactory();
-  
-  @Override
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
-    return genericType.equals(String.class);
-  }
+  public static final StringValueDeserializerFactory INSTANCE =
+      new StringValueDeserializerFactory();
 
   @Override
-  public ValueDeserializer<String> getDeserializer(Type genericType, List<Annotation> annotations) {
-    return x -> x;
+  public Optional<ValueDeserializer<? extends String>> getDeserializer(Type genericType,
+      List<Annotation> annotations) {
+    if (genericType != String.class)
+      return Optional.empty();
+    return Optional.of(String::valueOf);
   }
 }

@@ -6,22 +6,37 @@ import com.sigpwned.discourse.core.invocation.phase.scan.model.PreparedClass;
 import com.sigpwned.discourse.core.invocation.phase.scan.model.WalkedClass;
 
 public interface ScanPhaseListener {
-  public <T> void beforeScanPhaseWalkStep(Class<T> rootClazz);
+  // WALK STEP ////////////////////////////////////////////////////////////////////////////////////
+  default <T> void beforeScanPhaseWalkStep(Class<T> rootClazz) {}
 
-  public <T> void afterScanPhaseWalkStep(Class<T> rootClazz,
-      List<WalkedClass<? extends T>> walkedClasses);
+  default <T> void afterScanPhaseWalkStep(Class<T> rootClazz,
+      List<WalkedClass<? extends T>> walkedClasses) {}
 
-  public <T> void beforeScanPhasePrepareStep(Class<T> rootClazz,
-      List<WalkedClass<? extends T>> walkedClasses);
+  default void catchScanPhaseWalkStep(Throwable problem) {}
 
-  public <T> void afterScanPhasePrepareStep(Class<T> rootClazz,
+  default void finallyScanPhaseWalkStep() {}
+
+  // PREPARE STEP /////////////////////////////////////////////////////////////////////////////////
+  default <T> void beforeScanPhasePrepareStep(Class<T> rootClazz,
+      List<WalkedClass<? extends T>> walkedClasses) {}
+
+  default <T> void afterScanPhasePrepareStep(Class<T> rootClazz,
       List<WalkedClass<? extends T>> walkedClasses,
-      List<PreparedClass<? extends T>> preparedClasses);
+      List<PreparedClass<? extends T>> preparedClasses) {}
 
-  public <T> void beforeScanPhaseGatherStep(Class<T> rootClazz,
-      List<PreparedClass<? extends T>> preparedClasses);
+  default void catchScanPhasePrepareStep(Throwable problem) {}
 
-  public <T> void afterScanPhaseGatherStep(Class<T> rootClazz,
-      List<PreparedClass<? extends T>> preparedClasses, RootCommand<T> rootCommand);
+  default void finallyScanPhasePrepareStep() {}
+
+  // GATHER STEP //////////////////////////////////////////////////////////////////////////////////
+  default <T> void beforeScanPhaseGatherStep(Class<T> rootClazz,
+      List<PreparedClass<? extends T>> preparedClasses) {}
+
+  default <T> void afterScanPhaseGatherStep(Class<T> rootClazz,
+      List<PreparedClass<? extends T>> preparedClasses, RootCommand<T> rootCommand) {}
+
+  default void catchScanPhaseGatherStep(Throwable problem) {}
+
+  default void finallyScanPhaseGatherStep() {}
 
 }

@@ -47,14 +47,6 @@ public final class Discourse {
   }
 
   /**
-   * Create a configuration object of the given type from the given arguments using the given
-   * resolvedCommand builder.
-   */
-  public static <T> T configuration(Class<T> rawType, InvocationContext context, String[] args) {
-    return configuration(rawType, context, List.of(args));
-  }
-
-  /**
    * Create a configuration object of the given type from the given arguments.
    */
   public static <T> T configuration(Class<T> rawType, List<String> args) {

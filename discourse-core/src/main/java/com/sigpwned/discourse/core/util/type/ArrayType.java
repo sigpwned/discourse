@@ -19,11 +19,10 @@
  */
 package com.sigpwned.discourse.core.util.type;
 
-import com.sigpwned.discourse.core.util.Generated;
-import com.sigpwned.discourse.core.util.Types;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.util.Objects;
+import com.sigpwned.discourse.core.util.Types;
 
 public class ArrayType {
   public static ArrayType parse(Type genericType) {
@@ -31,14 +30,14 @@ public class ArrayType {
       Class<?> classType = (Class<?>) genericType;
       if (classType.getComponentType() == null)
         throw new IllegalArgumentException("genericType is not an array type");
-      Class<?> elementType=classType.getComponentType();
-      if(!Types.isConcrete(elementType))
+      Class<?> elementType = classType.getComponentType();
+      if (!Types.isConcrete(elementType))
         throw new IllegalArgumentException("elementType is not concrete");
       return of(elementType);
     } else if (genericType instanceof GenericArrayType) {
       GenericArrayType arrayType = (GenericArrayType) genericType;
-      Type elementType=arrayType.getGenericComponentType();
-      if(!Types.isConcrete(elementType))
+      Type elementType = arrayType.getGenericComponentType();
+      if (!Types.isConcrete(elementType))
         throw new IllegalArgumentException("elementType is not concrete");
       return of(elementType);
     } else {
@@ -55,7 +54,7 @@ public class ArrayType {
   public ArrayType(Type elementType) {
     if (elementType.equals(void.class))
       throw new IllegalArgumentException("elementType cannot be void");
-    if(!Types.isConcrete(elementType))
+    if (!Types.isConcrete(elementType))
       throw new IllegalArgumentException("elementType must be concrete");
     this.elementType = elementType;
   }
@@ -68,13 +67,11 @@ public class ArrayType {
   }
 
   @Override
-  @Generated
   public int hashCode() {
     return Objects.hash(elementType);
   }
 
   @Override
-  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -87,7 +84,6 @@ public class ArrayType {
   }
 
   @Override
-  @Generated
   public String toString() {
     return "GenericArrayType [elementType=" + elementType + "]";
   }

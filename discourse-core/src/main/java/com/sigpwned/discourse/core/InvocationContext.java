@@ -20,22 +20,19 @@
 package com.sigpwned.discourse.core;
 
 import static java.util.Objects.requireNonNull;
-
-import com.sigpwned.discourse.core.chain.AccessorNamingSchemeChain;
-import com.sigpwned.discourse.core.chain.ConfigurableComponentScannerChain;
-import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
-import com.sigpwned.discourse.core.chain.DiscourseListenerChain;
-import com.sigpwned.discourse.core.chain.ExceptionFormatterChain;
-import com.sigpwned.discourse.core.chain.ValueDeserializerFactoryChain;
-import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
-import com.sigpwned.discourse.core.command.Command;
-import com.sigpwned.discourse.core.error.ExitError;
-import com.sigpwned.discourse.core.format.help.HelpFormatter;
-import com.sigpwned.discourse.core.format.version.VersionFormatter;
-import com.sigpwned.discourse.core.listener.DiscourseListener;
-import java.io.PrintStream;
-import java.util.List;
-import java.util.Optional;
+import com.sigpwned.discourse.core.invocation.phase.parse.preprocess.ArgsPreprocessor;
+import com.sigpwned.discourse.core.invocation.phase.parse.preprocess.CoordinatesPreprocessor;
+import com.sigpwned.discourse.core.invocation.phase.parse.preprocess.TokenStreamPreprocessor;
+import com.sigpwned.discourse.core.invocation.phase.resolve.CommandResolver;
+import com.sigpwned.discourse.core.invocation.phase.scan.NamingScheme;
+import com.sigpwned.discourse.core.invocation.phase.scan.RulesEngine;
+import com.sigpwned.discourse.core.invocation.phase.scan.SubCommandScanner;
+import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleDetector;
+import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleNominator;
+import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxDetector;
+import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxNominator;
+import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFactory;
+import com.sigpwned.discourse.core.module.value.sink.ValueSinkFactory;
 
 /**
  * An invocation context that provides information about the current invocation environment. This is
@@ -57,75 +54,31 @@ public interface InvocationContext {
     }
   }
 
-  /**
-   * The key for the {@link HelpFormatter help formatter}. This is a required value.
-   */
-  public static final Key<HelpFormatter> HELP_FORMATTER_KEY = Key.of("discourse.HelpFormatter",
-      HelpFormatter.class);
+  public Syntax getSyntax();
 
-  /**
-   * The key for the {@link VersionFormatter version formatter}. This is a required value.
-   */
-  public static final Key<VersionFormatter> VERSION_FORMATTER_KEY = Key.of(
-      "discourse.VersionFormatter", VersionFormatter.class);
+  public SubCommandScanner getSubCommandScanner();
 
-  /**
-   * The key for the {@link PrintStream error stream}. This is a required value.
-   */
-  public static final Key<PrintStream> ERROR_STREAM_KEY = Key.of("discourse.ErrorStream",
-      PrintStream.class);
+  public SyntaxNominator getSyntaxNominator();
 
-  /**
-   * The key for the {@link ValueDeserializerFactoryChain value deserializer resolver}. This is a
-   * required value.
-   */
-  public static final Key<ValueDeserializerFactoryChain> VALUE_DESERIALIZER_FACTORY_CHAIN_KEY = Key.of(
-      "discourse.ValueDeserializerResolver", ValueDeserializerFactoryChain.class);
+  public SyntaxDetector getSyntaxDetector();
 
-  /**
-   * The key for the {@link ValueSinkFactoryChain value sink resolver}. This is a required value.
-   */
-  public static final Key<ValueSinkFactoryChain> VALUE_SINK_FACTORY_CHAIN_KEY = Key.of(
-      "discourse.ValueSinkResolver", ValueSinkFactoryChain.class);
+  public RuleNominator getRuleNominator();
 
-  public static final Key<DiscourseListenerChain> DISCOURSE_LISTENER_CHAIN_KEY = Key.of(
-      "discourse.DiscourseListenerChain", DiscourseListenerChain.class);
+  public RuleDetector getRuleDetector();
 
-  public static final Key<ConfigurableInstanceFactoryScannerChain> CONFIGURABLE_INSTANCE_FACTORY_PROVIDER_CHAIN_KEY = Key.of(
-      "discourse.ConfigurableInstanceFactoryProviderChain",
-      ConfigurableInstanceFactoryScannerChain.class);
+  public NamingScheme getNamingScheme();
 
-  public static final Key<ConfigurableComponentScannerChain> CONFIGURABLE_COMPONENT_SCANNER_CHAIN_KEY = Key.of(
-      "discourse.ConfigurableComponentScannerChain", ConfigurableComponentScannerChain.class);
+  public ValueSinkFactory getValueSinkFactory();
 
-  public static final Key<AccessorNamingSchemeChain> ACCESSOR_NAMING_SCHEME_CHAIN_KEY = Key.of(
-      "discourse.AccessorNamingSchemeChain", AccessorNamingSchemeChain.class);
+  public ValueDeserializerFactory<?> getValueDeserializerFactory();
 
-  public static final Key<ExceptionFormatterChain> EXCEPTION_FORMATTER_CHAIN_KEY = Key.of(
-      "discourse.ExceptionFormatterChain", ExceptionFormatterChain.class);
+  public CommandResolver getCommandResolver();
 
-  /**
-   * The key for the arguments to the current invocation. This value is added during the resolve
-   * step, and is available via the context from
-   * {@link DiscourseListener#beforeResolve(Command, List, InvocationContext)} onward.
-   */
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public static final Key<List<String>> ARGUMENTS_KEY = (Key) Key.of("discourse.Arguments",
-      List.class);
+  public CoordinatesPreprocessor getCoordinatesPreprocessor();
 
-  public static final Key<ExitError.Factory> EXIT_ERROR_FACTORY_KEY = Key.of(
-      "discourse.ExitErrorFactory", ExitError.Factory.class);
+  public ArgsPreprocessor getArgsPreprocessor();
 
-  /**
-   * Registers a module with this invocation context. This is used to register additional resources
-   * with the context. May add additional keys to the context, reassign existing keys in the
-   * context, or modify existing values in the context.
-   *
-   * @param module the module to register
-   */
-  void register(Module module);
+  public TokenStreamPreprocessor getTokenStreamPreprocessor();
 
-  <T> void set(Key<T> key, T value);
-
-  <T> Optional<T> get(Key<T> key);
+  public RulesEngine getRulesEngine();
 }

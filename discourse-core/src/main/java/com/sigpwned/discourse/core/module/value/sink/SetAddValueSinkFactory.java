@@ -19,8 +19,6 @@
  */
 package com.sigpwned.discourse.core.module.value.sink;
 
-import com.sigpwned.discourse.core.util.Generated;
-import com.sigpwned.discourse.core.util.type.SetType;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.HashSet;
@@ -28,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import com.sigpwned.discourse.core.util.type.SetType;
 
 /**
  * A value sink that stores values by appending them to a list.
@@ -37,19 +36,14 @@ public class SetAddValueSinkFactory implements ValueSinkFactory {
   public static final SetAddValueSinkFactory INSTANCE = new SetAddValueSinkFactory();
 
   @Override
-  public boolean isSinkable(Type genericType, List<Annotation> annotations) {
+  public Optional<ValueSink> getSink(Type genericType, List<Annotation> annotations) {
+    final SetType setType;
     try {
-      SetType.parse(genericType);
+      setType = SetType.parse(genericType);
     } catch (IllegalArgumentException e) {
-      return false;
+      return Optional.empty();
     }
-    return true;
-  }
-
-  @Override
-  public ValueSink getSink(Type genericType, List<Annotation> annotations) {
-    final SetType setType = SetType.parse(genericType);
-    return new ValueSink() {
+    return Optional.of(new ValueSink() {
       private final Set set = new HashSet<>();
 
       @Override
@@ -76,13 +70,11 @@ public class SetAddValueSinkFactory implements ValueSinkFactory {
       }
 
       @Override
-      @Generated
       public int hashCode() {
         return getGenericType().hashCode();
       }
 
       @Override
-      @Generated
       public boolean equals(Object other) {
         if (other == null) {
           return false;
@@ -94,9 +86,9 @@ public class SetAddValueSinkFactory implements ValueSinkFactory {
           return false;
         }
         ValueSink that = (ValueSink) other;
-        return isCollection() == that.isCollection() && Objects.equals(getGenericType(),
-            that.getGenericType());
+        return isCollection() == that.isCollection()
+            && Objects.equals(getGenericType(), that.getGenericType());
       }
-    };
+    });
   }
 }

@@ -26,29 +26,29 @@ import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.PropertyParameter;
 import com.sigpwned.discourse.core.annotation.Subcommand;
-import com.sigpwned.discourse.core.exception.configuration.DiscriminatorMismatchConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.DuplicateCoordinateConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.InvalidCollectionParameterPlacementConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.InvalidDiscriminatorConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.InvalidLongNameConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.InvalidPositionConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.InvalidPropertyNameConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.InvalidRequiredParameterPlacementConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.InvalidShortNameConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.InvalidVariableNameConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.MissingPositionConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.MultiCommandNotAbstractConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.MultipleHelpFlagsConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.MultipleVersionFlagsConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.NoDiscriminatorConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.NoNameConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.NotConfigurableConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.SubcommandDoesNotExtendParentCommandConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.TooManyAnnotationsConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.UnexpectedDiscriminatorConfigurationException;
-import com.sigpwned.discourse.core.exception.configuration.UnexpectedSubcommandsConfigurationException;
 import com.sigpwned.discourse.core.invocation.InvocationBuilder;
 import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.DiscriminatorMismatchConfigurationException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.DuplicateCoordinatesScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.InvalidCollectionParameterPlacementConfigurationException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.InvalidDiscriminatorScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.InvalidLongNameConfigurationException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.InvalidPositionConfigurationException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.InvalidPropertyNameConfigurationException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.InvalidRequiredParameterPlacementConfigurationException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.InvalidShortNameConfigurationException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.InvalidVariableNameConfigurationException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.MissingPositionConfigurationException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.SuperCommandNotAbstractScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.MultipleHelpFlagsScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.MultipleVersionFlagsScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.NoDiscriminatorScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.NoNameConfigurationException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.NotConfigurableScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.SubCommandDoesNotExtendSuperCommandScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.TooManyAnnotationsConfigurationException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.UnexpectedDiscriminatorScanException;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.UnexpectedSubcommandsConfigurationException;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -118,7 +118,7 @@ public class ConfigurationExceptionTest {
     public boolean example;
   }
 
-  @Test(expected = NotConfigurableConfigurationException.class)
+  @Test(expected = NotConfigurableScanException.class)
   public void givenClassWithoutConfigurableAnnotation_whenScan_thenFailWithNotConfigurableException() {
     new InvocationBuilder().scan(NotConfigurableExample.class, context);
   }
@@ -256,7 +256,7 @@ public class ConfigurationExceptionTest {
     public String example2;
   }
 
-  @Test(expected = DuplicateCoordinateConfigurationException.class)
+  @Test(expected = DuplicateCoordinatesScanException.class)
   public void givenClassWithFieldWithDuplicateShortNames_whenScan_thenFailWithDuplicateCoordinateException() {
     new InvocationBuilder().scan(DuplicateCoordinateExample.class, context);
   }
@@ -387,7 +387,7 @@ public class ConfigurationExceptionTest {
     public String alpha;
   }
 
-  @Test(expected = SubcommandDoesNotExtendParentCommandConfigurationException.class)
+  @Test(expected = SubCommandDoesNotExtendSuperCommandScanException.class)
   public void givenClassWithSubcommandNotExtendsCommand_whenScan_thenFailWithSubcommandDoesNotExtendRootCommandException() {
     new InvocationBuilder().scan(NoExtendMultiCommandExample.class, context);
   }
@@ -411,7 +411,7 @@ public class ConfigurationExceptionTest {
     public String alpha;
   }
 
-  @Test(expected = InvalidDiscriminatorConfigurationException.class)
+  @Test(expected = InvalidDiscriminatorScanException.class)
   public void givenClassWithInvalidDiscriminatorInCommand_whenScan_thenFailWithInvalidDiscriminatorException() {
     new InvocationBuilder().scan(InvalidDiscriminatorMultiCommandExample1.class, context);
   }
@@ -435,7 +435,7 @@ public class ConfigurationExceptionTest {
     public String alpha;
   }
 
-  @Test(expected = InvalidDiscriminatorConfigurationException.class)
+  @Test(expected = InvalidDiscriminatorScanException.class)
   public void givenClassWithInvalidDiscriminatorInSubcommand_whenScan_thenFailWithInvalidDiscriminatorException() {
     new InvocationBuilder().scan(InvalidDiscriminatorMultiCommandExample2.class, context);
   }
@@ -459,7 +459,7 @@ public class ConfigurationExceptionTest {
     public String alpha;
   }
 
-  @Test(expected = NoDiscriminatorConfigurationException.class)
+  @Test(expected = NoDiscriminatorScanException.class)
   public void givenClassWithEmptyDiscriminatorInCommand_whenScan_thenFailWithNoDiscriminatorException() {
     new InvocationBuilder().scan(NoDiscriminatorMultiCommandExample1.class, context);
   }
@@ -483,7 +483,7 @@ public class ConfigurationExceptionTest {
     public String alpha;
   }
 
-  @Test(expected = NoDiscriminatorConfigurationException.class)
+  @Test(expected = NoDiscriminatorScanException.class)
   public void givenClassWithEmptyDiscriminatorInSubcommand_whenScan_thenFailWithNoDiscriminatorException() {
     new InvocationBuilder().scan(NoDiscriminatorMultiCommandExample2.class, context);
   }
@@ -507,7 +507,7 @@ public class ConfigurationExceptionTest {
     public String alpha;
   }
 
-  @Test(expected = UnexpectedDiscriminatorConfigurationException.class)
+  @Test(expected = UnexpectedDiscriminatorScanException.class)
   public void givenClassWithDiscriminatorInCommandAndSubcommands_whenScan_thenFailWithUnexpectedDiscriminatorException() {
     new InvocationBuilder().scan(UnexpectedDiscriminatorRootCommandExample.class, context);
   }
@@ -522,7 +522,7 @@ public class ConfigurationExceptionTest {
     public String option;
   }
 
-  @Test(expected = UnexpectedDiscriminatorConfigurationException.class)
+  @Test(expected = UnexpectedDiscriminatorScanException.class)
   public void givenClassWithDiscriminatorInCommandAndNoSubcommands_whenScan_thenFailWithUnexpectedDiscriminatorException() {
     new InvocationBuilder().scan(UnexpectedDiscriminatorExample.class, context);
   }
@@ -579,7 +579,7 @@ public class ConfigurationExceptionTest {
     public String alpha;
   }
 
-  @Test(expected = MultiCommandNotAbstractConfigurationException.class)
+  @Test(expected = SuperCommandNotAbstractScanException.class)
   public void givenConcreteClassWithSubcommands_whenScan_thenFailWithMultiCommandNotAbstractException() {
     new InvocationBuilder().scan(NotAbstractCommandExample.class, context);
   }
@@ -597,7 +597,7 @@ public class ConfigurationExceptionTest {
     public boolean help2;
   }
 
-  @Test(expected = MultipleHelpFlagsConfigurationException.class)
+  @Test(expected = MultipleHelpFlagsScanException.class)
   public void givenClassWithMultipleHelpFields_whenScan_thenFailWithMultipleHelpFlagsException() {
     new InvocationBuilder().scan(MultipleHelpExample.class, context);
   }
@@ -615,7 +615,7 @@ public class ConfigurationExceptionTest {
     public boolean version2;
   }
 
-  @Test(expected = MultipleVersionFlagsConfigurationException.class)
+  @Test(expected = MultipleVersionFlagsScanException.class)
   public void givenClassWithMultipleVersionFields_whenScan_thenFailWithMultipleVersionFlagsException() {
     new InvocationBuilder().scan(MultipleVersionExample.class, context);
   }

@@ -23,6 +23,7 @@ package com.sigpwned.discourse.core.exception;
  * The base exception for all exceptions thrown by Discourse.
  */
 public abstract class DiscourseException extends RuntimeException {
+  private static final long serialVersionUID = -2361668461272064916L;
 
   protected DiscourseException(String message) {
     super(message);

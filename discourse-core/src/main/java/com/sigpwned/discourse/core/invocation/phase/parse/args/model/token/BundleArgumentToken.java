@@ -19,23 +19,19 @@
  */
 package com.sigpwned.discourse.core.invocation.phase.parse.args.model.token;
 
-import static java.util.Collections.*;
+import static java.util.Collections.unmodifiableList;
+import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.joining;
-
-import com.sigpwned.discourse.core.model.coordinate.ShortSwitchNameCoordinate;
-import com.sigpwned.discourse.core.util.Generated;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 /**
  * A "bundle" token is a sequence of short switch names strung together, e.g., {@code -abc} which
  * represents the switches {@code -a}, {@code -b}, and {@code -c}.
  *
- * @see ShortSwitchNameCoordinate
+ * @see ShortSwitchNameArgumentCoordinate
  */
 public final class BundleArgumentToken extends ArgumentToken {
-
   private final List<String> shortNames;
 
   public BundleArgumentToken(String text, List<String> shortNames) {
@@ -46,10 +42,12 @@ public final class BundleArgumentToken extends ArgumentToken {
     if (shortNames.isEmpty()) {
       throw new IllegalArgumentException("empty bundle");
     }
-    if (!shortNames.stream().allMatch(ShortSwitchNameCoordinate.PATTERN.asMatchPredicate())) {
+    if (!shortNames.stream().allMatch(ShortNameArgumentToken.PATTERN.asMatchPredicate())) {
       throw new IllegalArgumentException("invalid short names: " + shortNames.stream()
-          .filter(Predicate.not(ShortSwitchNameCoordinate.PATTERN.asMatchPredicate()))
-          .collect(joining(", ")));
+          .filter(not(ShortNameArgumentToken.PATTERN.asMatchPredicate())).collect(joining(", ")));
+    }
+    if (!text.equals(ShortNameArgumentToken.PREFIX + String.join("", shortNames))) {
+      throw new IllegalArgumentException("invalid text: " + text);
     }
     this.shortNames = unmodifiableList(shortNames);
   }
@@ -62,7 +60,6 @@ public final class BundleArgumentToken extends ArgumentToken {
   }
 
   @Override
-  @Generated
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -71,7 +68,6 @@ public final class BundleArgumentToken extends ArgumentToken {
   }
 
   @Override
-  @Generated
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;

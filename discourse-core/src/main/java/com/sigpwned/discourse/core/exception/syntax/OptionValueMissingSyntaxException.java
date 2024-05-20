@@ -31,10 +31,10 @@ import com.sigpwned.discourse.core.model.coordinate.SwitchNameCoordinate;
 public class OptionValueMissingSyntaxException extends SyntaxException {
 
   private final String parameterName;
-  private final SwitchNameCoordinate coordinate;
+  private final SwitchName coordinate;
 
   public OptionValueMissingSyntaxException(SingleCommand<?> command, String parameterName,
-      SwitchNameCoordinate coordinate) {
+      SwitchName coordinate) {
     super(command, "Option %s requires value".formatted(coordinate.toSwitchString()));
     this.parameterName = requireNonNull(parameterName);
     this.coordinate = requireNonNull(coordinate);
@@ -50,7 +50,7 @@ public class OptionValueMissingSyntaxException extends SyntaxException {
   /**
    * @return the longName
    */
-  public SwitchNameCoordinate getCoordinate() {
+  public SwitchName getCoordinate() {
     return coordinate;
   }
 

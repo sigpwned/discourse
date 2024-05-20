@@ -19,27 +19,26 @@
  */
 package com.sigpwned.discourse.core.module.value.deserializer;
 
-import com.sigpwned.discourse.core.annotation.DiscourseDeserialize;
-import com.sigpwned.discourse.core.util.Streams;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
+import com.sigpwned.discourse.core.annotation.DiscourseDeserialize;
+import com.sigpwned.discourse.core.util.Streams;
 
-public class DiscourseDeserializeValueSerializerFactory implements
-    ValueDeserializerFactory<Object> {
+public class DiscourseDeserializeValueSerializerFactory
+    implements ValueDeserializerFactory<Object> {
 
-  public static final DiscourseDeserializeValueSerializerFactory INSTANCE = new DiscourseDeserializeValueSerializerFactory();
-
-  @Override
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
-    return findDiscourseDeserializeAnnotation(annotations).isPresent();
-  }
+  public static final DiscourseDeserializeValueSerializerFactory INSTANCE =
+      new DiscourseDeserializeValueSerializerFactory();
 
   @Override
-  public ValueDeserializer<?> getDeserializer(Type genericType, List<Annotation> annotations) {
-    DiscourseDeserialize deserialize = findDiscourseDeserializeAnnotation(
-        annotations).orElseThrow();
+  public Optional<ValueDeserializer<?>> getDeserializer(Type genericType,
+      List<Annotation> annotations) {
+    DiscourseDeserialize deserialize = annotations.stream()
+        .mapMulti(Streams.filterAndCast(DiscourseDeserialize.class)).findFirst().orElse(null);
+    if (deserialize == null)
+      return Optional.empty();
 
     Class<? extends ValueDeserializer<?>> deserializeUsing = deserialize.using();
 
@@ -52,12 +51,6 @@ public class DiscourseDeserializeValueSerializerFactory implements
       throw new RuntimeException(e);
     }
 
-    return deserializer;
-  }
-
-  private Optional<DiscourseDeserialize> findDiscourseDeserializeAnnotation(
-      List<Annotation> annotations) {
-    return annotations.stream().mapMulti(Streams.filterAndCast(DiscourseDeserialize.class))
-        .findFirst();
+    return Optional.of(deserializer);
   }
 }

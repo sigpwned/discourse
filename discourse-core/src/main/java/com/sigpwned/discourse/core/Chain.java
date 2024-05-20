@@ -19,9 +19,9 @@
  */
 package com.sigpwned.discourse.core;
 
+import static java.util.Collections.unmodifiableList;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -39,17 +39,9 @@ public class Chain<T> implements Iterable<T> {
     elements.addLast(element);
   }
 
-  public boolean remove(T element) {
-    return elements.remove(element);
-  }
-
-  public void removeIf(Predicate<T> predicate) {
-    elements.removeIf(predicate);
-  }
-
   @Override
   public Iterator<T> iterator() {
-    return elements.iterator();
+    return unmodifiableList(elements).iterator();
   }
 
   public Stream<T> stream() {

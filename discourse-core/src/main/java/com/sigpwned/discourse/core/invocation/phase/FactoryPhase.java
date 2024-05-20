@@ -3,37 +3,38 @@ package com.sigpwned.discourse.core.invocation.phase;
 import static java.util.Objects.requireNonNull;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.invocation.phase.factory.FactoryPhaseListener;
+import com.sigpwned.discourse.core.invocation.phase.factory.exception.NoInstanceException;
+import com.sigpwned.discourse.core.invocation.phase.factory.exception.RuleFailureException;
 import com.sigpwned.discourse.core.invocation.phase.scan.RulesEngine;
 import com.sigpwned.discourse.core.invocation.phase.scan.model.rules.NamedRule;
 
 public class FactoryPhase {
 
-  private final Supplier<RulesEngine> rulesEngineSupplier;
   private final FactoryPhaseListener listener;
 
-  public FactoryPhase(Supplier<RulesEngine> rulesEngineSupplier, FactoryPhaseListener listener) {
-    this.rulesEngineSupplier = requireNonNull(rulesEngineSupplier);
+  public FactoryPhase(FactoryPhaseListener listener) {
     this.listener = requireNonNull(listener);
   }
 
-  public final Object create(List<NamedRule> rules, Map<String, Object> initialState) {
-    final RulesEngine rulesEngine = getRulesEngineSupplier().get();
+  public final Object create(List<NamedRule> rules, Map<String, Object> initialState,
+      InvocationContext context) {
+    Map<String, Object> finalState = doRulesStep(initialState, rules, context);
 
-    Map<String, Object> newState = doRulesStep(rulesEngine, initialState, rules);
-
-    Object instance = doFactoryStep(newState);
+    Object instance = doFactoryStep(finalState, context);
 
     return instance;
   }
 
-  private Map<String, Object> doRulesStep(RulesEngine rulesEngine, Map<String, Object> initialState,
-      List<NamedRule> rules) {
+  private Map<String, Object> doRulesStep(Map<String, Object> initialState, List<NamedRule> rules,
+      InvocationContext context) {
+    RulesEngine rulesEngine = context.getRulesEngine();
+
     Map<String, Object> newState;
     try {
       getListener().beforeFactoryPhaseRulesStep(rulesEngine, initialState, rules);
-      newState = rulesStep(rulesEngine, initialState, rules);
+      newState = rulesStep(rulesEngine, initialState, rules, context);
       getListener().afterFactoryPhaseRulesStep(rulesEngine, initialState, rules, newState);
     } catch (Throwable problem) {
       getListener().catchFactoryPhaseRulesStep(problem);
@@ -46,15 +47,21 @@ public class FactoryPhase {
   }
 
   protected Map<String, Object> rulesStep(RulesEngine rulesEngine, Map<String, Object> initialState,
-      List<NamedRule> rules) {
-    return rulesEngine.run(initialState, rules);
+      List<NamedRule> rules, InvocationContext context) {
+    Map<String, Object> finalState;
+    try {
+      finalState = rulesEngine.run(initialState, rules);
+    } catch (Exception e) {
+      throw new RuleFailureException(e);
+    }
+    return finalState;
   }
 
-  private Object doFactoryStep(Map<String, Object> newState) {
+  private Object doFactoryStep(Map<String, Object> newState, InvocationContext context) {
     Object instance;
     try {
       getListener().beforeFactoryPhaseCreateStep(newState);
-      instance = factoryStep(newState);
+      instance = factoryStep(newState, context);
       getListener().afterFactoryPhaseCreateStep(newState, instance);
     } catch (Throwable problem) {
       getListener().catchFactoryPhaseCreateStep(problem);
@@ -66,12 +73,20 @@ public class FactoryPhase {
     return instance;
   }
 
-  protected Object factoryStep(Map<String, Object> newState) {
-    return newState.get("");
-  }
+  protected Object factoryStep(Map<String, Object> finalState, InvocationContext context) {
+    // TODO instance name constant
+    Object instance = finalState.get("");
+    if (instance == null) {
+      if (finalState.containsKey("")) {
+        // The rules computed an instance, but it's null. That's an NPE.
+        throw new NullPointerException();
+      }
+      // The rules didn't compute an instance. This should not happen because we performed a graph
+      // analysis that guarantees we invoke a rule that (claims to) produce the instance.
+      throw new NoInstanceException();
+    }
 
-  private Supplier<RulesEngine> getRulesEngineSupplier() {
-    return rulesEngineSupplier;
+    return instance;
   }
 
   private FactoryPhaseListener getListener() {

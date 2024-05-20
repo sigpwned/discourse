@@ -19,12 +19,11 @@
  */
 package com.sigpwned.discourse.core.util.type;
 
-import com.sigpwned.discourse.core.util.Generated;
-import com.sigpwned.discourse.core.util.Types;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.Set;
+import com.sigpwned.discourse.core.util.Types;
 
 public class SetType {
   public static SetType parse(Type genericType) {
@@ -46,7 +45,7 @@ public class SetType {
   private final Type elementType;
 
   public SetType(Type elementType) {
-    if(!Types.isConcrete(elementType))
+    if (!Types.isConcrete(elementType))
       throw new IllegalArgumentException("elementType must be concrete");
     this.elementType = elementType;
   }
@@ -59,13 +58,11 @@ public class SetType {
   }
 
   @Override
-  @Generated
   public int hashCode() {
     return Objects.hash(elementType);
   }
 
   @Override
-  @Generated
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -78,7 +75,6 @@ public class SetType {
   }
 
   @Override
-  @Generated
   public String toString() {
     return "GenericSetType [elementType=" + elementType + "]";
   }

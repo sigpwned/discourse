@@ -24,6 +24,7 @@ import java.lang.reflect.Type;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Parses a {@link LocalTime} according to ISO-8601, e.g. 10:15.
@@ -31,15 +32,14 @@ import java.util.List;
  * @see DateTimeFormatter#ISO_LOCAL_TIME
  */
 public class LocalTimeValueDeserializerFactory implements ValueDeserializerFactory<LocalTime> {
-  public static final LocalTimeValueDeserializerFactory INSTANCE=new LocalTimeValueDeserializerFactory();
-  
-  @Override
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
-    return genericType.equals(LocalTime.class);
-  }
+  public static final LocalTimeValueDeserializerFactory INSTANCE =
+      new LocalTimeValueDeserializerFactory();
 
   @Override
-  public ValueDeserializer<LocalTime> getDeserializer(Type genericType, List<Annotation> annotations) {
-    return LocalTime::parse;
+  public Optional<ValueDeserializer<? extends LocalTime>> getDeserializer(Type genericType,
+      List<Annotation> annotations) {
+    if (genericType != LocalTime.class)
+      return Optional.empty();
+    return Optional.of(LocalTime::parse);
   }
 }

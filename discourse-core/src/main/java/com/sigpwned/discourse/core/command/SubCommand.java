@@ -8,13 +8,13 @@ import java.util.Optional;
 public final class SubCommand<T> implements Command<T> {
 
   private final Class<T> clazz;
-  private final String discriminator;
+  private final Discriminator discriminator;
   private final String description;
   private final CommandBody<T> body;
   private final Map<String, SubCommand<? extends T>> subcommands;
 
-  public SubCommand(Class<T> clazz, String discriminator, String description, CommandBody<T> body,
-      Map<String, SubCommand<? extends T>> subcommands) {
+  public SubCommand(Class<T> clazz, Discriminator discriminator, String description,
+      CommandBody<T> body, Map<String, SubCommand<? extends T>> subcommands) {
     this.clazz = requireNonNull(clazz);
     this.discriminator = requireNonNull(discriminator);
     this.description = description;
@@ -28,7 +28,7 @@ public final class SubCommand<T> implements Command<T> {
   }
 
 
-  public String getDiscriminator() {
+  public Discriminator getDiscriminator() {
     return discriminator;
   }
 

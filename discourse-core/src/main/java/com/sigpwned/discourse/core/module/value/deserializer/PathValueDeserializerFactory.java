@@ -23,17 +23,16 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 public class PathValueDeserializerFactory implements ValueDeserializerFactory<Path> {
-  public static final PathValueDeserializerFactory INSTANCE=new PathValueDeserializerFactory();
-  
-  @Override
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
-    return genericType.equals(Path.class);
-  }
+  public static final PathValueDeserializerFactory INSTANCE = new PathValueDeserializerFactory();
 
   @Override
-  public ValueDeserializer<Path> getDeserializer(Type genericType, List<Annotation> annotations) {
-    return Path::of;
+  public Optional<ValueDeserializer<? extends Path>> getDeserializer(Type genericType,
+      List<Annotation> annotations) {
+    if (genericType != Path.class)
+      return Optional.empty();
+    return Optional.of(Path::of);
   }
 }

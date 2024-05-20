@@ -27,8 +27,7 @@ import java.lang.reflect.Modifier;
 // TODO Delete me?
 public final class Reflection {
 
-  private Reflection() {
-  }
+  private Reflection() {}
 
   /**
    * <p>
@@ -36,11 +35,11 @@ public final class Reflection {
    * </p>
    *
    * <ul>
-   *   <li>It has no parameters</li>
+   * <li>It has no parameters</li>
    * </ul>
    *
    * <p>
-   *   This method does not check the visibility of the constructor.
+   * This method does not check the visibility of the constructor.
    * </p>
    *
    * @param constructor the constructor to check
@@ -56,12 +55,12 @@ public final class Reflection {
    * </p>
    *
    * <ul>
-   *   <li>It returns something other than {@code void}</li>
-   *   <li>It is static</li>
+   * <li>It returns something other than {@code void}</li>
+   * <li>It is static</li>
    * </ul>
    *
    * <p>
-   *   This method does not check the name of the method or its visibility.
+   * This method does not check the name of the method or its visibility.
    * </p>
    *
    * @param method the method to check
@@ -77,12 +76,12 @@ public final class Reflection {
    * </p>
    *
    * <ul>
-   *   <li>It is not static</li>
-   *   <li>It is not final</li>
+   * <li>It is not static</li>
+   * <li>It is not final</li>
    * </ul>
    *
    * <p>
-   *   This method does not check the name of the field or its visibility.
+   * This method does not check the name of the field or its visibility.
    * </p>
    *
    * @param field the field to check
@@ -94,17 +93,38 @@ public final class Reflection {
 
   /**
    * <p>
+   * Returns {@code true} if the given method has the signature of a default constructor. That is:
+   * </p>
+   * 
+   * <ul>
+   * <li>It has no parameters</li>
+   * </ul>
+   * 
+   * <p>
+   * This method does not check the visibility of the constructor.
+   * </p>
+   * 
+   * @param constructor the constructor to check
+   * @return {@code true} if the given constructor has the signature of a default constructor,
+   *         {@code false} otherwise
+   */
+  public static boolean hasDefaultConstructorSignature(Constructor<?> constructor) {
+    return constructor.getParameterCount() == 0;
+  }
+
+  /**
+   * <p>
    * Returns {@code true} if the given method has the signature of a getter method. That is:
    * </p>
    *
    * <ul>
-   *   <li>It has no parameters</li>
-   *   <li>It returns something other than {@code void}</li>
-   *   <li>It is not static</li>
+   * <li>It has no parameters</li>
+   * <li>It returns something other than {@code void}</li>
+   * <li>It is not static</li>
    * </ul>
    *
    * <p>
-   *   This method does not check the name of the method or its visibility.
+   * This method does not check the name of the method or its visibility.
    * </p>
    *
    * @param method the method to check
@@ -121,13 +141,13 @@ public final class Reflection {
    * </p>
    *
    * <ul>
-   *   <li>It takes a single parameter</li>
-   *   <li>It returns {@code void}</li>
-   *   <li>It is not static</li>
+   * <li>It takes a single parameter</li>
+   * <li>It returns {@code void}</li>
+   * <li>It is not static</li>
    * </ul>
    *
    * <p>
-   *   This method does not check the name of the method or its visibility.
+   * This method does not check the name of the method or its visibility.
    * </p>
    *
    * @param method the method to check

@@ -6,7 +6,7 @@ import com.sigpwned.discourse.core.command.RootCommand;
 import com.sigpwned.discourse.core.invocation.model.CommandDereference;
 
 public interface ResolvePhaseListener {
-
+  // RESOLVE STEP /////////////////////////////////////////////////////////////////////////////////
   default <T> void beforeResolvePhaseResolveStep(RootCommand<T> rootCommand,
       List<String> fullArgs) {}
 

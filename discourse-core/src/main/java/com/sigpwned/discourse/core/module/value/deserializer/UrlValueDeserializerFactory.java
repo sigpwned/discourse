@@ -25,24 +25,22 @@ import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 
 public class UrlValueDeserializerFactory implements ValueDeserializerFactory<URL> {
-  public static final UrlValueDeserializerFactory INSTANCE=new UrlValueDeserializerFactory();
-  
-  @Override
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
-    return genericType.equals(URL.class);
-  }
+  public static final UrlValueDeserializerFactory INSTANCE = new UrlValueDeserializerFactory();
 
   @Override
-  public ValueDeserializer<URL> getDeserializer(Type genericType, List<Annotation> annotations) {
-    return s -> {
+  public Optional<ValueDeserializer<? extends URL>> getDeserializer(Type genericType,
+      List<Annotation> annotations) {
+    if (genericType != URL.class)
+      return Optional.empty();
+    return Optional.of(s -> {
       try {
         return new URL(s);
-      }
-      catch(MalformedURLException e) {
+      } catch (MalformedURLException e) {
         throw new UncheckedIOException(e);
       }
-    };
+    });
   }
 }

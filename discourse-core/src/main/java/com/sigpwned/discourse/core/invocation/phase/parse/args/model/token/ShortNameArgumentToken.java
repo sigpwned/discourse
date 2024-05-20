@@ -19,16 +19,18 @@
  */
 package com.sigpwned.discourse.core.invocation.phase.parse.args.model.token;
 
-import com.sigpwned.discourse.core.model.coordinate.ShortSwitchNameCoordinate;
-import com.sigpwned.discourse.core.util.Generated;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * A "short name" argument token, e.g., {@code -f}
  *
- * @see ShortSwitchNameCoordinate
+ * @see ShortSwitchNameArgumentCoordinate
  */
 public final class ShortNameArgumentToken extends ArgumentToken {
+  /* default */ static final String PREFIX = "-";
+
+  /* default */ static final Pattern PATTERN = Pattern.compile("[a-zA-Z0-9]");
 
   private final String shortName;
 
@@ -37,8 +39,12 @@ public final class ShortNameArgumentToken extends ArgumentToken {
     if (shortName == null) {
       throw new NullPointerException();
     }
-    if (!ShortSwitchNameCoordinate.PATTERN.matcher(shortName).matches()) {
+    if (!PATTERN.matcher(shortName).matches()) {
       throw new IllegalArgumentException("invalid short name: " + shortName);
+    }
+    if (!text.equals(PREFIX + shortName)) {
+      throw new IllegalArgumentException(
+          "text does not match short name: " + text + " != " + PREFIX + shortName);
     }
     this.shortName = shortName;
   }
@@ -51,7 +57,6 @@ public final class ShortNameArgumentToken extends ArgumentToken {
   }
 
   @Override
-  @Generated
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -60,7 +65,6 @@ public final class ShortNameArgumentToken extends ArgumentToken {
   }
 
   @Override
-  @Generated
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;

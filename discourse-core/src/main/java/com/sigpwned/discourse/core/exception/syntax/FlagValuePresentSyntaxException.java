@@ -32,10 +32,10 @@ import com.sigpwned.discourse.core.model.coordinate.SwitchNameCoordinate;
 public class FlagValuePresentSyntaxException extends SyntaxException {
 
   private final String parameterName;
-  private final SwitchNameCoordinate coordinate;
+  private final SwitchName coordinate;
 
   public FlagValuePresentSyntaxException(SingleCommand<?> command, String parameterName,
-      SwitchNameCoordinate coordinate) {
+      SwitchName coordinate) {
     super(command, "Flag %s does not take a value".formatted(coordinate.toSwitchString()));
     this.parameterName = requireNonNull(parameterName);
     this.coordinate = requireNonNull(coordinate);
@@ -51,7 +51,7 @@ public class FlagValuePresentSyntaxException extends SyntaxException {
   /**
    * @return the longName
    */
-  public SwitchNameCoordinate getCoordinate() {
+  public SwitchName getCoordinate() {
     return coordinate;
   }
 

@@ -32,11 +32,15 @@ import java.util.Set;
  * </p>
  *
  * <ul>
- *   <li>{@link com.sigpwned.discourse.core.module.value.sink.AssignValueSinkFactory Overwrite}</li>
- *   <li>{@link com.sigpwned.discourse.core.module.value.sink.ArrayAppendValueSinkFactory Collect in array}</li>
- *   <li>{@link com.sigpwned.discourse.core.module.value.sink.ListAddValueSinkFactory Collect in List}</li>
- *   <li>{@link com.sigpwned.discourse.core.module.value.sink.SetAddValueSinkFactory Collect in Set}</li>
- *   <li>{@link com.sigpwned.discourse.core.module.value.sink.SortedSetAddValueSinkFactory Collect in SortedSet}</li>
+ * <li>{@link com.sigpwned.discourse.core.module.value.sink.AssignValueSinkFactory Overwrite}</li>
+ * <li>{@link com.sigpwned.discourse.core.module.value.sink.ArrayAppendValueSinkFactory Collect in
+ * array}</li>
+ * <li>{@link com.sigpwned.discourse.core.module.value.sink.ListAddValueSinkFactory Collect in
+ * List}</li>
+ * <li>{@link com.sigpwned.discourse.core.module.value.sink.SetAddValueSinkFactory Collect in
+ * Set}</li>
+ * <li>{@link com.sigpwned.discourse.core.module.value.sink.SortedSetAddValueSinkFactory Collect in
+ * SortedSet}</li>
  * </ul>
  */
 public interface ValueSink {
@@ -47,6 +51,10 @@ public interface ValueSink {
    */
   public boolean isCollection();
 
+  /**
+   * Returns the type of the value stored in the sink. If the sink is a collection, this method
+   * returns the type of the elements in the collection.
+   */
   public Type getGenericType();
 
   /**

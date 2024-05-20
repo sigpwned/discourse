@@ -1,5 +1,6 @@
 package com.sigpwned.discourse.core.invocation;
 
+import static com.sigpwned.discourse.core.util.MoreCollectors.entriesToMap;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.CommandBody;
 import com.sigpwned.discourse.core.command.CommandProperty;
@@ -20,6 +22,7 @@ import com.sigpwned.discourse.core.invocation.phase.ParsePhase;
 import com.sigpwned.discourse.core.invocation.phase.ResolvePhase;
 import com.sigpwned.discourse.core.invocation.phase.ScanPhase;
 import com.sigpwned.discourse.core.invocation.phase.scan.model.rules.NamedRule;
+import com.sigpwned.discourse.core.module.value.sink.ValueSink;
 
 public class InvocationPipeline {
 
@@ -152,15 +155,11 @@ public class InvocationPipeline {
       return new IllegalArgumentException("Command has no body");
     });
 
-    Map<String, String> vocabulary =
-        body.getProperties().stream().collect(toMap(p -> p.getName(), p -> p.getSyntax()));
+    Map<Coordinate, String> names = body.getProperties().stream()
+        .flatMap(p -> p.getCoordinates().stream().map(c -> Map.entry(c, p.getName())))
+        .collect(entriesToMap());
 
-    Map<String, String> naming = body.getProperties().stream()
-        .flatMap(p -> p.getSyntax().keySet().stream().map(n -> new Map.Entry<>(n, p.getName())))
-        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-
-    return getParsePhase().parse(vocabulary, naming, remainingArgs);
+    return getParsePhase().parse(names, remainingArgs);
   }
 
   private <T> Map<String, Object> doEvalPhase(Command<T> command,
@@ -191,10 +190,15 @@ public class InvocationPipeline {
 
 
     Map<String, Function<String, Object>> mappers = body.getProperties().stream()
-        .collect(toMap(CommandProperty::getName, CommandProperty::getMapper));
+        .collect(toMap(CommandProperty::getName, e -> e.getDeserializer()::deserialize));
 
-    Map<String, Function<List<Object>, Object>> reducers = body.getProperties().stream()
-        .collect(toMap(CommandProperty::getName, CommandProperty::getReducer));
+    Map<String, Function<List<Object>, Object>> reducers =
+        body.getProperties().stream().collect(toMap(CommandProperty::getName, e -> xs -> {
+          ValueSink sink = e.getSink();
+          for (Object x : xs)
+            sink.put(x);
+          return sink.get();
+        }));
 
     return getEvalPhase().eval(mappers, reducers, parsedArgs);
   }

@@ -19,15 +19,14 @@
  */
 package com.sigpwned.discourse.core.module.value.sink;
 
-import com.sigpwned.discourse.core.util.Generated;
-import com.sigpwned.discourse.core.util.Types;
-import com.sigpwned.discourse.core.util.type.ArrayType;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import com.sigpwned.discourse.core.util.Types;
+import com.sigpwned.discourse.core.util.type.ArrayType;
 
 /**
  * A value sink that stores values by appending them to an array.
@@ -37,19 +36,14 @@ public class ArrayAppendValueSinkFactory implements ValueSinkFactory {
   public static final ArrayAppendValueSinkFactory INSTANCE = new ArrayAppendValueSinkFactory();
 
   @Override
-  public boolean isSinkable(Type genericType, List<Annotation> annotations) {
+  public Optional<ValueSink> getSink(Type genericType, List<Annotation> annotations) {
+    final ArrayType arrayType;
     try {
-      ArrayType.parse(genericType);
+      arrayType = ArrayType.parse(genericType);
     } catch (IllegalArgumentException e) {
-      return false;
+      return Optional.empty();
     }
-    return true;
-  }
-
-  @Override
-  public ValueSink getSink(Type genericType, List<Annotation> annotations) {
-    final ArrayType arrayType = ArrayType.parse(genericType);
-    return new ValueSink() {
+    return Optional.of(new ValueSink() {
       private Object currentArray = Types.newConcreteArrayInstance(genericType, 0);
 
       @Override
@@ -78,13 +72,11 @@ public class ArrayAppendValueSinkFactory implements ValueSinkFactory {
       }
 
       @Override
-      @Generated
       public int hashCode() {
         return getGenericType().hashCode();
       }
 
       @Override
-      @Generated
       public boolean equals(Object other) {
         if (other == null) {
           return false;
@@ -96,9 +88,9 @@ public class ArrayAppendValueSinkFactory implements ValueSinkFactory {
           return false;
         }
         ValueSink that = (ValueSink) other;
-        return isCollection() == that.isCollection() && Objects.equals(getGenericType(),
-            that.getGenericType());
+        return isCollection() == that.isCollection()
+            && Objects.equals(getGenericType(), that.getGenericType());
       }
-    };
+    });
   }
 }

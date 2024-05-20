@@ -33,10 +33,10 @@ import com.sigpwned.discourse.core.model.coordinate.SwitchNameCoordinate;
  */
 public class UnrecognizedSwitchSyntaxException extends SyntaxException {
 
-  private final SwitchNameCoordinate coordinate;
+  private final SwitchName coordinate;
 
   public UnrecognizedSwitchSyntaxException(SingleCommand<?> command,
-      SwitchNameCoordinate coordinate) {
+      SwitchName coordinate) {
     super(command, format("Unrecognized switch %s", coordinate.toSwitchString()));
     this.coordinate = requireNonNull(coordinate);
   }
@@ -44,7 +44,7 @@ public class UnrecognizedSwitchSyntaxException extends SyntaxException {
   /**
    * @return the longName
    */
-  public SwitchNameCoordinate getCoordinate() {
+  public SwitchName getCoordinate() {
     return coordinate;
   }
 

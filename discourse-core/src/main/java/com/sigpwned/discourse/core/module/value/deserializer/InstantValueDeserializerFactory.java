@@ -24,6 +24,7 @@ import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Parses a {@link Instant} according to ISO-8601, e.g. 2011-12-03T10:15:30Z.
@@ -31,15 +32,14 @@ import java.util.List;
  * @see DateTimeFormatter#ISO_INSTANT
  */
 public class InstantValueDeserializerFactory implements ValueDeserializerFactory<Instant> {
-  public static final InstantValueDeserializerFactory INSTANCE=new InstantValueDeserializerFactory();
-  
-  @Override
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
-    return genericType.equals(Instant.class);
-  }
+  public static final InstantValueDeserializerFactory INSTANCE =
+      new InstantValueDeserializerFactory();
 
   @Override
-  public ValueDeserializer<Instant> getDeserializer(Type genericType, List<Annotation> annotations) {
-    return Instant::parse;
+  public Optional<ValueDeserializer<? extends Instant>> getDeserializer(Type genericType,
+      List<Annotation> annotations) {
+    if (genericType != Instant.class)
+      return Optional.empty();
+    return Optional.of(Instant::parse);
   }
 }

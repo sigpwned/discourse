@@ -23,68 +23,77 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
+import com.sigpwned.discourse.core.util.JodaBeanUtils;
 
 /**
  * <p>
- * A value deserializer factory that uses a static fromString method to deserialize objects. Capable
- * of deserializing instances of any class with a method that matches the following signature:
+ * A value deserializer factory that uses a static fromString method to deserialize objects. This
+ * implementation is capable deserializing instances of any class T with a method that matches the
+ * following signature:
  * </p>
  *
  * <pre>
- *   public static T fromString(String s);
+ * public static U fromString(String s);
  * </pre>
+ * 
+ * <p>
+ * ...where U extends T.
+ * </p>
  */
 public class FromStringValueDeserializerFactory implements ValueDeserializerFactory<Object> {
 
-  public static final FromStringValueDeserializerFactory INSTANCE = new FromStringValueDeserializerFactory();
+  public static final FromStringValueDeserializerFactory INSTANCE =
+      new FromStringValueDeserializerFactory();
 
   @Override
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
-    Class<?> classType = getClassType(genericType);
+  public Optional<ValueDeserializer<? extends Object>> getDeserializer(Type genericType,
+      List<Annotation> annotations) {
+    // Get the raw class type of the generic type.
+    Class<?> classType = JodaBeanUtils.eraseToClass(genericType);
     if (classType == null) {
-      return false;
+      // There's nothing wrong with this. It just means that we can't resolve the raw type of this
+      // generic type. It may be a type parameter, for example.
+      return Optional.empty();
     }
 
-    if (!Modifier.isPublic(classType.getModifiers())) {
-      return false;
-    }
-    if (Modifier.isAbstract(classType.getModifiers())) {
-      return false;
-    }
-
-    Method fromString = getFromStringMethod(classType);
-    if (fromString == null) {
-      return false;
-    }
-
-    if (!Modifier.isPublic(fromString.getModifiers())) {
-      return false;
+    // Get the fromString method. If the raw type were T, then it should have a signature like:
+    //
+    // public static U fromString(String s);
+    //
+    // Where U extends T. If no such method exists, then we can't deserialize this class.
+    Method fromString;
+    try {
+      fromString = classType.getMethod("fromString", String.class);
+    } catch (NoSuchMethodException e) {
+      // This class has no fromString method. That's fine. It just means that this class is not
+      // deserializable by this factory.
+      return Optional.empty();
     }
     if (!Modifier.isStatic(fromString.getModifiers())) {
-      return false;
+      // The class has a fromString method, but it's not static. That's fine. It just means that
+      // this class is not deserializable by this factory.
+      return Optional.empty();
     }
-    if (!fromString.getReturnType().equals(classType)) {
-      return false;
+    if (!Modifier.isPublic(fromString.getModifiers())) {
+      // The class has a fromString method, but it's not public. That's fine. It just means that
+      // this class is not deserializable by this factory.
+      return Optional.empty();
+    }
+    if (!classType.isAssignableFrom(fromString.getReturnType())) {
+      // The class has a fromString method, but it's return type is not assignable to the class
+      // type. That's fine. It just means that this class is not deserializable by this factory.
+      return Optional.empty();
     }
 
-    return true;
-  }
 
-  @Override
-  public ValueDeserializer<Object> getDeserializer(Type genericType, List<Annotation> annotations) {
-    Class<?> classType = getClassType(genericType);
-    if (classType == null) {
-      throw new IllegalArgumentException("Not a valid concrete class: " + genericType);
-    }
-    Method fromString = getFromStringMethod(classType);
-    return s -> {
+    return Optional.of(s -> {
       try {
         return fromString.invoke(null, s);
       } catch (IllegalAccessException e) {
-        // We confirmed that this is public. It should never happen.
+        // We confirmed that this is public. This should never happen.
         throw new AssertionError("illegal access", e);
       } catch (IllegalArgumentException e) {
         // This is fine. Let it through.
@@ -93,25 +102,6 @@ public class FromStringValueDeserializerFactory implements ValueDeserializerFact
         // TODO Should we use a better exception here?
         throw new RuntimeException("Failed to deserialize object", e);
       }
-    };
-  }
-
-  private static Class<?> getClassType(Type genericType) {
-    if (genericType instanceof Class<?>) {
-      return (Class<?>) genericType;
-    }
-    if (genericType instanceof ParameterizedType) {
-      ParameterizedType parameterizedType = (ParameterizedType) genericType;
-      return getClassType(parameterizedType.getRawType());
-    }
-    return null;
-  }
-
-  private static Method getFromStringMethod(Class<?> classType) {
-    try {
-      return classType.getMethod("fromString", String.class);
-    } catch (NoSuchMethodException e) {
-      return null;
-    }
+    });
   }
 }

@@ -1,11 +1,10 @@
 package com.sigpwned.discourse.core.invocation.phase.scan;
 
-import static java.util.Collections.*;
-
-import com.sigpwned.discourse.core.Chain;
+import static java.util.Collections.unmodifiableList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import com.sigpwned.discourse.core.Chain;
 
 public class SubCommandScannerChain extends Chain<SubCommandScanner> implements SubCommandScanner {
 
@@ -16,9 +15,11 @@ public class SubCommandScannerChain extends Chain<SubCommandScanner> implements 
   }
 
   @Override
-  public <T> Optional<Map<String, Class<? extends T>>> scanForSubCommands(Class<T> clazz) {
+  public <T> Optional<List<Map.Entry<String, Class<? extends T>>>> scanForSubCommands(
+      Class<T> clazz) {
     for (SubCommandScanner delegate : getDelegates()) {
-      Map<String, Class<? extends T>> subcommands = delegate.scanForSubCommands(clazz).orElse(null);
+      List<Map.Entry<String, Class<? extends T>>> subcommands =
+          delegate.scanForSubCommands(clazz).orElse(null);
       if (subcommands != null) {
         return Optional.of(subcommands);
       }

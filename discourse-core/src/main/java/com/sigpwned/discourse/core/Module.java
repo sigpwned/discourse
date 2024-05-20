@@ -20,48 +20,47 @@
 package com.sigpwned.discourse.core;
 
 import com.sigpwned.discourse.core.invocation.InvocationPipelineListener;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.NamingScheme;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.SubCommandScanner;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleDetector;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleEvaluator;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.rules.RuleNominator;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.syntax.SyntaxDetector;
-import com.sigpwned.discourse.core.invocation.phase.scan.impl.syntax.SyntaxNominator;
-import com.sigpwned.discourse.core.value.deserializer.ValueDeserializerFactory;
-import com.sigpwned.discourse.core.value.sink.ValueSinkFactory;<SyntaxNominator>;
+import com.sigpwned.discourse.core.invocation.phase.parse.preprocess.ArgsPreprocessor;
+import com.sigpwned.discourse.core.invocation.phase.parse.preprocess.CoordinatesPreprocessor;
+import com.sigpwned.discourse.core.invocation.phase.parse.preprocess.TokenStreamPreprocessor;
+import com.sigpwned.discourse.core.invocation.phase.scan.NamingScheme;
+import com.sigpwned.discourse.core.invocation.phase.scan.SubCommandScanner;
+import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleDetector;
+import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleEvaluator;
+import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleNominator;
+import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxDetector;
+import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxNominator;
+import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFactory;
+import com.sigpwned.discourse.core.module.value.sink.ValueSinkFactory;
 
 /**
  * Container for registering various components of a Discourse application.
  */
 public abstract class Module {
 
-  public void registerSubCommandScanners(Chain<SubCommandScanner> chain) {
-  }
+  public void registerSubCommandScanners(Chain<SubCommandScanner> chain) {}
 
-  public void registerSyntaxNominators(Chain<SyntaxNominator> chain) {
-  }
+  public void registerSyntaxNominators(Chain<SyntaxNominator> chain) {}
 
-  public void registerSyntaxDetectors(Chain<SyntaxDetector> chain) {
-  }
+  public void registerSyntaxDetectors(Chain<SyntaxDetector> chain) {}
 
-  public void registerRuleNominators(Chain<RuleNominator> chain) {
-  }
+  public void registerRuleNominators(Chain<RuleNominator> chain) {}
 
-  public void registerRuleDetectors(Chain<RuleDetector> chain) {
-  }
+  public void registerRuleDetectors(Chain<RuleDetector> chain) {}
 
-  public void registerNamingSchemes(Chain<NamingScheme> chain) {
-  }
+  public void registerNamingSchemes(Chain<NamingScheme> chain) {}
 
-  public void registerRuleEvaluators(Chain<RuleEvaluator> chain) {
-  }
+  public void registerRuleEvaluators(Chain<RuleEvaluator> chain) {}
 
-  public void registerValueSinkFactories(Chain<ValueSinkFactory> chain) {
-  }
+  public void registerValueSinkFactories(Chain<ValueSinkFactory> chain) {}
 
-  public void registerValueDeserializerFactories(Chain<ValueDeserializerFactory<?>> chain) {
-  }
+  public void registerValueDeserializerFactories(Chain<ValueDeserializerFactory<?>> chain) {}
 
-  public void registerListeners(Chain<InvocationPipelineListener> chain) {
-  }
+  public void registerCoordinatesPreprocessors(Chain<CoordinatesPreprocessor> chain) {}
+
+  public void registerArgsPreprocessors(Chain<ArgsPreprocessor> chain) {}
+
+  public void registerTokenStreamPreprocessors(Chain<TokenStreamPreprocessor> chain) {}
+
+  public void registerListeners(Chain<InvocationPipelineListener> chain) {}
 }

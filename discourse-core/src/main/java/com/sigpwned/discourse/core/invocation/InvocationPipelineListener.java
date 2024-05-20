@@ -11,10 +11,9 @@ import com.sigpwned.discourse.core.invocation.phase.parse.ParsePhaseListener;
 import com.sigpwned.discourse.core.invocation.phase.resolve.ResolvePhaseListener;
 import com.sigpwned.discourse.core.invocation.phase.scan.ScanPhaseListener;
 
-public interface InvocationPipelineListener
-    extends ScanPhaseListener, ResolvePhaseListener, ParsePhaseListener,
-    EvalPhaseListener, FactoryPhaseListener {
-
+public interface InvocationPipelineListener extends ScanPhaseListener, ResolvePhaseListener,
+    ParsePhaseListener, EvalPhaseListener, FactoryPhaseListener {
+  // INVOCATION ///////////////////////////////////////////////////////////////////////////////////
   default <T> void beforeInvocation(Class<T> rootClazz, List<String> args) {}
 
   default <T> void afterInvocation(Class<T> rootClazz, List<String> args,
@@ -29,9 +28,9 @@ public interface InvocationPipelineListener
 
   default <T> void afterScanPhase(Class<T> clazz, RootCommand<T> command) {}
 
-  default <T> void catchScanPhase(Throwable problem) {}
+  default void catchScanPhase(Throwable problem) {}
 
-  default <T> void finallyScanPhase() {}
+  default void finallyScanPhase() {}
 
   // RESOLVE PHASE ////////////////////////////////////////////////////////////////////////////////
   default <T> void beforeResolvePhase(RootCommand<T> command, List<String> originalArgs) {}
@@ -40,20 +39,19 @@ public interface InvocationPipelineListener
       Command<? extends T> resolvedCommand, List<CommandDereference<? extends T>> dereferences,
       List<String> remainingArgs) {}
 
-  default <T> void catchResolvePhase(Throwable problem) {}
+  default void catchResolvePhase(Throwable problem) {}
 
-  default <T> void finallyResolvePhase() {}
+  default void finallyResolvePhase() {}
 
   // PARSE PHASE //////////////////////////////////////////////////////////////////////////////////
-  default <T> void beforeParsePhase(Command<? extends T> resolvedCommand,
-      List<String> remainingArgs) {}
+  default <T> void beforeParsePhase(Command<T> resolvedCommand, List<String> remainingArgs) {}
 
-  default <T> void afterParsePhase(Command<? extends T> resolvedCommand, List<String> remainingArgs,
+  default <T> void afterParsePhase(Command<T> resolvedCommand, List<String> remainingArgs,
       List<Map.Entry<String, String>> namedArgs) {}
 
-  default <T> void catchParsePhase(Throwable problem) {}
+  default void catchParsePhase(Throwable problem) {}
 
-  default <T> void finallyParsePhase() {}
+  default void finallyParsePhase() {}
 
   // EVAL PHASE ///////////////////////////////////////////////////////////////////////////////////
   default <T> void beforeEvalPhase(Command<T> resolvedCommand,
@@ -62,18 +60,17 @@ public interface InvocationPipelineListener
   default <T> void afterEvalPhase(Command<T> resolvedCommand,
       List<Map.Entry<String, String>> namedArgs, Map<String, Object> state) {}
 
-  default <T> void catchEvalPhase(Throwable problem) {}
+  default void catchEvalPhase(Throwable problem) {}
 
-  default <T> void finallyEvalPhase() {}
+  default void finallyEvalPhase() {}
 
   // FACTORY PHASE ////////////////////////////////////////////////////////////////////////////////
-  default <T> void beforeFactoryPhase(Command<? extends T> resolvedCommand,
-      Map<String, Object> state) {}
+  default <T> void beforeFactoryPhase(Command<T> resolvedCommand, Map<String, Object> state) {}
 
-  default <T> void afterFactoryPhase(Command<? extends T> resolvedCommand,
-      Map<String, Object> state, T instance) {}
+  default <T> void afterFactoryPhase(Command<T> resolvedCommand, Map<String, Object> state,
+      T instance) {}
 
-  default <T> void catchFactoryPhase(Throwable problem) {}
+  default void catchFactoryPhase(Throwable problem) {}
 
-  default <T> void finallyFactoryPhase() {}
+  default void finallyFactoryPhase() {}
 }

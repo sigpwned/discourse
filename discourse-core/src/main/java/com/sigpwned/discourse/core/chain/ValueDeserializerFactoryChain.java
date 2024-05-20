@@ -19,14 +19,14 @@
  */
 package com.sigpwned.discourse.core.chain;
 
-import com.sigpwned.discourse.core.Chain;
-import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializer;
-import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFactory;
-import com.sigpwned.discourse.core.util.Chains;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
+import com.sigpwned.discourse.core.Chain;
+import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFactory;
+import com.sigpwned.discourse.core.util.Chains;
 
 /**
  * A chain of {@link ValueDeserializerFactory} instances. This is used to create deserializers for
@@ -35,13 +35,13 @@ import java.util.Optional;
  * parameters is returned. If no {@code ValueDeserializerFactory} in the chain handles the
  * parameters, then {@link Optional#empty() empty} is returned.
  */
-public class ValueDeserializerFactoryChain extends Chain<ValueDeserializerFactory<?>> implements
-    ValueDeserializerFactory<Object> {
+public class ValueDeserializerFactoryChain extends Chain<ValueDeserializerFactory<?>>
+    implements ValueDeserializerFactory<Object> {
 
   @Override
-  public Optional<ValueDeserializer<?>> getDeserializer(Type genericType,
+  public Optional<ValueDeserializer<? extends Object>> getDeserializer(Type genericType,
       List<Annotation> annotations) {
-    return (Optional<ValueDeserializer<?>>) Chains.stream(this)
+    return (Optional) Chains.stream(this)
         .flatMap(f -> f.getDeserializer(genericType, annotations).stream()).findFirst();
   }
 }

@@ -19,17 +19,15 @@
  */
 package com.sigpwned.discourse.core.util;
 
-import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.annotation.Subcommand;
-import com.sigpwned.discourse.core.exception.configuration.InvalidDiscriminatorConfigurationException;
-import com.sigpwned.discourse.core.model.command.Discriminator;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import com.sigpwned.discourse.core.annotation.Configurable;
+import com.sigpwned.discourse.core.annotation.Subcommand;
+import com.sigpwned.discourse.core.invocation.phase.scan.exception.InvalidDiscriminatorScanException;
 
 public final class Discriminators {
 
-  private Discriminators() {
-  }
+  private Discriminators() {}
 
   public static final Pattern PATTERN = Pattern.compile("[a-zA-Z0-9](?:[-._]?[a-zA-Z0-9])*");
 
@@ -37,20 +35,20 @@ public final class Discriminators {
     return PATTERN.matcher(s).matches();
   }
 
-  public static final Discriminator HELP = Discriminator.fromString("help");
+  public static final String HELP = "help";
 
   /**
    * Extracts the discriminator from a configurable, if it exists.
    *
    * @param configurable the configurable
    * @return the discriminator if it exists, otherwise {@link Optional#empty()}
-   * @throws InvalidDiscriminatorConfigurationException if the discriminator is invalid
+   * @throws InvalidDiscriminatorScanException if the discriminator is invalid
    */
-  public static Optional<Discriminator> fromConfigurable(Configurable configurable) {
+  public static Optional<String> fromConfigurable(Configurable configurable) {
     if (configurable.discriminator().isEmpty()) {
       return Optional.empty();
     }
-    return Optional.of(Discriminator.fromString(configurable.discriminator()));
+    return Optional.of(configurable.discriminator());
   }
 
   /**
@@ -58,9 +56,9 @@ public final class Discriminators {
    *
    * @param subcommand the configurable
    * @return the discriminator
-   * @throws InvalidDiscriminatorConfigurationException if the discriminator is invalid
+   * @throws InvalidDiscriminatorScanException if the discriminator is invalid
    */
-  public static Discriminator fromSubcommand(Subcommand subcommand) {
-    return Discriminator.fromString(subcommand.discriminator());
+  public static String fromSubcommand(Subcommand subcommand) {
+    return subcommand.discriminator();
   }
 }

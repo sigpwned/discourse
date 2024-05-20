@@ -24,6 +24,7 @@ import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Parses a {@link LocalDate} according to ISO-8601, e.g. 2007-12-03.
@@ -31,15 +32,14 @@ import java.util.List;
  * @see DateTimeFormatter#ISO_LOCAL_DATE
  */
 public class LocalDateValueDeserializerFactory implements ValueDeserializerFactory<LocalDate> {
-  public static final LocalDateValueDeserializerFactory INSTANCE=new LocalDateValueDeserializerFactory();
-  
-  @Override
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
-    return genericType.equals(LocalDate.class);
-  }
+  public static final LocalDateValueDeserializerFactory INSTANCE =
+      new LocalDateValueDeserializerFactory();
 
   @Override
-  public ValueDeserializer<LocalDate> getDeserializer(Type genericType, List<Annotation> annotations) {
-    return LocalDate::parse;
+  public Optional<ValueDeserializer<? extends LocalDate>> getDeserializer(Type genericType,
+      List<Annotation> annotations) {
+    if (genericType != LocalDate.class)
+      return Optional.empty();
+    return Optional.of(LocalDate::parse);
   }
 }

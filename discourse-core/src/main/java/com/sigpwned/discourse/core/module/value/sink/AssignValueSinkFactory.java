@@ -19,7 +19,6 @@
  */
 package com.sigpwned.discourse.core.module.value.sink;
 
-import com.sigpwned.discourse.core.util.Generated;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -34,15 +33,10 @@ public class AssignValueSinkFactory implements ValueSinkFactory {
 
   public static final AssignValueSinkFactory INSTANCE = new AssignValueSinkFactory();
 
-  @Override
-  public boolean isSinkable(Type genericType, List<Annotation> annotations) {
-    // We can always just assign a bean property
-    return true;
-  }
 
   @Override
-  public ValueSink getSink(Type genericType, List<Annotation> annotations) {
-    return new ValueSink() {
+  public Optional<ValueSink> getSink(Type genericType, List<Annotation> annotations) {
+    return Optional.of(new ValueSink() {
       private Object currentValue;
 
       @Override
@@ -70,13 +64,11 @@ public class AssignValueSinkFactory implements ValueSinkFactory {
       }
 
       @Override
-      @Generated
       public int hashCode() {
         return getGenericType().hashCode();
       }
 
       @Override
-      @Generated
       public boolean equals(Object other) {
         if (other == null) {
           return false;
@@ -88,9 +80,9 @@ public class AssignValueSinkFactory implements ValueSinkFactory {
           return false;
         }
         ValueSink that = (ValueSink) other;
-        return isCollection() == that.isCollection() && Objects.equals(getGenericType(),
-            that.getGenericType());
+        return isCollection() == that.isCollection()
+            && Objects.equals(getGenericType(), that.getGenericType());
       }
-    };
+    });
   }
 }

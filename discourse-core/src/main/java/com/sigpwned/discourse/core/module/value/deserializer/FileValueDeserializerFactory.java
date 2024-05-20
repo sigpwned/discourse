@@ -23,17 +23,17 @@ import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 
 public class FileValueDeserializerFactory implements ValueDeserializerFactory<File> {
-  public static final FileValueDeserializerFactory INSTANCE=new FileValueDeserializerFactory();
-  
-  @Override
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
-    return genericType.equals(File.class);
-  }
+  public static final FileValueDeserializerFactory INSTANCE = new FileValueDeserializerFactory();
+
 
   @Override
-  public ValueDeserializer<File> getDeserializer(Type genericType, List<Annotation> annotations) {
-    return File::new;
+  public Optional<ValueDeserializer<? extends File>> getDeserializer(Type genericType,
+      List<Annotation> annotations) {
+    if (genericType != File.class)
+      return Optional.empty();
+    return Optional.of(File::new);
   }
 }

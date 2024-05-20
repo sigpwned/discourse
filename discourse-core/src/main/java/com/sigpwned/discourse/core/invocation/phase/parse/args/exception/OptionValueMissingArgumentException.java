@@ -1,17 +1,18 @@
 package com.sigpwned.discourse.core.invocation.phase.parse.args.exception;
 
-import com.sigpwned.discourse.core.invocation.phase.parse.args.model.coordinate.SwitchNameArgumentCoordinate;
+import com.sigpwned.discourse.core.args.coordinate.OptionCoordinate;
 
 public class OptionValueMissingArgumentException extends ArgumentException {
+  private static final long serialVersionUID = -762134515885863323L;
 
-  private final SwitchNameArgumentCoordinate name;
+  private final OptionCoordinate name;
 
-  public OptionValueMissingArgumentException(SwitchNameArgumentCoordinate name) {
+  public OptionValueMissingArgumentException(OptionCoordinate name) {
     super("Option \"%s\" requires a value but no value was given".formatted(name));
     this.name = name;
   }
 
-  public SwitchNameArgumentCoordinate getName() {
+  public OptionCoordinate getName() {
     return name;
   }
 }
