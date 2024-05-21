@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Objects;
 import org.junit.Test;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
@@ -16,12 +17,33 @@ import com.sigpwned.discourse.core.module.DefaultModule;
 
 public class SmokeTest {
   @Configurable(name = "smoke", description = "smoke test")
-  public class SmokeTestConfigurable {
+  public static class SmokeTestConfigurable {
+    public SmokeTestConfigurable() {
+
+    }
+
     @OptionParameter(shortName = "f", longName = "foo", description = "foo")
     public String foo;
 
     @PositionalParameter(position = 0, description = "bar")
     public int bar;
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(bar, foo);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      SmokeTestConfigurable other = (SmokeTestConfigurable) obj;
+      return bar == other.bar && Objects.equals(foo, other.foo);
+    }
   }
 
   @Test

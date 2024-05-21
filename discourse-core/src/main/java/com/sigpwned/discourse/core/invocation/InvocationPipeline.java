@@ -201,7 +201,10 @@ public class InvocationPipeline {
           ValueSink sink = e.getSink();
           for (Object x : xs)
             sink.put(x);
-          return sink.get();
+          return sink.get().orElseThrow(() -> {
+            // TODO better exception
+            return new IllegalArgumentException("invalid sink");
+          });
         }));
 
     return getEvalPhase().eval(mappers, reducers, parsedArgs, getContext());

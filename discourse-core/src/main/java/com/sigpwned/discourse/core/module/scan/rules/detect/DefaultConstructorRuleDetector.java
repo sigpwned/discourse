@@ -12,8 +12,9 @@ import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleDetector;
 import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Reflection;
 
-public class DefaultConstructorDetector implements RuleDetector {
-  public static final DefaultConstructorDetector INSTANCE = new DefaultConstructorDetector();
+public class DefaultConstructorRuleDetector implements RuleDetector {
+  public static final DefaultConstructorRuleDetector INSTANCE =
+      new DefaultConstructorRuleDetector();
 
 
   @Override

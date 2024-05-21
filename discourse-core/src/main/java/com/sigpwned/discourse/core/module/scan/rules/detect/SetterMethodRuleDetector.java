@@ -3,6 +3,7 @@ package com.sigpwned.discourse.core.module.scan.rules.detect;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.invocation.model.RuleDetection;
@@ -11,6 +12,7 @@ import com.sigpwned.discourse.core.invocation.phase.scan.model.syntax.NamedSynta
 import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleDetector;
 import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Reflection;
+import com.sigpwned.discourse.core.util.collectors.Only;
 
 public class SetterMethodRuleDetector implements RuleDetector {
   public static final SetterMethodRuleDetector INSTANCE = new SetterMethodRuleDetector();
@@ -28,21 +30,17 @@ public class SetterMethodRuleDetector implements RuleDetector {
     }
 
     // We need to find the name of the value to pull from the syntax.
-    String name = null;
-    for (NamedSyntax si : syntax) {
-      if (si.nominated() == nominated) {
-        name = si.name();
-        break;
-      }
-    }
-    if (name == null) {
-      // That's fine. Not every field is going to be used.
+    NamedSyntax candidateSyntax = syntax.stream()
+        .filter(si -> Objects.equals(si.nominated(), nominated)).collect(Only.toOnly()).orElse(null,
+            () -> new IllegalArgumentException("too many syntax for field " + nominated.getName()));
+    if (candidateSyntax == null) {
+      // This is fine. Not every field is going to be used.
       return Maybe.maybe();
     }
 
     // TODO instance constant? how do we do mixins?
     // A setter depends on the containing instance and the value to set.
-    Set<String> antecedents = Set.of("", name);
+    Set<String> antecedents = Set.of("", candidateSyntax.name());
 
     // A setter produces no new values
     boolean hasConsequent = false;

@@ -3,6 +3,7 @@ package com.sigpwned.discourse.core.module.scan.rules.detect;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.invocation.model.RuleDetection;
@@ -28,14 +29,9 @@ public class FieldRuleDetector implements RuleDetector {
       return Maybe.maybe();
     }
 
-    NamedSyntax candidateSyntax = syntax.stream().filter(si -> {
-      System.out.println(si.nominated());
-      System.out.println(nominated);
-      System.out.println(si.nominated().equals(nominated));
-      System.out.println(si.nominated() == nominated);
-      return si.nominated() == nominated;
-    }).collect(Only.toOnly()).orElse(null,
-        () -> new IllegalArgumentException("too many syntax for field " + nominated.getName()));
+    NamedSyntax candidateSyntax = syntax.stream()
+        .filter(si -> Objects.equals(si.nominated(), nominated)).collect(Only.toOnly()).orElse(null,
+            () -> new IllegalArgumentException("too many syntax for field " + nominated.getName()));
     if (candidateSyntax == null) {
       // This is fine. Not every field is going to be used.
       return Maybe.maybe();

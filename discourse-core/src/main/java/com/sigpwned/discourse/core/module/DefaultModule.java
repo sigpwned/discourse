@@ -25,17 +25,24 @@ import com.sigpwned.discourse.core.annotation.DiscourseIgnore;
 import com.sigpwned.discourse.core.invocation.InvocationPipelineListener;
 import com.sigpwned.discourse.core.invocation.phase.scan.NamingScheme;
 import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleDetector;
+import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleEvaluator;
 import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleNominator;
 import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxDetector;
 import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxNominator;
+import com.sigpwned.discourse.core.module.scan.naming.BeanGetterNamingScheme;
+import com.sigpwned.discourse.core.module.scan.naming.BeanSetterNamingScheme;
+import com.sigpwned.discourse.core.module.scan.naming.DefaultConstructorNamingScheme;
 import com.sigpwned.discourse.core.module.scan.naming.DiscourseAttributeAnnotationNamingScheme;
 import com.sigpwned.discourse.core.module.scan.naming.DiscourseIgnoreAnnotationNamingScheme;
 import com.sigpwned.discourse.core.module.scan.naming.FieldNamingScheme;
 import com.sigpwned.discourse.core.module.scan.naming.ParameterNamingScheme;
 import com.sigpwned.discourse.core.module.scan.naming.RecordAccessorNamingScheme;
-import com.sigpwned.discourse.core.module.scan.rules.detect.DefaultConstructorDetector;
+import com.sigpwned.discourse.core.module.scan.rules.detect.DefaultConstructorRuleDetector;
 import com.sigpwned.discourse.core.module.scan.rules.detect.FieldRuleDetector;
 import com.sigpwned.discourse.core.module.scan.rules.detect.SetterMethodRuleDetector;
+import com.sigpwned.discourse.core.module.scan.rules.eval.DefaultConstructorCallRuleEvaluator;
+import com.sigpwned.discourse.core.module.scan.rules.eval.FieldAssignmentRuleEvaluator;
+import com.sigpwned.discourse.core.module.scan.rules.eval.SetterMethodCallRuleEvaluator;
 import com.sigpwned.discourse.core.module.scan.rules.nominate.DefaultConstructorRuleNominator;
 import com.sigpwned.discourse.core.module.scan.rules.nominate.FieldRuleNominator;
 import com.sigpwned.discourse.core.module.scan.rules.nominate.SetterMethodRuleNominator;
@@ -214,8 +221,11 @@ public class DefaultModule extends Module {
     chain.addFirst(DiscourseIgnoreAnnotationNamingScheme.INSTANCE);
     chain.addLast(DiscourseAttributeAnnotationNamingScheme.INSTANCE);
     chain.addLast(FieldNamingScheme.INSTANCE);
-    chain.addLast(ParameterNamingScheme.INSTANCE);
-    chain.addLast(RecordAccessorNamingScheme.INSTANCE);
+    chain.addLast(DefaultConstructorNamingScheme.INSTANCE);
+    chain.addLast(BeanGetterNamingScheme.INSTANCE);
+    chain.addLast(BeanSetterNamingScheme.INSTANCE);
+    // chain.addLast(ParameterNamingScheme.INSTANCE);
+    // chain.addLast(RecordAccessorNamingScheme.INSTANCE);
   }
 
   @Override
@@ -242,8 +252,19 @@ public class DefaultModule extends Module {
   public void registerRuleDetectors(Chain<RuleDetector> chain) {
     chain.addLast(FieldRuleDetector.INSTANCE);
     chain.addLast(SetterMethodRuleDetector.INSTANCE);
-    chain.addLast(DefaultConstructorDetector.INSTANCE);
+    chain.addLast(DefaultConstructorRuleDetector.INSTANCE);
   }
+
+
+
+  @Override
+  public void registerRuleEvaluators(Chain<RuleEvaluator> chain) {
+    chain.addLast(DefaultConstructorCallRuleEvaluator.INSTANCE);
+    chain.addLast(SetterMethodCallRuleEvaluator.INSTANCE);
+    chain.addLast(FieldAssignmentRuleEvaluator.INSTANCE);
+  }
+
+
 
   /**
    * <p>

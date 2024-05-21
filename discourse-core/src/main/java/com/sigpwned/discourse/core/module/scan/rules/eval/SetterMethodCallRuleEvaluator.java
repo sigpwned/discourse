@@ -1,6 +1,7 @@
 package com.sigpwned.discourse.core.module.scan.rules.eval;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Optional;
@@ -8,13 +9,14 @@ import com.sigpwned.discourse.core.invocation.phase.scan.model.rules.NamedRule;
 import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleEvaluator;
 import com.sigpwned.discourse.core.util.Reflection;
 
-public class FieldAssignmentRuleEvaluator implements RuleEvaluator {
-  public static final FieldAssignmentRuleEvaluator INSTANCE = new FieldAssignmentRuleEvaluator();
+public class SetterMethodCallRuleEvaluator implements RuleEvaluator {
+  public static final SetterMethodCallRuleEvaluator INSTANCE = new SetterMethodCallRuleEvaluator();
 
   @Override
   public Optional<Optional<Object>> run(Map<String, Object> input, NamedRule rule) {
-    if (rule.nominated() instanceof Field field && Modifier.isPublic(field.getModifiers())
-        && Reflection.isMutableInstanceField(field)) {
+    if (rule
+        .nominated() instanceof Method method && Modifier.isPublic(method.getModifiers())
+        && Reflection.hasInstanceSetterSignature(method)) {
       // Square deal. This is what we're here for.
     } else {
       // We don't execute this guy.
@@ -40,13 +42,17 @@ public class FieldAssignmentRuleEvaluator implements RuleEvaluator {
     Object value = input.get(valueName);
 
     try {
-      field.set(instance, value);
+      method.invoke(instance, value);
     } catch (IllegalArgumentException e) {
       // TODO better exception
       throw e;
     } catch (IllegalAccessException e) {
       // We check public, so this shouldn't happen
       throw new AssertionError(e);
+    } catch (InvocationTargetException e) {
+      // Welp, that's no good. The underlying code threw an exception.
+      // TODO better exception
+      throw new RuntimeException(e);
     }
 
     return Optional.of(Optional.empty());
