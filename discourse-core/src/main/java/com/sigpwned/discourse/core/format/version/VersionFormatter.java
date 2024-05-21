@@ -19,7 +19,7 @@
  */
 package com.sigpwned.discourse.core.format.version;
 
-import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.RootCommand;
 
 /**
  * A function that formats a resolvedCommand's version into a string for display.
@@ -27,5 +27,5 @@ import com.sigpwned.discourse.core.command.Command;
 @FunctionalInterface
 public interface VersionFormatter {
 
-  public String formatVersion(Command<?> command);
+  public String formatVersion(RootCommand<?> command);
 }

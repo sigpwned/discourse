@@ -19,9 +19,9 @@
  */
 package com.sigpwned.discourse.core.format.version;
 
-import com.sigpwned.discourse.core.command.Command;
 import java.util.ArrayList;
 import java.util.List;
+import com.sigpwned.discourse.core.command.RootCommand;
 
 /**
  * <p>
@@ -38,7 +38,7 @@ public class DefaultVersionFormatter implements VersionFormatter {
   public static final DefaultVersionFormatter INSTANCE = new DefaultVersionFormatter();
 
   @Override
-  public String formatVersion(Command<?> command) {
+  public String formatVersion(RootCommand<?> command) {
     List<String> parts = new ArrayList<>();
     if (command.getName() != null) {
       parts.add(command.getName());

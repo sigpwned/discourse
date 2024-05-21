@@ -1,8 +1,8 @@
 package com.sigpwned.discourse.core.invocation.phase.scan;
 
-import java.util.Optional;
+import com.sigpwned.discourse.core.util.Maybe;
 
 public interface NamingScheme {
 
-  public Optional<String> name(Object object);
+  public Maybe<String> name(Object object);
 }

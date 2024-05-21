@@ -1,18 +1,18 @@
 package com.sigpwned.discourse.core.invocation.phase.scan;
 
 import com.sigpwned.discourse.core.Chain;
-import java.util.Optional;
+import com.sigpwned.discourse.core.util.Maybe;
 
 public class NamingSchemeChain extends Chain<NamingScheme> implements NamingScheme {
 
   @Override
-  public Optional<String> name(Object object) {
+  public Maybe<String> name(Object object) {
     for (NamingScheme namingScheme : this) {
-      Optional<String> name = namingScheme.name(object);
-      if (name.isPresent()) {
-        return name;
+      Maybe<String> maybeName = namingScheme.name(object);
+      if (maybeName.isDecided()) {
+        return maybeName;
       }
     }
-    return Optional.empty();
+    return Maybe.maybe();
   }
 }

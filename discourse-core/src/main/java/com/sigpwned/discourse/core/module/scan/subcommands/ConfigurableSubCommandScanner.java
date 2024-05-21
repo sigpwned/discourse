@@ -5,10 +5,10 @@ import static java.util.Collections.unmodifiableList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.invocation.phase.scan.SubCommandScanner;
 import com.sigpwned.discourse.core.util.Discriminators;
+import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Streams;
 
 /**
@@ -18,15 +18,14 @@ import com.sigpwned.discourse.core.util.Streams;
 public class ConfigurableSubCommandScanner implements SubCommandScanner {
 
   @Override
-  public <T> Optional<List<Map.Entry<String, Class<? extends T>>>> scanForSubCommands(
-      Class<T> clazz) {
+  public <T> Maybe<List<Map.Entry<String, Class<? extends T>>>> scanForSubCommands(Class<T> clazz) {
     Configurable annotation = clazz.getAnnotation(Configurable.class);
     if (annotation == null) {
-      return Optional.empty();
+      return Maybe.maybe();
     }
 
     if (annotation.subcommands().length == 0) {
-      return Optional.of(emptyList());
+      return Maybe.yes(emptyList());
     }
 
     List<Map.Entry<String, Class<? extends T>>> subcommands =
@@ -52,6 +51,6 @@ public class ConfigurableSubCommandScanner implements SubCommandScanner {
       throw new IllegalArgumentException("Duplicate discriminator");
     }
 
-    return Optional.of(unmodifiableList(subcommands));
+    return Maybe.yes(unmodifiableList(subcommands));
   }
 }

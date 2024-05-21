@@ -17,11 +17,9 @@ public interface ScanPhaseListener {
   default void finallyScanPhaseWalkStep() {}
 
   // PREPARE STEP /////////////////////////////////////////////////////////////////////////////////
-  default <T> void beforeScanPhasePrepareStep(Class<T> rootClazz,
-      List<WalkedClass<? extends T>> walkedClasses) {}
+  default <T> void beforeScanPhasePrepareStep(List<WalkedClass<? extends T>> walkedClasses) {}
 
-  default <T> void afterScanPhasePrepareStep(Class<T> rootClazz,
-      List<WalkedClass<? extends T>> walkedClasses,
+  default <T> void afterScanPhasePrepareStep(List<WalkedClass<? extends T>> walkedClasses,
       List<PreparedClass<? extends T>> preparedClasses) {}
 
   default void catchScanPhasePrepareStep(Throwable problem) {}
@@ -29,11 +27,10 @@ public interface ScanPhaseListener {
   default void finallyScanPhasePrepareStep() {}
 
   // GATHER STEP //////////////////////////////////////////////////////////////////////////////////
-  default <T> void beforeScanPhaseGatherStep(Class<T> rootClazz,
-      List<PreparedClass<? extends T>> preparedClasses) {}
+  default <T> void beforeScanPhaseGatherStep(List<PreparedClass<? extends T>> preparedClasses) {}
 
-  default <T> void afterScanPhaseGatherStep(Class<T> rootClazz,
-      List<PreparedClass<? extends T>> preparedClasses, RootCommand<T> rootCommand) {}
+  default <T> void afterScanPhaseGatherStep(List<PreparedClass<? extends T>> preparedClasses,
+      RootCommand<T> rootCommand) {}
 
   default void catchScanPhaseGatherStep(Throwable problem) {}
 

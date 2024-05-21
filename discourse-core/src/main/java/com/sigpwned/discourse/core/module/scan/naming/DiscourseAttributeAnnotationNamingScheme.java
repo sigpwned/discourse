@@ -23,6 +23,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.Optional;
 import com.sigpwned.discourse.core.annotation.DiscourseAttribute;
 import com.sigpwned.discourse.core.invocation.phase.scan.NamingScheme;
+import com.sigpwned.discourse.core.util.Maybe;
 
 /**
  * <p>
@@ -48,14 +49,14 @@ public class DiscourseAttributeAnnotationNamingScheme implements NamingScheme {
       new DiscourseAttributeAnnotationNamingScheme();
 
   @Override
-  public Optional<String> name(Object object) {
+  public Maybe<String> name(Object object) {
     if (!(object instanceof AnnotatedElement annotated))
-      return Optional.empty();
+      return Maybe.maybe();
 
     DiscourseAttribute annotation = annotated.getAnnotation(DiscourseAttribute.class);
     if (annotation == null)
-      return Optional.empty();
+      return Maybe.maybe();
 
-    return Optional.of(annotation.value());
+    return Maybe.yes(annotation.value());
   }
 }

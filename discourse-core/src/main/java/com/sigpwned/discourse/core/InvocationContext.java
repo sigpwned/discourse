@@ -19,7 +19,6 @@
  */
 package com.sigpwned.discourse.core;
 
-import static java.util.Objects.requireNonNull;
 import com.sigpwned.discourse.core.invocation.phase.parse.preprocess.ArgsPreprocessor;
 import com.sigpwned.discourse.core.invocation.phase.parse.preprocess.CoordinatesPreprocessor;
 import com.sigpwned.discourse.core.invocation.phase.parse.preprocess.TokenStreamPreprocessor;
@@ -42,17 +41,17 @@ import com.sigpwned.discourse.core.module.value.sink.ValueSinkFactory;
  */
 public interface InvocationContext {
 
-  public static record Key<T>(String name, Class<T> type) {
-
-    public static <T> Key<T> of(String name, Class<T> type) {
-      return new Key<>(name, type);
-    }
-
-    public Key {
-      name = requireNonNull(name);
-      type = requireNonNull(type);
-    }
-  }
+  // public static record Key<T>(String name, Class<T> type) {
+  //
+  // public static <T> Key<T> of(String name, Class<T> type) {
+  // return new Key<>(name, type);
+  // }
+  //
+  // public Key {
+  // name = requireNonNull(name);
+  // type = requireNonNull(type);
+  // }
+  // }
 
   public Syntax getSyntax();
 

@@ -11,7 +11,7 @@ import com.sigpwned.discourse.core.util.Reflection;
 public class FieldAssignmentRuleEvaluator implements RuleEvaluator {
 
   @Override
-  public Optional<Object> run(Map<String, Object> input, NamedRule rule) {
+  public Optional<Optional<Object>> run(Map<String, Object> input, NamedRule rule) {
     if (rule.nominated() instanceof Field field && Modifier.isPublic(field.getModifiers())
         && Reflection.isMutableInstanceField(field)) {
       // Square deal. This is what we're here for.
@@ -48,7 +48,7 @@ public class FieldAssignmentRuleEvaluator implements RuleEvaluator {
       throw new AssertionError(e);
     }
 
-    return Optional.empty();
+    return Optional.of(Optional.empty());
   }
 
 }

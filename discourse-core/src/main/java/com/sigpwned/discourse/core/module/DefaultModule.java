@@ -22,34 +22,28 @@ package com.sigpwned.discourse.core.module;
 import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.annotation.DiscourseIgnore;
-import com.sigpwned.discourse.core.chain.AccessorNamingSchemeChain;
-import com.sigpwned.discourse.core.chain.ConfigurableComponentScannerChain;
-import com.sigpwned.discourse.core.chain.ConfigurableInstanceFactoryScannerChain;
-import com.sigpwned.discourse.core.chain.DiscourseListenerChain;
-import com.sigpwned.discourse.core.chain.ExceptionFormatterChain;
-import com.sigpwned.discourse.core.chain.ValueSinkFactoryChain;
-import com.sigpwned.discourse.core.configurable.component.scanner.FieldConfigurableCandidateComponentScanner;
-import com.sigpwned.discourse.core.configurable.component.scanner.GetterConfigurableCandidateComponentScanner;
-import com.sigpwned.discourse.core.configurable.component.scanner.SetterConfigurableCandidateComponentScanner;
-import com.sigpwned.discourse.core.configurable.instance.factory.scanner.AnnotatedConstructorConfigurableInstanceFactoryScanner;
-import com.sigpwned.discourse.core.configurable.instance.factory.scanner.DefaultConstructorConfigurableInstanceFactoryScanner;
-import com.sigpwned.discourse.core.format.exception.ArgumentExceptionFormatter;
-import com.sigpwned.discourse.core.format.exception.BeanExceptionFormatter;
-import com.sigpwned.discourse.core.format.exception.CatchAllErrorFormatter;
-import com.sigpwned.discourse.core.format.exception.CatchAllExceptionFormatter;
-import com.sigpwned.discourse.core.format.exception.ConfigurationExceptionFormatter;
-import com.sigpwned.discourse.core.format.exception.EmptyArgsRequiredParametersMissingSyntaxExceptionFormatter;
-import com.sigpwned.discourse.core.format.exception.HelpUnrecognizedDiscriminatorSyntaxExceptionFormatter;
-import com.sigpwned.discourse.core.format.exception.SyntaxExceptionFormatter;
-import com.sigpwned.discourse.core.listener.EmptyArgsToMultiCommandInterceptingDiscourseListener;
-import com.sigpwned.discourse.core.listener.HelpFlagInterceptingDiscourseListener;
-import com.sigpwned.discourse.core.listener.VersionFlagInterceptingDiscourseListener;
-import com.sigpwned.discourse.core.module.scan.naming.BeanAccessorNamingScheme;
+import com.sigpwned.discourse.core.invocation.InvocationPipelineListener;
+import com.sigpwned.discourse.core.invocation.phase.scan.NamingScheme;
+import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleDetector;
+import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleNominator;
+import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxDetector;
+import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxNominator;
 import com.sigpwned.discourse.core.module.scan.naming.DiscourseAttributeAnnotationNamingScheme;
 import com.sigpwned.discourse.core.module.scan.naming.DiscourseIgnoreAnnotationNamingScheme;
 import com.sigpwned.discourse.core.module.scan.naming.FieldNamingScheme;
 import com.sigpwned.discourse.core.module.scan.naming.ParameterNamingScheme;
 import com.sigpwned.discourse.core.module.scan.naming.RecordAccessorNamingScheme;
+import com.sigpwned.discourse.core.module.scan.rules.detect.DefaultConstructorDetector;
+import com.sigpwned.discourse.core.module.scan.rules.detect.FieldRuleDetector;
+import com.sigpwned.discourse.core.module.scan.rules.detect.SetterMethodRuleDetector;
+import com.sigpwned.discourse.core.module.scan.rules.nominate.DefaultConstructorRuleNominator;
+import com.sigpwned.discourse.core.module.scan.rules.nominate.FieldRuleNominator;
+import com.sigpwned.discourse.core.module.scan.rules.nominate.SetterMethodRuleNominator;
+import com.sigpwned.discourse.core.module.scan.syntax.detect.OptionSyntaxDetector;
+import com.sigpwned.discourse.core.module.scan.syntax.detect.PositionalSyntaxDetector;
+import com.sigpwned.discourse.core.module.scan.syntax.nominate.FieldSyntaxNominator;
+import com.sigpwned.discourse.core.module.scan.syntax.nominate.GetterMethodSyntaxNominator;
+import com.sigpwned.discourse.core.module.scan.syntax.nominate.SetterMethodSyntaxNominator;
 import com.sigpwned.discourse.core.module.value.deserializer.BigDecimalValueDeserializerFactory;
 import com.sigpwned.discourse.core.module.value.deserializer.BooleanValueDeserializerFactory;
 import com.sigpwned.discourse.core.module.value.deserializer.ByteValueDeserializerFactory;
@@ -78,15 +72,15 @@ import com.sigpwned.discourse.core.module.value.sink.AssignValueSinkFactory;
 import com.sigpwned.discourse.core.module.value.sink.ListAddValueSinkFactory;
 import com.sigpwned.discourse.core.module.value.sink.SetAddValueSinkFactory;
 import com.sigpwned.discourse.core.module.value.sink.SortedSetAddValueSinkFactory;
+import com.sigpwned.discourse.core.module.value.sink.ValueSinkFactory;
 
 /**
  * The default module for the core library. Any new functionality that is added to the core library
  * should be registered here. All values are added to the ends of their respectivee chains so that
- * they do not supersede existing values already registered by other modules unless otherwise
- * noted.
+ * they do not supersede existing values already registered by other modules unless otherwise noted.
  */
 public class DefaultModule extends Module {
-  
+
 
   /**
    * <p>
@@ -100,73 +94,73 @@ public class DefaultModule extends Module {
    * </p>
    *
    * <ul>
-   *   <li>{@link BigDecimalValueDeserializerFactory}</li>
-   *   <li>{@link BooleanValueDeserializerFactory}</li>
-   *   <li>{@link ByteValueDeserializerFactory}</li>
-   *   <li>{@link CharValueDeserializerFactory}</li>
-   *   <li>{@link DiscourseDeserializeValueSerializerFactory}</li>
-   *   <li>{@link DoubleValueDeserializerFactory}</li>
-   *   <li>{@link EnumValueDeserializerFactory}</li>
-   *   <li>{@link FileValueDeserializerFactory}</li>
-   *   <li>{@link FloatValueDeserializerFactory}</li>
-   *   <li>{@link InstantValueDeserializerFactory}</li>
-   *   <li>{@link IntValueDeserializerFactory}</li>
-   *   <li>{@link LocalDateTimeValueDeserializerFactory}</li>
-   *   <li>{@link LocalDateValueDeserializerFactory}</li>
-   *   <li>{@link LocalTimeValueDeserializerFactory}</li>
-   *   <li>{@link LongValueDeserializerFactory}</li>
-   *   <li>{@link PathValueDeserializerFactory}</li>
-   *   <li>{@link PatternValueDeserializerFactory}</li>
-   *   <li>{@link ShortValueDeserializerFactory}</li>
-   *   <li>{@link StringValueDeserializerFactory}</li>
-   *   <li>{@link UriValueDeserializerFactory}</li>
-   *   <li>{@link UrlValueDeserializerFactory}</li>
+   * <li>{@link BigDecimalValueDeserializerFactory}</li>
+   * <li>{@link BooleanValueDeserializerFactory}</li>
+   * <li>{@link ByteValueDeserializerFactory}</li>
+   * <li>{@link CharValueDeserializerFactory}</li>
+   * <li>{@link DiscourseDeserializeValueSerializerFactory}</li>
+   * <li>{@link DoubleValueDeserializerFactory}</li>
+   * <li>{@link EnumValueDeserializerFactory}</li>
+   * <li>{@link FileValueDeserializerFactory}</li>
+   * <li>{@link FloatValueDeserializerFactory}</li>
+   * <li>{@link InstantValueDeserializerFactory}</li>
+   * <li>{@link IntValueDeserializerFactory}</li>
+   * <li>{@link LocalDateTimeValueDeserializerFactory}</li>
+   * <li>{@link LocalDateValueDeserializerFactory}</li>
+   * <li>{@link LocalTimeValueDeserializerFactory}</li>
+   * <li>{@link LongValueDeserializerFactory}</li>
+   * <li>{@link PathValueDeserializerFactory}</li>
+   * <li>{@link PatternValueDeserializerFactory}</li>
+   * <li>{@link ShortValueDeserializerFactory}</li>
+   * <li>{@link StringValueDeserializerFactory}</li>
+   * <li>{@link UriValueDeserializerFactory}</li>
+   * <li>{@link UrlValueDeserializerFactory}</li>
    * </ul>
    *
    * <h4>General</h4>
    *
    * <p>
-   *   Supports general deserialization of any class with the following features:
+   * Supports general deserialization of any class with the following features:
    * </p>
    *
    * <ul>
-   *   <li>
-   *     {@link FromStringValueDeserializerFactory} -- Any class that defines a method with the
-   *     signature {@code public static T fromString(String)}
-   *   </li>
+   * <li>{@link FromStringValueDeserializerFactory} -- Any class that defines a method with the
+   * signature {@code public static T fromString(String)}</li>
    * </ul>
    *
-   * @param resolver the serialization resolver to register the deserializers into
+   * @param chain the serialization resolver to register the deserializers into
    */
   @Override
-  public void registerValueDeserializerFactories(Chain<ValueDeserializerFactory> resolver) {
-    resolver.addLast(StringValueDeserializerFactory.INSTANCE);
-    resolver.addLast(LongValueDeserializerFactory.INSTANCE);
-    resolver.addLast(IntValueDeserializerFactory.INSTANCE);
-    resolver.addLast(CharValueDeserializerFactory.INSTANCE);
-    resolver.addLast(ShortValueDeserializerFactory.INSTANCE);
-    resolver.addLast(ByteValueDeserializerFactory.INSTANCE);
-    resolver.addLast(DoubleValueDeserializerFactory.INSTANCE);
-    resolver.addLast(FloatValueDeserializerFactory.INSTANCE);
-    resolver.addLast(BigDecimalValueDeserializerFactory.INSTANCE);
-    resolver.addLast(BooleanValueDeserializerFactory.INSTANCE);
-    resolver.addLast(InstantValueDeserializerFactory.INSTANCE);
-    resolver.addLast(LocalDateTimeValueDeserializerFactory.INSTANCE);
-    resolver.addLast(LocalDateValueDeserializerFactory.INSTANCE);
-    resolver.addLast(LocalTimeValueDeserializerFactory.INSTANCE);
-    resolver.addLast(UriValueDeserializerFactory.INSTANCE);
-    resolver.addLast(UrlValueDeserializerFactory.INSTANCE);
-    resolver.addLast(EnumValueDeserializerFactory.INSTANCE);
-    resolver.addLast(FileValueDeserializerFactory.INSTANCE);
-    resolver.addLast(PathValueDeserializerFactory.INSTANCE);
-    resolver.addLast(PatternValueDeserializerFactory.INSTANCE);
+  public void registerValueDeserializerFactories(Chain<ValueDeserializerFactory<?>> chain) {
+    chain.addLast(StringValueDeserializerFactory.INSTANCE);
+    chain.addLast(LongValueDeserializerFactory.INSTANCE);
+    chain.addLast(IntValueDeserializerFactory.INSTANCE);
+    chain.addLast(CharValueDeserializerFactory.INSTANCE);
+    chain.addLast(ShortValueDeserializerFactory.INSTANCE);
+    chain.addLast(ByteValueDeserializerFactory.INSTANCE);
+    chain.addLast(DoubleValueDeserializerFactory.INSTANCE);
+    chain.addLast(FloatValueDeserializerFactory.INSTANCE);
+    chain.addLast(BigDecimalValueDeserializerFactory.INSTANCE);
+    chain.addLast(BooleanValueDeserializerFactory.INSTANCE);
+    chain.addLast(InstantValueDeserializerFactory.INSTANCE);
+    chain.addLast(LocalDateTimeValueDeserializerFactory.INSTANCE);
+    chain.addLast(LocalDateValueDeserializerFactory.INSTANCE);
+    chain.addLast(LocalTimeValueDeserializerFactory.INSTANCE);
+    chain.addLast(UriValueDeserializerFactory.INSTANCE);
+    chain.addLast(UrlValueDeserializerFactory.INSTANCE);
+    chain.addLast(EnumValueDeserializerFactory.INSTANCE);
+    chain.addLast(FileValueDeserializerFactory.INSTANCE);
+    chain.addLast(PathValueDeserializerFactory.INSTANCE);
+    chain.addLast(PatternValueDeserializerFactory.INSTANCE);
 
     // This should be the first resort.
-    resolver.addFirst(DiscourseDeserializeValueSerializerFactory.INSTANCE);
+    chain.addFirst(DiscourseDeserializeValueSerializerFactory.INSTANCE);
 
     // This should be the last resort.
-    resolver.addLast(FromStringValueDeserializerFactory.INSTANCE);
+    chain.addLast(FromStringValueDeserializerFactory.INSTANCE);
   }
+
+
 
   /**
    * <p>
@@ -174,60 +168,24 @@ public class DefaultModule extends Module {
    * </p>
    *
    * <ul>
-   *   <li>{@link AssignValueSinkFactory}</li>
-   *   <li>{@link ArrayAppendValueSinkFactory}</li>
-   *   <li>{@link ListAddValueSinkFactory}</li>
-   *   <li>{@link SetAddValueSinkFactory}</li>
-   *   <li>{@link SortedSetAddValueSinkFactory}</li>
+   * <li>{@link AssignValueSinkFactory}</li>
+   * <li>{@link ArrayAppendValueSinkFactory}</li>
+   * <li>{@link ListAddValueSinkFactory}</li>
+   * <li>{@link SetAddValueSinkFactory}</li>
+   * <li>{@link SortedSetAddValueSinkFactory}</li>
    * </ul>
    *
    * @param resolver the sink resolver to register the sinks into
    */
   @Override
-  public void registerValueSinkFactories(ValueSinkFactoryChain resolver) {
-    resolver.addLast(SortedSetAddValueSinkFactory.INSTANCE);
-    resolver.addLast(SetAddValueSinkFactory.INSTANCE);
-    resolver.addLast(ListAddValueSinkFactory.INSTANCE);
-    resolver.addLast(ArrayAppendValueSinkFactory.INSTANCE);
+  public void registerValueSinkFactories(Chain<ValueSinkFactory> chain) {
+    chain.addLast(SortedSetAddValueSinkFactory.INSTANCE);
+    chain.addLast(SetAddValueSinkFactory.INSTANCE);
+    chain.addLast(ListAddValueSinkFactory.INSTANCE);
+    chain.addLast(ArrayAppendValueSinkFactory.INSTANCE);
+    chain.addLast(AssignValueSinkFactory.INSTANCE);
   }
 
-  /**
-   * <p>
-   * Registers the default instance factory providers.
-   * </p>
-   *
-   * <ul>
-   *   <li>{@link DefaultConstructorConfigurableInstanceFactoryScanner}</li>
-   *   <li>{@link AnnotatedConstructorConfigurableInstanceFactoryScanner}</li>
-   * </ul>
-   *
-   * @param chain the chain to register the instance factory providers into
-   */
-  @Override
-  public void registerInstanceFactoryScanners(ConfigurableInstanceFactoryScannerChain chain) {
-    chain.addLast(new DefaultConstructorConfigurableInstanceFactoryScanner());
-    chain.addLast(new AnnotatedConstructorConfigurableInstanceFactoryScanner());
-  }
-
-  /**
-   * <p>
-   * Registers the default component scanners.
-   * </p>
-   *
-   * <ul>
-   *   <li>{@link FieldConfigurableCandidateComponentScanner}</li>
-   *   <li>{@link GetterConfigurableCandidateComponentScanner}</li>
-   *   <li>{@link SetterConfigurableCandidateComponentScanner}</li>
-   * </ul>
-   *
-   * @param chain the chain to register the component scanners into
-   */
-  @Override
-  public void registerConfigurableComponentScanners(ConfigurableComponentScannerChain chain) {
-    chain.addLast(FieldConfigurableCandidateComponentScanner.INSTANCE);
-    chain.addLast(GetterConfigurableCandidateComponentScanner.INSTANCE);
-    chain.addLast(SetterConfigurableCandidateComponentScanner.INSTANCE);
-  }
 
   /**
    * <p>
@@ -235,60 +193,56 @@ public class DefaultModule extends Module {
    * </p>
    *
    * <ul>
-   *   <li>{@link DiscourseIgnoreAnnotationNamingScheme}</li>
-   *   <li>{@link DiscourseAttributeAnnotationNamingScheme}</li>
-   *   <li>{@link BeanAccessorNamingScheme}</li>
-   *   <li>{@link FieldNamingScheme}</li>
-   *   <li>{@link ParameterNamingScheme}</li>
-   *   <li>{@link RecordAccessorNamingScheme}</li>
+   * <li>{@link DiscourseIgnoreAnnotationNamingScheme}</li>
+   * <li>{@link DiscourseAttributeAnnotationNamingScheme}</li>
+   * <li>{@link BeanAccessorNamingScheme}</li>
+   * <li>{@link FieldNamingScheme}</li>
+   * <li>{@link ParameterNamingScheme}</li>
+   * <li>{@link RecordAccessorNamingScheme}</li>
    * </ul>
    *
    * <p>
-   *   {@link DiscourseIgnoreAnnotationNamingScheme} is registered at the front of the chain
-   *   so that it can be used to ignore fields that are annotated with {@link DiscourseIgnore}.
-   *   This means it will supersede any existing schemes already in the chain.
+   * {@link DiscourseIgnoreAnnotationNamingScheme} is registered at the front of the chain so that
+   * it can be used to ignore fields that are annotated with {@link DiscourseIgnore}. This means it
+   * will supersede any existing schemes already in the chain.
    * </p>
    *
    * @param chain the chain to register the accessor naming schemes into
    */
   @Override
-  public void registerAccessorNamingSchemes(AccessorNamingSchemeChain chain) {
+  public void registerNamingSchemes(Chain<NamingScheme> chain) {
     chain.addFirst(DiscourseIgnoreAnnotationNamingScheme.INSTANCE);
     chain.addLast(DiscourseAttributeAnnotationNamingScheme.INSTANCE);
-    chain.addLast(BeanAccessorNamingScheme.INSTANCE);
     chain.addLast(FieldNamingScheme.INSTANCE);
     chain.addLast(ParameterNamingScheme.INSTANCE);
     chain.addLast(RecordAccessorNamingScheme.INSTANCE);
   }
 
-  /**
-   * <p>
-   * Registers the default exception formatters.
-   * </p>
-   *
-   * <ul>
-   *   <li>{@link EmptyArgsRequiredParametersMissingSyntaxExceptionFormatter}</li>
-   *   <li>{@link HelpUnrecognizedDiscriminatorSyntaxExceptionFormatter}</li>
-   *   <li>{@link ConfigurationExceptionFormatter}</li>
-   *   <li>{@link SyntaxExceptionFormatter}</li>
-   *   <li>{@link BeanExceptionFormatter}</li>
-   *   <li>{@link ArgumentExceptionFormatter}</li>
-   *   <li>{@link CatchAllExceptionFormatter}</li>
-   *   <li>{@link CatchAllErrorFormatter}</li>
-   * </ul>
-   *
-   * @param chain the chain to register the exception formatters into
-   */
   @Override
-  public void registerExceptionFormatters(ExceptionFormatterChain chain) {
-    chain.addLast(EmptyArgsRequiredParametersMissingSyntaxExceptionFormatter.INSTANCE);
-    chain.addLast(HelpUnrecognizedDiscriminatorSyntaxExceptionFormatter.INSTANCE);
-    chain.addLast(ConfigurationExceptionFormatter.INSTANCE);
-    chain.addLast(SyntaxExceptionFormatter.INSTANCE);
-    chain.addLast(BeanExceptionFormatter.INSTANCE);
-    chain.addLast(ArgumentExceptionFormatter.INSTANCE);
-    chain.addLast(CatchAllExceptionFormatter.INSTANCE);
-    chain.addLast(CatchAllErrorFormatter.INSTANCE);
+  public void registerSyntaxNominators(Chain<SyntaxNominator> chain) {
+    chain.addLast(FieldSyntaxNominator.INSTANCE);
+    chain.addLast(SetterMethodSyntaxNominator.INSTANCE);
+    chain.addLast(GetterMethodSyntaxNominator.INSTANCE);
+  }
+
+  @Override
+  public void registerSyntaxDetectors(Chain<SyntaxDetector> chain) {
+    chain.addLast(OptionSyntaxDetector.INSTANCE);
+    chain.addLast(PositionalSyntaxDetector.INSTANCE);
+  }
+
+  @Override
+  public void registerRuleNominators(Chain<RuleNominator> chain) {
+    chain.addLast(FieldRuleNominator.INSTANCE);
+    chain.addLast(SetterMethodRuleNominator.INSTANCE);
+    chain.addLast(DefaultConstructorRuleNominator.INSTANCE);
+  }
+
+  @Override
+  public void registerRuleDetectors(Chain<RuleDetector> chain) {
+    chain.addLast(FieldRuleDetector.INSTANCE);
+    chain.addLast(SetterMethodRuleDetector.INSTANCE);
+    chain.addLast(DefaultConstructorDetector.INSTANCE);
   }
 
   /**
@@ -297,17 +251,13 @@ public class DefaultModule extends Module {
    * </p>
    *
    * <ul>
-   *   <li>{@link EmptyArgsToMultiCommandInterceptingDiscourseListener}</li>
-   *   <li>{@link HelpFlagInterceptingDiscourseListener}</li>
-   *   <li>{@link VersionFlagInterceptingDiscourseListener}</li>
+   * <li>{@link EmptyArgsToMultiCommandInterceptingDiscourseListener}</li>
+   * <li>{@link HelpFlagInterceptingDiscourseListener}</li>
+   * <li>{@link VersionFlagInterceptingDiscourseListener}</li>
    * </ul>
    *
    * @param chain the chain to register the discourse listeners into
    */
   @Override
-  public void registerDiscourseListeners(DiscourseListenerChain chain) {
-    chain.addLast(EmptyArgsToMultiCommandInterceptingDiscourseListener.INSTANCE);
-    chain.addLast(HelpFlagInterceptingDiscourseListener.INSTANCE);
-    chain.addLast(VersionFlagInterceptingDiscourseListener.INSTANCE);
-  }
+  public void registerListeners(Chain<InvocationPipelineListener> chain) {}
 }

@@ -1,4 +1,4 @@
-package com.sigpwned.discourse.core.configurable;
+package com.sigpwned.discourse.core.invocation.phase.scan.configurable;
 
 import java.util.Collections;
 import java.util.List;

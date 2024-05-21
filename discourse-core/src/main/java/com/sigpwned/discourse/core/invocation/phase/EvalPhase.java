@@ -138,7 +138,7 @@ public class EvalPhase {
       List<Object> mappedValues = entry.getValue();
 
       Function<List<Object>, Object> reducer = reducers.get(name);
-      if (name != null)
+      if (reducer == null)
         throw new MissingReducerException(name);
 
       Object reducedValue;

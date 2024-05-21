@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import com.sigpwned.discourse.core.invocation.phase.scan.NamingScheme;
+import com.sigpwned.discourse.core.util.Maybe;
 
 /**
  * <p>
@@ -51,13 +52,12 @@ public class ParameterNamingScheme implements NamingScheme {
   private static final Pattern SYNTHETIC_PARAMETER_NAME_PATTERN = Pattern.compile("arg\\d+");
 
   @Override
-  public Optional<String> getAttributeConstructorParameterName(
-      List<Annotation> constructorAnnotations, String parameterName,
-      List<Annotation> parameterAnnotations) {
+  public Maybe<String> getAttributeConstructorParameterName(List<Annotation> constructorAnnotations,
+      String parameterName, List<Annotation> parameterAnnotations) {
     if (SYNTHETIC_PARAMETER_NAME_PATTERN.matcher(parameterName).matches()) {
-      return Optional.empty();
+      return Maybe.maybe();
     }
-    return Optional.of(parameterName);
+    return Maybe.yes(parameterName);
   }
 
   @Override

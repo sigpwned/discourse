@@ -3,6 +3,7 @@ package com.sigpwned.discourse.core.module.scan.syntax.nominate;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.invocation.phase.scan.model.syntax.CandidateSyntax;
 import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxNominator;
 import com.sigpwned.discourse.core.util.Reflection;
@@ -15,8 +16,10 @@ import com.sigpwned.discourse.core.util.Reflection;
  * @see Reflection#hasInstanceSetterSignature(Method)
  */
 public class SetterMethodSyntaxNominator implements SyntaxNominator {
+  public static final SetterMethodSyntaxNominator INSTANCE = new SetterMethodSyntaxNominator();
+
   @Override
-  public List<CandidateSyntax> nominateSyntax(Class<?> clazz) {
+  public List<CandidateSyntax> nominateSyntax(Class<?> clazz, InvocationContext context) {
     List<CandidateSyntax> result = new ArrayList<>();
 
     for (Class<?> ancestor = clazz; ancestor != null; ancestor = ancestor.getSuperclass()) {

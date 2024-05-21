@@ -22,6 +22,7 @@ package com.sigpwned.discourse.core.module.scan.naming;
 import java.lang.reflect.Method;
 import java.util.Optional;
 import com.sigpwned.discourse.core.invocation.phase.scan.NamingScheme;
+import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Reflection;
 
 /**
@@ -67,16 +68,16 @@ public class BeanSetterNamingScheme implements NamingScheme {
   public static final BeanSetterNamingScheme INSTANCE = new BeanSetterNamingScheme();
 
   @Override
-  public Optional<String> name(Object object) {
+  public Maybe<String> name(Object object) {
     if (!(object instanceof Method method))
-      return Optional.empty();
+      return Maybe.maybe();
     if (!Reflection.hasInstanceSetterSignature(method))
-      return Optional.empty();
+      return Maybe.maybe();
 
     String name = method.getName();
     if (name.startsWith("set") && name.length() > 3 && Character.isUpperCase(name.charAt(3)))
-      return Optional.of(Character.toLowerCase(name.charAt(3)) + name.substring(4));
+      return Maybe.yes(Character.toLowerCase(name.charAt(3)) + name.substring(4));
 
-    return Optional.empty();
+    return Maybe.maybe();
   }
 }

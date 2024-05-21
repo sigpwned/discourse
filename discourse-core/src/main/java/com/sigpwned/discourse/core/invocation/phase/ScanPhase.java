@@ -1,7 +1,6 @@
 package com.sigpwned.discourse.core.invocation.phase;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.annotation.Configurable;
+import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.command.CommandBody;
 import com.sigpwned.discourse.core.command.CommandProperty;
 import com.sigpwned.discourse.core.command.Discriminator;
@@ -26,14 +26,12 @@ import com.sigpwned.discourse.core.command.SubCommand;
 import com.sigpwned.discourse.core.invocation.model.RuleDetection;
 import com.sigpwned.discourse.core.invocation.model.SyntaxDetection;
 import com.sigpwned.discourse.core.invocation.phase.scan.NamingScheme;
+import com.sigpwned.discourse.core.invocation.phase.scan.ScanPhaseListener;
 import com.sigpwned.discourse.core.invocation.phase.scan.SubCommandScanner;
 import com.sigpwned.discourse.core.invocation.phase.scan.exception.DiscriminatorMismatchConfigurationException;
-import com.sigpwned.discourse.core.invocation.phase.scan.exception.DuplicateCoordinatesScanException;
 import com.sigpwned.discourse.core.invocation.phase.scan.exception.DuplicateDiscriminatorScanException;
 import com.sigpwned.discourse.core.invocation.phase.scan.exception.DuplicatePropertyNamesScanException;
 import com.sigpwned.discourse.core.invocation.phase.scan.exception.InvalidDiscriminatorScanException;
-import com.sigpwned.discourse.core.invocation.phase.scan.exception.MultipleHelpFlagsScanException;
-import com.sigpwned.discourse.core.invocation.phase.scan.exception.MultipleVersionFlagsScanException;
 import com.sigpwned.discourse.core.invocation.phase.scan.exception.NoDiscriminatorScanException;
 import com.sigpwned.discourse.core.invocation.phase.scan.exception.NotConfigurableScanException;
 import com.sigpwned.discourse.core.invocation.phase.scan.exception.SubCommandDoesNotExtendSuperCommandScanException;
@@ -59,46 +57,46 @@ import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFa
 import com.sigpwned.discourse.core.module.value.sink.ValueSink;
 import com.sigpwned.discourse.core.module.value.sink.ValueSinkFactory;
 import com.sigpwned.discourse.core.util.Graphs;
+import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Streams;
 
 public class ScanPhase {
   private static final Logger LOGGER = LoggerFactory.getLogger(ScanPhase.class);
 
-  private final SubCommandScanner subCommandScanner;
-  private final SyntaxNominator syntaxNominator;
-  private final SyntaxDetector syntaxDetector;
-  private final RuleNominator ruleNominator;
-  private final RuleDetector ruleDetector;
-  private final NamingScheme namingScheme;
-  private final ValueSinkFactory valueSinkFactory;
-  private final ValueDeserializerFactory<?> valueDeserializerFactory;
+  private final ScanPhaseListener listener;
 
-  public ScanPhase(SubCommandScanner subCommandScanner, SyntaxNominator syntaxNominator,
-      SyntaxDetector syntaxDetector, RuleNominator ruleNominator, RuleDetector ruleDetector,
-      NamingScheme namingScheme, ValueSinkFactory valueSinkFactory,
-      ValueDeserializerFactory<?> valueDeserializerFactory) {
-    this.subCommandScanner = requireNonNull(subCommandScanner);
-    this.syntaxNominator = requireNonNull(syntaxNominator);
-    this.syntaxDetector = requireNonNull(syntaxDetector);
-    this.ruleNominator = requireNonNull(ruleNominator);
-    this.ruleDetector = requireNonNull(ruleDetector);
-    this.namingScheme = requireNonNull(namingScheme);
-    this.valueSinkFactory = requireNonNull(valueSinkFactory);
-    this.valueDeserializerFactory = requireNonNull(valueDeserializerFactory);
+  public ScanPhase(ScanPhaseListener listener) {
+    this.listener = requireNonNull(listener);
   }
 
-  public <T> RootCommand<T> scan(Class<T> clazz, InvocationContext context) {
-    List<WalkedClass<? extends T>> walkedClasses = walkStep(clazz);
+  public final <T> RootCommand<T> scan(Class<T> clazz, InvocationContext context) {
+    List<WalkedClass<? extends T>> walkedClasses = doWalkStep(clazz, context);
 
-    List<PreparedClass<? extends T>> bodiedClasses = prepareStep(walkedClasses);
+    List<PreparedClass<? extends T>> bodiedClasses = doPrepareStep(walkedClasses, context);
 
-    RootCommand<T> gatheredClasses = gatherStep(bodiedClasses);
+    RootCommand<T> gatheredClasses = gatherStep(bodiedClasses, context);
 
     return gatheredClasses;
   }
 
+  private <T> List<WalkedClass<? extends T>> doWalkStep(Class<T> clazz, InvocationContext context) {
+    List<WalkedClass<? extends T>> walkedClasses;
+    try {
+      getListener().beforeScanPhaseWalkStep(clazz);
+      walkedClasses = walkStep(context.getSubCommandScanner(), clazz, context);
+      getListener().afterScanPhaseWalkStep(clazz, walkedClasses);
+    } catch (Throwable t) {
+      getListener().catchScanPhaseWalkStep(t);
+      throw t;
+    } finally {
+      getListener().finallyScanPhaseWalkStep();
+    }
+    return walkedClasses;
+  }
+
   @SuppressWarnings({"unchecked", "rawtypes"})
-  protected <T> List<WalkedClass<? extends T>> walkStep(Class<T> clazz) {
+  protected <T> List<WalkedClass<? extends T>> walkStep(SubCommandScanner scanner, Class<T> clazz,
+      InvocationContext context) {
     record WalkingClass<T>(Optional<SuperCommand<? super T>> supercommand, Class<T> clazz) {
     }
 
@@ -155,8 +153,8 @@ public class ScanPhase {
         }
       }
 
-      List<Map.Entry<String, Class<? extends T>>> subcommands = (List) subCommandScanner
-          .scanForSubCommands(currentClazz).orElseGet(Collections::emptyList);
+      List<Map.Entry<String, Class<? extends T>>> subcommands =
+          (List) scanner.scanForSubCommands(currentClazz).orElseGet(Collections::emptyList);
 
       // A Command with SubCommands (i.e., a SuperCommand) has some special requirements. A Command
       // with no SubCommands has some special requirements, too. Let's enforce them both here.
@@ -224,8 +222,30 @@ public class ScanPhase {
     return walkedClasses;
   }
 
-  protected <T> List<PreparedClass<? extends T>> prepareStep(
-      List<WalkedClass<? extends T>> walkedClasses) {
+  private <T> List<PreparedClass<? extends T>> doPrepareStep(
+      List<WalkedClass<? extends T>> walkedClasses, InvocationContext context) {
+    List<PreparedClass<? extends T>> preparedClasses;
+    try {
+      getListener().beforeScanPhasePrepareStep(walkedClasses);
+      preparedClasses = prepareStep(context.getNamingScheme(), context.getSyntaxNominator(),
+          context.getSyntaxDetector(), context.getRuleNominator(), context.getRuleDetector(),
+          context.getValueSinkFactory(), context.getValueDeserializerFactory(), walkedClasses,
+          context);
+      getListener().afterScanPhasePrepareStep(walkedClasses, preparedClasses);
+    } catch (Throwable t) {
+      getListener().catchScanPhasePrepareStep(t);
+      throw t;
+    } finally {
+      getListener().finallyScanPhasePrepareStep();
+    }
+    return preparedClasses;
+  }
+
+  protected <T> List<PreparedClass<? extends T>> prepareStep(NamingScheme naming,
+      SyntaxNominator syntaxNominator, SyntaxDetector syntaxDetector, RuleNominator ruleNominator,
+      RuleDetector ruleDetector, ValueSinkFactory sinkFactory,
+      ValueDeserializerFactory<?> deserializerFactory, List<WalkedClass<? extends T>> walkedClasses,
+      InvocationContext context) {
     List<PreparedClass<? extends T>> preparedClasses = new ArrayList<>(walkedClasses.size());
 
     for (WalkedClass<? extends T> walkedClass : walkedClasses) {
@@ -247,7 +267,7 @@ public class ScanPhase {
 
         // Nominate all our candidate syntax. That is, we want to identify all the various and
         // sundry class members that might be syntax-bearing.
-        List<CandidateSyntax> candidateSyntax = syntaxNominator.nominateSyntax(clazz);
+        List<CandidateSyntax> candidateSyntax = syntaxNominator.nominateSyntax(clazz, context);
 
         // Let's deduplicate our candidates at the record level. We don't want to process
         // duplicates. In theory, it's an error if our syntax nominators nominate the same thing
@@ -275,8 +295,9 @@ public class ScanPhase {
         // an exception is thrown.
         List<DetectedSyntax> detectedSyntax = new ArrayList<>();
         for (CandidateSyntax csi : candidateSyntax) {
-          Optional<SyntaxDetection> maybeSyntaxDetection = syntaxDetector.detectSyntax(clazz, csi);
-          if (maybeSyntaxDetection.isPresent()) {
+          Maybe<SyntaxDetection> maybeSyntaxDetection =
+              syntaxDetector.detectSyntax(clazz, csi, context);
+          if (maybeSyntaxDetection.isYes()) {
             detectedSyntax.add(
                 DetectedSyntax.fromCandidateAndDetection(csi, maybeSyntaxDetection.orElseThrow()));
           } else {
@@ -287,10 +308,9 @@ public class ScanPhase {
         // Now that we have all our syntax, let's name it.
         List<NamedSyntax> syntax = new ArrayList<>();
         for (DetectedSyntax dsi : detectedSyntax) {
-          Optional<String> maybeName = namingScheme.name(dsi.nominated());
-          if (maybeName.isPresent()) {
-            String name = maybeName.orElseThrow();
-            syntax.add(NamedSyntax.fromDetectedSyntax(dsi, name));
+          Maybe<String> maybeName = naming.name(dsi.nominated());
+          if (maybeName.isYes()) {
+            syntax.add(NamedSyntax.fromDetectedSyntax(dsi, maybeName.orElseThrow()));
           } else {
             // This is not OK. Everything has to be named.
             // TODO better exception
@@ -302,7 +322,9 @@ public class ScanPhase {
         Set<String> duplicateSyntaxNames =
             Streams.duplicates(syntax.stream().map(NamedSyntax::name)).collect(toSet());
         if (!duplicateSyntaxNames.isEmpty()) {
-          throw new DuplicateSyntaxNamesScanException(clazz, duplicateSyntaxNames);
+          throw new IllegalArgumentException("Duplicate syntax names: " + duplicateSyntaxNames);
+          // TODO better exception
+          // throw new DuplicateSyntaxNamesScanException(clazz, duplicateSyntaxNames);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////
@@ -311,7 +333,7 @@ public class ScanPhase {
 
         // Nominate all our candidate rules. That is, we want to identify all the various and
         // sundry class members that might be rules.
-        List<CandidateRule> candidateRules = ruleNominator.nominateRules(clazz, syntax);
+        List<CandidateRule> candidateRules = ruleNominator.nominateRules(clazz, syntax, context);
 
         // Let's deduplicate our candidates at the record level. We don't want to process
         // duplicates. In theory, it's an error if our syntax nominators nominate the same thing
@@ -337,8 +359,9 @@ public class ScanPhase {
         // from among the candidates that are actually rules.
         List<DetectedRule> detectedRules = new ArrayList<>();
         for (CandidateRule cri : candidateRules) {
-          Optional<RuleDetection> maybeRuleDetection = ruleDetector.detectRule(clazz, syntax, cri);
-          if (maybeRuleDetection.isPresent()) {
+          Maybe<RuleDetection> maybeRuleDetection =
+              ruleDetector.detectRule(clazz, syntax, cri, context);
+          if (maybeRuleDetection.isYes()) {
             detectedRules
                 .add(DetectedRule.fromCandidateAndDetection(cri, maybeRuleDetection.orElseThrow()));
           } else {
@@ -352,12 +375,13 @@ public class ScanPhase {
           if (dri.hasConsequent()) {
             // We only name consequents. Antecedents come named. So we only need to name the
             // rule if it has a consequent.
-            Optional<String> maybeName = namingScheme.name(dri.nominated());
-            if (maybeName.isPresent()) {
+            Maybe<String> maybeName = naming.name(dri.nominated());
+            if (maybeName.isYes()) {
               rules.add(new NamedRule(dri.nominated(), dri.genericType(), dri.annotations(),
-                  dri.antecedents(), maybeName));
+                  dri.antecedents(), Optional.of(maybeName.orElseThrow())));
             } else {
               // This is not OK. Everything has to be named.
+              // TODO better exception
               throw new IllegalStateException("No name for " + dri.nominated());
             }
           } else {
@@ -367,30 +391,23 @@ public class ScanPhase {
           }
         }
 
-        // Did we end up with any duplicate names?
-        Set<String> duplicateRuleNames =
-            Streams.duplicates(rules.stream().map(NamedRule::name)).collect(toSet());
-        if (!duplicateRuleNames.isEmpty()) {
-          throw new DuplicateRuleNamesScanException(clazz, duplicateRuleNames);
-        }
+        // Duplicate rules are fine. We let the reactor sort it out.
 
         List<CommandProperty> properties = new ArrayList<>();
         for (NamedSyntax namedSyntax : syntax) {
-          final Map<String, String> syntaxMap = namedSyntax.coordinates().entrySet().stream()
-              .filter(e -> e.getKey() instanceof String)
-              .collect(toMap(e -> (String) e.getKey(), e -> e.getValue()));
-          final ValueSink sink = valueSinkFactory
+          final ValueSink sink = sinkFactory
               .getSink(namedSyntax.genericType(), namedSyntax.annotations()).orElseThrow(() -> {
                 // TODO better exception
                 return new IllegalArgumentException("no sink for " + namedSyntax.genericType());
               });
-          final ValueDeserializer<?> deserializer = valueDeserializerFactory
+          final ValueDeserializer<?> deserializer = deserializerFactory
               .getDeserializer(sink.getGenericType(), namedSyntax.annotations()).orElseThrow(() -> {
                 // TODO better exception
                 return new IllegalArgumentException("no deserializer for " + sink.getGenericType());
               });
-          properties
-              .add(new CommandProperty(namedSyntax.name(), "", syntaxMap, sink, deserializer));
+          // TODO help and version
+          properties.add(new CommandProperty(namedSyntax.name(), "", false, false,
+              namedSyntax.coordinates(), sink, deserializer));
         }
 
 
@@ -403,18 +420,20 @@ public class ScanPhase {
 
     // Do we have any duplicate usage of coordinates?
     for (PreparedClass<? extends T> preparedClass : preparedClasses) {
-      Set<String> duplicateCoordinates =
-          preparedClass.body().stream().flatMap(b -> b.getProperties().stream())
-              .flatMap(p -> p.getSyntax().keySet().stream()).collect(toSet());
+      Set<Coordinate> duplicateCoordinates =
+          Streams.duplicates(preparedClass.body().stream().flatMap(b -> b.getProperties().stream())
+              .flatMap(p -> p.getCoordinates().stream())).collect(toSet());
       if (!duplicateCoordinates.isEmpty()) {
-        throw new DuplicateCoordinatesScanException(preparedClass.clazz(), duplicateCoordinates);
+        throw new IllegalArgumentException("Duplicate coordinates: " + duplicateCoordinates);
+        // TODO better exception
+        // throw new DuplicateCoordinatesScanException(preparedClass.clazz(), duplicateCoordinates);
       }
     }
 
     // Do we have any duplicate usage of property names?
     for (PreparedClass<? extends T> preparedClass : preparedClasses) {
-      Set<String> duplicatePropertyNames = preparedClass.body().stream()
-          .flatMap(b -> b.getProperties().stream()).map(p -> p.getName()).collect(toSet());
+      Set<String> duplicatePropertyNames = Streams.duplicates(preparedClass.body().stream()
+          .flatMap(b -> b.getProperties().stream()).map(p -> p.getName())).collect(toSet());
       if (!duplicatePropertyNames.isEmpty()) {
         throw new DuplicatePropertyNamesScanException(preparedClass.clazz(),
             duplicatePropertyNames);
@@ -428,7 +447,7 @@ public class ScanPhase {
             .flatMap(b -> b.getProperties().stream()).filter(CommandProperty::isHelp)
             .map(CommandProperty::getName).collect(toSet());
         if (helpFlags.size() > 1) {
-          throw new MultipleHelpFlagsScanException(preparedClass.clazz(), helpFlags);
+          // throw new MultipleHelpFlagsScanException(preparedClass.clazz(), helpFlags);
         }
       }
     }
@@ -440,7 +459,7 @@ public class ScanPhase {
             .flatMap(b -> b.getProperties().stream()).filter(CommandProperty::isHelp)
             .map(CommandProperty::getName).collect(toSet());
         if (versionFlags.size() > 1) {
-          throw new MultipleVersionFlagsScanException(preparedClass.clazz(), versionFlags);
+          // throw new MultipleVersionFlagsScanException(preparedClass.clazz(), versionFlags);
         }
       }
     }
@@ -448,16 +467,35 @@ public class ScanPhase {
     return preparedClasses;
   }
 
-  public <T> RootCommand<T> gatherStep(List<PreparedClass<? extends T>> bodiedClasses) {
+  private <T> RootCommand<T> doGatherStep(List<PreparedClass<? extends T>> bodiedClasses,
+      InvocationContext context) {
+    RootCommand<T> root;
+    try {
+      getListener().beforeScanPhaseGatherStep(bodiedClasses);
+      root = gatherStep(bodiedClasses, context);
+      getListener().afterScanPhaseGatherStep(bodiedClasses, root);
+    } catch (Throwable t) {
+      getListener().catchScanPhaseGatherStep(t);
+      throw t;
+    } finally {
+      getListener().finallyScanPhaseGatherStep();
+    }
+    return root;
+  }
+
+  protected <T> RootCommand<T> gatherStep(List<PreparedClass<? extends T>> bodiedClasses,
+      InvocationContext context) {
     // We need to visit our classes in dependency order. That is, we want to process a node only
     // after all of its dependencies have been processed. (So, leaves first, root last.) We will
     // need a dependency graph to compute that, so let's build it here.
     Map<Class<?>, Set<Class<?>>> shallowDependencies = new HashMap<>();
     for (PreparedClass<? extends T> bodiedClass : bodiedClasses) {
+      shallowDependencies.put(bodiedClass.clazz(), new HashSet<>());
+    }
+    for (PreparedClass<? extends T> bodiedClass : bodiedClasses) {
       if (bodiedClass.supercommand().isPresent()) {
         SuperCommand<?> supercommand = bodiedClass.supercommand().get();
-        shallowDependencies.computeIfAbsent(supercommand.clazz(), k -> new HashSet<>())
-            .add(bodiedClass.clazz());
+        shallowDependencies.get(supercommand.clazz()).add(bodiedClass.clazz());
       }
     }
 
@@ -528,4 +566,10 @@ public class ScanPhase {
     return (RootCommand<T>) roots.get(0);
   }
 
+  /**
+   * @return the listener
+   */
+  private ScanPhaseListener getListener() {
+    return listener;
+  }
 }

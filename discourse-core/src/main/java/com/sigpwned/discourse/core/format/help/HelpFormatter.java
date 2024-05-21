@@ -19,6 +19,7 @@
  */
 package com.sigpwned.discourse.core.format.help;
 
+import com.sigpwned.discourse.core.Syntax;
 import com.sigpwned.discourse.core.command.Command;
 
 /**
@@ -27,5 +28,5 @@ import com.sigpwned.discourse.core.command.Command;
 @FunctionalInterface
 public interface HelpFormatter {
 
-  public String formatHelp(Command<?> command);
+  public String formatHelp(Syntax syntax, Command<?> command);
 }

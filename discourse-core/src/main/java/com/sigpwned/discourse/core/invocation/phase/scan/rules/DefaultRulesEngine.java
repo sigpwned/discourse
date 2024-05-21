@@ -1,6 +1,6 @@
 package com.sigpwned.discourse.core.invocation.phase.scan.rules;
 
-import static java.util.Collections.*;
+import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -36,13 +36,19 @@ public class DefaultRulesEngine implements RulesEngine {
           .min(Comparator.<NamedRule>comparingInt(rule -> -rule.antecedents().size())).orElse(null);
 
       if (next != null) {
-        Optional<Object> result = evaluator.run(state, next);
+        Optional<Optional<Object>> maybeResult = evaluator.run(state, next);
+
+        if (maybeResult.isEmpty()) {
+          // TODO better exception
+          throw new IllegalArgumentException("Rule " + next + " could not be evaluated.");
+        }
+
+        Optional<Object> result = maybeResult.orElseThrow();
 
         if (result.isPresent() != next.consequent().isPresent()) {
           // TODO better exception
-          throw new IllegalStateException(
-              "Rule " + next + " produced " + result.isPresent() + " but expected "
-                  + next.consequent().isPresent());
+          throw new IllegalStateException("Rule " + next + " produced " + result.isPresent()
+              + " but expected " + next.consequent().isPresent());
         }
 
         rules.remove(next);

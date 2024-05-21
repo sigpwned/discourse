@@ -67,7 +67,7 @@ public class ParsePhase {
 
   protected Map<Coordinate, String> preprocessCoordinatesStep(CoordinatesPreprocessor preprocessor,
       Map<Coordinate, String> naming, InvocationContext context) {
-    return preprocessor.preprocessCoordinates(naming);
+    return preprocessor.preprocessCoordinates(naming, context);
   }
 
   private List<String> doPreprocessArgsStep(List<String> args, InvocationContext context) {
@@ -87,7 +87,7 @@ public class ParsePhase {
 
   protected List<String> preprocessArgsStep(ArgsPreprocessor preprocessor, List<String> args,
       InvocationContext context) {
-    return preprocessor.preprocessArgs(args);
+    return preprocessor.preprocessArgs(args, context);
   }
 
   private List<Token> doPreprocessTokenStreamStep(List<Token> tokens, InvocationContext context) {
@@ -108,7 +108,7 @@ public class ParsePhase {
 
   protected List<Token> preprocessTokenStreamStep(TokenStreamPreprocessor preprocessor,
       List<Token> tokens, InvocationContext context) {
-    return preprocessor.preprocessTokens(tokens);
+    return preprocessor.preprocessTokens(tokens, context);
   }
 
   private List<Token> doTokenizeStep(List<String> args, InvocationContext context) {

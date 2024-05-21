@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.CommandBody;
@@ -26,6 +27,7 @@ import com.sigpwned.discourse.core.module.value.sink.ValueSink;
 
 public class InvocationPipeline {
 
+  private final InvocationContext context;
   private final ScanPhase scanPhase;
   private final ResolvePhase resolvePhase;
   private final ParsePhase parsePhase;
@@ -33,8 +35,10 @@ public class InvocationPipeline {
   private final FactoryPhase factoryPhase;
   private final InvocationPipelineListener listener;
 
-  public InvocationPipeline(ScanPhase scanPhase, ResolvePhase resolvePhase, ParsePhase parsePhase,
-      EvalPhase evalPhase, FactoryPhase factoryPhase, InvocationPipelineListener listener) {
+  public InvocationPipeline(InvocationContext context, ScanPhase scanPhase,
+      ResolvePhase resolvePhase, ParsePhase parsePhase, EvalPhase evalPhase,
+      FactoryPhase factoryPhase, InvocationPipelineListener listener) {
+    this.context = requireNonNull(context);
     this.scanPhase = requireNonNull(scanPhase);
     this.resolvePhase = requireNonNull(resolvePhase);
     this.parsePhase = requireNonNull(parsePhase);
@@ -94,7 +98,7 @@ public class InvocationPipeline {
   }
 
   protected <T> RootCommand<T> scanPhase(Class<T> clazz) {
-    return getScanPhase().scan(clazz);
+    return getScanPhase().scan(clazz, getContext());
   }
 
   private <T> CommandResolution<? extends T> doResolvePhase(RootCommand<T> rootCommand,
@@ -125,7 +129,7 @@ public class InvocationPipeline {
 
   protected <T> CommandResolution<? extends T> resolvePhase(RootCommand<T> rootCommand,
       List<String> args) {
-    return getResolvePhase().resolve(rootCommand, args);
+    return getResolvePhase().resolve(rootCommand, args, getContext());
   }
 
   private <T> List<Map.Entry<String, String>> doParsePhase(Command<T> resolvedCommand,
@@ -159,7 +163,7 @@ public class InvocationPipeline {
         .flatMap(p -> p.getCoordinates().stream().map(c -> Map.entry(c, p.getName())))
         .collect(entriesToMap());
 
-    return getParsePhase().parse(names, remainingArgs);
+    return getParsePhase().parse(names, remainingArgs, getContext());
   }
 
   private <T> Map<String, Object> doEvalPhase(Command<T> command,
@@ -200,7 +204,7 @@ public class InvocationPipeline {
           return sink.get();
         }));
 
-    return getEvalPhase().eval(mappers, reducers, parsedArgs);
+    return getEvalPhase().eval(mappers, reducers, parsedArgs, getContext());
   }
 
   private <T> T doFactoryPhase(Command<T> resolvedCommand, Map<String, Object> initialState) {
@@ -231,7 +235,11 @@ public class InvocationPipeline {
 
     List<NamedRule> rules = body.getRules();
 
-    return resolvedClazz.cast(getFactoryPhase().create(rules, initialState));
+    return resolvedClazz.cast(getFactoryPhase().create(rules, initialState, getContext()));
+  }
+
+  protected InvocationContext getContext() {
+    return context;
   }
 
   protected ScanPhase getScanPhase() {

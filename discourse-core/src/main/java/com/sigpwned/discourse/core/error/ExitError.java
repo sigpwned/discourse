@@ -26,14 +26,14 @@ import com.sigpwned.discourse.core.module.DefaultModule;
  * IDEs, and other static analysis tools, and also partly for testing.
  */
 public final class ExitError extends Error {
+  private static final long serialVersionUID = -7853124031914515198L;
 
   /**
    * A factory for creating {@link ExitError} instances. Internally, discourse models exiting the
    * application (e.g., when printing a help message and exiting) as throwing a special exception
    * {@link ExitError}. This is useful (a) for massaging various and sundry compiler warnings, and
    * (b) for testing. The {@link DefaultModule default runtime configuration} simply calls
-   * {@link System#exit}, but during testing, this can be overridden to return an exception
-   * instead.
+   * {@link System#exit}, but during testing, this can be overridden to return an exception instead.
    */
   @FunctionalInterface
   public static interface Factory {

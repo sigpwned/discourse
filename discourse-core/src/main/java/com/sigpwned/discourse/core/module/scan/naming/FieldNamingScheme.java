@@ -20,8 +20,8 @@
 package com.sigpwned.discourse.core.module.scan.naming;
 
 import java.lang.reflect.Field;
-import java.util.Optional;
 import com.sigpwned.discourse.core.invocation.phase.scan.NamingScheme;
+import com.sigpwned.discourse.core.util.Maybe;
 
 /**
  * <p>
@@ -37,10 +37,10 @@ public class FieldNamingScheme implements NamingScheme {
   public static final FieldNamingScheme INSTANCE = new FieldNamingScheme();
 
   @Override
-  public Optional<String> name(Object object) {
+  public Maybe<String> name(Object object) {
     if (!(object instanceof Field field)) {
-      return Optional.empty();
+      return Maybe.maybe();
     }
-    return Optional.of(field.getName());
+    return Maybe.yes(field.getName());
   }
 }

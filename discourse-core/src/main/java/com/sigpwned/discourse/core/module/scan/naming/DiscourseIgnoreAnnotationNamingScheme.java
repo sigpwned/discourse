@@ -23,6 +23,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.Optional;
 import com.sigpwned.discourse.core.annotation.DiscourseIgnore;
 import com.sigpwned.discourse.core.invocation.phase.scan.NamingScheme;
+import com.sigpwned.discourse.core.util.Maybe;
 
 /**
  * <p>
@@ -45,15 +46,17 @@ public class DiscourseIgnoreAnnotationNamingScheme implements NamingScheme {
       new DiscourseIgnoreAnnotationNamingScheme();
 
   @Override
-  public Optional<String> name(Object object) {
+  public Maybe<String> name(Object object) {
     if (!(object instanceof AnnotatedElement annotated))
-      return Optional.empty();
+      return Maybe.maybe();
 
     DiscourseIgnore annotation = annotated.getAnnotation(DiscourseIgnore.class);
     if (annotation == null)
-      return Optional.empty();
+      return Maybe.maybe();
 
-    // TODO We need a "poison" value
-    return Optional.empty();
+    // This is a "poison" value that means that this object has no name, and the framework should
+    // stop trying, which is exactly the semantics of "ignore." This is not used for performance,
+    // but rather in response to an explicit instruction from the player.
+    return Maybe.no();
   }
 }

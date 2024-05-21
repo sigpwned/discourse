@@ -21,22 +21,6 @@ package com.sigpwned.discourse.core.format.help;
 
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.joining;
-
-import com.sigpwned.discourse.core.command.Command;
-import com.sigpwned.discourse.core.command.MultiCommand;
-import com.sigpwned.discourse.core.command.SingleCommand;
-import com.sigpwned.discourse.core.model.command.Discriminator;
-import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
-import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
-import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
-import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
-import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
-import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
-import com.sigpwned.discourse.core.util.Commands;
-import com.sigpwned.discourse.core.util.JodaBeanUtils;
-import com.sigpwned.discourse.core.util.Streams;
-import com.sigpwned.discourse.core.util.Text;
-import com.sigpwned.discourse.core.util.Types;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -48,6 +32,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import com.sigpwned.discourse.core.Syntax;
+import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.Discriminator;
+import com.sigpwned.discourse.core.command.MultiCommand;
+import com.sigpwned.discourse.core.command.SingleCommand;
+import com.sigpwned.discourse.core.parameter.ConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.EnvironmentConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.FlagConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.OptionConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.PositionalConfigurationParameter;
+import com.sigpwned.discourse.core.parameter.PropertyConfigurationParameter;
+import com.sigpwned.discourse.core.util.Commands;
+import com.sigpwned.discourse.core.util.JodaBeanUtils;
+import com.sigpwned.discourse.core.util.Streams;
+import com.sigpwned.discourse.core.util.Text;
+import com.sigpwned.discourse.core.util.Types;
 
 /**
  * <p>
@@ -187,7 +187,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
   }
 
   @Override
-  public String formatHelp(Command<?> command) {
+  public String formatHelp(Syntax syntax, Command<?> command) {
     // JAVA21 Use pattern matching here and get rid of AssertionError
     if (command instanceof SingleCommand<?> single) {
       return formatHelp(single);
@@ -268,8 +268,10 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
                 }
-                out.println(Text.wrap(flag.getDescription(), n -> n == 0 ? Math.max(
-                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
+                out.println(Text.wrap(flag.getDescription(),
+                    n -> n == 0
+                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
+                        : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }
@@ -297,8 +299,10 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
                 }
-                out.println(Text.wrap(option.getDescription(), n -> n == 0 ? Math.max(
-                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
+                out.println(Text.wrap(option.getDescription(),
+                    n -> n == 0
+                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
+                        : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }
@@ -322,8 +326,10 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
                 }
-                out.println(Text.wrap(variable.getDescription(), n -> n == 0 ? Math.max(
-                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
+                out.println(Text.wrap(variable.getDescription(),
+                    n -> n == 0
+                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
+                        : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }
@@ -347,8 +353,10 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
                 }
-                out.println(Text.wrap(property.getDescription(), n -> n == 0 ? Math.max(
-                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
+                out.println(Text.wrap(property.getDescription(),
+                    n -> n == 0
+                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
+                        : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }
@@ -410,8 +418,10 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
                 }
-                out.println(Text.wrap(flag.getDescription(), n -> n == 0 ? Math.max(
-                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
+                out.println(Text.wrap(flag.getDescription(),
+                    n -> n == 0
+                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
+                        : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }
@@ -439,8 +449,10 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
                 }
-                out.println(Text.wrap(option.getDescription(), n -> n == 0 ? Math.max(
-                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
+                out.println(Text.wrap(option.getDescription(),
+                    n -> n == 0
+                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
+                        : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }
@@ -454,9 +466,10 @@ public class DefaultHelpFormatter implements HelpFormatter {
               l -> l.startsWith("First ") ? l : "    " + l));
           out.println();
 
-          @SuppressWarnings({"rawtypes",
-              "unchecked"}) Iterator<Map.Entry<Discriminator, Command<?>>> subcommandIterator = (Iterator) command.getSubcommands()
-              .entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).iterator();
+          @SuppressWarnings({"rawtypes", "unchecked"})
+          Iterator<Map.Entry<Discriminator, Command<?>>> subcommandIterator =
+              (Iterator) command.getSubcommands().entrySet().stream()
+                  .sorted(Comparator.comparing(Map.Entry::getKey)).iterator();
           while (subcommandIterator.hasNext()) {
             Map.Entry<Discriminator, Command<?>> subentry = subcommandIterator.next();
             Discriminator subdiscriminator = subentry.getKey();
@@ -485,8 +498,8 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
             out.printf(" %s", subdiscriminator);
 
-            if ((!commonFlags.isEmpty() || !flags.isEmpty()) && (!commonOptions.isEmpty()
-                || !options.isEmpty())) {
+            if ((!commonFlags.isEmpty() || !flags.isEmpty())
+                && (!commonOptions.isEmpty() || !options.isEmpty())) {
               out.print(" [ flags | options ]");
             } else if (!commonFlags.isEmpty() || !flags.isEmpty()) {
               out.print(" [ flags ]");
@@ -527,8 +540,10 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
                 }
-                out.println(Text.wrap(variable.getDescription(), n -> n == 0 ? Math.max(
-                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
+                out.println(Text.wrap(variable.getDescription(),
+                    n -> n == 0
+                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
+                        : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }
@@ -552,8 +567,10 @@ public class DefaultHelpFormatter implements HelpFormatter {
                 if (buf.length() < COLUMN_WIDTH) {
                   out.print(Text.times(" ", COLUMN_WIDTH - buf.length()));
                 }
-                out.println(Text.wrap(property.getDescription(), n -> n == 0 ? Math.max(
-                        getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1) : getWidth(),
+                out.println(Text.wrap(property.getDescription(),
+                    n -> n == 0
+                        ? Math.max(getWidth() - COLUMN_WIDTH - CONTINUATION_INDENTATION.length(), 1)
+                        : getWidth(),
                     l -> CONTINUATION_INDENTATION + l));
               }
             }

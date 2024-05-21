@@ -1,8 +1,8 @@
 package com.sigpwned.discourse.core.module.scan.syntax.detect;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.args.SwitchName;
@@ -10,16 +10,20 @@ import com.sigpwned.discourse.core.args.coordinate.OptionCoordinate;
 import com.sigpwned.discourse.core.invocation.model.SyntaxDetection;
 import com.sigpwned.discourse.core.invocation.phase.scan.model.syntax.CandidateSyntax;
 import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxDetector;
+import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Streams;
 
 public class OptionSyntaxDetector implements SyntaxDetector {
+  public static final OptionSyntaxDetector INSTANCE = new OptionSyntaxDetector();
+
   @Override
-  public Optional<SyntaxDetection> detectSyntax(Class<?> clazz, CandidateSyntax candidate) {
+  public Maybe<SyntaxDetection> detectSyntax(Class<?> clazz, CandidateSyntax candidate,
+      InvocationContext context) {
     OptionParameter option = candidate.annotations().stream()
         .mapMulti(Streams.filterAndCast(OptionParameter.class)).findFirst().orElse(null);
     if (option == null) {
       // This is fine. Not every candidate is actually syntax.
-      return Optional.empty();
+      return Maybe.maybe();
     }
 
     boolean required = option.required();
@@ -37,6 +41,6 @@ public class OptionSyntaxDetector implements SyntaxDetector {
       throw new IllegalArgumentException("option must have a long or short name");
     }
 
-    return Optional.of(new SyntaxDetection(required, false, false, coordinates));
+    return Maybe.yes(new SyntaxDetection(required, false, false, coordinates));
   }
 }

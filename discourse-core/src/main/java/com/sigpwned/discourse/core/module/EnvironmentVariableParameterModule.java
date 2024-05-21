@@ -5,9 +5,9 @@ import static java.util.Collections.unmodifiableSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import com.sigpwned.discourse.core.Chain;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.args.Token;
@@ -18,6 +18,7 @@ import com.sigpwned.discourse.core.invocation.phase.scan.model.syntax.CandidateS
 import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxDetector;
 import com.sigpwned.discourse.core.module.parameter.env.EnvironmentVariableCoordinate;
 import com.sigpwned.discourse.core.module.parameter.env.EnvironmentVariableParameter;
+import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Streams;
 
 public class EnvironmentVariableParameterModule extends Module {
@@ -27,12 +28,13 @@ public class EnvironmentVariableParameterModule extends Module {
   public void registerSyntaxDetectors(Chain<SyntaxDetector> chain) {
     chain.addFirst(new SyntaxDetector() {
       @Override
-      public Optional<SyntaxDetection> detectSyntax(Class<?> clazz, CandidateSyntax candidate) {
+      public Maybe<SyntaxDetection> detectSyntax(Class<?> clazz, CandidateSyntax candidate,
+          InvocationContext context) {
         EnvironmentVariableParameter variable = candidate.annotations().stream()
             .mapMulti(Streams.filterAndCast(EnvironmentVariableParameter.class)).findFirst()
             .orElse(null);
         if (variable == null)
-          return Optional.empty();
+          return Maybe.maybe();
 
         if (variable.variable().equals("")) {
           // TODO better exception
@@ -41,7 +43,7 @@ public class EnvironmentVariableParameterModule extends Module {
         Set<Coordinate> coordinates =
             Set.of(new EnvironmentVariableCoordinate(variable.variable()));
 
-        return Optional.of(new SyntaxDetection(false, false, false, coordinates));
+        return Maybe.yes(new SyntaxDetection(false, false, false, coordinates));
       }
     });
   }
@@ -74,7 +76,7 @@ public class EnvironmentVariableParameterModule extends Module {
     chain.addLast(new CoordinatesPreprocessor() {
       @Override
       public Map<Coordinate, String> preprocessCoordinates(
-          Map<Coordinate, String> originalCoordinates) {
+          Map<Coordinate, String> originalCoordinates, InvocationContext context) {
         if (coordinates != null) {
           // Because of the documented order of operations, this should never happen
           throw new IllegalStateException("coordinates already set");

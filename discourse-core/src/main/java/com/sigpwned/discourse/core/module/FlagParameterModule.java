@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import com.sigpwned.discourse.core.Chain;
+import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.args.SwitchName;
@@ -24,6 +24,7 @@ import com.sigpwned.discourse.core.invocation.phase.scan.model.syntax.CandidateS
 import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxDetector;
 import com.sigpwned.discourse.core.module.parameter.flag.FlagCoordinate;
 import com.sigpwned.discourse.core.module.parameter.flag.FlagParameter;
+import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Streams;
 
 public class FlagParameterModule extends Module {
@@ -33,11 +34,12 @@ public class FlagParameterModule extends Module {
   public void registerSyntaxDetectors(Chain<SyntaxDetector> chain) {
     chain.addLast(new SyntaxDetector() {
       @Override
-      public Optional<SyntaxDetection> detectSyntax(Class<?> clazz, CandidateSyntax candidate) {
+      public Maybe<SyntaxDetection> detectSyntax(Class<?> clazz, CandidateSyntax candidate,
+          InvocationContext context) {
         FlagParameter flag = candidate.annotations().stream()
             .mapMulti(Streams.filterAndCast(FlagParameter.class)).findFirst().orElse(null);
         if (flag == null)
-          return Optional.empty();
+          return Maybe.maybe();
 
         Set<Coordinate> coordinates = new HashSet<>(2);
         if (!flag.longName().equals("")) {
@@ -52,7 +54,7 @@ public class FlagParameterModule extends Module {
               "@FlagParameter must have at least one of longName or shortName");
         }
 
-        return Optional.of(new SyntaxDetection(false, flag.help(), flag.version(), coordinates));
+        return Maybe.yes(new SyntaxDetection(false, flag.help(), flag.version(), coordinates));
       }
     });
   }
@@ -62,7 +64,7 @@ public class FlagParameterModule extends Module {
     // TODO Where should I get the flags from?
     chain.addLast(new TokenStreamPreprocessor() {
       @Override
-      public List<Token> preprocessTokens(List<Token> tokens) {
+      public List<Token> preprocessTokens(List<Token> tokens, InvocationContext context) {
         if (flags == null) {
           // Because of the documented order of operations, this should never happen.
           throw new IllegalStateException("flags not set");
@@ -86,7 +88,8 @@ public class FlagParameterModule extends Module {
   public void registerCoordinatesPreprocessors(Chain<CoordinatesPreprocessor> chain) {
     chain.addLast(new CoordinatesPreprocessor() {
       @Override
-      public Map<Coordinate, String> preprocessCoordinates(Map<Coordinate, String> coordinates) {
+      public Map<Coordinate, String> preprocessCoordinates(Map<Coordinate, String> coordinates,
+          InvocationContext context) {
         if (flags != null) {
           // Because of the documented order of operations, this should never happen.
           throw new IllegalStateException("flags already set");
@@ -99,7 +102,8 @@ public class FlagParameterModule extends Module {
           String propertyName = entry.getValue();
           if (coordinate instanceof FlagCoordinate flagCoordinate) {
             flags.add(flagCoordinate.getName());
-            preprocessedCoordinates.put(new OptionCoordinate(flagCoordinate.getName()), propertyName);
+            preprocessedCoordinates.put(new OptionCoordinate(flagCoordinate.getName()),
+                propertyName);
           } else {
             preprocessedCoordinates.put(coordinate, propertyName);
           }
