@@ -19,9 +19,8 @@
  */
 package com.sigpwned.discourse.core;
 
-import com.sigpwned.discourse.core.error.exit.TestExitErrorFactory;
 import java.io.OutputStream;
-import java.io.PrintStream;
+import com.sigpwned.discourse.core.error.exit.TestExitErrorFactory;
 
 /**
  * <p>
@@ -41,10 +40,10 @@ import java.io.PrintStream;
  */
 public class TestModule extends com.sigpwned.discourse.core.Module {
 
-  @Override
-  public void register(InvocationContext context) {
-    context.set(InvocationContext.EXIT_ERROR_FACTORY_KEY, TestExitErrorFactory.INSTANCE);
-    context.set(InvocationContext.ERROR_STREAM_KEY,
-        new PrintStream(OutputStream.nullOutputStream()));
-  }
+  // @Override
+  // public void register(InvocationContext context) {
+  // context.set(InvocationContext.EXIT_ERROR_FACTORY_KEY, TestExitErrorFactory.INSTANCE);
+  // context.set(InvocationContext.ERROR_STREAM_KEY,
+  // new PrintStream(OutputStream.nullOutputStream()));
+  // }
 }

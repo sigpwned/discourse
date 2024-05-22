@@ -17,15 +17,13 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.chain;
+package com.sigpwned.discourse.core.module.value.deserializer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import com.sigpwned.discourse.core.Chain;
-import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializer;
-import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFactory;
 import com.sigpwned.discourse.core.util.Chains;
 
 /**
@@ -39,6 +37,7 @@ public class ValueDeserializerFactoryChain extends Chain<ValueDeserializerFactor
     implements ValueDeserializerFactory<Object> {
 
   @Override
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public Optional<ValueDeserializer<? extends Object>> getDeserializer(Type genericType,
       List<Annotation> annotations) {
     return (Optional) Chains.stream(this)

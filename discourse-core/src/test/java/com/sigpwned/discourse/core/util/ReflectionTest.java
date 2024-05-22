@@ -2,7 +2,7 @@
  * =================================LICENSE_START==================================
  * discourse-core
  * ====================================SECTION=====================================
- * Copyright (C) 2022 Andy Boothe
+ * Copyright (C) 2022 - 2024 Andy Boothe
  * ====================================SECTION=====================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,25 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.invocation.phase.scan.exception;
+package com.sigpwned.discourse.core.util;
 
-import static java.lang.String.format;
-import com.sigpwned.discourse.core.exception.ConfigurationException;
+import static org.junit.Assert.assertTrue;
+import java.lang.reflect.Field;
+import org.junit.Test;
 
-public class InvalidShortNameConfigurationException extends ConfigurationException {
-  private final String shortName;
-
-  public InvalidShortNameConfigurationException(String shortName) {
-    super(format("The string '%s' is not a valid short name", shortName));
-    this.shortName = shortName;
+public class ReflectionTest {
+  /**
+   * Example class used for reflection testing
+   */
+  public static class ReflectionExample {
+    public int foo;
   }
 
-  /**
-   * @return the variableName
-   */
-  public String getShortName() {
-    return shortName;
+  @Test
+  public void givenTwoFieldObjectsRepresentingSameField_whenCompare_thenEqualsEqual()
+      throws Exception {
+    Field foo1 = ReflectionExample.class.getDeclaredField("foo");
+    Field foo2 = ReflectionExample.class.getDeclaredField("foo");
+    assertTrue(foo1.equals(foo2));
   }
 }

@@ -21,20 +21,18 @@ package com.sigpwned.discourse.core;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedSet;
-import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.annotation.OptionParameter;
-import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
-import com.sigpwned.discourse.core.invocation.model.Invocation;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import org.junit.Test;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
+import com.sigpwned.discourse.core.annotation.Configurable;
+import com.sigpwned.discourse.core.annotation.OptionParameter;
+import com.sigpwned.discourse.core.util.Discourse;
 
 /**
  * Test every stock sink
@@ -59,8 +57,7 @@ public class ValueSinksTest {
     @OptionParameter(longName = "array")
     public String[] array;
 
-    public SinkExample() {
-    }
+    public SinkExample() {}
 
     public SinkExample(String assign, List<String> list, Set<String> set,
         SortedSet<String> sortedSet, String[] array) {
@@ -93,22 +90,21 @@ public class ValueSinksTest {
       }
       SinkExample other = (SinkExample) obj;
       return Arrays.equals(array, other.array) && Objects.equals(assign, other.assign)
-          && Objects.equals(list, other.list) && Objects.equals(set, other.set) && Objects.equals(
-          sortedSet, other.sortedSet);
+          && Objects.equals(list, other.list) && Objects.equals(set, other.set)
+          && Objects.equals(sortedSet, other.sortedSet);
     }
   }
 
   @Test
   public void givenConfigurationClassWithParametersOfAllStockSinks_whenInvoke_thenSucceed() {
-    InvocationContext context = new DefaultInvocationContext();
-    SinkExample observed = Invocation.builder().scan(SinkExample.class, context).resolve(
-            List.of("--assign", "alpha", "--list", "bravo", "--list", "charlie", "--set", "delta",
-                "--set", "echo", "--sortedSet", "foxtrot", "--sortedSet", "golf", "--array", "hotel",
-                "--array", "india"), context).parse(context).deserialize(context).prepare(context)
-        .build(context).getConfiguration();
+    SinkExample observed = Discourse.configuration(SinkExample.class,
+        List.of("--assign", "alpha", "--list", "bravo", "--list", "charlie", "--set", "delta",
+            "--set", "echo", "--sortedSet", "foxtrot", "--sortedSet", "golf", "--array", "hotel",
+            "--array", "india"));
 
-    assertThat(observed, is(new SinkExample("alpha", ImmutableList.of("bravo", "charlie"),
-        ImmutableSet.of("delta", "echo"), ImmutableSortedSet.of("foxtrot", "golf"),
-        new String[]{"hotel", "india"})));
+    assertThat(observed,
+        is(new SinkExample("alpha", ImmutableList.of("bravo", "charlie"),
+            ImmutableSet.of("delta", "echo"), ImmutableSortedSet.of("foxtrot", "golf"),
+            new String[] {"hotel", "india"})));
   }
 }

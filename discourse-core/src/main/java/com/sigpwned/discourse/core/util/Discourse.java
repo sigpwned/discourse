@@ -20,24 +20,16 @@
 package com.sigpwned.discourse.core.util;
 
 import static java.util.Arrays.asList;
-
-import com.sigpwned.discourse.core.invocation.model.Invocation;
-import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.error.exit.DefaultExitErrorFactory;
-import com.sigpwned.discourse.core.exception.ArgumentException;
-import com.sigpwned.discourse.core.exception.BeanException;
-import com.sigpwned.discourse.core.exception.ConfigurationException;
-import com.sigpwned.discourse.core.exception.SyntaxException;
-import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import java.util.List;
+import com.sigpwned.discourse.core.invocation.InvocationPipeline;
+import com.sigpwned.discourse.core.invocation.InvocationPipelineBuilder;
 
 /**
  * A utility class for creating configuration objects from resolvedCommand line arguments.
  */
 public final class Discourse {
 
-  private Discourse() {
-  }
+  private Discourse() {}
 
   /**
    * Create a configuration object of the given type from the given arguments.
@@ -50,55 +42,22 @@ public final class Discourse {
    * Create a configuration object of the given type from the given arguments.
    */
   public static <T> T configuration(Class<T> rawType, List<String> args) {
-    return configuration(rawType, new DefaultInvocationContext(), args);
+    return configuration(rawType, InvocationPipeline.builder(), args);
   }
 
   /**
    * Create a configuration object of the given type from the given arguments using the given
    * resolvedCommand builder.
    */
-  public static <T> T configuration(Class<T> rawType, InvocationContext context,
+  public static <T> T configuration(Class<T> rawType, InvocationPipelineBuilder builder,
       List<String> args) {
     T result;
     try {
-      result = Invocation.builder().scan(rawType, context).resolve(args, context).parse(context)
-          .deserialize(context).prepare(context).build(context).getConfiguration();
-    } catch (ConfigurationException e) {
-      // In this case, there was a problem with the application configuration. This is probably a
-      // bug in the application, and therefore the developer's fault. Exit code 10.
-      context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
-          .getExceptionFormatter(e, context).formatException(e, context);
-      throw context.get(InvocationContext.EXIT_ERROR_FACTORY_KEY)
-          .orElse(DefaultExitErrorFactory.INSTANCE).createExitError(10);
-    } catch (SyntaxException e) {
-      // In this case, there was a problem with the structure of the user's CLI arguments. This is
-      // the user's fault. Exit code 20.
-      context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
-          .getExceptionFormatter(e, context).formatException(e, context);
-      throw context.get(InvocationContext.EXIT_ERROR_FACTORY_KEY)
-          .orElse(DefaultExitErrorFactory.INSTANCE).createExitError(20);
-    } catch (ArgumentException e) {
-      // In this case, there was a problem with the content of the user's CLI arguments. This is
-      // the user's fault. Exit code 30.
-      context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
-          .getExceptionFormatter(e, context).formatException(e, context);
-      throw context.get(InvocationContext.EXIT_ERROR_FACTORY_KEY)
-          .orElse(DefaultExitErrorFactory.INSTANCE).createExitError(30);
-    } catch (BeanException e) {
-      // In this case, there was a problem with creating the configuration bean. This is the
-      // developer's fault. Exit code 40.
-      context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
-          .getExceptionFormatter(e, context).formatException(e, context);
-      throw context.get(InvocationContext.EXIT_ERROR_FACTORY_KEY)
-          .orElse(DefaultExitErrorFactory.INSTANCE).createExitError(40);
+      result = builder.build().execute(rawType, args).getInstance();
     } catch (Throwable e) {
-      // Welp, you got me. This is probably a bug in the application? We print a helpful error message.
-      context.get(InvocationContext.EXCEPTION_FORMATTER_CHAIN_KEY).orElseThrow()
-          .getExceptionFormatter(e, context).formatException(e, context);
-      throw context.get(InvocationContext.EXIT_ERROR_FACTORY_KEY)
-          .orElse(DefaultExitErrorFactory.INSTANCE).createExitError(100);
+      e.printStackTrace();
+      throw e;
     }
-
     return result;
   }
 }

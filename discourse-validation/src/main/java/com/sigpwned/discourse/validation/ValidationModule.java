@@ -19,12 +19,12 @@
  */
 package com.sigpwned.discourse.validation;
 
-import com.sigpwned.discourse.core.chain.DiscourseListenerChain;
+import com.sigpwned.discourse.core.Chain;
+import com.sigpwned.discourse.core.invocation.InvocationPipelineListener;
 
 public class ValidationModule extends com.sigpwned.discourse.core.Module {
-
   @Override
-  public void registerDiscourseListeners(DiscourseListenerChain chain) {
-    chain.addLast(new ValidatingDiscourseListener());
+  public void registerListeners(Chain<InvocationPipelineListener> chain) {
+    chain.addLast(new ValidatingInvocationPipelineListener());
   }
 }

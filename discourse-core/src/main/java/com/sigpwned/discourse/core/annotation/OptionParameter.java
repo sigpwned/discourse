@@ -22,21 +22,19 @@ package com.sigpwned.discourse.core.annotation;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import com.sigpwned.discourse.core.exception.syntax.RequiredParametersMissingSyntaxException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
  * <p>
- * A configuration property that encodes its value according to a name/value pair in a resolvedCommand line.
- * For example, the following field will be set to {@code foo} if the resolvedCommand line contains
- * {@code --xray=foo}:
+ * A configuration property that encodes its value according to a name/value pair in a
+ * resolvedCommand line. For example, the following field will be set to {@code foo} if the
+ * resolvedCommand line contains {@code --xray=foo}:
  * </p>
  *
  * <pre>
- *   &#x40;OptionParameter(longName = "xray")
- *   public String xray;
+ * &#x40;OptionParameter(longName = "xray")
+ * public String xray;
  * </pre>
  */
 @Retention(RUNTIME)

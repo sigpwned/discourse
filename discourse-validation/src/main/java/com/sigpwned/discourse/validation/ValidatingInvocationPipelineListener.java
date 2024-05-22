@@ -20,46 +20,38 @@
 package com.sigpwned.discourse.validation;
 
 import static java.util.Objects.requireNonNull;
-
-import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.command.Command;
-import com.sigpwned.discourse.core.command.SingleCommand;
-import com.sigpwned.discourse.core.listener.DiscourseListener;
-import com.sigpwned.discourse.core.model.argument.PreparedArgument;
-import com.sigpwned.discourse.core.model.invocation.MultiCommandDereference;
-import com.sigpwned.discourse.validation.exception.argument.ValidationArgumentException;
-import com.sigpwned.discourse.validation.util.Validation;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.invocation.InvocationPipelineListener;
+import com.sigpwned.discourse.validation.exception.argument.ValidationArgumentException;
+import com.sigpwned.discourse.validation.util.Validation;
 
 /**
  * An invocation that validates the configuration object using Jakarta validation before returning
  * it.
  */
-public class ValidatingDiscourseListener implements DiscourseListener {
-
+public class ValidatingInvocationPipelineListener implements InvocationPipelineListener {
   public static Validator defaultValidator() {
     return Validation.defaultValidator();
   }
 
   private final Validator validator;
 
-  public ValidatingDiscourseListener() {
+  public ValidatingInvocationPipelineListener() {
     this(defaultValidator());
   }
 
-  public ValidatingDiscourseListener(Validator validator) {
+  public ValidatingInvocationPipelineListener(Validator validator) {
     this.validator = requireNonNull(validator);
   }
 
   @Override
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public <T> void afterBuild(Command<T> rootCommand,
-      List<MultiCommandDereference<? extends T>> dereferencedCommands,
-      SingleCommand<? extends T> resolvedCommand, List<PreparedArgument> sinkedArguments,
-      T instance, InvocationContext context) {
+  public <T> void afterFactoryPhase(Command<T> resolvedCommand, Map<String, Object> state,
+      T instance) {
     Set<ConstraintViolation<T>> violations = getValidator().validate(instance);
     if (!violations.isEmpty()) {
       throw new ValidationArgumentException((Set) violations);

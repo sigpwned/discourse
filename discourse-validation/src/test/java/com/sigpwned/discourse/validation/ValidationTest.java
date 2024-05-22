@@ -21,37 +21,17 @@ package com.sigpwned.discourse.validation;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-
-import com.sigpwned.discourse.core.invocation.model.Invocation;
-import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.annotation.PositionalParameter;
-import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
-import com.sigpwned.discourse.validation.exception.argument.ValidationArgumentException;
 import java.util.List;
 import javax.validation.ConstraintViolation;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+import com.sigpwned.discourse.core.annotation.Configurable;
+import com.sigpwned.discourse.core.annotation.PositionalParameter;
+import com.sigpwned.discourse.core.invocation.InvocationPipeline;
+import com.sigpwned.discourse.validation.exception.argument.ValidationArgumentException;
 
 public class ValidationTest {
-
-  public InvocationContext context;
-
-  @Before
-  public void setupValidationTest() {
-    context = new DefaultInvocationContext();
-    context.register(new ValidationModule());
-  }
-
-  @After
-  public void cleanupValidationTest() {
-    context = null;
-  }
-
-
   @Configurable
   public static class Example {
 
@@ -62,11 +42,9 @@ public class ValidationTest {
   }
 
   @Test
-  @SuppressWarnings("unused")
   public void goodTest() {
-    Example example = Invocation.builder().scan(Example.class, context)
-        .resolve(List.of("5"), context).parse(context).deserialize(context).prepare(context)
-        .build(context).getConfiguration();
+    InvocationPipeline.builder().register(new ValidationModule()).build()
+        .execute(Example.class, List.of("5")).getInstance();
   }
 
   @Test
@@ -74,8 +52,8 @@ public class ValidationTest {
     ValidationArgumentException problem;
 
     try {
-      Invocation.builder().scan(Example.class, context).resolve(List.of("15"), context)
-          .parse(context).deserialize(context).prepare(context).build(context).getConfiguration();
+      InvocationPipeline.builder().register(new ValidationModule()).build()
+          .execute(Example.class, List.of("15")).getInstance();
       throw new AssertionError("no exception");
     } catch (ValidationArgumentException e) {
       problem = e;

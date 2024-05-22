@@ -19,8 +19,9 @@
  */
 package com.sigpwned.discourse.guava;
 
+import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.Module;
-import com.sigpwned.discourse.core.chain.ValueDeserializerFactoryChain;
+import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFactory;
 import com.sigpwned.discourse.guava.serialization.ByteSourceValueDeserializerFactory;
 
 /**
@@ -34,11 +35,11 @@ public class GuavaModule extends Module {
    * </p>
    *
    * <ul>
-   *   <li>{@link ByteSourceValueDeserializerFactory}</li>
+   * <li>{@link ByteSourceValueDeserializerFactory}</li>
    * </ul>
    */
   @Override
-  public void registerValueDeserializerFactories(ValueDeserializerFactoryChain resolver) {
+  public void registerValueDeserializerFactories(Chain<ValueDeserializerFactory<?>> resolver) {
     resolver.addLast(ByteSourceValueDeserializerFactory.INSTANCE);
   }
 }

@@ -22,22 +22,21 @@ package com.sigpwned.discourse.core.annotation;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import com.sigpwned.discourse.core.exception.syntax.RequiredParametersMissingSyntaxException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
  * <p>
- * A configuration property that appears positionally after all options and switches in the resolvedCommand
- * line. Parameter positions are zero-based, so position 0 is the first parameter after all options
- * and switches, position 1 is the second, and so on. For example, the following field will be set
- * to {@code foo} if the resolvedCommand line were {@code --flag --option1 value1 foo}:
+ * A configuration property that appears positionally after all options and switches in the
+ * resolvedCommand line. Parameter positions are zero-based, so position 0 is the first parameter
+ * after all options and switches, position 1 is the second, and so on. For example, the following
+ * field will be set to {@code foo} if the resolvedCommand line were
+ * {@code --flag --option1 value1 foo}:
  * </p>
  *
  * <pre>
- *   &#x40;PositionalParameter(position = 0)
- *   public String positional;
+ * &#x40;PositionalParameter(position = 0)
+ * public String positional;
  * </pre>
  */
 @Retention(RUNTIME)
@@ -45,8 +44,9 @@ import java.lang.annotation.Target;
 public @interface PositionalParameter {
 
   /**
-   * The position of the parameter in the resolvedCommand line. Positions are zero-based, so position 0 is
-   * the first parameter after all options and switches, position 1 is the second, and so on.
+   * The position of the parameter in the resolvedCommand line. Positions are zero-based, so
+   * position 0 is the first parameter after all options and switches, position 1 is the second, and
+   * so on.
    *
    * @return the position of the parameter in the resolvedCommand line
    */

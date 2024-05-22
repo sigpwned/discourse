@@ -19,12 +19,6 @@
  */
 package com.sigpwned.discourse.core;
 
-import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
-import com.sigpwned.discourse.core.annotation.OptionParameter;
-import com.sigpwned.discourse.core.annotation.PropertyParameter;
-import com.sigpwned.discourse.core.invocation.InvocationBuilder;
-import com.sigpwned.discourse.core.invocation.context.DefaultInvocationContext;
 import java.io.File;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -34,27 +28,17 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.regex.Pattern;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+import com.sigpwned.discourse.core.annotation.Configurable;
+import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
+import com.sigpwned.discourse.core.annotation.OptionParameter;
+import com.sigpwned.discourse.core.annotation.PropertyParameter;
+import com.sigpwned.discourse.core.invocation.InvocationPipeline;
 
 /**
  * Tests every stock serializer
  */
 public class ValueDeserializersTest {
-
-  public InvocationContext context;
-
-  @Before
-  public void setupValueDeserializersTest() {
-    context = new DefaultInvocationContext();
-  }
-
-  @After
-  public void cleanupValueDeserializersTest() {
-    context = null;
-  }
-
   public static enum ExampleEnum {
     HELLO, WORLD;
   }
@@ -67,7 +51,6 @@ public class ValueDeserializersTest {
   }
 
   @Configurable
-  @SuppressWarnings("unused")
   public static class SerializationExample {
 
     // BIGDECIMAL /////////////////////////////////////////////////////////////
@@ -346,13 +329,7 @@ public class ValueDeserializersTest {
   @Test
   @SuppressWarnings("unused")
   public void givenConfigurationClassWithParametersOfAllStockTypes_whenInvoke_thenSucceed() {
-    SerializationExample example = new InvocationBuilder()
-        .scan(SerializationExample.class, context)
-        .resolve(List.of(), context)
-        .parse(context)
-        .deserialize(context)
-        .prepare(context)
-        .build(context)
-        .getConfiguration();
+    SerializationExample example = InvocationPipeline.builder().build()
+        .execute(SerializationExample.class, List.of()).getInstance();
   }
 }

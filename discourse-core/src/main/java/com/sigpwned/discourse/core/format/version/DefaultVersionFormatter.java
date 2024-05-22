@@ -40,11 +40,11 @@ public class DefaultVersionFormatter implements VersionFormatter {
   @Override
   public String formatVersion(RootCommand<?> command) {
     List<String> parts = new ArrayList<>();
-    if (command.getName() != null) {
-      parts.add(command.getName());
+    if (command.getName().isPresent()) {
+      parts.add(command.getName().orElseThrow());
     }
-    if (command.getVersion() != null) {
-      parts.add(command.getVersion());
+    if (command.getVersion().isPresent()) {
+      parts.add(command.getVersion().orElseThrow());
     }
     return String.join(" ", parts);
   }

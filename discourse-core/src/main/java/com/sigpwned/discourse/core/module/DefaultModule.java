@@ -35,8 +35,6 @@ import com.sigpwned.discourse.core.module.scan.naming.DefaultConstructorNamingSc
 import com.sigpwned.discourse.core.module.scan.naming.DiscourseAttributeAnnotationNamingScheme;
 import com.sigpwned.discourse.core.module.scan.naming.DiscourseIgnoreAnnotationNamingScheme;
 import com.sigpwned.discourse.core.module.scan.naming.FieldNamingScheme;
-import com.sigpwned.discourse.core.module.scan.naming.ParameterNamingScheme;
-import com.sigpwned.discourse.core.module.scan.naming.RecordAccessorNamingScheme;
 import com.sigpwned.discourse.core.module.scan.rules.detect.DefaultConstructorRuleDetector;
 import com.sigpwned.discourse.core.module.scan.rules.detect.FieldRuleDetector;
 import com.sigpwned.discourse.core.module.scan.rules.detect.SetterMethodRuleDetector;
@@ -224,8 +222,6 @@ public class DefaultModule extends Module {
     chain.addLast(DefaultConstructorNamingScheme.INSTANCE);
     chain.addLast(BeanGetterNamingScheme.INSTANCE);
     chain.addLast(BeanSetterNamingScheme.INSTANCE);
-    // chain.addLast(ParameterNamingScheme.INSTANCE);
-    // chain.addLast(RecordAccessorNamingScheme.INSTANCE);
   }
 
   @Override

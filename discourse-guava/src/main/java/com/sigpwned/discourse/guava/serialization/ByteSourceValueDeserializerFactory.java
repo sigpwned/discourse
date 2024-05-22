@@ -19,39 +19,38 @@
  */
 package com.sigpwned.discourse.guava.serialization;
 
-import com.google.common.io.ByteSource;
-import com.google.common.io.Files;
-import com.google.common.io.Resources;
-import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializer;
-import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFactory;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
+import com.google.common.io.ByteSource;
+import com.google.common.io.Files;
+import com.google.common.io.Resources;
+import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFactory;
 
 /**
  * Deserializes a {@link ByteSource} from a {@link String} URL or local file path.
  */
 public class ByteSourceValueDeserializerFactory implements ValueDeserializerFactory<ByteSource> {
 
-  public static final ByteSourceValueDeserializerFactory INSTANCE = new ByteSourceValueDeserializerFactory();
+  public static final ByteSourceValueDeserializerFactory INSTANCE =
+      new ByteSourceValueDeserializerFactory();
 
   @Override
-  public boolean isDeserializable(Type genericType, List<Annotation> annotations) {
-    return genericType.equals(ByteSource.class);
-  }
-
-  @Override
-  public ValueDeserializer<ByteSource> getDeserializer(Type genericType,
+  public Optional<ValueDeserializer<? extends ByteSource>> getDeserializer(Type genericType,
       List<Annotation> annotations) {
-    return s -> {
+    if (genericType != ByteSource.class)
+      return Optional.empty();
+    return Optional.of(s -> {
       try {
         return Resources.asByteSource(new URL(s));
       } catch (MalformedURLException e) {
         return Files.asByteSource(new File(s));
       }
-    };
+    });
   }
 }

@@ -17,14 +17,11 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.chain;
+package com.sigpwned.discourse.core.module.value.sink;
 
 import static java.util.Objects.requireNonNull;
 
 import com.sigpwned.discourse.core.Chain;
-import com.sigpwned.discourse.core.module.value.sink.AssignValueSinkFactory;
-import com.sigpwned.discourse.core.module.value.sink.ValueSink;
-import com.sigpwned.discourse.core.module.value.sink.ValueSinkFactory;
 import com.sigpwned.discourse.core.util.Chains;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
