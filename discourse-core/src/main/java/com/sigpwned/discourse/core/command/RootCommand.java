@@ -19,34 +19,18 @@
  */
 package com.sigpwned.discourse.core.command;
 
-import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
-
-import java.util.Map;
 import java.util.Optional;
 
-public final class RootCommand<T> implements Command<T> {
-
-  private final Class<T> clazz;
+public final class RootCommand<T> {
   private final String name;
   private final String version;
-  private final String description;
-  private final CommandBody<T> body;
-  private final Map<String, SubCommand<? extends T>> subcommands;
+  private final Command<T> root;
 
-  public RootCommand(Class<T> clazz, String name, String version, String description,
-      CommandBody<T> body, Map<String, SubCommand<? extends T>> subcommands) {
-    this.clazz = requireNonNull(clazz);
+  public RootCommand(String name, String version, Command<T> root) {
     this.name = name;
     this.version = version;
-    this.description = description;
-    this.body = body;
-    this.subcommands = unmodifiableMap(subcommands);
-  }
-
-  @Override
-  public Class<T> getClazz() {
-    return clazz;
+    this.root = requireNonNull(root);
   }
 
   public Optional<String> getName() {
@@ -57,18 +41,7 @@ public final class RootCommand<T> implements Command<T> {
     return Optional.ofNullable(version);
   }
 
-  @Override
-  public Optional<String> getDescription() {
-    return Optional.ofNullable(description);
-  }
-
-  @Override
-  public Optional<CommandBody<T>> getBody() {
-    return Optional.ofNullable(body);
-  }
-
-  @Override
-  public Map<String, SubCommand<? extends T>> getSubcommands() {
-    return subcommands;
+  public Command<T> getRoot() {
+    return root;
   }
 }

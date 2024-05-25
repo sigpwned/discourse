@@ -1,23 +1,4 @@
-/*-
- * =================================LICENSE_START==================================
- * discourse-core
- * ====================================SECTION=====================================
- * Copyright (C) 2022 - 2024 Andy Boothe
- * ====================================SECTION=====================================
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ==================================LICENSE_END===================================
- */
-package com.sigpwned.discourse.core.invocation.phase;
+package com.sigpwned.discourse.core.pipeline.invocation.configurable.step;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toSet;
@@ -32,20 +13,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.args.Coordinate;
-import com.sigpwned.discourse.core.command.LeafCommandProperty;
+import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.Discriminator;
+import com.sigpwned.discourse.core.command.LeafCommand;
+import com.sigpwned.discourse.core.command.LeafCommandProperty;
 import com.sigpwned.discourse.core.command.RootCommand;
-import com.sigpwned.discourse.core.command.SubCommand;
-import com.sigpwned.discourse.core.invocation.model.RuleDetection;
-import com.sigpwned.discourse.core.invocation.model.SyntaxDetection;
-import com.sigpwned.discourse.core.invocation.phase.scan.NamingScheme;
-import com.sigpwned.discourse.core.invocation.phase.scan.ScanPhaseListener;
-import com.sigpwned.discourse.core.invocation.phase.scan.SubCommandScanner;
+import com.sigpwned.discourse.core.invocation.phase.ScanPhase;
 import com.sigpwned.discourse.core.invocation.phase.scan.exception.DiscriminatorMismatchConfigurationException;
 import com.sigpwned.discourse.core.invocation.phase.scan.exception.DuplicateDiscriminatorScanException;
 import com.sigpwned.discourse.core.invocation.phase.scan.exception.DuplicatePropertyNamesScanException;
@@ -57,34 +36,36 @@ import com.sigpwned.discourse.core.invocation.phase.scan.exception.SuperCommandN
 import com.sigpwned.discourse.core.invocation.phase.scan.exception.UnexpectedDiscriminatorScanException;
 import com.sigpwned.discourse.core.invocation.phase.scan.exception.internal.DuplicateRuleNomineesException;
 import com.sigpwned.discourse.core.invocation.phase.scan.exception.internal.DuplicateSyntaxNomineesException;
-import com.sigpwned.discourse.core.invocation.phase.scan.model.PreparedClass;
-import com.sigpwned.discourse.core.invocation.phase.scan.model.SuperCommand;
-import com.sigpwned.discourse.core.invocation.phase.scan.model.WalkedClass;
-import com.sigpwned.discourse.core.invocation.phase.scan.model.rules.CandidateRule;
-import com.sigpwned.discourse.core.invocation.phase.scan.model.rules.DetectedRule;
-import com.sigpwned.discourse.core.invocation.phase.scan.model.rules.NamedRule;
-import com.sigpwned.discourse.core.invocation.phase.scan.model.syntax.CandidateSyntax;
-import com.sigpwned.discourse.core.invocation.phase.scan.model.syntax.DetectedSyntax;
-import com.sigpwned.discourse.core.invocation.phase.scan.model.syntax.NamedSyntax;
 import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleDetector;
 import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleNominator;
-import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxDetector;
-import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxNominator;
-import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializer;
-import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFactory;
-import com.sigpwned.discourse.core.module.value.sink.ValueSink;
-import com.sigpwned.discourse.core.module.value.sink.ValueSinkFactory;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.ConfigurableInvocationPipelineListener;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.CandidateRule;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.CandidateSyntax;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.DetectedRule;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.DetectedSyntax;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.NamedRule;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.NamedSyntax;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.PreparedClass;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.SuperCommand;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.WalkedClass;
 import com.sigpwned.discourse.core.pipeline.invocation.configurable.step.scan.CommandBody;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.step.scan.NamingScheme;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.step.scan.RuleDetection;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.step.scan.RulesEngine;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.step.scan.SubCommandScanner;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.step.scan.SyntaxDetection;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.step.scan.SyntaxDetector;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.step.scan.SyntaxNominator;
 import com.sigpwned.discourse.core.util.Graphs;
 import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Streams;
 
-public class ScanPhase {
+public class ScanStep {
   private static final Logger LOGGER = LoggerFactory.getLogger(ScanPhase.class);
 
-  private final ScanPhaseListener listener;
+  private final ConfigurableInvocationPipelineListener listener;
 
-  public ScanPhase(ScanPhaseListener listener) {
+  public ScanStep(ConfigurableInvocationPipelineListener listener) {
     this.listener = requireNonNull(listener);
   }
 
@@ -262,8 +243,7 @@ public class ScanPhase {
 
   protected <T> List<PreparedClass<? extends T>> prepareStep(NamingScheme naming,
       SyntaxNominator syntaxNominator, SyntaxDetector syntaxDetector, RuleNominator ruleNominator,
-      RuleDetector ruleDetector, ValueSinkFactory sinkFactory,
-      ValueDeserializerFactory<?> deserializerFactory, List<WalkedClass<? extends T>> walkedClasses,
+      RuleDetector ruleDetector, List<WalkedClass<? extends T>> walkedClasses,
       InvocationContext context) {
     List<PreparedClass<? extends T>> preparedClasses = new ArrayList<>(walkedClasses.size());
 
@@ -271,7 +251,7 @@ public class ScanPhase {
       boolean hasSubcommands = walkedClasses.stream().flatMap(wc -> wc.supercommand().stream())
           .anyMatch(sc -> sc.clazz().equals(walkedClass.clazz()));
 
-      CommandBody<? extends T> body;
+      CommandBody body;
       if (hasSubcommands) {
         // If a class has subcommands, we don't want to create a body for it. We'll create a body
         // for its subcommands instead.
@@ -414,23 +394,12 @@ public class ScanPhase {
 
         List<LeafCommandProperty> properties = new ArrayList<>();
         for (NamedSyntax namedSyntax : syntax) {
-          final ValueSink sink = sinkFactory
-              .getSink(namedSyntax.genericType(), namedSyntax.annotations()).orElseThrow(() -> {
-                // TODO better exception
-                return new IllegalArgumentException("no sink for " + namedSyntax.genericType());
-              });
-          final ValueDeserializer<?> deserializer = deserializerFactory
-              .getDeserializer(sink.getGenericType(), namedSyntax.annotations()).orElseThrow(() -> {
-                // TODO better exception
-                return new IllegalArgumentException("no deserializer for " + sink.getGenericType());
-              });
-          // TODO help and version
-          properties.add(new LeafCommandProperty(namedSyntax.name(), "", false, false,
-              namedSyntax.coordinates(), sink, deserializer));
+          properties.add(new LeafCommandProperty(namedSyntax.name(), "", namedSyntax.coordinates(),
+              namedSyntax.genericType(), namedSyntax.annotations()));
         }
 
 
-        body = new CommandBody<>(properties, rules);
+        body = new CommandBody(properties, rules);
       }
 
       preparedClasses.add(new PreparedClass(walkedClass.supercommand(), walkedClass.clazz(),
@@ -459,29 +428,31 @@ public class ScanPhase {
       }
     }
 
+    // TODO help flags?
     // Do any of our classes have multiple help flags?
-    for (PreparedClass<? extends T> preparedClass : preparedClasses) {
-      if (preparedClass.body().isPresent()) {
-        Set<String> helpFlags = preparedClasses.stream().flatMap(pc -> pc.body().stream())
-            .flatMap(b -> b.getProperties().stream()).filter(LeafCommandProperty::isHelp)
-            .map(LeafCommandProperty::getName).collect(toSet());
-        if (helpFlags.size() > 1) {
-          // throw new MultipleHelpFlagsScanException(preparedClass.clazz(), helpFlags);
-        }
-      }
-    }
+    // for (PreparedClass<? extends T> preparedClass : preparedClasses) {
+    // if (preparedClass.body().isPresent()) {
+    // Set<String> helpFlags = preparedClasses.stream().flatMap(pc -> pc.body().stream())
+    // .flatMap(b -> b.getProperties().stream()).filter(LeafCommandProperty::isHelp)
+    // .map(LeafCommandProperty::getName).collect(toSet());
+    // if (helpFlags.size() > 1) {
+    // // throw new MultipleHelpFlagsScanException(preparedClass.clazz(), helpFlags);
+    // }
+    // }
+    // }
 
+    // TODO version flags?
     // Do any of our classes have multiple version flags?
-    for (PreparedClass<? extends T> preparedClass : preparedClasses) {
-      if (preparedClass.body().isPresent()) {
-        Set<String> versionFlags = preparedClasses.stream().flatMap(pc -> pc.body().stream())
-            .flatMap(b -> b.getProperties().stream()).filter(LeafCommandProperty::isHelp)
-            .map(LeafCommandProperty::getName).collect(toSet());
-        if (versionFlags.size() > 1) {
-          // throw new MultipleVersionFlagsScanException(preparedClass.clazz(), versionFlags);
-        }
-      }
-    }
+    // for (PreparedClass<? extends T> preparedClass : preparedClasses) {
+    // if (preparedClass.body().isPresent()) {
+    // Set<String> versionFlags = preparedClasses.stream().flatMap(pc -> pc.body().stream())
+    // .flatMap(b -> b.getProperties().stream()).filter(LeafCommandProperty::isHelp)
+    // .map(LeafCommandProperty::getName).collect(toSet());
+    // if (versionFlags.size() > 1) {
+    // // throw new MultipleVersionFlagsScanException(preparedClass.clazz(), versionFlags);
+    // }
+    // }
+    // }
 
     return preparedClasses;
   }
@@ -536,7 +507,7 @@ public class ScanPhase {
     // Now let's create our nodes in the order we just sorted them. This will ensure that we
     // process a node only after all of its dependencies have been processed.
     List<RootCommand<?>> roots = new ArrayList<>();
-    Map<Class<?>, SubCommand<?>> subcommands = new HashMap<>();
+    Map<Class<?>, Command<?>> subcommands = new HashMap<>();
     for (PreparedClass<? extends T> bodiedClass : bodiedClasses) {
       Class<?> clazz = bodiedClass.clazz();
 
@@ -545,9 +516,9 @@ public class ScanPhase {
         throw new AssertionError("no dependencies for " + clazz);
       }
 
-      Map<Discriminator, SubCommand<?>> subs = new HashMap<>();
+      Map<Discriminator, Command<?>> subs = new HashMap<>();
       for (Class<?> dep : deps) {
-        SubCommand<?> sub = subcommands.get(dep);
+        Command<?> sub = subcommands.get(dep);
         if (sub == null) {
           throw new AssertionError("no subcommand for " + dep);
         }
@@ -560,6 +531,20 @@ public class ScanPhase {
         subs.put(discriminator, sub);
       }
 
+      // TODO should command be generic?
+      Command<?> command;
+      if (subs.isEmpty()) {
+        CommandBody body = bodiedClass.body().orElseThrow(() -> {
+          // TODO better exception
+          throw new IllegalArgumentException("leaf command has no body");
+        });
+        command = new LeafCommand<>(bodiedClass.configurable().description(), body.getProperties(),
+            toConstructor(bodiedClass.clazz(), body.getRules()));
+      } else {
+        command = new com.sigpwned.discourse.core.command.SuperCommand(
+            bodiedClass.configurable().description(), subs);
+      }
+
 
       if (bodiedClass.supercommand().isPresent()) {
         // This is a subcommand
@@ -568,13 +553,11 @@ public class ScanPhase {
           throw new AssertionError("no discriminator for " + clazz);
         }
 
-        subcommands.put(clazz, new SubCommand(clazz, discriminator,
-            bodiedClass.configurable().description(), bodiedClass.body().orElse(null), subs));
+        subcommands.put(clazz, command);
       } else {
         // This is a root command
-        roots.add(new RootCommand(clazz, bodiedClass.configurable().name(),
-            bodiedClass.configurable().version(), bodiedClass.configurable().description(),
-            bodiedClass.body().orElse(null), subs));
+        roots.add(new RootCommand(bodiedClass.configurable().name(),
+            bodiedClass.configurable().version(), command));
       }
     }
 
@@ -588,7 +571,17 @@ public class ScanPhase {
   /**
    * @return the listener
    */
-  private ScanPhaseListener getListener() {
+  private ConfigurableInvocationPipelineListener getListener() {
     return listener;
+  }
+
+  private <T> Function<Map<String, Object>, T> toConstructor(RulesEngine reactor, Class<T> clazz,
+      List<NamedRule> rules) {
+    return args -> {
+      // TODO instance constant
+      Map<String, Object> output = reactor.run(args, rules);
+      Object instance = output.get("");
+      return clazz.cast(instance);
+    };
   }
 }

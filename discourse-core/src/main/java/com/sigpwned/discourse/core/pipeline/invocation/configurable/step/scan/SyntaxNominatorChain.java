@@ -17,15 +17,23 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.invocation.phase.scan.rules;
+package com.sigpwned.discourse.core.pipeline.invocation.configurable.step.scan;
 
+import java.util.ArrayList;
 import java.util.List;
+import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.CandidateRule;
-import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.NamedSyntax;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.CandidateSyntax;
 
-public interface RuleNominator {
 
-  public List<CandidateRule> nominateRules(Class<?> clazz, List<NamedSyntax> syntax,
-      InvocationContext context);
+public class SyntaxNominatorChain extends Chain<SyntaxNominator> implements SyntaxNominator {
+
+  @Override
+  public List<CandidateSyntax> nominateSyntax(Class<?> clazz, InvocationContext context) {
+    List<CandidateSyntax> result = new ArrayList<>();
+    for (SyntaxNominator nominator : this) {
+      result.addAll(nominator.nominateSyntax(clazz, context));
+    }
+    return result;
+  }
 }

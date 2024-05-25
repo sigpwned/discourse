@@ -17,15 +17,28 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.invocation.phase.scan.rules;
+package com.sigpwned.discourse.core.pipeline.invocation.configurable.model;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.List;
-import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.CandidateRule;
-import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.NamedSyntax;
+import java.util.Optional;
+import java.util.Set;
 
-public interface RuleNominator {
+/**
+ * Definition of a configurable rule.
+ *
+ * @param nominated
+ * @param genericType
+ * @param annotations
+ * @param antecedents
+ * @param consequent
+ */
+public record NamedRule(Object nominated, Type genericType, List<Annotation> annotations,
+    Set<String> antecedents, Optional<String> consequent) {
 
-  public List<CandidateRule> nominateRules(Class<?> clazz, List<NamedSyntax> syntax,
-      InvocationContext context);
+  public static NamedRule fromDetectedRule(DetectedRule rule, String name) {
+    return new NamedRule(rule.nominated(), rule.genericType(), rule.annotations(),
+        rule.antecedents(), Optional.ofNullable(name));
+  }
 }

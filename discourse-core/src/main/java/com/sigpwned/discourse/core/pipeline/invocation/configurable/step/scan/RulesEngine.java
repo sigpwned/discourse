@@ -17,15 +17,14 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.invocation.phase.scan.rules;
+package com.sigpwned.discourse.core.pipeline.invocation.configurable.step.scan;
 
 import java.util.List;
-import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.CandidateRule;
-import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.NamedSyntax;
+import java.util.Map;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.NamedRule;
 
-public interface RuleNominator {
 
-  public List<CandidateRule> nominateRules(Class<?> clazz, List<NamedSyntax> syntax,
-      InvocationContext context);
+public interface RulesEngine {
+
+  public Map<String, Object> run(Map<String, Object> input, List<NamedRule> rules);
 }

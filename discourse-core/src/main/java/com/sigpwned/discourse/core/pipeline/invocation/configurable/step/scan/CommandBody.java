@@ -17,23 +17,25 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.command;
+package com.sigpwned.discourse.core.pipeline.invocation.configurable.step.scan;
 
-import static java.util.Collections.*;
+import static java.util.Collections.unmodifiableList;
 import java.util.List;
-import com.sigpwned.discourse.core.invocation.phase.scan.model.rules.NamedRule;
+import com.sigpwned.discourse.core.command.LeafCommandProperty;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.NamedRule;
 
-public class CommandBody<T> {
 
-  private final List<CommandProperty> properties;
+public class CommandBody {
+
+  private final List<LeafCommandProperty> properties;
   private final List<NamedRule> rules;
 
-  public CommandBody(List<CommandProperty> properties, List<NamedRule> rules) {
+  public CommandBody(List<LeafCommandProperty> properties, List<NamedRule> rules) {
     this.properties = unmodifiableList(properties);
     this.rules = unmodifiableList(rules);
   }
 
-  public List<CommandProperty> getProperties() {
+  public List<LeafCommandProperty> getProperties() {
     return properties;
   }
 

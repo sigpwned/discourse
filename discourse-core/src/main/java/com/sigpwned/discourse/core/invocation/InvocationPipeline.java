@@ -19,7 +19,7 @@
  */
 package com.sigpwned.discourse.core.invocation;
 
-import static com.sigpwned.discourse.core.util.MoreCollectors.entriesToMap;
+import static com.sigpwned.discourse.core.util.MoreCollectors.mapFromEntries;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
@@ -31,8 +31,7 @@ import java.util.function.Function;
 import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.command.Command;
-import com.sigpwned.discourse.core.command.CommandBody;
-import com.sigpwned.discourse.core.command.CommandProperty;
+import com.sigpwned.discourse.core.command.LeafCommandProperty;
 import com.sigpwned.discourse.core.command.RootCommand;
 import com.sigpwned.discourse.core.invocation.model.CommandDereference;
 import com.sigpwned.discourse.core.invocation.model.CommandResolution;
@@ -44,6 +43,7 @@ import com.sigpwned.discourse.core.invocation.phase.ScanPhase;
 import com.sigpwned.discourse.core.invocation.phase.scan.model.rules.NamedRule;
 import com.sigpwned.discourse.core.module.DefaultModule;
 import com.sigpwned.discourse.core.module.value.sink.ValueSink;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.step.scan.CommandBody;
 
 public class InvocationPipeline {
   public static InvocationPipelineBuilder builder() {
@@ -184,7 +184,7 @@ public class InvocationPipeline {
 
     Map<Coordinate, String> names = body.getProperties().stream()
         .flatMap(p -> p.getCoordinates().stream().map(c -> Map.entry(c, p.getName())))
-        .collect(entriesToMap());
+        .collect(mapFromEntries());
 
     return getParsePhase().parse(names, remainingArgs, getContext());
   }
@@ -217,10 +217,10 @@ public class InvocationPipeline {
 
 
     Map<String, Function<String, Object>> mappers = body.getProperties().stream()
-        .collect(toMap(CommandProperty::getName, e -> e.getDeserializer()::deserialize));
+        .collect(toMap(LeafCommandProperty::getName, e -> e.getDeserializer()::deserialize));
 
     Map<String, Function<List<Object>, Object>> reducers =
-        body.getProperties().stream().collect(toMap(CommandProperty::getName, e -> xs -> {
+        body.getProperties().stream().collect(toMap(LeafCommandProperty::getName, e -> xs -> {
           ValueSink sink = e.getSink();
           for (Object x : xs)
             sink.put(x);

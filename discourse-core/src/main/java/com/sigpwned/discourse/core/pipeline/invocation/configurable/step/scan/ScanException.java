@@ -17,15 +17,18 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.invocation.phase.scan.rules;
+package com.sigpwned.discourse.core.pipeline.invocation.configurable.step.scan;
 
-import java.util.List;
-import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.CandidateRule;
-import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.NamedSyntax;
+import com.sigpwned.discourse.core.exception.DiscourseException;
 
-public interface RuleNominator {
+public abstract class ScanException extends DiscourseException {
+  private static final long serialVersionUID = -3751998712853634337L;
 
-  public List<CandidateRule> nominateRules(Class<?> clazz, List<NamedSyntax> syntax,
-      InvocationContext context);
+  protected ScanException(String message) {
+    super(message);
+  }
+
+  protected ScanException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

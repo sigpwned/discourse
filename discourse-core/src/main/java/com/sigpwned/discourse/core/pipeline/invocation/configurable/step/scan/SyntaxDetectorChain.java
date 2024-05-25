@@ -17,15 +17,24 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.invocation.phase.scan.rules;
+package com.sigpwned.discourse.core.pipeline.invocation.configurable.step.scan;
 
-import java.util.List;
+import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.CandidateRule;
-import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.NamedSyntax;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.CandidateSyntax;
+import com.sigpwned.discourse.core.util.Maybe;
 
-public interface RuleNominator {
+public class SyntaxDetectorChain extends Chain<SyntaxDetector> implements SyntaxDetector {
 
-  public List<CandidateRule> nominateRules(Class<?> clazz, List<NamedSyntax> syntax,
-      InvocationContext context);
+  @Override
+  public Maybe<SyntaxDetection> detectSyntax(Class<?> clazz, CandidateSyntax candidate,
+      InvocationContext context) {
+    for (SyntaxDetector detector : this) {
+      Maybe<SyntaxDetection> maybeSyntax = detector.detectSyntax(clazz, candidate, context);
+      if (maybeSyntax.isDecided()) {
+        return maybeSyntax;
+      }
+    }
+    return Maybe.maybe();
+  }
 }

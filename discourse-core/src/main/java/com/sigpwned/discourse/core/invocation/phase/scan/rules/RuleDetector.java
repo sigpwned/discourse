@@ -21,9 +21,9 @@ package com.sigpwned.discourse.core.invocation.phase.scan.rules;
 
 import java.util.List;
 import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.invocation.model.RuleDetection;
-import com.sigpwned.discourse.core.invocation.phase.scan.model.rules.CandidateRule;
-import com.sigpwned.discourse.core.invocation.phase.scan.model.syntax.NamedSyntax;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.CandidateRule;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.NamedSyntax;
+import com.sigpwned.discourse.core.pipeline.invocation.configurable.step.scan.RuleDetection;
 import com.sigpwned.discourse.core.util.Maybe;
 
 public interface RuleDetector {

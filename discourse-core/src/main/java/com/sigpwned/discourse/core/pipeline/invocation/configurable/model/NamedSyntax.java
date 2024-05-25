@@ -17,15 +17,19 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.invocation.phase.scan.rules;
+package com.sigpwned.discourse.core.pipeline.invocation.configurable.model;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.List;
-import com.sigpwned.discourse.core.InvocationContext;
-import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.CandidateRule;
-import com.sigpwned.discourse.core.pipeline.invocation.configurable.model.NamedSyntax;
+import java.util.Set;
+import com.sigpwned.discourse.core.args.Coordinate;
 
-public interface RuleNominator {
+public record NamedSyntax(Object nominated, Type genericType, List<Annotation> annotations,
+    boolean required, Set<Coordinate> coordinates, String name) {
 
-  public List<CandidateRule> nominateRules(Class<?> clazz, List<NamedSyntax> syntax,
-      InvocationContext context);
+  public static NamedSyntax fromDetectedSyntax(DetectedSyntax syntax, String name) {
+    return new NamedSyntax(syntax.nominated(), syntax.genericType(), syntax.annotations(),
+        syntax.required(), syntax.coordinates(), name);
+  }
 }

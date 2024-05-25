@@ -19,16 +19,16 @@
  */
 package com.sigpwned.discourse.core.command;
 
-import java.util.Map;
 import java.util.Optional;
 
-public sealed interface Command<T> permits RootCommand, SubCommand {
+public abstract sealed class Command<T> permits SuperCommand, LeafCommand {
+  private final String description;
 
-  Class<T> getClazz();
+  protected Command(String description) {
+    this.description = description;
+  }
 
-  Optional<String> getDescription();
-
-  Optional<CommandBody<T>> getBody();
-
-  Map<String, SubCommand<? extends T>> getSubcommands();
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 }

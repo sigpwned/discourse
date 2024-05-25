@@ -19,17 +19,15 @@
  */
 package com.sigpwned.discourse.core.command;
 
-import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import com.sigpwned.discourse.core.args.Coordinate;
+import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.module.value.sink.ValueSink;
 
-public class LeafCommandProperty {
+public class PlannedCommandProperty {
 
   /**
    * The name of the property, for example, {@code "help"}.
@@ -53,17 +51,17 @@ public class LeafCommandProperty {
   private final Set<Coordinate> coordinates;
 
 
-  private final Type genericType;
+  private final ValueSink sink;
 
-  private final List<Annotation> annotations;
+  private final ValueDeserializer<?> deserializer;
 
-  public LeafCommandProperty(String name, String description, Set<Coordinate> coordinates,
-      Type genericType, List<Annotation> annotations) {
+  public PlannedCommandProperty(String name, String description, Set<Coordinate> coordinates,
+      ValueSink sink, ValueDeserializer<?> deserializer) {
     this.name = requireNonNull(name);
     this.description = description;
     this.coordinates = unmodifiableSet(coordinates);
-    this.genericType = requireNonNull(genericType);
-    this.annotations = unmodifiableList(annotations);
+    this.sink = requireNonNull(sink);
+    this.deserializer = requireNonNull(deserializer);
   }
 
   /**
@@ -88,16 +86,16 @@ public class LeafCommandProperty {
   }
 
   /**
-   * @return the genericType
+   * @return the sink
    */
-  public Type getGenericType() {
-    return genericType;
+  public ValueSink getSink() {
+    return sink;
   }
 
   /**
-   * @return the annotations
+   * @return the deserializer
    */
-  public List<Annotation> getAnnotations() {
-    return annotations;
+  public ValueDeserializer<?> getDeserializer() {
+    return deserializer;
   }
 }

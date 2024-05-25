@@ -28,7 +28,7 @@ public final class MoreCollectors {
   private MoreCollectors() {
   }
 
-  public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> entriesToMap() {
+  public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> mapFromEntries() {
     return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
   }
 
