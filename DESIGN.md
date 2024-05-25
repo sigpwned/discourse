@@ -1,3 +1,61 @@
+# DESIGN
+
+## Goals
+
+The library should provide the following core functionality:
+
+* Parse command-line arguments into a user-friendly format
+* Define user-friendly formats using annotations on Java classes
+* Define user-friendly formats programatically
+
+The library should also be:
+
+* Customizable -- Modify existing functionality
+* Extensible -- Add new functionality
+* Modular -- It should be easy to package the above in easy-to-install modules, and these modules should coexist to the greatest extent possible
+
+## Design Philosophy
+
+Given that the library must support modular extensions where multiple modules can coexist, the architecture must support plugin-like functionality. There are two main strategies for implementing plugin architectures:
+
+1. Composition Strategies -- Program behavior is defined using a set of abstractions expressed as interfaces. The application provides default implementations for these interfaces for a robust out-of-the-box experience. Users can modify application behavior by providing custom implementations of these interfaces, and the application uses some inversion-of-control technique (direct parameterization, dependency injection, etc.) to allow the user to choose which implementations are used. This approach works well when only a few customizations are needed, and cross-customization is not required.
+    * BYOC (Bring Your Own Component) -- Users provide completely novel implementations. This approach generally does not stack well with multiple customizations because only one implementation "wins."
+    * Facade / Adapter -- Users provide "wrappers" for default implementations, and the wrappers can modify inputs before calling their delegate, and modify outputs after their delegate returns. This approach can stack well with multiple customizations, but application initialization typically involves the complex functional composition of multiple object factories, where order matters.
+2. Pipeline Strategies -- Program behavior is defined as an ordered sequence of steps. The application provides default implementations of these steps, which are typically fixed, at least outside of testing. The framework then provides a well-defined set of "hooks," and users can provide implementations of these hooks to modify application behavior. Typical hooks are:
+    * Inter-step -- The framework provides hooks between steps. Each step defines a set of inputs and outputs. The framework provides "before" and "after" hooks that allow users to view and modify step inputs and outputs, respectively. This approach can stack very well with multiple customizations using the Chain of Responsibility pattern.
+    * Intra-step -- The framework provides hooks within steps. This is typically implemented by step implementations exposing parameters that allow users to provide custom implementations of key portions of step behavior via inversion-of-control. This approach can stack very well with multiple customizations using the Chain of Responsibility pattern.
+  
+Given the importance of the modularity requirement, I elected to use the pipeline strategy for this implementation with both inter- and intra-step hooks. Hooks are generally provided to the framework as elements of a Chain of Responsibility, where users can register their implementations as the first or last link in the chain. This allows logical groups of features to be provided by a common container object while also providing flexibility for processing order of customizations when needed. This approach to framework design makes customization a fundamental aspect of the design.
+
+## Pipeline
+
+The pipeline is complex. We will explore its development below in a stepwise fashion to motivate why each step exists.
+
+### Basic Command-Line Parsing
+
+Let's imagine we want to support only basic command-line syntax:
+
+* Options -- Switches (e.g., `--alpha`) followed by a literal string value
+* Positional arguments -- A literal string value at a fixed logical position in the command line
+
+For example, the following command line arguments:
+
+    --alpha 1 --bravo 2 hello world
+    
+Would parse as:
+
+    --alpha # switch
+    1       # option "alpha" value
+    --bravo # switch
+    2       # option "bravo" value
+    hello   # positional parameter
+    world   # positional parameter
+    
+To be sure, discourse supports substantially more complex syntax than the above. However, for the
+purpose of building out this first step in the pipeline, imagine only this syntax is supported for now.
+  
+
+
 # DESIGN EVOLUTION
 
 The Discourse library has undergone a number of design changes since its inception. This document
