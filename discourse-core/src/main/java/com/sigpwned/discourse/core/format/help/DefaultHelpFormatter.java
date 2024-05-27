@@ -28,8 +28,10 @@ import java.util.Map;
 import java.util.function.IntUnaryOperator;
 import com.sigpwned.discourse.core.Syntax;
 import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.LeafCommand;
 import com.sigpwned.discourse.core.command.RootCommand;
-import com.sigpwned.discourse.core.command.SubCommand;
+import com.sigpwned.discourse.core.command.SuperCommand;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.SubCommand;
 import com.sigpwned.discourse.core.util.JodaBeanUtils;
 import com.sigpwned.discourse.core.util.Text;
 import com.sigpwned.discourse.core.util.Types;
@@ -173,17 +175,17 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
   @Override
   public String formatHelp(Syntax syntax, Command<?> command) {
-    if (command.getSubcommands().isEmpty()) {
-      return formatLeafCommandHelp(syntax, command);
-    } else {
+    if (command instanceof LeafCommand leafCommand) {
+      return formatLeafCommandHelp(syntax, leafCommand);
+    } else if (command instanceof SuperCommand<?> superCommand) {
       return formatSuperCommandHelp(syntax, command);
+    } else {
+      // TODO better exception
+      throw new IllegalArgumentException("Command is not a leaf command or super command");
     }
   }
 
-  protected String formatLeafCommandHelp(Syntax syntax, Command<?> command) {
-    if (!command.getSubcommands().isEmpty())
-      throw new IllegalArgumentException("Command is not a leaf command");
-
+  protected String formatLeafCommandHelp(Syntax syntax, LeafCommand<?> command) {
     StringWriter result = new StringWriter();
     try {
       try {

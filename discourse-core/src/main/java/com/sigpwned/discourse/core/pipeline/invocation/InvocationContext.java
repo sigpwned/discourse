@@ -62,4 +62,10 @@ public interface InvocationContext {
   }
 
   public <T> Optional<? extends T> get(Key<T> key);
+
+  default <T> void set(Class<T> type, T value) {
+    set(Key.of(type), value);
+  }
+
+  public <T> void set(Key<T> key, T value);
 }

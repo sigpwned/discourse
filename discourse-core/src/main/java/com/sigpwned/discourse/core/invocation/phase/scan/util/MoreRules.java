@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import com.sigpwned.discourse.core.invocation.phase.scan.model.rules.NamedRule;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedRule;
 import com.sigpwned.discourse.core.util.MoreSets;
 
 public class MoreRules {

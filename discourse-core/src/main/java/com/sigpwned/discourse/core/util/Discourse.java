@@ -21,8 +21,8 @@ package com.sigpwned.discourse.core.util;
 
 import static java.util.Arrays.asList;
 import java.util.List;
-import com.sigpwned.discourse.core.invocation.InvocationPipeline;
-import com.sigpwned.discourse.core.invocation.InvocationPipelineBuilder;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipeline;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineBuilder;
 
 /**
  * A utility class for creating configuration objects from resolvedCommand line arguments.
@@ -53,7 +53,7 @@ public final class Discourse {
       List<String> args) {
     T result;
     try {
-      result = builder.build().execute(rawType, args).getInstance();
+      result = builder.build().invoke(rawType, args);
     } catch (Throwable e) {
       e.printStackTrace();
       throw e;

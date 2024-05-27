@@ -21,7 +21,7 @@ package com.sigpwned.discourse.guava;
 
 import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.Module;
-import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFactory;
+import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDeserializerFactory;
 import com.sigpwned.discourse.guava.serialization.ByteSourceValueDeserializerFactory;
 
 /**

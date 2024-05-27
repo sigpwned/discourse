@@ -19,7 +19,7 @@
  */
 package com.sigpwned.discourse.core.error;
 
-import com.sigpwned.discourse.core.module.DefaultModule;
+import com.sigpwned.discourse.core.module.CoreModule;
 
 /**
  * Thrown defensively after {@link System#exit} is called. This is partly to appease the compiler,
@@ -32,7 +32,7 @@ public final class ExitError extends Error {
    * A factory for creating {@link ExitError} instances. Internally, discourse models exiting the
    * application (e.g., when printing a help message and exiting) as throwing a special exception
    * {@link ExitError}. This is useful (a) for massaging various and sundry compiler warnings, and
-   * (b) for testing. The {@link DefaultModule default runtime configuration} simply calls
+   * (b) for testing. The {@link CoreModule default runtime configuration} simply calls
    * {@link System#exit}, but during testing, this can be overridden to return an exception instead.
    */
   @FunctionalInterface

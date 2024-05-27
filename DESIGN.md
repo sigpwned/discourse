@@ -42,7 +42,11 @@ For example, the following command line arguments:
 
     --alpha 1 --bravo 2 hello world
     
-Would parse as:
+Which Java would provide to the application as the following string list:
+
+    [ "--alpha", "1", "--bravo", "2", "hello", "world" ]
+    
+Which the framework should parse as:
 
     --alpha # switch
     1       # option "alpha" value
@@ -51,208 +55,227 @@ Would parse as:
     hello   # positional parameter
     world   # positional parameter
     
-To be sure, discourse supports substantially more complex syntax than the above. However, for the
-purpose of building out this first step in the pipeline, imagine only this syntax is supported for now.
-  
+To be sure, discourse supports substantially more complex syntax than the above. However, for the purpose of designing out this first step in the pipeline, imagine only this syntax is supported for now.
+
+The following steps would support the parsing nicely:
+
+* tokenize (`List<String> args` → `List<Token>`) -- Maps each element of `args` to a `Token`, which represents either a switch or a value. In this simple language, the implementation would only need to check if the element starts with `"-"` to determine the `Token` type.
+* parse (`List<Token> tokens` → `List<Map.Entry<Object, String>>`) -- Parses the list of `Token` into a list of key-value pairs, where the key is the argument's logical "coordinate" and the value is the argument's natural `String` value. The coordinate for an option parameter would be the name of the switch (e.g., `alpha`, `bravo`). The coordinate for a positional parameter would be the `Integer` position of the parameter (e.g., `0`, `1`). A `List<Map.Entry<Object,String>>` is used instead of a `Map<Object,String>` because (a) order matters, and (b) the same map key coordinate may appear multiple times, for example, if the same option is given multiple times.
+* gather (`List<Map.Entry<Object, String>> parsedArgs` → `Map<Object,List<String>>`) -- Transforms the `parsedArgs` list of key-value arguments into a map from key to list of value. Within each map key coordinate, the order of values is preserved. The keys in the map are ordered according to the first appearance of the key in the arguments. This transformation is transparent.
+
+The above example:
+
+    args: [ "--alpha", "1", "--bravo", "2", "hello", "world" ]
+    
+Would execute as:
+
+1. tokenize(args) → `[ { "type": "switch", "value": "alpha" }, { "type": "value", "value": "1" }, { "type": "switch", "value": "bravo" }, { "type": "value", "value": "2" }, { "type": "value", "value": "hello" }, { "type": "value", "value": "world" } ]`
+2. parse(#1) → `[ { "alpha": "1" }, { "bravo": "2" }, { 0: "hello" }, { 1: "world" } ]`
+3. gather(#2) → `{ "alpha": [ "1" ], "bravo": [ "2" ], 0: [ "hello" ], 1: [ "world" ] }`
+
+This pipeline parses and organizes command line arguments into a user-friendly `Map` indexed by logical argument coordinate.
+
+### Named Parameters
+
+The above pipeline is already interesting and usable. However, it requires users to know the logical coordinate of the data they need as opposed to something more user-friendly, like an attribute name. The following new step introduces a new input from the application developer, `parameterNames`, and a new step to make use of it:
+
+* attribute (`Map<Object, String> parameterNames`, `List<Map.Entry<Object, String>> parsedArgs` → `List<Map.Entry<String, String>>`) -- Uses the given `parameterNames` to rewrite the key-value pairs from `parsedArgs` to the result. The result is a list of key-value mappings from parameter name to value. This runs between the `parse` and `gather` steps. This transformation is transparent.
+
+The example:
+
+    args:           [ "--alpha", "1", "--bravo", "2", "hello", "world" ]
+    parameterNames: { "alpha": "alpha", "bravo": "bravo", 0: "greeting", 1: "entity" }
+    
+Would execute as:
+
+1. tokenize(args) → `[ { "type": "switch", "value": "alpha" }, { "type": "value", "value": "1" }, { "type": "switch", "value": "bravo" }, { "type": "value", "value": "2" }, { "type": "value", "value": "hello" }, { "type": "value", "value": "world" } ]`
+2. parse(#1) → `[ { "alpha": "1" }, { "bravo": "2" }, { 0: "hello" }, { 1: "world" } ]`
+3. attribute(parameterNames, #2) → `[ { "alpha": "1" }, { "bravo": "2" }, { "greeting": "hello" }, { "entity": "world" } ]`
+4. gather(#3) → `{ "alpha": [ "1" ], "bravo": [ "2" ], "greeting": [ "hello" ], "entity": [ "world" ] }`
+
+The pipeline now parses and organizes command line arguments into a user-friendly `Map` indexed by logical property name.
+
+### Parameter Deserialization
+
+The above pipeline still requires users to perform any required translation from strings on their own. The following new steps bake in a mechanism for converting strings into domain objects inline:
+
+* map (`Map<String, Function<String, Object>> mappers`, `Map<String, List<String>> gatheredArgs` → `Map<String, List<Object>>`) -- Uses the given `mappers` to rewrite the entries from `gatheredArgs` to the result. The `mappers` parameter provides a deserializer for at least each named argument in `gatheredArgs`. The result is a map from parameter name to the list of domain values, as mapped by the entries in `mappers`.
+* reduce (`Map<String, Function<List<Object>, Object>> reducers`, `Map<String, List<Object>> mappedArgs` → `Map<String, Object>`) -- Uses the given `reducers` to rewrite the entries from `mappedArgs` to the result. The `reducers` parameter provides a reducer for at least each named argument in `mappedArgs`. These functions allow the pipeline to perform aggregate transformations on the list of values given by the user to prepare them for the application's use, for example turning the list into a set, or taking the first element of the list. The result is a map from parameter name to the single domain value, as reduced by the entries in `reducers`.
+
+The example:
+
+    args:           [ "--alpha", "1", "--bravo", "2", "hello", "world" ]
+    parameterNames: { "alpha": "alpha", "bravo": "bravo", 0: "greeting", 1: "entity" }
+    mappers:        { "alpha": Integer::parseInt, "bravo": Long::parseLong, "greeting": String::valueOf, "entity": String::valueOf }
+    reducers:       { "alpha": xs -> List::copyOf, "bravo": xs -> Set::copyOf, "greeting": xs -> xs.get(0), "entity": xs -> xs.get(0) }
+        
+Would execute as:
+
+1. tokenize(args) → `[ { "type": "switch", "value": "alpha" }, { "type": "value", "value": "1" }, { "type": "switch", "value": "bravo" }, { "type": "value", "value": "2" }, { "type": "value", "value": "hello" }, { "type": "value", "value": "world" } ]`
+2. parse(#1) → `[ { "alpha": "1" }, { "bravo": "2" }, { 0: "hello" }, { 1: "world" } ]`
+3. attribute(parameterNames, #2) → `[ { "alpha": "1" }, { "bravo": "2" }, { "greeting": "hello" }, { "entity": "world" } ]`
+4. gather(#3) → `{ "alpha": [ "1" ], "bravo": [ "2" ], "greeting": [ "hello" ], "entity": [ "world" ] }`
+5. map(mappers, #4) → `{ "alpha": [ 1 ], "bravo": [ 2L ], "greeting": [ "hello" ], "entity": [ "world" ] }`
+6. reduce(reducers, #5) → `{ "alpha": List.of(1), "bravo": Set.of(2L), "greeting": "hello", "entity": "world" }`
+
+The pipeline now parses and organizes command line arguments into a user-friendly `Map` of transformed domain objects indexed by property name.
+
+### Model Object Creation
+
+The above pipeline requires users to work with a raw, untyped map of attributes by name. The following new step maps this map to a statically-typed model object ready for use by the application.
+
+* finish (`Function<Map<String, T>, Object> finisher`, `Map<String, Object> reducedArgs` → `T`) -- Uses the given function to interpret the map and return a model object.
+
+The example:
+
+    // Of course, this could be model object, or Runnable application object, or whatever you like.
+    class Example {
+        public List<Integer> alpha;
+        public Set<Long> bravo;
+        public String greeting;
+        public String entity;
+        
+        public static Example fromReducedArgs(Map<String, Object> reducedArgs) {
+            Example result=new Example();
+            result.alpha = (List<Integer>) reducedArgs.get("alpha");
+            result.bravo = (Set<Long>) reduceArgs.get("bravo");
+            result.greeting = (String) reducedArgs.get("greeting");
+            result.entity = (String) reducedArgs.get("entity");
+            return result;
+        }
+    }
+    
+    args:           [ "--alpha", "1", "--bravo", "2", "hello", "world" ]
+    parameterNames: { "alpha": "alpha", "bravo": "bravo", 0: "greeting", 1: "entity" }
+    mappers:        { "alpha": Integer::parseInt, "bravo": Long::parseLong, "greeting": String::valueOf, "entity": String::valueOf }
+    reducers:       { "alpha": xs -> List::copyOf, "bravo": xs -> Set::copyOf, "greeting": xs -> xs.get(0), "entity": xs -> xs.get(0) }
+    finisher:       Example::fromReducedArgs
+        
+Would execute as:
+
+1. tokenize(args) → `[ { "type": "switch", "value": "alpha" }, { "type": "value", "value": "1" }, { "type": "switch", "value": "bravo" }, { "type": "value", "value": "2" }, { "type": "value", "value": "hello" }, { "type": "value", "value": "world" } ]`
+2. parse(#1) → `[ { "alpha": "1" }, { "bravo": "2" }, { 0: "hello" }, { 1: "world" } ]`
+3. attribute(parameterNames, #2) → `[ { "alpha": "1" }, { "bravo": "2" }, { "greeting": "hello" }, { "entity": "world" } ]`
+4. gather(#3) → `{ "alpha": [ "1" ], "bravo": [ "2" ], "greeting": [ "hello" ], "entity": [ "world" ] }`
+5. map(mappers, #4) → `{ "alpha": [ 1 ], "bravo": [ 2L ], "greeting": [ "hello" ], "entity": [ "world" ] }`
+6. reduce(reducers, #5) → `{ "alpha": List.of(1), "bravo": Set.of(2L), "greeting": "hello", "entity": "world" }`
+7. finish(finisher, #6) → `new Example(alpha=List.of(1), bravo=Set.of(2L), greeting="hello", entity="world")`
+
+The pipeline now parses and organizes command line arguments into a user-friendly domain model object.
+
+### Configurable Class Scanning
+
+The above pipeline requires the user to provide a lot of metadata. The following new step allows the user to capture this information using annotations on the model object itself.
+
+* scan (`Class<T> clazz` → `Command<T> command`) -- Analyzes the given `clazz` using the reflection API to discover the parameters defined by the class using annotations. The resulting `Command` object stores data from which `parameterNames`, `mappers`, `reducers`, and `finishers` may be derived.
+* plan (`Command<T> command` → `PlannedCommand<T> plannedCommand`) -- Analyzes the given `command` and derives the values for `parameterNames`, `mappers`, `reducers`, and `finishers`. The resulting `PlannedCommand` object contains the values for all of the above.
+
+The `scan` and `plan` steps are separate to allow users to use an explicit `Command` object created from scratch instead of one generated by using `scan`.
+
+The example:
+
+    // Of course, this could be model object, or Runnable application object, or whatever you like.
+    @Configurable
+    class Example {
+        @OptionParameter(longName="alpha")
+        public List<Integer> alpha;
+        
+        @OptionParameter(longName="bravo")
+        public Set<Long> bravo;
+        
+        @PositionalParameter(position=0)
+        public String greeting;
+        
+        @PositionalParameter(position=1)
+        public String entity;
+    }
+    
+    args:           [ "--alpha", "1", "--bravo", "2", "hello", "world" ]
+    clazz:          Example.class
+        
+Would execute as:
+
+1. scan(clazz) → `Command(...)`
+2. plan(#1) → `PlannedCommand(parameterNames, mappers, reducers, finisher)`
+3. tokenize(args) → `[ { "type": "switch", "value": "alpha" }, { "type": "value", "value": "1" }, { "type": "switch", "value": "bravo" }, { "type": "value", "value": "2" }, { "type": "value", "value": "hello" }, { "type": "value", "value": "world" } ]`
+4. parse(#3) → `[ { "alpha": "1" }, { "bravo": "2" }, { 0: "hello" }, { 1: "world" } ]`
+5. attribute(#2.parameterNames, #4) → `[ { "alpha": "1" }, { "bravo": "2" }, { "greeting": "hello" }, { "entity": "world" } ]`
+6. gather(#5) → `{ "alpha": [ "1" ], "bravo": [ "2" ], "greeting": [ "hello" ], "entity": [ "world" ] }`
+7. map(#2.mappers, #6) → `{ "alpha": [ 1 ], "bravo": [ 2L ], "greeting": [ "hello" ], "entity": [ "world" ] }`
+8. reduce(#2.reducers, #7) → `{ "alpha": List.of(1), "bravo": Set.of(2L), "greeting": "hello", "entity": "world" }`
+9. finish(#2.finisher, #8) → `new Example(alpha=List.of(1), bravo=Set.of(2L), greeting="hello", entity="world")`
+
+Note that the explicit `fromReducedArgs` method is no longer required. The `scan` and `plan` steps automatically discover the structure of the `Example` class and provide a default `finisher` value.
+
+The pipeline now parses and organizes command line arguments into a user-friendly domain model object using only an annotated class as input.
+
+### Additional Steps
+
+The above pipeline already provides a simple, robust approach to defining and parsing command-line options. However, there are a few more steps added for quality of life, extensibility, and feature completeness:
+
+* resolve (`List<String> args` → `ResolvedCommand<T>`) -- Many command-line applications define multiple "modes," such as `git` (e.g., `git push`, `git clone`, `git pull`, etc.). This step allows the application developer to choose which `Command` to run based on user input. The final scan step now produces a `RootCommand<T>` which contains multiple possible commands encoded in a class hierarchy as a result, and the default implementation of the resolver uses that value to perform the resolution.
+* preprocessCoordinates (`Map<Coordinate, String> parameterNames` → `Map<Coordinate, String>`) -- This step allows application developers to customize the attributes the application defines and the coordinates used to collect them. This allows module developers to inject custom fields on the fly, for example, to print a help message and exit. Also, note that coordinates are also explicit `Coordinate` model objects now instead of bare Java objects for module developer QOL.
+* preprocessArgs (`List<String> args` → `List<String>`) -- The primary function of this library is to process command-line arguments. This hook allows module developers to make changes to command line arguments as needed.
+* preprocessTokens (`List<Token> tokens` → `List<Token>`) -- This hook is designed to allow module developers to support novel command-line syntax.
+
+The final pipeline definition is:
+
+1. scan(clazz)
+2. resolve(#1)
+3. plan(#2)
+4. preprocessCoordinates(#3.coordinates)
+5. preprocessArgs(args)
+6. tokenize(#5)
+7. preprocessTokens(#6)
+8. parse(#7)
+9. attribute(#4, #8)
+10. gather(#9)
+11. map(#3.mappers, #10)
+12. reduce(#3.reducers, #11)
+13. finish(#3.finisher, #12)
+
+### Other Pipeline Considerations
+
+#### Why Not Split scan Step?
+
+Without a doubt, the scan step is the most complex. It has by far the most parameters for inversion-of-control: SubClassScanner, NamingScheme, SyntaxNominator, SyntaxDetector, SyntaxNamer, RuleNominator, RuleDetector, and RuleNamer. (In fact, scan has 8 of 10 total Chains of Responsibility!) So why not split it up?
+
+* From a developer experience perspective, you're either scanning a class or bringing your own. There is no in-between. So keeping scan self-contained makes sense from this perspective.
+* Changing any of these parameters only makes sense in the context of the scan step as a whole.
+* There is no useful intermediate result within the scan step, so there is no crisp interface to define otherwise.
+
+#### Then Why Split the Other Steps Up?
+
+The other steps have crisp interfaces and more than one reason for customization. For example, one might use preprocessCoordinates to add custom coordinates for help flags, or to add novel syntax with custom coordinates.
+
+## Abstractions
+
+These concepts are broken out very carefully to minimize coupling and maximize orthogonality. For example the `SyntaxNominator` is separated from the `SyntaxDetector` because new `SyntaxNominator` implementations are added as Java adds new syntax elements, but new `SyntaxDetector` implementations are added as module developers define novel syntax constructs for the command line. Similarly, `RuleDetector` doesn't just name the rules because the `SyntaxNominator` is in charge of naming things, and a new rule type should take advantage of whatever naming strategies are currently registered.
+
+### BYOC Constructs
+
+* Syntax -- Defines how CLI syntax is "spelled" on the command line (e.g., Unix-style `-x` vs. Windows-style `/x`)
+
+### Chain of Responsibility Constructs
+
+* ValueDeserializerFactory<T> -- Generates `mapper` functions 
+* ValueSink -- Generates `reduce` functions
+* SubClassScanner -- Given a `@Configurable` class, identifies any subclasses. Not hard-coded to allow the framework to take advantage of future Java features, e.g., sealed classes
+* NamingScheme -- Generates parameter names from annotated fields, getters, setters, etc.
+* SyntaxNominator -- Lists all syntactical elements of a Java class that might define a parameter
+* SyntaxDetector -- Identifies the nominated syntactical elements that do define a parameter
+* SyntaxNamer -- Given a parameter-bearing syntactical element and a NamingScheme, name the element
+* RuleNominator -- Lists all syntactical elements of a Java class that might be needed to construct the final model object
+* RuleDetector -- Identifies which nominated syntactical elements are needed to construct the final model object
+* RuleNamer -- Given a rule and a NamingScheme, name the rule
+
+## Other Considerations
+
+### Dependency Resolution
+
+One of the primary challenges of plugin architecture design is data sharing. How does one enable two modules, where either may or may not have been designed with the other in mind, to share code and data without coupling them to each other? This implementation's approach is to combine IoC with a large number of software interfaces, plus a context object to allow modules to fetch dependencies on the fly.
 
 
-# DESIGN EVOLUTION
+## On Architectural Style
 
-The Discourse library has undergone a number of design changes since its inception. This document
-outlines the major design changes that have occurred over time.
-
-## Version 0.x -- The `InvocationBuilder` Versions
-
-The primary goal for the 0.x versions was to be a simple, lightweight library that could be used to
-model and parse user input from command line arguments. The initial focus was on being simple and
-easy to use, with a focus on providing a clean and intuitive API for defining and parsing command
-line arguments with minimal boilerplate and no demands on overall application architecture.
-
-### Single Commands and Configurable Fields
-
-The first release had a simple model:
-
-* The user creates a "configurable" object, which is simply a Java class with a public default
-  constructor and public mutable fields to represent the structure of user input where the class is
-  annotated with the `@Configurable` annotation and the fields are annotated with annotations
-  like `@FlagParameter`, `@OptionParameter`, and so on to encode the syntax of user input on the
-  command line.
-* The user creates a `Command` object by "scanning" the configurable object, which contains a model
-  of the class' fields and annotations
-* The user then creates an `Invocation` from the command object and the command line arguments using
-  an `InvocationBuilder`, which uses the model data in the `Command` to interpret the given user
-  arguments and create and populate an instance of the configurable class with the given user input.
-* The user could support custom field types by registering a `DeserializerFactory`, which would
-  handle converting strings to values on the fly.
-
-For example, the a configurable class might look like:
-
-```java
-
-@Configurable
-public class HelloWorldConfiguration {
-
-  @OptionParameter(shortName = "g", longName = "greeting", description = "The greeting to use")
-  public String greeting = "Hello";
-
-  @PositionalParameter(position = 0)
-  public String name;
-}
-```
-
-This design was clear, simple, and effective. However, it was insufficient to handle some more
-complex data types.
-
-### Sinks
-
-The next major design change was the introduction of "sinks". Sinks are a way to handle more complex
-data types that can't be easily represented by a simple field in a configurable object. For example,
-a `List` of values.
-
-In the previous design, the supported data types looked like `int`, `float`, `String`, `URL`, and so
-on. If the user wanted to represent a more complex type, like a `List<String>`, then they would have
-to create a custom field type and a custom deserializer to handle it. If they then wanted to support
-a `List<Integer>`, they would have to create another custom field type and another custom
-deserializer to handle that field, too. This was cumbersome, and it was clear that the design needed
-improvement.
-
-Therefore, the concept of "sinks" was introduced. A sink is an abstraction that represents assigning
-a value to a field in a configurable object. Where in the previous design, assignment to fields was
-done directly using the reflection API, now assignment is done through a sink. Users register sinks
-in a [chain](https://en.wikipedia.org/wiki/Chain-of-responsibility_pattern), and the sinks are then
-chosen based on the type of the field being assigned to. The sink can also postprocess the data
-types it accepts, which allows for one sink implementation to support all `List` types.
-
-```java
-/**
- * <p>
- * An assignment target. A sink receives zero or more values and stores them for later retrieval.
- * The sink implements an arbitrary policy for combining multiple values into a single value.
- * </p>
- */
-public interface Sink {
-
-  /**
-   * Returns {@code true} if this sink accepts multiple values (e.g., for a {@link List} or
-   * {@link Set}), or {@code false} otherwise.
-   */
-  public boolean isCollection();
-
-  /**
-   * Returns the type of the value that this sink accepts. If this sink is a collection, this method
-   * returns the type of the elements in the collection.
-   *
-   * @return the type of the value that this sink accepts
-   */
-  public Type getGenericType();
-
-  /**
-   * Writes the given value into the sink. This can perform any operation, such as overwriting the
-   * current value, adding the value to a collection, etc.
-   *
-   * @param value the value to write
-   */
-  public void put(Object value);
-
-  /**
-   * Returns the value stored in the sink. If the sink is has {@link #put(Object) received} zero
-   * values, this method returns an empty {@link Optional}. Otherwise, this method returns the value
-   * stored in the sink.
-   *
-   * @return the value stored in the sink
-   */
-  public Optional<Object> get();
-}
-```
-
-This addition allows users to customize not only what values to accept, but also how those values
-are aggregated for assignment. This design change was a significant improvement over the previous
-design, as it allowed for more complex data types to be supported with minimal boilerplate.
-
-### Multiple Commands
-
-The next major design change was the introduction of multiple commands.
-
-In the previous design, the user could only define a single command. This was limiting, as many
-applications have multiple commands or "modes" that can be run, each of which takes different
-arguments. The new design allows for multiple commands to be defined, each with its own configurable
-object and command line syntax.
-
-The new design split made the `Command` class abstract and introduced two concrete
-subclasses: `MultiCommand`, which represents a command "choice", and `SingleCommand`, which
-represents a single command.
-
-```java
-
-@Configurable(
-    name = "congeniality",
-    description = "A command for saying hello and goodbye",
-    subcommands = {
-        @Subcommand(discriminator = "hello", command = HelloCommand.class),
-        @Subcommand(discriminator = "goodbye", command = GoodbyeCommand.class)
-    })
-public abstract class RootCommand {
-
-  @PositionalParameter(position = 0)
-  public String name;
-}
-
-@Configurable(disciminator = "hello", description = "Say hello")
-public class HelloCommand extends RootCommand {
-
-  @OptionParameter(shortName = "s", longName = "salutation", description = "The salutation to use")
-  public String salutation = "Hello";
-}
-
-@Configurable(disciminator = "goodbye", description = "Say goodbye")
-public class GoodbyeCommand extends RootCommand {
-
-  @OptionParameter(shortName = "v", longName = "valediction", description = "The valediction to use")
-  public String valediction = "Goodbye";
-}
-```
-
-In the above example, the user would scan `RootCommand`, which would produce a `MultiCommand` object
-with two subcommands: `HelloCommand` and `GoodbyeCommand`. The `InvocationBuilder` would then choose
-the appropriate subcommand based on the discriminator value in the command line arguments.
-
-```bash
-# Say hello to Alice
-$ java -jar congeniality.jar hello Alice
-
-# Say goodbye to Bob
-$ java -jar congeniality.jar goodbye Bob
-```
-
-This design change was a significant improvement over the previous design, as it allowed for more
-complex applications to be modeled and parsed with minimal boilerplate.
-
-## Version 1.x -- The `InvocationPipeline` Versions
-
-The primary goal for the 1.x versions was to be more flexible and extensible than the 0.x versions.
-While the user could achieve limited extensibility in the 0.x versions by registering custom field
-deserializers, sinks, and `InvocationBuilder` wrapper implementations, the 1.x versions aimed to
-provide a more general-purpose extensibility mechanism. The chosen approach was to define a standard
-"pipeline" of steps that library follows to parse user input, and then allow users to customize the
-pipeline by implementing "hooks" between steps (for light customization), or by replacing entire
-steps (for heavy customization).
-
-The steps in the pipeline are as follows:
-
-1. Scan -- As in the 0.x versions, the user scans a configurable object to produce a `RootCommand`
-   object (`Class<T>` &rarr; `RootCommand<T>`)
-2. Resolve -- The user provides the command line arguments and the `RootCommand` object to the
-   `InvocationPipeline`, which resolves the command line arguments to a `Command` object and the
-   remaining user arguments.
-   (`RootCommand<T>`, `List<String>` &rarr; `Command<T>`, `List<String>`)
-3. Parse -- The `InvocationPipeline` parses the remaining user arguments into a list of coordinate
-   to string mappings. (`Command<T>`, `List<String>` &rarr; `List<Map.Entry<String, String>>`)
-4. Eval -- The `InvocationPipeline` evaluates the coordinate to string mappings to produce a map of
-   attribute names to values.
-   (`Command<T>`, `List<Map.Entry<String, String>>` &rarr; `Map<String, Object>`)
-5. Factory -- The `InvocationPipeline` uses the map of attribute names to values to create an
-   instance of the configurable object. (`Command<T>`, `Map<String, Object>` &rarr; `T`)
-
-### The `InvocationPipeline`
-
-The `InvocationPipeline` is a sequence of steps that the library follows to parse user input. The
+At the end of the day, with software architecture as with all things, the perfect is generally the enemy of the good. If the architect is faced with multiple design decisions, all of which will work, with no clear reason to pick one over the others, then the only choice is to pick one and move forward. Decisions can always be revisited later. There is, and may always be, a subjective component to software architecture, which boils down to personal style.

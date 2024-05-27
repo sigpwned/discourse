@@ -29,8 +29,8 @@ import java.util.Optional;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
-import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializer;
-import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFactory;
+import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDeserializerFactory;
 
 /**
  * Deserializes a {@link ByteSource} from a {@link String} URL or local file path.

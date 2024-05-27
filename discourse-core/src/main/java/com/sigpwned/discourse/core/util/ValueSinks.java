@@ -2,7 +2,7 @@ package com.sigpwned.discourse.core.util;
 
 import java.util.List;
 import java.util.function.Function;
-import com.sigpwned.discourse.core.module.value.sink.ValueSink;
+import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSink;
 
 public final class ValueSinks {
   private ValueSinks() {}

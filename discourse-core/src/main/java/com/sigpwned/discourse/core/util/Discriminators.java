@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.Subcommand;
-import com.sigpwned.discourse.core.invocation.phase.scan.exception.InvalidDiscriminatorScanException;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.InvalidDiscriminatorScanException;
 
 public final class Discriminators {
 

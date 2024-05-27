@@ -28,9 +28,8 @@ import org.junit.Test;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
-import com.sigpwned.discourse.core.invocation.Invocation;
-import com.sigpwned.discourse.core.invocation.InvocationPipelineBuilder;
-import com.sigpwned.discourse.core.module.DefaultModule;
+import com.sigpwned.discourse.core.module.CoreModule;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineBuilder;
 import com.sigpwned.discourse.core.util.Discourse;
 
 /**
@@ -65,16 +64,15 @@ public class SmokeTest {
 
   @Test
   public void givenASimpleConfigurableClass_whenUseInvocationBuilder_thenBuildExpectedInstance() {
-    Invocation<? extends SmokeTestConfigurable> invocation =
-        new InvocationPipelineBuilder().register(new DefaultModule()).build()
-            .execute(SmokeTestConfigurable.class, List.of("-f", "alpha", "42"));
+    SmokeTestConfigurable instance = new InvocationPipelineBuilder().register(new CoreModule())
+        .build().invoke(SmokeTestConfigurable.class, List.of("-f", "alpha", "42"));
 
     SmokeTestConfigurable expectedInstance = new SmokeTestConfigurable();
     expectedInstance.foo = "alpha";
     expectedInstance.bar = 42;
 
 
-    assertThat(invocation.getInstance(), is(expectedInstance));
+    assertThat(instance, is(expectedInstance));
   }
 
   @Test

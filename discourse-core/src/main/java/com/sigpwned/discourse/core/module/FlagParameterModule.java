@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import com.sigpwned.discourse.core.Chain;
-import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.args.SwitchName;
@@ -36,13 +35,14 @@ import com.sigpwned.discourse.core.args.Token;
 import com.sigpwned.discourse.core.args.coordinate.OptionCoordinate;
 import com.sigpwned.discourse.core.args.token.SwitchNameToken;
 import com.sigpwned.discourse.core.args.token.ValueToken;
-import com.sigpwned.discourse.core.invocation.model.SyntaxDetection;
-import com.sigpwned.discourse.core.invocation.phase.parse.preprocess.CoordinatesPreprocessor;
-import com.sigpwned.discourse.core.invocation.phase.parse.preprocess.TokenStreamPreprocessor;
-import com.sigpwned.discourse.core.invocation.phase.scan.model.syntax.CandidateSyntax;
-import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxDetector;
 import com.sigpwned.discourse.core.module.parameter.flag.FlagCoordinate;
 import com.sigpwned.discourse.core.module.parameter.flag.FlagParameter;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
+import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.coordinates.CoordinatesPreprocessor;
+import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.tokens.TokensPreprocessor;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetection;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetector;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.CandidateSyntax;
 import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Streams;
 
@@ -79,11 +79,11 @@ public class FlagParameterModule extends Module {
   }
 
   @Override
-  public void registerTokenStreamPreprocessors(Chain<TokenStreamPreprocessor> chain) {
+  public void registerTokensPreprocessors(Chain<TokensPreprocessor> chain) {
     // TODO Where should I get the flags from?
-    chain.addLast(new TokenStreamPreprocessor() {
+    chain.addLast(new TokensPreprocessor() {
       @Override
-      public List<Token> preprocessTokens(List<Token> tokens, InvocationContext context) {
+      public List<Token> preprocessTokens(List<Token> tokens) {
         if (flags == null) {
           // Because of the documented order of operations, this should never happen.
           throw new IllegalStateException("flags not set");
@@ -107,8 +107,7 @@ public class FlagParameterModule extends Module {
   public void registerCoordinatesPreprocessors(Chain<CoordinatesPreprocessor> chain) {
     chain.addLast(new CoordinatesPreprocessor() {
       @Override
-      public Map<Coordinate, String> preprocessCoordinates(Map<Coordinate, String> coordinates,
-          InvocationContext context) {
+      public Map<Coordinate, String> preprocess(Map<Coordinate, String> coordinates) {
         if (flags != null) {
           // Because of the documented order of operations, this should never happen.
           throw new IllegalStateException("flags already set");
@@ -119,9 +118,9 @@ public class FlagParameterModule extends Module {
         for (Map.Entry<Coordinate, String> entry : coordinates.entrySet()) {
           Coordinate coordinate = entry.getKey();
           String propertyName = entry.getValue();
-          if (coordinate instanceof FlagCoordinate flagCoordinate) {
-            flags.add(flagCoordinate.getName());
-            preprocessedCoordinates.put(new OptionCoordinate(flagCoordinate.getName()),
+          if (coordinate instanceof FlagCoordinate flag) {
+            flags.add(flag.getName());
+            preprocessedCoordinates.put(new OptionCoordinate(flag.getName()),
                 propertyName);
           } else {
             preprocessedCoordinates.put(coordinate, propertyName);

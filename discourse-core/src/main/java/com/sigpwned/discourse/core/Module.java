@@ -19,19 +19,19 @@
  */
 package com.sigpwned.discourse.core;
 
-import com.sigpwned.discourse.core.invocation.InvocationPipelineListener;
-import com.sigpwned.discourse.core.invocation.phase.parse.preprocess.ArgsPreprocessor;
-import com.sigpwned.discourse.core.invocation.phase.parse.preprocess.CoordinatesPreprocessor;
-import com.sigpwned.discourse.core.invocation.phase.parse.preprocess.TokenStreamPreprocessor;
-import com.sigpwned.discourse.core.invocation.phase.scan.NamingScheme;
-import com.sigpwned.discourse.core.invocation.phase.scan.SubCommandScanner;
-import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleDetector;
-import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleEvaluator;
-import com.sigpwned.discourse.core.invocation.phase.scan.rules.RuleNominator;
-import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxDetector;
-import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxNominator;
-import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializerFactory;
-import com.sigpwned.discourse.core.module.value.sink.ValueSinkFactory;
+import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDeserializerFactory;
+import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSinkFactory;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener;
+import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.args.ArgsPreprocessor;
+import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.coordinates.CoordinatesPreprocessor;
+import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.tokens.TokensPreprocessor;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.NamingScheme;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleDetector;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleEvaluator;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleNominator;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SubCommandScanner;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetector;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxNominator;
 
 /**
  * Container for registering various components of a Discourse application.
@@ -60,7 +60,7 @@ public abstract class Module {
 
   public void registerArgsPreprocessors(Chain<ArgsPreprocessor> chain) {}
 
-  public void registerTokenStreamPreprocessors(Chain<TokenStreamPreprocessor> chain) {}
+  public void registerTokensPreprocessors(Chain<TokensPreprocessor> chain) {}
 
   public void registerListeners(Chain<InvocationPipelineListener> chain) {}
 }

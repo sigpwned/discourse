@@ -24,7 +24,7 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDeserializer;
 
 @Retention(RUNTIME)
 @Target({FIELD, METHOD})

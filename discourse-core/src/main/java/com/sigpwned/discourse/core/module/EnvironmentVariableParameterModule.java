@@ -26,17 +26,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import com.sigpwned.discourse.core.Chain;
-import com.sigpwned.discourse.core.InvocationContext;
 import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.args.Token;
-import com.sigpwned.discourse.core.invocation.InvocationPipelineListener;
-import com.sigpwned.discourse.core.invocation.model.SyntaxDetection;
-import com.sigpwned.discourse.core.invocation.phase.parse.preprocess.CoordinatesPreprocessor;
-import com.sigpwned.discourse.core.invocation.phase.scan.model.syntax.CandidateSyntax;
-import com.sigpwned.discourse.core.invocation.phase.scan.syntax.SyntaxDetector;
 import com.sigpwned.discourse.core.module.parameter.env.EnvironmentVariableCoordinate;
 import com.sigpwned.discourse.core.module.parameter.env.EnvironmentVariableParameter;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener;
+import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.coordinates.CoordinatesPreprocessor;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetection;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetector;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.CandidateSyntax;
 import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Streams;
 
@@ -69,10 +69,9 @@ public class EnvironmentVariableParameterModule extends Module {
 
   @Override
   public void registerListeners(Chain<InvocationPipelineListener> chain) {
-    // TODO Where do I get the environment variable names from?
     chain.addLast(new InvocationPipelineListener() {
       @Override
-      public void afterParsePhaseParseStep(List<Token> preprocessedTokens,
+      public void afterParseStep(List<Token> preprocessedTokens,
           List<Map.Entry<Coordinate, String>> parsedArgs) {
         if (coordinates == null) {
           // Because of the documented order of operations, this should never happen
@@ -94,8 +93,7 @@ public class EnvironmentVariableParameterModule extends Module {
   public void registerCoordinatesPreprocessors(Chain<CoordinatesPreprocessor> chain) {
     chain.addLast(new CoordinatesPreprocessor() {
       @Override
-      public Map<Coordinate, String> preprocessCoordinates(
-          Map<Coordinate, String> originalCoordinates, InvocationContext context) {
+      public Map<Coordinate, String> preprocess(Map<Coordinate, String> originalCoordinates) {
         if (coordinates != null) {
           // Because of the documented order of operations, this should never happen
           throw new IllegalStateException("coordinates already set");
@@ -104,8 +102,8 @@ public class EnvironmentVariableParameterModule extends Module {
         Set<EnvironmentVariableCoordinate> coordinates = new HashSet<>();
         for (Map.Entry<Coordinate, String> entry : originalCoordinates.entrySet()) {
           Coordinate coordinate = entry.getKey();
-          if (coordinate instanceof EnvironmentVariableCoordinate envCoordinate) {
-            coordinates.add(envCoordinate);
+          if (coordinate instanceof EnvironmentVariableCoordinate env) {
+            coordinates.add(env);
           }
         }
 

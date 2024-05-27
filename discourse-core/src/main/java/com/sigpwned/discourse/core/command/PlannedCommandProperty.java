@@ -24,8 +24,8 @@ import static java.util.Objects.requireNonNull;
 import java.util.Optional;
 import java.util.Set;
 import com.sigpwned.discourse.core.args.Coordinate;
-import com.sigpwned.discourse.core.module.value.deserializer.ValueDeserializer;
-import com.sigpwned.discourse.core.module.value.sink.ValueSink;
+import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDeserializer;
+import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSink;
 
 public class PlannedCommandProperty {
 
