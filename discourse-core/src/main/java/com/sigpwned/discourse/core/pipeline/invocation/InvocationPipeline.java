@@ -114,6 +114,21 @@ public class InvocationPipeline {
   }
 
   public <T> T invoke(Class<T> clazz, List<String> args) {
+    T instance;
+    try {
+      getListener(context).beforePipeline();
+      instance = doInvoke(clazz, args);
+      getListener(context).afterPipeline(instance);
+    } catch (Exception e) {
+      getListener(context).catchPipeline(e);
+      throw e;
+    } finally {
+      getListener(context).finallyPipeline();
+    }
+    return instance;
+  }
+
+  protected <T> T doInvoke(Class<T> clazz, List<String> args) {
     RootCommand<T> rootCommand = scan.scan(clazz, context);
 
     context.set(ResolveStep.COMMAND_RESOLVER_KEY, new RootCommandResolver<>(rootCommand));
@@ -139,7 +154,7 @@ public class InvocationPipeline {
         })));
 
     Map<Coordinate, String> preprocessedCoordinates =
-        preprocessCoordinates.preprocess(commandProperties, context);
+        preprocessCoordinates.preprocessCoordinates(commandProperties, context);
 
     List<String> preprocessedArgs = preprocessArgs.preprocessArgs(resolvedArgs, context);
 
@@ -178,5 +193,13 @@ public class InvocationPipeline {
     T instance = finish.finish(plannedCommand.getConstructor(), reducedArgs, context);
 
     return instance;
+  }
+
+  protected InvocationPipelineListener getListener(InvocationContext context) {
+    return context.get(InvocationPipelineStepBase.INVOCATION_PIPELINE_LISTENER_KEY)
+        .orElseThrow(() -> {
+          // TODO better exception
+          return new IllegalStateException("no listener");
+        });
   }
 }

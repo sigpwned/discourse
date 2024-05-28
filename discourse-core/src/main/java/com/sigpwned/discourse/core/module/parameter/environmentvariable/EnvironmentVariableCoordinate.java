@@ -17,7 +17,7 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.module.parameter.env;
+package com.sigpwned.discourse.core.module.parameter.environmentvariable;
 
 import static java.util.Objects.requireNonNull;
 import java.util.Objects;

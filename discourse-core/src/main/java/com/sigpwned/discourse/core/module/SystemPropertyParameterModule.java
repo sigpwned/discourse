@@ -29,8 +29,8 @@ import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.args.Token;
-import com.sigpwned.discourse.core.module.parameter.environmentvariable.EnvironmentVariableCoordinate;
-import com.sigpwned.discourse.core.module.parameter.environmentvariable.EnvironmentVariableParameter;
+import com.sigpwned.discourse.core.module.parameter.systemproperty.SystemPropertyCoordinate;
+import com.sigpwned.discourse.core.module.parameter.systemproperty.SystemPropertyParameter;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener;
 import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.coordinates.CoordinatesPreprocessor;
@@ -40,8 +40,8 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.Candidate
 import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Streams;
 
-public class EnvironmentVariableParameterModule extends Module {
-  private Set<EnvironmentVariableCoordinate> coordinates;
+public class SystemPropertyParameterModule extends Module {
+  private Set<SystemPropertyCoordinate> coordinates;
 
   @Override
   public void registerSyntaxDetectors(Chain<SyntaxDetector> chain) {
@@ -49,18 +49,17 @@ public class EnvironmentVariableParameterModule extends Module {
       @Override
       public Maybe<SyntaxDetection> detectSyntax(Class<?> clazz, CandidateSyntax candidate,
           InvocationContext context) {
-        EnvironmentVariableParameter variable = candidate.annotations().stream()
-            .mapMulti(Streams.filterAndCast(EnvironmentVariableParameter.class)).findFirst()
+        SystemPropertyParameter property = candidate.annotations().stream()
+            .mapMulti(Streams.filterAndCast(SystemPropertyParameter.class)).findFirst()
             .orElse(null);
-        if (variable == null)
+        if (property == null)
           return Maybe.maybe();
 
-        if (variable.variable().equals("")) {
+        if (property.property().equals("")) {
           // TODO better exception
-          throw new IllegalArgumentException("Environment variable name must not be empty");
+          throw new IllegalArgumentException("System property name must not be empty");
         }
-        Set<Coordinate> coordinates =
-            Set.of(new EnvironmentVariableCoordinate(variable.variable()));
+        Set<Coordinate> coordinates = Set.of(new SystemPropertyCoordinate(property.property()));
 
         return Maybe.yes(new SyntaxDetection(false, false, false, coordinates));
       }
@@ -77,17 +76,17 @@ public class EnvironmentVariableParameterModule extends Module {
           throw new IllegalStateException("coordinates already set");
         }
 
-        Set<EnvironmentVariableCoordinate> coordinates = new HashSet<>();
+        Set<SystemPropertyCoordinate> coordinates = new HashSet<>();
         for (Map.Entry<Coordinate, String> entry : originalCoordinates.entrySet()) {
           Coordinate coordinate = entry.getKey();
-          if (coordinate instanceof EnvironmentVariableCoordinate env) {
+          if (coordinate instanceof SystemPropertyCoordinate env) {
             coordinates.add(env);
           }
         }
 
         Map<Coordinate, String> preprocessedCoordinates = originalCoordinates;
 
-        EnvironmentVariableParameterModule.this.coordinates = unmodifiableSet(coordinates);
+        SystemPropertyParameterModule.this.coordinates = unmodifiableSet(coordinates);
 
         return unmodifiableMap(preprocessedCoordinates);
       }
@@ -105,11 +104,11 @@ public class EnvironmentVariableParameterModule extends Module {
           throw new IllegalStateException("coordinates not set");
         }
 
-        for (EnvironmentVariableCoordinate coordinate : coordinates) {
-          String variableName = coordinate.getVariableName();
-          String variableValue = System.getenv(variableName);
-          if (variableValue != null) {
-            parsedArgs.add(Map.entry(coordinate, variableValue));
+        for (SystemPropertyCoordinate coordinate : coordinates) {
+          String propertyName = coordinate.getPropertyName();
+          String propertyValue = System.getenv(propertyName);
+          if (propertyValue != null) {
+            parsedArgs.add(Map.entry(coordinate, propertyValue));
           }
         }
       }

@@ -17,4 +17,9 @@ public class MissingOptionValueParseException extends ParseException {
   public SwitchName getSwitchName() {
     return switchName;
   }
+
+  @Override
+  protected Object[] getLocalizedMessageArguments() {
+    return new Object[] {getSwitchName().toString()};
+  }
 }

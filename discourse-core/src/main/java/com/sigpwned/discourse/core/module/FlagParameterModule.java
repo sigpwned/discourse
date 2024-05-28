@@ -79,31 +79,6 @@ public class FlagParameterModule extends Module {
   }
 
   @Override
-  public void registerTokensPreprocessors(Chain<TokensPreprocessor> chain) {
-    // TODO Where should I get the flags from?
-    chain.addLast(new TokensPreprocessor() {
-      @Override
-      public List<Token> preprocessTokens(List<Token> tokens) {
-        if (flags == null) {
-          // Because of the documented order of operations, this should never happen.
-          throw new IllegalStateException("flags not set");
-        }
-        List<Token> result = new ArrayList<>(tokens.size());
-        for (Token token : tokens) {
-          result.add(token);
-          if (token instanceof SwitchNameToken switchNameToken) {
-            SwitchName switchName = switchNameToken.getName();
-            if (flags.contains(switchName)) {
-              result.add(new ValueToken("true", false));
-            }
-          }
-        }
-        return unmodifiableList(result);
-      }
-    });
-  }
-
-  @Override
   public void registerCoordinatesPreprocessors(Chain<CoordinatesPreprocessor> chain) {
     chain.addLast(new CoordinatesPreprocessor() {
       @Override
@@ -130,6 +105,31 @@ public class FlagParameterModule extends Module {
         FlagParameterModule.this.flags = flags;
 
         return unmodifiableMap(preprocessedCoordinates);
+      }
+    });
+  }
+
+  @Override
+  public void registerTokensPreprocessors(Chain<TokensPreprocessor> chain) {
+    // TODO Where should I get the flags from?
+    chain.addLast(new TokensPreprocessor() {
+      @Override
+      public List<Token> preprocessTokens(List<Token> tokens) {
+        if (flags == null) {
+          // Because of the documented order of operations, this should never happen.
+          throw new IllegalStateException("flags not set");
+        }
+        List<Token> result = new ArrayList<>(tokens.size());
+        for (Token token : tokens) {
+          result.add(token);
+          if (token instanceof SwitchNameToken switchNameToken) {
+            SwitchName switchName = switchNameToken.getName();
+            if (flags.contains(switchName)) {
+              result.add(new ValueToken("true", false));
+            }
+          }
+        }
+        return unmodifiableList(result);
       }
     });
   }

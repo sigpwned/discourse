@@ -19,9 +19,15 @@
  */
 package com.sigpwned.discourse.core.module;
 
+import java.util.List;
 import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.annotation.DiscourseIgnore;
+import com.sigpwned.discourse.core.format.ExceptionFormatter;
+import com.sigpwned.discourse.core.format.exception.ConfigurationProblemExceptionFormatter;
+import com.sigpwned.discourse.core.format.exception.DiscourseExceptionFormatter;
+import com.sigpwned.discourse.core.format.exception.FallbackExceptionFormatter;
+import com.sigpwned.discourse.core.format.exception.InternalDiscourseExceptionFormatter;
 import com.sigpwned.discourse.core.module.core.plan.value.deserializer.BigDecimalValueDeserializerFactory;
 import com.sigpwned.discourse.core.module.core.plan.value.deserializer.BooleanValueDeserializerFactory;
 import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ByteValueDeserializerFactory;
@@ -66,6 +72,7 @@ import com.sigpwned.discourse.core.module.core.scan.rules.eval.SetterMethodCallR
 import com.sigpwned.discourse.core.module.core.scan.rules.nominate.DefaultConstructorRuleNominator;
 import com.sigpwned.discourse.core.module.core.scan.rules.nominate.FieldRuleNominator;
 import com.sigpwned.discourse.core.module.core.scan.rules.nominate.SetterMethodRuleNominator;
+import com.sigpwned.discourse.core.module.core.scan.subcommands.ConfigurableSubCommandScanner;
 import com.sigpwned.discourse.core.module.core.scan.syntax.detect.OptionSyntaxDetector;
 import com.sigpwned.discourse.core.module.core.scan.syntax.detect.PositionalSyntaxDetector;
 import com.sigpwned.discourse.core.module.core.scan.syntax.nominate.FieldSyntaxNominator;
@@ -76,6 +83,7 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.scan.NamingScheme;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleDetector;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleEvaluator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleNominator;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SubCommandScanner;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetector;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxNominator;
 
@@ -258,6 +266,19 @@ public class CoreModule extends Module {
     chain.addLast(FieldAssignmentRuleEvaluator.INSTANCE);
   }
 
+  @Override
+  public void registerExceptionFormatters(Chain<ExceptionFormatter> chain) {
+    chain.addLast(ConfigurationProblemExceptionFormatter.INSTANCE);
+    chain.addLast(InternalDiscourseExceptionFormatter.INSTANCE);
+    chain.addLast(DiscourseExceptionFormatter.INSTANCE);
+    chain.addLast(FallbackExceptionFormatter.INSTANCE);
+  }
+
+  @Override
+  public void registerSubCommandScanners(Chain<SubCommandScanner> chain) {
+    chain.addLast(ConfigurableSubCommandScanner.INSTANCE);
+  }
+
   /**
    * <p>
    * Registers the default discourse listeners.
@@ -273,4 +294,13 @@ public class CoreModule extends Module {
    */
   @Override
   public void registerListeners(Chain<InvocationPipelineListener> chain) {}
+
+
+
+  @Override
+  public List<Module> getDependencies() {
+    return List.of(new EnvironmentVariableParameterModule(), new SystemPropertyParameterModule(),
+        new FlagParameterModule(), new StandardHelpAndVersionFlagsModule());
+
+  }
 }

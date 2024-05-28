@@ -17,8 +17,14 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.module.parameter.env;
+package com.sigpwned.discourse.core.format;
 
-public @interface EnvironmentVariableParameter {
-  public String variable();
+import java.io.PrintStream;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
+
+public interface ExceptionFormatter {
+
+  public boolean handlesException(Throwable e, InvocationContext context);
+
+  public void formatException(PrintStream out, Throwable e, InvocationContext context);
 }

@@ -26,12 +26,11 @@ import java.io.UncheckedIOException;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.function.IntUnaryOperator;
-import com.sigpwned.discourse.core.Syntax;
+import com.sigpwned.discourse.core.Dialect;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.LeafCommand;
-import com.sigpwned.discourse.core.command.RootCommand;
 import com.sigpwned.discourse.core.command.SuperCommand;
-import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.SubCommand;
+import com.sigpwned.discourse.core.format.HelpFormatter;
 import com.sigpwned.discourse.core.util.JodaBeanUtils;
 import com.sigpwned.discourse.core.util.Text;
 import com.sigpwned.discourse.core.util.Types;
@@ -174,29 +173,29 @@ public class DefaultHelpFormatter implements HelpFormatter {
   }
 
   @Override
-  public String formatHelp(Syntax syntax, Command<?> command) {
+  public String formatHelp(Dialect dialect, Command<?> command) {
     if (command instanceof LeafCommand leafCommand) {
-      return formatLeafCommandHelp(syntax, leafCommand);
+      return formatLeafCommandHelp(dialect, leafCommand);
     } else if (command instanceof SuperCommand<?> superCommand) {
-      return formatSuperCommandHelp(syntax, command);
+      return formatSuperCommandHelp(dialect, superCommand);
     } else {
       // TODO better exception
       throw new IllegalArgumentException("Command is not a leaf command or super command");
     }
   }
 
-  protected String formatLeafCommandHelp(Syntax syntax, LeafCommand<?> command) {
+  protected String formatLeafCommandHelp(Dialect dialect, LeafCommand<?> command) {
     StringWriter result = new StringWriter();
     try {
       try {
         try (PrintWriter out = new PrintWriter(result)) {
-          // Do we have a name?
+          // TODO How do we get the command name?
           String commandName = null;
-          if (command instanceof RootCommand<?> root) {
-            if (root.getName().isPresent()) {
-              commandName = root.getName().orElseThrow();
-            }
-          }
+          // if (command instanceof RootCommand<?> root) {
+          // if (root.getName().isPresent()) {
+          // commandName = root.getName().orElseThrow();
+          // }
+          // }
           if (commandName == null) {
             commandName = "hello";
           }
@@ -213,18 +212,18 @@ public class DefaultHelpFormatter implements HelpFormatter {
     return result.toString();
   }
 
-  protected <T> String formatSuperCommandHelp(Syntax syntax, Command<T> command) {
+  protected <T> String formatSuperCommandHelp(Dialect dialect, SuperCommand<T> command) {
     StringWriter result = new StringWriter();
     try {
       try {
         try (PrintWriter out = new PrintWriter(result)) {
-          // Do we have a name?
-          String commandName = null;
-          if (command instanceof RootCommand<?> root) {
-            if (root.getName().isPresent()) {
-              commandName = root.getName().orElseThrow();
-            }
-          }
+          // TODO How do we get the command name?
+          String commandName = "hello";
+          // if (command instanceof RootCommand<?> root) {
+          // if (root.getName().isPresent()) {
+          // commandName = root.getName().orElseThrow();
+          // }
+          // }
 
           // Print the name and description
           IntUnaryOperator descriptionWidthFunction;
@@ -250,9 +249,9 @@ public class DefaultHelpFormatter implements HelpFormatter {
               command.getSubcommands().keySet().stream().mapToInt(String::length).max().orElse(0);
           final int minIndentLength = maxDiscriminatorLength + 4;
           final String minIndent = Text.times(" ", minIndentLength);
-          for (Map.Entry<String, SubCommand<? extends T>> e : command.getSubcommands().entrySet()) {
+          for (Map.Entry<String, Command<? extends T>> e : command.getSubcommands().entrySet()) {
             final String discriminator = e.getKey();
-            final SubCommand<? extends T> subcommand = e.getValue();
+            final Command<? extends T> subcommand = e.getValue();
 
             out.print(new StringBuilder().append(discriminator)
                 .append(Text.times(discriminator, maxDiscriminatorLength - discriminator.length()))

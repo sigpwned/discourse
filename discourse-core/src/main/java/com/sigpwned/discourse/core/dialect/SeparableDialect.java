@@ -17,26 +17,26 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.syntax;
+package com.sigpwned.discourse.core.dialect;
 
 import static java.util.Objects.requireNonNull;
 import java.util.List;
-import com.sigpwned.discourse.core.Syntax;
+import com.sigpwned.discourse.core.Dialect;
 import com.sigpwned.discourse.core.args.SwitchName;
 import com.sigpwned.discourse.core.args.Token;
 import com.sigpwned.discourse.core.args.token.ValueToken;
 
-public class SeparableSyntax implements Syntax {
+public class SeparableDialect implements Dialect {
   public static final String DEFAULT_SEPARATOR = "--";
 
-  private final Syntax delegate;
+  private final Dialect delegate;
   private final String separator;
 
-  public SeparableSyntax(Syntax delegate) {
+  public SeparableDialect(Dialect delegate) {
     this(delegate, DEFAULT_SEPARATOR);
   }
 
-  public SeparableSyntax(Syntax delegate, String separator) {
+  public SeparableDialect(Dialect delegate, String separator) {
     this.delegate = requireNonNull(delegate);
     this.separator = requireNonNull(separator);
     if (separator.isEmpty()) {
@@ -45,9 +45,9 @@ public class SeparableSyntax implements Syntax {
   }
 
   @Override
-  public SyntaxTokenizer newTokenizer() {
-    SyntaxTokenizer subtokenizer = getDelegate().newTokenizer();
-    return new SyntaxTokenizer() {
+  public DialectTokenizer newTokenizer() {
+    DialectTokenizer subtokenizer = getDelegate().newTokenizer();
+    return new DialectTokenizer() {
       private boolean separated = false;
 
       @Override
@@ -71,7 +71,7 @@ public class SeparableSyntax implements Syntax {
     return null;
   }
 
-  private Syntax getDelegate() {
+  private Dialect getDelegate() {
     return delegate;
   }
 

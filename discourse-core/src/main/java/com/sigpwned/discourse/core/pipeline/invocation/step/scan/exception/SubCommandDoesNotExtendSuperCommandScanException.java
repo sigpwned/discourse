@@ -12,22 +12,16 @@ public class SubCommandDoesNotExtendSuperCommandScanException extends ScanExcept
   private final Class<?> supercommandClazz;
 
   /**
-   * The subcommand class that does not extend the supercommand class.
-   */
-  private final Class<?> subcommandClazz;
-
-  /**
    * Constructs a new exception with the given supercommand and subcommand classes.
    * 
    * @param supercommandClazz the supercommand class
    * @param subcommandClazz the subcommand class
    */
   public SubCommandDoesNotExtendSuperCommandScanException(Class<?> supercommandClazz,
-      Class<?> subcommandClazz) {
-    super(format("Subcommand class %s does not extend the supercommand class %s",
-        subcommandClazz.getName(), supercommandClazz.getName()));
+      Class<?> clazz) {
+    super(clazz, format("Subcommand class %s does not extend the supercommand class %s",
+        clazz.getName(), supercommandClazz.getName()));
     this.supercommandClazz = requireNonNull(supercommandClazz);
-    this.subcommandClazz = requireNonNull(subcommandClazz);
   }
 
   /**
@@ -39,12 +33,8 @@ public class SubCommandDoesNotExtendSuperCommandScanException extends ScanExcept
     return supercommandClazz;
   }
 
-  /**
-   * The subcommand class that does not extend the supercommand class.
-   * 
-   * @return the subcommand class
-   */
-  public Class<?> getSubcommandClazz() {
-    return subcommandClazz;
+  @Override
+  protected Object[] getLocalizedMessageArguments() {
+    return new Object[] {getClazz().getName(), getSupercommandClazz().getName()};
   }
 }

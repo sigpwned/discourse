@@ -6,20 +6,12 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.scan.ScanException;
 
 @SuppressWarnings("serial")
 public class InvalidDiscriminatorScanException extends ScanException {
-  private final Class<?> clazz;
   private final String invalidDiscriminator;
 
   public InvalidDiscriminatorScanException(Class<?> clazz, String invalidDiscriminator) {
-    super(format("Class %s has invalid discriminator %s", clazz.getName(), invalidDiscriminator));
-    this.clazz = requireNonNull(clazz);
+    super(clazz,
+        format("Class %s has invalid discriminator %s", clazz.getName(), invalidDiscriminator));
     this.invalidDiscriminator = requireNonNull(invalidDiscriminator);
-  }
-
-  /**
-   * @return the clazz
-   */
-  public Class<?> getClazz() {
-    return clazz;
   }
 
   /**
@@ -27,5 +19,10 @@ public class InvalidDiscriminatorScanException extends ScanException {
    */
   public String getInvalidDiscriminator() {
     return invalidDiscriminator;
+  }
+
+  @Override
+  protected Object[] getLocalizedMessageArguments() {
+    return new Object[] {getClazz().getName(), getInvalidDiscriminator()};
   }
 }

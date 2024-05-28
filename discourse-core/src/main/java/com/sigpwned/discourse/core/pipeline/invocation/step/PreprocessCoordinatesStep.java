@@ -10,7 +10,7 @@ public class PreprocessCoordinatesStep extends InvocationPipelineStepBase {
   public static final InvocationContext.Key<CoordinatesPreprocessor> COORDINATES_PREPROCESSOR_KEY =
       InvocationContext.Key.of(CoordinatesPreprocessor.class);
 
-  public Map<Coordinate, String> preprocess(Map<Coordinate, String> originalCoordinates,
+  public Map<Coordinate, String> preprocessCoordinates(Map<Coordinate, String> originalCoordinates,
       InvocationContext context) {
     CoordinatesPreprocessor preprocessor =
         context.get(COORDINATES_PREPROCESSOR_KEY).orElseThrow(() -> {
@@ -31,7 +31,7 @@ public class PreprocessCoordinatesStep extends InvocationPipelineStepBase {
       getListener(context).finallyPreprocessCoordinatesStep();
     }
 
-    return preprocessor.preprocess(originalCoordinates);
+    return preprocessedCoordinates;
   }
 
   protected Map<Coordinate, String> doPreprocess(CoordinatesPreprocessor preprocessor,

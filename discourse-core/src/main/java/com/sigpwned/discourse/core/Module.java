@@ -19,6 +19,9 @@
  */
 package com.sigpwned.discourse.core;
 
+import static java.util.Collections.emptyList;
+import java.util.List;
+import com.sigpwned.discourse.core.format.ExceptionFormatter;
 import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDeserializerFactory;
 import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSinkFactory;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener;
@@ -62,5 +65,11 @@ public abstract class Module {
 
   public void registerTokensPreprocessors(Chain<TokensPreprocessor> chain) {}
 
+  public void registerExceptionFormatters(Chain<ExceptionFormatter> chain) {}
+
   public void registerListeners(Chain<InvocationPipelineListener> chain) {}
+
+  public List<Module> getDependencies() {
+    return emptyList();
+  }
 }

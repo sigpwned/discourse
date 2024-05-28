@@ -5,12 +5,22 @@ import java.util.Map;
 import java.util.Optional;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.args.Token;
+import com.sigpwned.discourse.core.command.PlannedCommand;
 import com.sigpwned.discourse.core.command.ResolvedCommand;
 import com.sigpwned.discourse.core.command.RootCommand;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.PreparedClass;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.WalkedClass;
 
 public interface InvocationPipelineListener {
+  // PIPELINE /////////////////////////////////////////////////////////////////////////////////////
+  default void beforePipeline() {}
+
+  default void afterPipeline(Object instance) {}
+
+  default void catchPipeline(Throwable t) {}
+
+  default void finallyPipeline() {}
+
   // SCAN STEP ////////////////////////////////////////////////////////////////////////////////////
   default <T> void beforeScanStep(Class<T> clazz) {}
 
@@ -53,12 +63,22 @@ public interface InvocationPipelineListener {
   // RESOLVE STEP /////////////////////////////////////////////////////////////////////////////////
   default void beforeResolveStep(List<String> args) {}
 
-  default void afterResolveStep(List<String> args,
-      Optional<ResolvedCommand<?>> maybeResolvedCommand) {}
+  default <T> void afterResolveStep(List<String> args,
+      Optional<ResolvedCommand<? extends T>> maybeResolvedCommand) {}
 
   default void catchResolveStep(Throwable t) {}
 
   default void finallyResolveStep() {}
+
+  // PLAN STEP ////////////////////////////////////////////////////////////////////////////////////
+  default <T> void beforePlanStep(ResolvedCommand<? extends T> resolvedCommand) {}
+
+  default <T> void afterPlanStep(ResolvedCommand<? extends T> resolvedCommand,
+      PlannedCommand<? extends T> plannedCommand) {}
+
+  default void catchPlanStep(Throwable t) {}
+
+  default void finallyPlanStep() {}
 
   // PREPROCESS COORDINATES STEP //////////////////////////////////////////////////////////////////
   default void beforePreprocessCoordinatesStep(Map<Coordinate, String> originalCoordinates) {}

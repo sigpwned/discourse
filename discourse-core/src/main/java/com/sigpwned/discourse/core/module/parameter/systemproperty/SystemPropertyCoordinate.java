@@ -17,26 +17,42 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.pipeline.invocation.step.scan;
+package com.sigpwned.discourse.core.module.parameter.systemproperty;
 
 import static java.util.Objects.requireNonNull;
-import com.sigpwned.discourse.core.exception.InternalDiscourseException;
+import java.util.Objects;
+import com.sigpwned.discourse.core.args.Coordinate;
 
-@SuppressWarnings("serial")
-public abstract class ScanException extends InternalDiscourseException {
-  private final Class<?> clazz;
+public class SystemPropertyCoordinate extends Coordinate {
+  private final String propertyName;
 
-  protected ScanException(Class<?> clazz, String message) {
-    super(message);
-    this.clazz = requireNonNull(clazz);
+  public SystemPropertyCoordinate(String propertyName) {
+    this.propertyName = requireNonNull(propertyName);
   }
 
-  protected ScanException(Class<?> clazz, String message, Throwable cause) {
-    super(message, cause);
-    this.clazz = requireNonNull(clazz);
+  public String getPropertyName() {
+    return propertyName;
   }
 
-  public Class<?> getClazz() {
-    return clazz;
+  @Override
+  public int hashCode() {
+    return Objects.hash(propertyName);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    SystemPropertyCoordinate other = (SystemPropertyCoordinate) obj;
+    return Objects.equals(propertyName, other.propertyName);
+  }
+
+  @Override
+  public String toString() {
+    return "SystemPropertyCoordinate[" + propertyName + "]";
   }
 }

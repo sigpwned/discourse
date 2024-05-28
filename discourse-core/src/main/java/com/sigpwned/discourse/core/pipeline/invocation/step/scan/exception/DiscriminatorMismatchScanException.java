@@ -7,24 +7,15 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.scan.ScanException;
 
 @SuppressWarnings("serial")
 public class DiscriminatorMismatchScanException extends ScanException {
-  private final Class<?> clazz;
   private final Discriminator expectedDiscriminator;
   private final Discriminator actualDiscriminator;
 
   public DiscriminatorMismatchScanException(Class<?> clazz, Discriminator expectedDiscriminator,
       Discriminator actualDiscriminator) {
-    super(format("Class %s should have discriminator %s, but has discriminator %s instead",
+    super(clazz, format("Class %s should have discriminator %s, but has discriminator %s instead",
         clazz.getName(), expectedDiscriminator, actualDiscriminator));
-    this.clazz = requireNonNull(clazz);
     this.expectedDiscriminator = requireNonNull(expectedDiscriminator);
     this.actualDiscriminator = requireNonNull(actualDiscriminator);
-  }
-
-  /**
-   * @return the clazz
-   */
-  public Class<?> getClazz() {
-    return clazz;
   }
 
   /**
@@ -39,5 +30,11 @@ public class DiscriminatorMismatchScanException extends ScanException {
    */
   public Discriminator getActualDiscriminator() {
     return actualDiscriminator;
+  }
+
+  @Override
+  protected Object[] getLocalizedMessageArguments() {
+    return new Object[] {getClazz().getName(), getExpectedDiscriminator(),
+        getActualDiscriminator()};
   }
 }

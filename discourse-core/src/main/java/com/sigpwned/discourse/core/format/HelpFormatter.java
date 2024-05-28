@@ -17,9 +17,9 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.format.help;
+package com.sigpwned.discourse.core.format;
 
-import com.sigpwned.discourse.core.Syntax;
+import com.sigpwned.discourse.core.Dialect;
 import com.sigpwned.discourse.core.command.Command;
 
 /**
@@ -28,5 +28,5 @@ import com.sigpwned.discourse.core.command.Command;
 @FunctionalInterface
 public interface HelpFormatter {
 
-  public String formatHelp(Syntax syntax, Command<?> command);
+  public String formatHelp(Dialect dialect, Command<?> command);
 }

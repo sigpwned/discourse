@@ -35,6 +35,7 @@ import com.sigpwned.discourse.core.util.Streams;
  * {@link Configurable#subcommands() @Configurable} annotation to find subcommands.
  */
 public class ConfigurableSubCommandScanner implements SubCommandScanner {
+  public static final ConfigurableSubCommandScanner INSTANCE = new ConfigurableSubCommandScanner();
 
   @Override
   public <T> Maybe<List<Map.Entry<String, Class<? extends T>>>> scanForSubCommands(Class<T> clazz) {

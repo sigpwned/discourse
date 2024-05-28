@@ -201,8 +201,8 @@ public class InvocationPipelineListenerChain extends Chain<InvocationPipelineLis
    * @see com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener#afterResolveStep(java.util.List,
    *      java.util.Optional)
    */
-  public void afterResolveStep(List<String> args,
-      Optional<ResolvedCommand<?>> maybeResolvedCommand) {
+  public <T> void afterResolveStep(List<String> args,
+      Optional<ResolvedCommand<? extends T>> maybeResolvedCommand) {
     delegate.afterResolveStep(args, maybeResolvedCommand);
   }
 

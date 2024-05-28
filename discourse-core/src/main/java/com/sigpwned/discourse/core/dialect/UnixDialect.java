@@ -17,19 +17,19 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.syntax;
+package com.sigpwned.discourse.core.dialect;
 
 import static java.util.Collections.unmodifiableList;
 import java.util.ArrayList;
 import java.util.List;
-import com.sigpwned.discourse.core.Syntax;
+import com.sigpwned.discourse.core.Dialect;
 import com.sigpwned.discourse.core.args.SwitchName;
 import com.sigpwned.discourse.core.args.Token;
 import com.sigpwned.discourse.core.args.token.SwitchNameToken;
 import com.sigpwned.discourse.core.args.token.ValueToken;
 
-public class UnixSyntax implements Syntax {
-  public static final UnixSyntax INSTANCE = new UnixSyntax();
+public class UnixDialect implements Dialect {
+  public static final UnixDialect INSTANCE = new UnixDialect();
 
   public static final String LONG_NAME_PREFIX = "--";
 
@@ -38,8 +38,8 @@ public class UnixSyntax implements Syntax {
   public static final String SHORT_NAME_PREFIX = "-";
 
   @Override
-  public SyntaxTokenizer newTokenizer() {
-    return new SyntaxTokenizer() {
+  public DialectTokenizer newTokenizer() {
+    return new DialectTokenizer() {
       @Override
       public List<Token> tokenize(String token) {
         if (token.startsWith(LONG_NAME_PREFIX)) {
