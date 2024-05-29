@@ -21,8 +21,12 @@ package com.sigpwned.discourse.core.module.core.scan.rules.eval;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleEvaluator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedRule;
 import com.sigpwned.discourse.core.util.Reflection;
@@ -46,16 +50,19 @@ public class FieldAssignmentRuleEvaluator implements RuleEvaluator {
           "Field assignment rules must have exactly two antecedents");
     }
 
-    if (!rule.antecedents().contains("")) {
+    List<String> antecedentsList = new ArrayList<>(rule.antecedents());
+    antecedentsList
+        .sort(Comparator.comparingInt(String::length).thenComparing(Function.identity()));
+    String instanceName = antecedentsList.get(0);
+    String valueName = antecedentsList.get(1);
+
+    if (!valueName.startsWith(instanceName)) {
       // TODO better exception
       throw new IllegalArgumentException(
-          "First antecedent of a field assignment rule must be 'instance'");
+          "Cannot assign value to field of instance: " + antecedentsList);
     }
 
-    String valueName =
-        rule.antecedents().stream().filter(s -> !s.equals("")).findFirst().orElseThrow();
-
-    Object instance = input.get("");
+    Object instance = input.get(instanceName);
     Object value = input.get(valueName);
 
     try {

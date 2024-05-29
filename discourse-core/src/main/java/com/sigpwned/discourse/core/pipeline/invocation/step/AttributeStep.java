@@ -35,6 +35,7 @@ public class AttributeStep extends InvocationPipelineStepBase {
       Coordinate coordinate = parsedArg.getKey();
       String propertyName = propertyNames.get(coordinate);
       if (propertyName == null) {
+        // TODO better exception
         throw new IllegalArgumentException("no property name for " + coordinate);
       }
       result.add(Map.entry(propertyName, parsedArg.getValue()));
