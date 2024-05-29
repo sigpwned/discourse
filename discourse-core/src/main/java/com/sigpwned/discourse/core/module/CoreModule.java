@@ -286,8 +286,6 @@ public class CoreModule extends Module {
    *
    * <ul>
    * <li>{@link EmptyArgsToMultiCommandInterceptingDiscourseListener}</li>
-   * <li>{@link HelpFlagInterceptingDiscourseListener}</li>
-   * <li>{@link VersionFlagInterceptingDiscourseListener}</li>
    * </ul>
    *
    * @param chain the chain to register the discourse listeners into
