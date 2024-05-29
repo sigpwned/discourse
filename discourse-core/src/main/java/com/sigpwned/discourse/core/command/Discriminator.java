@@ -42,10 +42,6 @@ public final class Discriminator {
       throw new IllegalArgumentException("Invalid discriminator: " + text);
   }
 
-  private String getText() {
-    return text;
-  }
-
   @Override
   public int hashCode() {
     return Objects.hash(text);

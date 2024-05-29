@@ -14,14 +14,14 @@ public class MapStep extends InvocationPipelineStepBase {
     Map<String, List<Object>> mappedArgs = new HashMap<>();
 
     try {
-      getListener(context).beforeMapStep(groupedArgs);
+      getListener(context).beforeMapStep(groupedArgs, context);
       mappedArgs = doMap(mappers, groupedArgs);
-      getListener(context).afterMapStep(groupedArgs, mappedArgs);
+      getListener(context).afterMapStep(groupedArgs, mappedArgs, context);
     } catch (Exception e) {
-      getListener(context).catchMapStep(e);
+      getListener(context).catchMapStep(e, context);
       throw e;
     } finally {
-      getListener(context).finallyMapStep();
+      getListener(context).finallyMapStep(context);
     }
 
     return mappedArgs;

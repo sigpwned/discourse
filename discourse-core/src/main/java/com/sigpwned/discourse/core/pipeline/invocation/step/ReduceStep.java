@@ -13,14 +13,14 @@ public class ReduceStep extends InvocationPipelineStepBase {
     Map<String, Object> reducedArgs;
 
     try {
-      getListener(context).beforeReduceStep(mappedArgs);
+      getListener(context).beforeReduceStep(mappedArgs, context);
       reducedArgs = doReduce(reducers, mappedArgs);
-      getListener(context).afterReduceStep(mappedArgs, reducedArgs);
+      getListener(context).afterReduceStep(mappedArgs, reducedArgs, context);
     } catch (Exception e) {
-      getListener(context).catchReduceStep(e);
+      getListener(context).catchReduceStep(e, context);
       throw e;
     } finally {
-      getListener(context).finallyReduceStep();
+      getListener(context).finallyReduceStep(context);
     }
 
     return reducedArgs;

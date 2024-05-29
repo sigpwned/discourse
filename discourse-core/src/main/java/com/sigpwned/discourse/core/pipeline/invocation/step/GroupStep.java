@@ -15,14 +15,14 @@ public class GroupStep extends InvocationPipelineStepBase {
     Map<String, List<String>> groupedArgs;
 
     try {
-      getListener(context).beforeGroupStep(attributedArgs);
+      getListener(context).beforeGroupStep(attributedArgs, context);
       groupedArgs = doGroup(attributedArgs);
-      getListener(context).afterGroupStep(attributedArgs, groupedArgs);
+      getListener(context).afterGroupStep(attributedArgs, groupedArgs, context);
     } catch (Throwable problem) {
-      getListener(context).catchGroupStep(problem);
+      getListener(context).catchGroupStep(problem, context);
       throw problem;
     } finally {
-      getListener(context).finallyGroupStep();
+      getListener(context).finallyGroupStep(context);
     }
 
     return unmodifiableMap(groupedArgs);

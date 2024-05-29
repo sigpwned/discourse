@@ -23,14 +23,14 @@ public class ResolveStep extends InvocationPipelineStepBase {
     Optional maybeResolvedCommand;
 
     try {
-      getListener(context).beforeResolveStep(args);
+      getListener(context).beforeResolveStep(args, context);
       maybeResolvedCommand = doResolve(resolver, args, context);
-      getListener(context).afterResolveStep(args, maybeResolvedCommand);
+      getListener(context).afterResolveStep(args, maybeResolvedCommand, context);
     } catch (Throwable e) {
-      getListener(context).catchResolveStep(e);
+      getListener(context).catchResolveStep(e, context);
       throw e;
     } finally {
-      getListener(context).finallyResolveStep();
+      getListener(context).finallyResolveStep(context);
     }
 
     return maybeResolvedCommand;

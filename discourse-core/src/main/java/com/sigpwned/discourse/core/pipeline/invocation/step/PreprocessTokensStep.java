@@ -19,14 +19,14 @@ public class PreprocessTokensStep extends InvocationPipelineStepBase {
 
     List<Token> preprocessedTokens;
     try {
-      getListener(context).beforePreprocessTokensStep(originalTokens);
+      getListener(context).beforePreprocessTokensStep(originalTokens, context);
       preprocessedTokens = doPreprocessTokens(preprocessor, originalTokens);
-      getListener(context).afterPreprocessTokensStep(originalTokens, preprocessedTokens);
+      getListener(context).afterPreprocessTokensStep(originalTokens, preprocessedTokens, context);
     } catch (Throwable e) {
-      getListener(context).catchPreprocessTokensStep(e);
+      getListener(context).catchPreprocessTokensStep(e, context);
       throw e;
     } finally {
-      getListener(context).finallyPreprocessTokensStep();
+      getListener(context).finallyPreprocessTokensStep(context);
     }
 
     return preprocessor.preprocessTokens(preprocessedTokens);

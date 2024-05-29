@@ -98,7 +98,7 @@ public class SystemPropertyParameterModule extends Module {
     chain.addLast(new InvocationPipelineListener() {
       @Override
       public void afterParseStep(List<Token> preprocessedTokens,
-          List<Map.Entry<Coordinate, String>> parsedArgs) {
+          List<Map.Entry<Coordinate, String>> parsedArgs, InvocationContext context) {
         if (coordinates == null) {
           // Because of the documented order of operations, this should never happen
           throw new IllegalStateException("coordinates not set");

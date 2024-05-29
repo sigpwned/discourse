@@ -20,15 +20,15 @@ public class PreprocessCoordinatesStep extends InvocationPipelineStepBase {
 
     Map<Coordinate, String> preprocessedCoordinates;
     try {
-      getListener(context).beforePreprocessCoordinatesStep(originalCoordinates);
+      getListener(context).beforePreprocessCoordinatesStep(originalCoordinates, context);
       preprocessedCoordinates = doPreprocess(preprocessor, originalCoordinates);
       getListener(context).afterPreprocessCoordinatesStep(originalCoordinates,
-          preprocessedCoordinates);
+          preprocessedCoordinates, context);
     } catch (Throwable e) {
-      getListener(context).catchPreprocessCoordinatesStep(e);
+      getListener(context).catchPreprocessCoordinatesStep(e, context);
       throw e;
     } finally {
-      getListener(context).finallyPreprocessCoordinatesStep();
+      getListener(context).finallyPreprocessCoordinatesStep(context);
     }
 
     return preprocessedCoordinates;

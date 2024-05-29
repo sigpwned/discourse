@@ -17,14 +17,14 @@ public class PreprocessArgsStep extends InvocationPipelineStepBase {
 
     List<String> preprocessedArgs;
     try {
-      getListener(context).beforePreprocessArgsStep(resolvedArgs);
+      getListener(context).beforePreprocessArgsStep(resolvedArgs, context);
       preprocessedArgs = doPreprocessArgs(preprocessor, resolvedArgs);
-      getListener(context).afterPreprocessArgsStep(resolvedArgs, preprocessedArgs);
+      getListener(context).afterPreprocessArgsStep(resolvedArgs, preprocessedArgs, context);
     } catch (Throwable e) {
-      getListener(context).catchPreprocessArgsStep(e);
+      getListener(context).catchPreprocessArgsStep(e, context);
       throw e;
     } finally {
-      getListener(context).finallyPreprocessArgsStep();
+      getListener(context).finallyPreprocessArgsStep(context);
     }
 
     return preprocessor.preprocess(preprocessedArgs);

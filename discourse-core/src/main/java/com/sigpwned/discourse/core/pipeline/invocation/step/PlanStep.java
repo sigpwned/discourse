@@ -12,11 +12,12 @@ import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDese
 import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSink;
 import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSinkFactory;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
 import com.sigpwned.discourse.core.pipeline.invocation.step.plan.exception.NoDeserializerAvailablePlanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.plan.exception.NoSinkAvailablePlanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.plan.exception.NonLeafCommandPlanException;
 
-public class PlanStep {
+public class PlanStep extends InvocationPipelineStepBase {
   @SuppressWarnings({"unchecked", "rawtypes"})
   public static final InvocationContext.Key<ValueDeserializerFactory<?>> VALUE_DESERIALIZER_FACTORY_KEY =
       (InvocationContext.Key) InvocationContext.Key.of(ValueDeserializerFactory.class);
@@ -30,18 +31,37 @@ public class PlanStep {
       throw new NonLeafCommandPlanException(resolvedCommand.getCommand());
     }
 
+    ValueSinkFactory sinkFactory = context.get(VALUE_SINK_FACTORY_KEY).orElseThrow(() -> {
+      // TODO better exception
+      return new IllegalArgumentException("no sink factory");
+    });
+
     ValueDeserializerFactory<?> deserializerFactory =
         context.get(VALUE_DESERIALIZER_FACTORY_KEY).orElseThrow(() -> {
           // TODO better exception
           return new IllegalArgumentException("no deserializer factory");
         });
 
-    ValueSinkFactory sinkFactory = context.get(VALUE_SINK_FACTORY_KEY).orElseThrow(() -> {
-      // TODO better exception
-      return new IllegalArgumentException("no sink factory");
-    });
+    PlannedCommand<T> plannedCommand;
+    try {
+      getListener(context).beforePlanStep(resolvedCommand, context);
+      plannedCommand = doPlan(leaf, sinkFactory, deserializerFactory, resolvedCommand, context);
+      getListener(context).afterPlanStep(resolvedCommand, plannedCommand, context);
+    } catch (Throwable e) {
+      getListener(context).catchPlanStep(e, context);
+      throw e;
+    } finally {
+      getListener(context).finallyPlanStep(context);
+    }
 
+    return plannedCommand;
+  }
+
+  protected <T> PlannedCommand<T> doPlan(LeafCommand<T> leaf, ValueSinkFactory sinkFactory,
+      ValueDeserializerFactory<?> deserializerFactory, ResolvedCommand<T> resolvedCommand,
+      InvocationContext context) {
     List<PlannedCommandProperty> properties = new ArrayList<>(leaf.getProperties().size());
+
     for (LeafCommandProperty property : leaf.getProperties()) {
       ValueSink sink = sinkFactory.getSink(property.getGenericType(), property.getAnnotations())
           .orElseThrow(() -> {

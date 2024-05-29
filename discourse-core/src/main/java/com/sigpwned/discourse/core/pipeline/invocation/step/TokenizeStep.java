@@ -24,14 +24,14 @@ public class TokenizeStep extends InvocationPipelineStepBase {
 
     List<Token> result;
     try {
-      listener.beforeTokenizeStep(args);
+      listener.beforeTokenizeStep(args, context);
       result = doTokenize(syntax, args);
-      listener.afterTokenizeStep(args, result);
+      listener.afterTokenizeStep(args, result, context);
     } catch (Throwable problem) {
-      listener.catchTokenizeStep(problem);
+      listener.catchTokenizeStep(problem, context);
       throw problem;
     } finally {
-      listener.finallyTokenizeStep();
+      listener.finallyTokenizeStep(context);
     }
 
     return unmodifiableList(result);

@@ -87,14 +87,14 @@ public class ScanStep extends InvocationPipelineStepBase {
     RootCommand<T> tree;
 
     try {
-      getListener(context).beforeScanStep(clazz);
+      getListener(context).beforeScanStep(clazz, context);
       tree = doScan(clazz, context);
-      getListener(context).afterScanStep(clazz, tree);
+      getListener(context).afterScanStep(clazz, tree, context);
     } catch (Throwable t) {
-      getListener(context).catchScanStep(t);
+      getListener(context).catchScanStep(t, context);
       throw t;
     } finally {
-      getListener(context).finallyScanStep();
+      getListener(context).finallyScanStep(context);
     }
 
     return tree;
@@ -118,14 +118,14 @@ public class ScanStep extends InvocationPipelineStepBase {
 
     List<WalkedClass<? extends T>> walkedClasses;
     try {
-      getListener(context).beforeScanStepWalk(clazz);
+      getListener(context).beforeScanStepWalk(clazz, context);
       walkedClasses = walkStep(scanner, clazz, context);
-      getListener(context).afterScanStepWalk(clazz, walkedClasses);
+      getListener(context).afterScanStepWalk(clazz, walkedClasses, context);
     } catch (Throwable t) {
-      getListener(context).catchScanStepWalk(t);
+      getListener(context).catchScanStepWalk(t, context);
       throw t;
     } finally {
-      getListener(context).finallyScanStepWalk();
+      getListener(context).finallyScanStepWalk(context);
     }
     return walkedClasses;
   }
@@ -287,15 +287,15 @@ public class ScanStep extends InvocationPipelineStepBase {
 
     List<PreparedClass<? extends T>> preparedClasses;
     try {
-      getListener(context).beforeScanStepPrepare(walkedClasses);
+      getListener(context).beforeScanStepPrepare(walkedClasses, context);
       preparedClasses = prepareStep(naming, syntaxNominator, syntaxDetector, ruleNominator,
           ruleDetector, walkedClasses, context);
-      getListener(context).afterScanStepPrepare(walkedClasses, preparedClasses);
+      getListener(context).afterScanStepPrepare(walkedClasses, preparedClasses, context);
     } catch (Throwable t) {
-      getListener(context).catchScanStepPrepare(t);
+      getListener(context).catchScanStepPrepare(t, context);
       throw t;
     } finally {
-      getListener(context).finallyScanStepPrepare();
+      getListener(context).finallyScanStepPrepare(context);
     }
     return preparedClasses;
   }
@@ -501,14 +501,14 @@ public class ScanStep extends InvocationPipelineStepBase {
 
     RootCommand<T> root;
     try {
-      getListener(context).beforeScanStepTree(preparedClasses);
+      getListener(context).beforeScanStepTree(preparedClasses, context);
       root = treeStep(reactor, preparedClasses, context);
-      getListener(context).afterScanStepTree(preparedClasses, root);
+      getListener(context).afterScanStepTree(preparedClasses, root, context);
     } catch (Throwable t) {
-      getListener(context).catchScanStepTree(t);
+      getListener(context).catchScanStepTree(t, context);
       throw t;
     } finally {
-      getListener(context).finallyScanStepTree();
+      getListener(context).finallyScanStepTree(context);
     }
 
     return root;

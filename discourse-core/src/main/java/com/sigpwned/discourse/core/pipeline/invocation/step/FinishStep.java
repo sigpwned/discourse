@@ -13,14 +13,14 @@ public class FinishStep extends InvocationPipelineStepBase {
     T instance;
 
     try {
-      getListener(context).beforeFinishStep(reducedArgs);
+      getListener(context).beforeFinishStep(reducedArgs, context);
       instance = doFinish(finisher, reducedArgs);
-      getListener(context).afterFinishStep(reducedArgs, instance);
+      getListener(context).afterFinishStep(reducedArgs, instance, context);
     } catch (Exception e) {
-      getListener(context).catchFinishStep(e);
+      getListener(context).catchFinishStep(e, context);
       throw e;
     } finally {
-      getListener(context).finallyFinishStep();
+      getListener(context).finallyFinishStep(context);
     }
 
     return finisher.apply(reducedArgs);

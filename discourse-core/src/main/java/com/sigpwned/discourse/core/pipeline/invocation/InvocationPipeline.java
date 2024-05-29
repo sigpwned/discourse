@@ -116,14 +116,14 @@ public class InvocationPipeline {
   public <T> T invoke(Class<T> clazz, List<String> args) {
     T instance;
     try {
-      getListener(context).beforePipeline();
+      getListener(context).beforePipeline(context);
       instance = doInvoke(clazz, args);
-      getListener(context).afterPipeline(instance);
+      getListener(context).afterPipeline(instance, context);
     } catch (Exception e) {
-      getListener(context).catchPipeline(e);
+      getListener(context).catchPipeline(e, context);
       throw e;
     } finally {
-      getListener(context).finallyPipeline();
+      getListener(context).finallyPipeline(context);
     }
     return instance;
   }

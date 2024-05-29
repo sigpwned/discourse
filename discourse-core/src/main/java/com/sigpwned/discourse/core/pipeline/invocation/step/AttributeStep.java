@@ -12,18 +12,18 @@ public class AttributeStep extends InvocationPipelineStepBase {
   public List<Map.Entry<String, String>> attribute(Map<Coordinate, String> propertyNames,
       List<Map.Entry<Coordinate, String>> parsedArgs, InvocationContext context) {
     List<Map.Entry<String, String>> attributedArgs;
-    
+
     try {
-      getListener(context).beforeAttributeStep(parsedArgs);
+      getListener(context).beforeAttributeStep(parsedArgs, context);
       attributedArgs = doAttribute(propertyNames, parsedArgs);
-      getListener(context).afterAttributeStep(parsedArgs, attributedArgs);
+      getListener(context).afterAttributeStep(parsedArgs, attributedArgs, context);
     } catch (Throwable problem) {
-      getListener(context).catchAttributeStep(problem);
+      getListener(context).catchAttributeStep(problem, context);
       throw problem;
     } finally {
-      getListener(context).finallyAttributeStep();
+      getListener(context).finallyAttributeStep(context);
     }
-    
+
     return unmodifiableList(attributedArgs);
   }
 

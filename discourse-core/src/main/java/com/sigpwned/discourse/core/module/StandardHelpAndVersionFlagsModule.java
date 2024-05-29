@@ -16,6 +16,7 @@ import com.sigpwned.discourse.core.command.LeafCommandProperty;
 import com.sigpwned.discourse.core.command.ResolvedCommand;
 import com.sigpwned.discourse.core.error.ExitError;
 import com.sigpwned.discourse.core.module.parameter.flag.FlagCoordinate;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener;
 import com.sigpwned.discourse.core.util.Internationalization;
 import com.sigpwned.discourse.core.util.MoreSets;
@@ -70,7 +71,8 @@ public class StandardHelpAndVersionFlagsModule extends com.sigpwned.discourse.co
   public void registerListeners(Chain<InvocationPipelineListener> chain) {
     chain.addFirst(new InvocationPipelineListener() {
       @Override
-      public <T> void beforePlanStep(ResolvedCommand<? extends T> resolvedCommand) {
+      public <T> void beforePlanStep(ResolvedCommand<? extends T> resolvedCommand,
+          InvocationContext context) {
         LeafCommand<? extends T> leaf = (LeafCommand<? extends T>) resolvedCommand.getCommand();
 
         // TODO check help coordinates overlap
@@ -98,7 +100,7 @@ public class StandardHelpAndVersionFlagsModule extends com.sigpwned.discourse.co
 
       @Override
       public void afterGroupStep(List<Entry<String, String>> attributedArgs,
-          Map<String, List<String>> groupedArgs) {
+          Map<String, List<String>> groupedArgs, InvocationContext context) {
         boolean hasHelp;
         if (groupedArgs.containsKey(HELP_PROPERTY_NAME)
             && !groupedArgs.get(HELP_PROPERTY_NAME).isEmpty()

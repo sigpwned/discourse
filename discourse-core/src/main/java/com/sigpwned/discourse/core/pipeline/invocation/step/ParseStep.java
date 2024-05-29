@@ -21,14 +21,14 @@ public class ParseStep extends InvocationPipelineStepBase {
 
     List<Map.Entry<Coordinate, String>> result;
     try {
-      listener.beforeParseStep(tokens);
+      listener.beforeParseStep(tokens, context);
       result = doParse(tokens);
-      listener.afterParseStep(tokens, result);
+      listener.afterParseStep(tokens, result, context);
     } catch (Throwable problem) {
-      listener.catchParseStep(problem);
+      listener.catchParseStep(problem, context);
       throw problem;
     } finally {
-      listener.finallyParseStep();
+      listener.finallyParseStep(context);
     }
 
     return unmodifiableList(result);
