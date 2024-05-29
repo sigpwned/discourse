@@ -3,6 +3,7 @@ package com.sigpwned.discourse.core.pipeline.invocation;
 import static java.util.Objects.requireNonNull;
 import java.util.Objects;
 import java.util.Optional;
+import com.sigpwned.discourse.core.optional.OptionalInvocationContextProperty;
 
 public interface InvocationContext {
   public static class Key<T> {
@@ -57,11 +58,11 @@ public interface InvocationContext {
     }
   }
 
-  default <T> Optional<? extends T> get(Class<T> type) {
+  default <T> OptionalInvocationContextProperty<T, ? extends T> get(Class<T> type) {
     return get(Key.of(type));
   }
 
-  public <T> Optional<? extends T> get(Key<T> key);
+  public <T> OptionalInvocationContextProperty<T, ? extends T> get(Key<T> key);
 
   default <T> void set(Class<T> type, T value) {
     set(Key.of(type), value);

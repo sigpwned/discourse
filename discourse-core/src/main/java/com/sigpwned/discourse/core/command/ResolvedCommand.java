@@ -10,14 +10,14 @@ public class ResolvedCommand<T> {
   private final String name;
   private final String version;
   private final List<ParentCommand> parents;
-  private final Command<T> command;
+  private final LeafCommand<T> command;
 
-  public ResolvedCommand(String name, String version, Command<T> model) {
+  public ResolvedCommand(String name, String version, LeafCommand<T> model) {
     this(name, version, emptyList(), model);
   }
 
   public ResolvedCommand(String name, String version, List<ParentCommand> parents,
-      Command<T> model) {
+      LeafCommand<T> model) {
     this.name = name;
     this.version = version;
     this.parents = unmodifiableList(parents);
@@ -36,7 +36,7 @@ public class ResolvedCommand<T> {
     return parents;
   }
 
-  public Command<T> getCommand() {
+  public LeafCommand<T> getCommand() {
     return command;
   }
 }

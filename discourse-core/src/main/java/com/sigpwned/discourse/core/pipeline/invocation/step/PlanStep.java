@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.sigpwned.discourse.core.command.LeafCommand;
 import com.sigpwned.discourse.core.command.LeafCommandProperty;
+import com.sigpwned.discourse.core.command.ParentCommand;
 import com.sigpwned.discourse.core.command.PlannedCommand;
 import com.sigpwned.discourse.core.command.PlannedCommandProperty;
 import com.sigpwned.discourse.core.command.ResolvedCommand;
@@ -15,7 +16,6 @@ import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
 import com.sigpwned.discourse.core.pipeline.invocation.step.plan.exception.NoDeserializerAvailablePlanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.plan.exception.NoSinkAvailablePlanException;
-import com.sigpwned.discourse.core.pipeline.invocation.step.plan.exception.NonLeafCommandPlanException;
 
 public class PlanStep extends InvocationPipelineStepBase {
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -26,26 +26,23 @@ public class PlanStep extends InvocationPipelineStepBase {
       InvocationContext.Key.of(ValueSinkFactory.class);
 
   public <T> PlannedCommand<T> plan(ResolvedCommand<T> resolvedCommand, InvocationContext context) {
-    if (!(resolvedCommand.getCommand() instanceof LeafCommand<T> leaf)) {
-      // TODO better exception
-      throw new NonLeafCommandPlanException(resolvedCommand.getCommand());
-    }
-
-    ValueSinkFactory sinkFactory = context.get(VALUE_SINK_FACTORY_KEY).orElseThrow(() -> {
-      // TODO better exception
-      return new IllegalArgumentException("no sink factory");
-    });
+    ValueSinkFactory sinkFactory = context.get(VALUE_SINK_FACTORY_KEY).orElseThrow();
 
     ValueDeserializerFactory<?> deserializerFactory =
-        context.get(VALUE_DESERIALIZER_FACTORY_KEY).orElseThrow(() -> {
-          // TODO better exception
-          return new IllegalArgumentException("no deserializer factory");
-        });
+        context.get(VALUE_DESERIALIZER_FACTORY_KEY).orElseThrow();
 
     PlannedCommand<T> plannedCommand;
     try {
-      getListener(context).beforePlanStep(resolvedCommand, context);
-      plannedCommand = doPlan(leaf, sinkFactory, deserializerFactory, resolvedCommand, context);
+      ResolvedCommand<T> mutableResolvedCommand = mutableCopyOf(resolvedCommand);
+
+      getListener(context).beforePlanStep(mutableResolvedCommand, context);
+
+      ResolvedCommand<T> immutableResolvedCommand = immutableCopyOf(mutableResolvedCommand);
+
+
+      plannedCommand = doPlan(immutableResolvedCommand.getCommand(), sinkFactory,
+          deserializerFactory, resolvedCommand, context);
+
       getListener(context).afterPlanStep(resolvedCommand, plannedCommand, context);
     } catch (Throwable e) {
       getListener(context).catchPlanStep(e, context);
@@ -78,5 +75,29 @@ public class PlanStep extends InvocationPipelineStepBase {
     return new PlannedCommand<>(resolvedCommand.getParents(),
         resolvedCommand.getName().orElse(null), resolvedCommand.getVersion().orElse(null),
         leaf.getDescription().orElse(null), properties, leaf.getConstructor());
+  }
+
+  protected <T> ResolvedCommand<T> mutableCopyOf(ResolvedCommand<T> originalResolvedCommand) {
+    LeafCommand<T> originalLeafCommand = originalResolvedCommand.getCommand();
+
+    LeafCommand<T> mutableLeafCommand = new LeafCommand<T>(
+        originalLeafCommand.getDescription().orElse(null),
+        new ArrayList<>(originalLeafCommand.getProperties()), originalLeafCommand.getConstructor());
+    List<ParentCommand> mutableParents = new ArrayList<>(originalResolvedCommand.getParents());
+
+    return new ResolvedCommand<T>(originalResolvedCommand.getName().orElse(null),
+        originalResolvedCommand.getVersion().orElse(null), mutableParents, mutableLeafCommand);
+  }
+
+  protected <T> ResolvedCommand<T> immutableCopyOf(ResolvedCommand<T> originalResolvedCommand) {
+    LeafCommand<T> originalLeafCommand = originalResolvedCommand.getCommand();
+
+    LeafCommand<T> immutableLeafCommand =
+        new LeafCommand<T>(originalLeafCommand.getDescription().orElse(null),
+            List.copyOf(originalLeafCommand.getProperties()), originalLeafCommand.getConstructor());
+    List<ParentCommand> immutableParents = List.copyOf(originalResolvedCommand.getParents());
+
+    return new ResolvedCommand<T>(originalResolvedCommand.getName().orElse(null),
+        originalResolvedCommand.getVersion().orElse(null), immutableParents, immutableLeafCommand);
   }
 }

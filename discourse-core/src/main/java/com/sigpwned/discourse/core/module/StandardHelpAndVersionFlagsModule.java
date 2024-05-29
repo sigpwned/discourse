@@ -9,12 +9,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import com.sigpwned.discourse.core.Chain;
+import com.sigpwned.discourse.core.Dialect;
 import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.args.SwitchName;
 import com.sigpwned.discourse.core.command.LeafCommand;
 import com.sigpwned.discourse.core.command.LeafCommandProperty;
 import com.sigpwned.discourse.core.command.ResolvedCommand;
+import com.sigpwned.discourse.core.command.RootCommand;
 import com.sigpwned.discourse.core.error.ExitError;
+import com.sigpwned.discourse.core.format.HelpFormatter;
+import com.sigpwned.discourse.core.format.VersionFormatter;
 import com.sigpwned.discourse.core.module.parameter.flag.FlagCoordinate;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener;
@@ -70,6 +74,8 @@ public class StandardHelpAndVersionFlagsModule extends com.sigpwned.discourse.co
   @Override
   public void registerListeners(Chain<InvocationPipelineListener> chain) {
     chain.addFirst(new InvocationPipelineListener() {
+      private LeafCommand<?> leaf;
+
       @Override
       public <T> void beforePlanStep(ResolvedCommand<? extends T> resolvedCommand,
           InvocationContext context) {
@@ -96,6 +102,8 @@ public class StandardHelpAndVersionFlagsModule extends com.sigpwned.discourse.co
                   getVersionSwitches().stream().map(FlagCoordinate::new).collect(toSet()),
                   Boolean.class, emptyList()));
         }
+
+        this.leaf = leaf;
       }
 
       @Override
@@ -121,17 +129,20 @@ public class StandardHelpAndVersionFlagsModule extends com.sigpwned.discourse.co
 
         // TODO What stream should we print to?
         if (hasVersion) {
-          // TODO Use actual version formatter
-          System.out.println("version");
+          RootCommand<?> root = context.get(RootCommand.class).orElseThrow();
+          VersionFormatter formatter = context.get(VersionFormatter.class).orElseThrow();
+          formatter.formatVersion(root);
         }
         if (hasHelp) {
-          // TODO Use actual help formatter
-          System.out.println("help");
+          Dialect dialect = context.get(Dialect.class).orElseThrow();
+          HelpFormatter formatter = context.get(HelpFormatter.class).orElseThrow();
+          formatter.formatHelp(dialect, leaf);
         }
 
         if (hasHelp || hasVersion) {
-          // TODO throw this using an exit factory?
-          throw new ExitError(0);
+          // TODO parameterize exit code?
+          ExitError.Factory exitFactory = context.get(ExitError.Factory.class).orElseThrow();
+          throw exitFactory.createExitError(0);
         }
       }
     });
@@ -139,6 +150,7 @@ public class StandardHelpAndVersionFlagsModule extends com.sigpwned.discourse.co
 
   @Override
   public List<Module> getDependencies() {
+    // We depend on the FlagParameterModule because we use flag parameters.
     return List.of(new FlagParameterModule());
   }
 

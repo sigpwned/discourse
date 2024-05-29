@@ -1,6 +1,5 @@
 package com.sigpwned.discourse.core.command;
 
-import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 import java.util.List;
 import java.util.Map;
@@ -10,10 +9,19 @@ public final class LeafCommand<T> extends Command<T> {
   private final List<LeafCommandProperty> properties;
   private final Function<Map<String, Object>, T> constructor;
 
+  /**
+   * @param description The description of the command.
+   * @param properties The properties of the command. This list is not copied or made unmodifiable,
+   *        so if the caller wants the list to be immutable, then they will need to handle that
+   *        themselves.
+   * @param constructor The constructor for the command.
+   */
   public LeafCommand(String description, List<LeafCommandProperty> properties,
       Function<Map<String, Object>, T> constructor) {
     super(description);
-    this.properties = unmodifiableList(properties);
+    // Note that we do not make this unmodifiable or even perform a defensive copy. Where or not
+    // not this list is mutable is up to the caller.
+    this.properties = requireNonNull(properties);
     this.constructor = requireNonNull(constructor);
   }
 

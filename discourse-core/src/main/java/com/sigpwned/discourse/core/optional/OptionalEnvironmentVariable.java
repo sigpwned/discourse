@@ -52,9 +52,9 @@ public class OptionalEnvironmentVariable<T> {
    * the optional will be empty. Otherwise, it will be present. This method is intended primarily
    * for use in testing.
    *
-   * @param name  the name of the environment variable
+   * @param name the name of the environment variable
    * @param value the value of the environment variable
-   * @param <T>   the type of the environment variable
+   * @param <T> the type of the environment variable
    * @return an optional environment variable
    */
   public static <T> OptionalEnvironmentVariable<T> of(String name, T value) {
@@ -119,7 +119,8 @@ public class OptionalEnvironmentVariable<T> {
     if (isPresent()) {
       return this;
     } else {
-      @SuppressWarnings("unchecked") Optional<T> r = (Optional<T>) supplier.get();
+      @SuppressWarnings("unchecked")
+      Optional<T> r = (Optional<T>) supplier.get();
       return new OptionalEnvironmentVariable<>(getName(), Objects.requireNonNull(r).orElse(null));
     }
   }
@@ -128,7 +129,7 @@ public class OptionalEnvironmentVariable<T> {
     return isPresent() ? value : defaultValue;
   }
 
-  public T orElseGet(Supplier<T> defaultValue) {
+  public T orElseGet(Supplier<? extends T> defaultValue) {
     return isPresent() ? value : defaultValue.get();
   }
 
@@ -146,5 +147,9 @@ public class OptionalEnvironmentVariable<T> {
 
   public T get() {
     return orElseThrow();
+  }
+
+  public Optional<T> toJavaOptional() {
+    return Optional.ofNullable(value);
   }
 }

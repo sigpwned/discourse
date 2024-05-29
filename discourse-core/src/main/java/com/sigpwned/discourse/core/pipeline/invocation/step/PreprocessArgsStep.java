@@ -10,10 +10,7 @@ public class PreprocessArgsStep extends InvocationPipelineStepBase {
   public static final Key<ArgsPreprocessor> ARGS_PREPROCESSOR_KEY = Key.of(ArgsPreprocessor.class);
 
   public List<String> preprocessArgs(List<String> resolvedArgs, InvocationContext context) {
-    ArgsPreprocessor preprocessor = context.get(ARGS_PREPROCESSOR_KEY).orElseThrow(() -> {
-      // TODO better exception
-      return new IllegalStateException("No args preprocessor");
-    });
+    ArgsPreprocessor preprocessor = context.get(ARGS_PREPROCESSOR_KEY).orElseThrow();
 
     List<String> preprocessedArgs;
     try {

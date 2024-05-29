@@ -111,10 +111,7 @@ public class ScanStep extends InvocationPipelineStepBase {
   }
 
   private <T> List<WalkedClass<? extends T>> doWalkStep(Class<T> clazz, InvocationContext context) {
-    SubCommandScanner scanner = context.get(SUB_COMMAND_SCANNER_KEY).orElseThrow(() -> {
-      // TODO better exception
-      return new IllegalArgumentException("no subcommand scanner");
-    });
+    SubCommandScanner scanner = context.get(SUB_COMMAND_SCANNER_KEY).orElseThrow();
 
     List<WalkedClass<? extends T>> walkedClasses;
     try {
@@ -260,30 +257,15 @@ public class ScanStep extends InvocationPipelineStepBase {
 
   private <T> List<PreparedClass<? extends T>> doPrepareStep(
       List<WalkedClass<? extends T>> walkedClasses, InvocationContext context) {
-    NamingScheme naming = context.get(NAMING_SCHEME_KEY).orElseThrow(() -> {
-      // TODO better exception
-      return new IllegalArgumentException("no naming scheme");
-    });
+    NamingScheme naming = context.get(NAMING_SCHEME_KEY).orElseThrow();
 
-    SyntaxNominator syntaxNominator = context.get(SYNTAX_NOMINATOR_KEY).orElseThrow(() -> {
-      // TODO better exception
-      return new IllegalArgumentException("no syntax nominator");
-    });
+    SyntaxNominator syntaxNominator = context.get(SYNTAX_NOMINATOR_KEY).orElseThrow();
 
-    SyntaxDetector syntaxDetector = context.get(SYNTAX_DETECTOR_KEY).orElseThrow(() -> {
-      // TODO better exception
-      return new IllegalArgumentException("no syntax detector");
-    });
+    SyntaxDetector syntaxDetector = context.get(SYNTAX_DETECTOR_KEY).orElseThrow();
 
-    RuleNominator ruleNominator = context.get(RULE_NOMINATOR_KEY).orElseThrow(() -> {
-      // TODO better exception
-      return new IllegalArgumentException("no rule nominator");
-    });
+    RuleNominator ruleNominator = context.get(RULE_NOMINATOR_KEY).orElseThrow();
 
-    RuleDetector ruleDetector = context.get(RULE_DETECTOR_KEY).orElseThrow(() -> {
-      // TODO better exception
-      return new IllegalArgumentException("no rule detector");
-    });
+    RuleDetector ruleDetector = context.get(RULE_DETECTOR_KEY).orElseThrow();
 
     List<PreparedClass<? extends T>> preparedClasses;
     try {
@@ -492,10 +474,7 @@ public class ScanStep extends InvocationPipelineStepBase {
 
   private <T> RootCommand<T> doTreeStep(List<PreparedClass<? extends T>> preparedClasses,
       InvocationContext context) {
-    RuleEvaluator evaluator = context.get(RULE_EVALUATOR_KEY).orElseThrow(() -> {
-      // TODO better exception
-      return new IllegalArgumentException("no rule evaluator");
-    });
+    RuleEvaluator evaluator = context.get(RULE_EVALUATOR_KEY).orElseThrow();
 
     RulesEngine reactor = new RulesEngine(evaluator);
 
@@ -579,8 +558,12 @@ public class ScanStep extends InvocationPipelineStepBase {
           // TODO better exception
           throw new IllegalArgumentException("leaf command has no body");
         });
-        command = new LeafCommand<>(preparedClass.configurable().description(),
-            body.getProperties(), toConstructor(reactor, preparedClass.clazz(), body.getRules()));
+        // We want the leaf command to be immutable by default. If anyone wants to make it mutable
+        // down the line, they can always make a copy.
+        List<LeafCommandProperty> immutablePropertiesCopy = List.copyOf(body.getProperties());
+        command =
+            new LeafCommand<>(preparedClass.configurable().description(), immutablePropertiesCopy,
+                toConstructor(reactor, preparedClass.clazz(), body.getRules()));
       } else {
         command = new com.sigpwned.discourse.core.command.SuperCommand(
             preparedClass.configurable().description(), subs);

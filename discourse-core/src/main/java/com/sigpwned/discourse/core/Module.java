@@ -69,6 +69,25 @@ public abstract class Module {
 
   public void registerListeners(Chain<InvocationPipelineListener> chain) {}
 
+  /**
+   * <p>
+   * A list of modules that this module depends on. This method should be overridden to return a
+   * list of the modules that this module depends on. By default, this method returns an empty list.
+   * </p>
+   * 
+   * <p>
+   * In the absence of circular dependencies, the runtime ensures that the dependencies are fully
+   * registered before this module is registered. This is useful for ensuring the relative order of
+   * various processors inside chains.
+   * </p>
+   * 
+   * <p>
+   * In the presence of circular dependencies, the runtime will still succeed, but the order of the
+   * modules may not be predictable.
+   * </p>
+   * 
+   * @return a list of modules that this module depends on
+   */
   public List<Module> getDependencies() {
     return emptyList();
   }

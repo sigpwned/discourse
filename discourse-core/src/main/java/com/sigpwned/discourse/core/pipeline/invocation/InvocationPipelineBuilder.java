@@ -1,11 +1,16 @@
 package com.sigpwned.discourse.core.pipeline.invocation;
 
+import static java.util.stream.Collectors.joining;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.sigpwned.discourse.core.Dialect;
 import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.dialect.UnixDialect;
@@ -14,6 +19,7 @@ import com.sigpwned.discourse.core.format.HelpFormatter;
 import com.sigpwned.discourse.core.format.VersionFormatter;
 import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDeserializerFactoryChain;
 import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSinkFactoryChain;
+import com.sigpwned.discourse.core.optional.OptionalInvocationContextProperty;
 import com.sigpwned.discourse.core.pipeline.invocation.step.AttributeStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.FinishStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.GroupStep;
@@ -39,6 +45,8 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetectorC
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxNominatorChain;
 
 public class InvocationPipelineBuilder {
+  private static final Logger LOGGER = LoggerFactory.getLogger(InvocationPipelineBuilder.class);
+
   private final InvocationContext context;
   private final Set<Class<? extends Module>> loaded;
 
@@ -48,11 +56,12 @@ public class InvocationPipelineBuilder {
       private final Map<InvocationContext.Key<?>, Object> values = new HashMap<>();
 
       @Override
-      public <T> Optional<? extends T> get(InvocationContext.Key<T> key) {
+      public <T> OptionalInvocationContextProperty<T, ? extends T> get(
+          InvocationContext.Key<T> key) {
         Object value = values.get(key);
         if (value == null)
-          return Optional.empty();
-        return Optional.of(key.getType().cast(value));
+          return OptionalInvocationContextProperty.empty(key);
+        return OptionalInvocationContextProperty.of(key, key.getType().cast(value));
       }
 
       @Override
@@ -68,10 +77,9 @@ public class InvocationPipelineBuilder {
       // TODO version formatter
 
       // Chains
-      context.set(InvocationPipelineStepBase.INVOCATION_PIPELINE_LISTENER_KEY,
+      context.set(InvocationPipelineStep.INVOCATION_PIPELINE_LISTENER_KEY,
           new InvocationPipelineListenerChain());
-      context.set(InvocationPipelineStepBase.EXCEPTION_FORMATTER_KEY,
-          new ExceptionFormatterChain());
+      context.set(InvocationPipelineStep.EXCEPTION_FORMATTER_KEY, new ExceptionFormatterChain());
       context.set(ScanStep.NAMING_SCHEME_KEY, new NamingSchemeChain());
       context.set(ScanStep.SYNTAX_NOMINATOR_KEY, new SyntaxNominatorChain());
       context.set(ScanStep.SYNTAX_DETECTOR_KEY, new SyntaxDetectorChain());
@@ -113,11 +121,13 @@ public class InvocationPipelineBuilder {
   }
 
   public InvocationPipelineBuilder register(Module module) {
-    register(new HashSet<>(), module);
+    register(new ArrayList<>(), module);
     return this;
   }
 
-  private void register(Set<Class<? extends Module>> loading, Module module) {
+  private final AtomicBoolean loggedModuleDependencyCycleWarning = new AtomicBoolean(false);
+
+  private void register(List<Class<? extends Module>> loading, Module module) {
     if (module == null)
       throw new NullPointerException();
 
@@ -125,10 +135,22 @@ public class InvocationPipelineBuilder {
     if (loaded.contains(module.getClass()))
       return;
 
-    // If we're already loading this module, then we're in a circular dependency. That's fine. It
-    // doesn't hurt anything. Just ignore this recursive load.
-    if (loading.contains(module.getClass()))
+    // If we're already loading this module, then we're in a circular dependency. That's not a fatal
+    // error, but it could affect the relative ordering of module registrants. Print a warning (if
+    // we haven't already) and move on.
+    if (loading.contains(module.getClass())) {
+      if (LOGGER.isDebugEnabled()) {
+        if (loggedModuleDependencyCycleWarning.getAndSet(true) == false) {
+          int firstIndex = loading.indexOf(module.getClass());
+          LOGGER.debug(
+              "Found circular dependency in module dependencies [{} -> {}], module registration order may not be deterministic",
+              loading.subList(firstIndex, loading.size()).stream().map(Class::getSimpleName)
+                  .collect(joining(" -> ")),
+              module.getClass().getSimpleName());
+        }
+      }
       return;
+    }
 
     loading.add(module.getClass());
     try {
@@ -136,11 +158,11 @@ public class InvocationPipelineBuilder {
         register(loading, moduleDependency);
 
       register(context -> {
-        module.registerListeners(
-            context.get(InvocationPipelineStepBase.INVOCATION_PIPELINE_LISTENER_KEY)
+        module
+            .registerListeners(context.get(InvocationPipelineStep.INVOCATION_PIPELINE_LISTENER_KEY)
                 .map(InvocationPipelineListenerChain.class::cast).orElseThrow());
-        module.registerExceptionFormatters(
-            context.get(InvocationPipelineStepBase.EXCEPTION_FORMATTER_KEY)
+        module
+            .registerExceptionFormatters(context.get(InvocationPipelineStep.EXCEPTION_FORMATTER_KEY)
                 .map(ExceptionFormatterChain.class::cast).orElseThrow());
         module.registerArgsPreprocessors(context.get(PreprocessArgsStep.ARGS_PREPROCESSOR_KEY)
             .map(ArgsPreprocessorChain.class::cast).orElseThrow());

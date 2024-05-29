@@ -52,9 +52,9 @@ public class OptionalSystemProperty<T> {
    * optional will be empty. Otherwise, it will be present. This method is intended primarily for
    * use in testing.
    *
-   * @param name  the name of the system property
+   * @param name the name of the system property
    * @param value the value of the system property
-   * @param <T>   the type of the system property
+   * @param <T> the type of the system property
    * @return an optional system property
    */
   public static <T> OptionalSystemProperty<T> of(String name, T value) {
@@ -118,7 +118,8 @@ public class OptionalSystemProperty<T> {
     if (isPresent()) {
       return this;
     } else {
-      @SuppressWarnings("unchecked") Optional<T> r = (Optional<T>) supplier.get();
+      @SuppressWarnings("unchecked")
+      Optional<T> r = (Optional<T>) supplier.get();
       return new OptionalSystemProperty<>(getName(), Objects.requireNonNull(r).orElse(null));
     }
   }
@@ -127,7 +128,7 @@ public class OptionalSystemProperty<T> {
     return isPresent() ? value : defaultValue;
   }
 
-  public T orElseGet(Supplier<T> defaultValue) {
+  public T orElseGet(Supplier<? extends T> defaultValue) {
     return isPresent() ? value : defaultValue.get();
   }
 
@@ -144,5 +145,9 @@ public class OptionalSystemProperty<T> {
 
   public T get() {
     return orElseThrow();
+  }
+
+  public Optional<T> toJavaOptional() {
+    return Optional.ofNullable(value);
   }
 }

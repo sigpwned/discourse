@@ -15,10 +15,7 @@ public class TokenizeStep extends InvocationPipelineStepBase {
       InvocationContext.Key.of(Dialect.class);
 
   public List<Token> tokenize(List<String> args, InvocationContext context) {
-    Dialect syntax = context.get(SYNTAX_KEY).orElseThrow(() -> {
-      // TODO better exception
-      return new IllegalStateException("No syntax");
-    });
+    Dialect syntax = context.get(SYNTAX_KEY).orElseThrow();
 
     InvocationPipelineListener listener = getListener(context);
 

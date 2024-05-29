@@ -12,11 +12,7 @@ public class PreprocessCoordinatesStep extends InvocationPipelineStepBase {
 
   public Map<Coordinate, String> preprocessCoordinates(Map<Coordinate, String> originalCoordinates,
       InvocationContext context) {
-    CoordinatesPreprocessor preprocessor =
-        context.get(COORDINATES_PREPROCESSOR_KEY).orElseThrow(() -> {
-          // TODO better exception
-          return new IllegalStateException("No coordinates preprocessor");
-        });
+    CoordinatesPreprocessor preprocessor = context.get(COORDINATES_PREPROCESSOR_KEY).orElseThrow();
 
     Map<Coordinate, String> preprocessedCoordinates;
     try {

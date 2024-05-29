@@ -61,7 +61,6 @@ import com.sigpwned.discourse.core.module.core.scan.naming.BeanGetterNamingSchem
 import com.sigpwned.discourse.core.module.core.scan.naming.BeanSetterNamingScheme;
 import com.sigpwned.discourse.core.module.core.scan.naming.DefaultConstructorNamingScheme;
 import com.sigpwned.discourse.core.module.core.scan.naming.DiscourseAttributeAnnotationNamingScheme;
-import com.sigpwned.discourse.core.module.core.scan.naming.DiscourseIgnoreAnnotationNamingScheme;
 import com.sigpwned.discourse.core.module.core.scan.naming.FieldNamingScheme;
 import com.sigpwned.discourse.core.module.core.scan.rules.detect.DefaultConstructorRuleDetector;
 import com.sigpwned.discourse.core.module.core.scan.rules.detect.FieldRuleDetector;
@@ -73,6 +72,7 @@ import com.sigpwned.discourse.core.module.core.scan.rules.nominate.DefaultConstr
 import com.sigpwned.discourse.core.module.core.scan.rules.nominate.FieldRuleNominator;
 import com.sigpwned.discourse.core.module.core.scan.rules.nominate.SetterMethodRuleNominator;
 import com.sigpwned.discourse.core.module.core.scan.subcommands.ConfigurableSubCommandScanner;
+import com.sigpwned.discourse.core.module.core.scan.syntax.detect.DiscourseIgnoreSyntaxDetector;
 import com.sigpwned.discourse.core.module.core.scan.syntax.detect.OptionSyntaxDetector;
 import com.sigpwned.discourse.core.module.core.scan.syntax.detect.PositionalSyntaxDetector;
 import com.sigpwned.discourse.core.module.core.scan.syntax.nominate.FieldSyntaxNominator;
@@ -206,7 +206,7 @@ public class CoreModule extends Module {
    * </p>
    *
    * <ul>
-   * <li>{@link DiscourseIgnoreAnnotationNamingScheme}</li>
+   * <li>{@link DiscourseIgnoreSyntaxDetector}</li>
    * <li>{@link DiscourseAttributeAnnotationNamingScheme}</li>
    * <li>{@link BeanAccessorNamingScheme}</li>
    * <li>{@link FieldNamingScheme}</li>
@@ -215,16 +215,15 @@ public class CoreModule extends Module {
    * </ul>
    *
    * <p>
-   * {@link DiscourseIgnoreAnnotationNamingScheme} is registered at the front of the chain so that
-   * it can be used to ignore fields that are annotated with {@link DiscourseIgnore}. This means it
-   * will supersede any existing schemes already in the chain.
+   * {@link DiscourseIgnoreSyntaxDetector} is registered at the front of the chain so that it can be
+   * used to ignore fields that are annotated with {@link DiscourseIgnore}. This means it will
+   * supersede any existing schemes already in the chain.
    * </p>
    *
    * @param chain the chain to register the accessor naming schemes into
    */
   @Override
   public void registerNamingSchemes(Chain<NamingScheme> chain) {
-    chain.addFirst(DiscourseIgnoreAnnotationNamingScheme.INSTANCE);
     chain.addLast(DiscourseAttributeAnnotationNamingScheme.INSTANCE);
     chain.addLast(FieldNamingScheme.INSTANCE);
     chain.addLast(DefaultConstructorNamingScheme.INSTANCE);
@@ -241,6 +240,7 @@ public class CoreModule extends Module {
 
   @Override
   public void registerSyntaxDetectors(Chain<SyntaxDetector> chain) {
+    chain.addFirst(DiscourseIgnoreSyntaxDetector.INSTANCE);
     chain.addLast(OptionSyntaxDetector.INSTANCE);
     chain.addLast(PositionalSyntaxDetector.INSTANCE);
   }
@@ -298,7 +298,8 @@ public class CoreModule extends Module {
   @Override
   public List<Module> getDependencies() {
     return List.of(new EnvironmentVariableParameterModule(), new SystemPropertyParameterModule(),
-        new FlagParameterModule(), new StandardHelpAndVersionFlagsModule());
+        new FlagParameterModule(), new StandardHelpAndVersionFlagsModule(),
+        new DefaultParameterValueModule(), new RequiredParameterModule());
 
   }
 }

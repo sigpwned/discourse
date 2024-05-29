@@ -12,10 +12,7 @@ public class PreprocessTokensStep extends InvocationPipelineStepBase {
       Key.of(TokensPreprocessor.class);
 
   public List<Token> preprocessTokens(List<Token> originalTokens, InvocationContext context) {
-    TokensPreprocessor preprocessor = context.get(TOKENS_PREPROCESSOR_KEY).orElseThrow(() -> {
-      // TODO better exception
-      return new IllegalStateException("No tokens preprocessor");
-    });
+    TokensPreprocessor preprocessor = context.get(TOKENS_PREPROCESSOR_KEY).orElseThrow();
 
     List<Token> preprocessedTokens;
     try {

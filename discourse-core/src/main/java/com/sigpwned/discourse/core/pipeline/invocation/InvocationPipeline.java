@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.args.Token;
 import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.LeafCommand;
 import com.sigpwned.discourse.core.command.ParentCommand;
 import com.sigpwned.discourse.core.command.PlannedCommand;
 import com.sigpwned.discourse.core.command.ResolvedCommand;
@@ -35,6 +36,7 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.ResolveStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.ScanStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.TokenizeStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.CommandResolver;
+import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.exception.PartialCommandResolutionResolveException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.model.CommandResolution;
 
 public class InvocationPipeline {
@@ -72,8 +74,14 @@ public class InvocationPipeline {
         }
       }
 
-      return Optional.of(new CommandResolution<>(new ResolvedCommand<>(root.getName().orElse(null),
-          root.getVersion().orElse(null), parents, command), args));
+      if (command instanceof LeafCommand<? extends T> leaf)
+        return Optional
+            .of(new CommandResolution<>(new ResolvedCommand<>(root.getName().orElse(null),
+                root.getVersion().orElse(null), parents, leaf), args));
+      if (command instanceof SuperCommand<? extends T> supercommand)
+        throw new PartialCommandResolutionResolveException(supercommand);
+
+      throw new AssertionError("unrecognized command type " + command);
     }
   }
 
@@ -133,11 +141,7 @@ public class InvocationPipeline {
 
     context.set(ResolveStep.COMMAND_RESOLVER_KEY, new RootCommandResolver<>(rootCommand));
 
-    CommandResolution<? extends T> commandResolution =
-        resolve.<T>resolve(args, context).orElseThrow(() -> {
-          // TODO better exception
-          return new IllegalArgumentException("could not resolve command");
-        });
+    CommandResolution<? extends T> commandResolution = resolve.<T>resolve(args, context);
     ResolvedCommand<? extends T> resolvedCommand = commandResolution.getCommand();
     List<String> resolvedArgs = commandResolution.getArgs();
 
@@ -196,10 +200,6 @@ public class InvocationPipeline {
   }
 
   protected InvocationPipelineListener getListener(InvocationContext context) {
-    return context.get(InvocationPipelineStepBase.INVOCATION_PIPELINE_LISTENER_KEY)
-        .orElseThrow(() -> {
-          // TODO better exception
-          return new IllegalStateException("no listener");
-        });
+    return context.get(InvocationPipelineStep.INVOCATION_PIPELINE_LISTENER_KEY).orElseThrow();
   }
 }
