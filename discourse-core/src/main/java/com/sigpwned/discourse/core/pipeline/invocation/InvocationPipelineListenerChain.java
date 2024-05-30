@@ -51,13 +51,11 @@ public class InvocationPipelineListenerChain extends Chain<InvocationPipelineLis
   }
 
   /**
-   * @param instance
    * @param context
-   * @see com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener#afterPipeline(java.lang.Object,
-   *      com.sigpwned.discourse.core.pipeline.invocation.InvocationContext)
+   * @see com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener#afterPipeline(com.sigpwned.discourse.core.pipeline.invocation.InvocationContext)
    */
-  public void afterPipeline(Object instance, InvocationContext context) {
-    delegate.afterPipeline(instance, context);
+  public void afterPipeline(InvocationContext context) {
+    delegate.afterPipeline(context);
   }
 
   /**

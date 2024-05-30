@@ -27,7 +27,8 @@ import com.sigpwned.discourse.core.args.Token;
 public class SwitchNameToken extends Token {
   private final SwitchName name;
 
-  public SwitchNameToken(SwitchName name) {
+  public SwitchNameToken(SwitchName name, boolean attached) {
+    super(attached);
     this.name = requireNonNull(name);
   }
 
@@ -37,14 +38,17 @@ public class SwitchNameToken extends Token {
 
   @Override
   public int hashCode() {
-    return Objects.hash(name);
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + Objects.hash(name);
+    return result;
   }
 
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
-    if (obj == null)
+    if (!super.equals(obj))
       return false;
     if (getClass() != obj.getClass())
       return false;
@@ -54,6 +58,6 @@ public class SwitchNameToken extends Token {
 
   @Override
   public String toString() {
-    return "SwitchNameToken[" + name + "]";
+    return "SwitchNameToken [name=" + name + ", attached=" + isAttached() + "]";
   }
 }

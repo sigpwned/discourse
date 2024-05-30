@@ -17,16 +17,20 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.invocation.phase.scan.util;
+package com.sigpwned.discourse.core.pipeline.invocation.step.scan.util;
 
+import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toCollection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedRule;
+import com.sigpwned.discourse.core.util.MoreLists;
 import com.sigpwned.discourse.core.util.MoreSets;
 
 public class MoreRules {
@@ -122,5 +126,129 @@ public class MoreRules {
     } while (updated);
 
     return MoreSets.difference(necessary, satisfiable);
+  }
+
+  /**
+   * <p>
+   * Returns a list of {@link Reaction reactions} that represent the result of applying the given
+   * rules to the given initial set of available properties.
+   * </p>
+   * 
+   * <p>
+   * Each returned reaction will contain all rules that were evaluated, all properties that are
+   * available after the evaluation, all properties that were produced during the evaluation, and
+   * all properties that were consumed during the evaluation.
+   * </p>
+   * 
+   * <p>
+   * Application developers can use this data to test if construction process is deterministic, if
+   * all properties are decidable, which rules are needed, and so on.
+   * </p>
+   * 
+   * @param rules
+   * @param propertyNames
+   * @return
+   */
+  public static List<Reaction> react(List<NamedRule> rules, Set<String> propertyNames) {
+    Map<String, List<NamedRule>> sources = new HashMap<>();
+    List<NamedRule> sinks = new ArrayList<>();
+    for (NamedRule rule : rules) {
+      if (rule.consequent().isPresent()) {
+        sources.computeIfAbsent(rule.consequent().orElseThrow(), s -> new ArrayList<>()).add(rule);
+      } else {
+        sinks.add(rule);
+      }
+    }
+
+    List<Set<String>> sinksMap = new ArrayList<>();
+    for (NamedRule sink : sinks)
+      sinksMap.add(sink.antecedents());
+
+    List<Reaction> result = new ArrayList<>();
+    List<List<NamedRule>> sourcePermutations =
+        MoreLists.cartesianProduct(new ArrayList<>(sources.values()));
+    for (List<NamedRule> sourcePermutation : sourcePermutations) {
+      List<NamedRule> rulesList = new ArrayList<>();
+      rulesList.addAll(sourcePermutation);
+      rulesList.addAll(sinks);
+
+      Reaction reaction = segmentedReact(propertyNames, rulesList);
+
+      result.add(reaction);
+    }
+
+    return unmodifiableList(result);
+  }
+
+  /**
+   * Represents the complete evaluation of a set of rules against a set of available properties.
+   */
+  public static record Reaction(List<NamedRule> evaluated, Set<String> available,
+      Set<String> produced, Set<String> consumed) {
+    public Reaction {
+      evaluated = List.copyOf(evaluated);
+      available = Set.copyOf(available);
+      produced = Set.copyOf(produced);
+      consumed = Set.copyOf(consumed);
+    }
+  }
+
+  /**
+   * Returns a {@link Reaction reaction} that represents the result of applying the given rules to
+   * the given initial set of available properties. The returned reaction will contain all rules
+   * that were evaluated, all properties that are available after the evaluation, all properties
+   * that were produced during the evaluation, and all properties that were consumed during the
+   * evaluation.
+   * 
+   * @param initiallyAvailable The initial set of available properties.
+   * @param rules The rules to apply. For each rule with a consequent, there should only be one rule
+   *        for each unique consequent value. There can be any number of rules with no consequent
+   *        value. The order of the rules doesn't matter.
+   * @return A {@link Reaction reaction} that represents the result of applying the given rules to
+   *         the given initial set of available properties.
+   */
+  protected static Reaction segmentedReact(Set<String> initiallyAvailable, List<NamedRule> rules) {
+    List<NamedRule> sinks = new ArrayList<>();
+    List<NamedRule> sources = new ArrayList<>();
+    for (NamedRule rule : rules) {
+      if (rule.consequent().isPresent()) {
+        sources.add(rule);
+      } else {
+        sinks.add(rule);
+      }
+    }
+
+    List<NamedRule> evaluated = new ArrayList<>();
+    Set<String> available = new HashSet<>(initiallyAvailable);
+    Set<String> produced = new HashSet<>();
+    Set<String> consumed = new HashSet<>();
+
+    boolean updated;
+    do {
+      updated = false;
+      Iterator<NamedRule> iterator = sources.iterator();
+      while (iterator.hasNext()) {
+        NamedRule rule = iterator.next();
+        Set<String> antecedents = rule.antecedents();
+        String consequent = rule.consequent().orElseThrow();
+        if (available.containsAll(antecedents) && !produced.contains(consequent)) {
+          available.add(consequent);
+          produced.add(consequent);
+          consumed.addAll(antecedents);
+          iterator.remove();
+          evaluated.add(rule);
+          updated = true;
+        }
+      }
+    } while (updated);
+
+    for (NamedRule sink : sinks) {
+      if (available.containsAll(sink.antecedents())) {
+        consumed.addAll(sink.antecedents());
+        evaluated.add(sink);
+      }
+    }
+
+    return new Reaction(evaluated, available, produced, consumed);
   }
 }

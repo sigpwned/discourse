@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toSet;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -56,8 +57,10 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedSynt
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.PreparedClass;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.SuperCommand;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.WalkedClass;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.util.MoreRules;
 import com.sigpwned.discourse.core.util.Graphs;
 import com.sigpwned.discourse.core.util.Maybe;
+import com.sigpwned.discourse.core.util.MoreSets;
 import com.sigpwned.discourse.core.util.Streams;
 
 public class ScanStep extends InvocationPipelineStepBase {
@@ -440,8 +443,41 @@ public class ScanStep extends InvocationPipelineStepBase {
               namedSyntax.genericType(), namedSyntax.annotations()));
         }
 
+        // TODO Should we defer validation of the rules until later? Developers may customize after.
+        // Do we have a clear winner for evaluation and construction?
+        Set<String> propertyNames = new HashSet<>();
+        for (LeafCommandProperty property : properties)
+          propertyNames.add(property.getName());
 
-        body = new CommandBody(properties, rules);
+        // We sort by the highest number of consumed properties first, then by the lowest number of
+        // evaluated rules. Give me the most bang (side effects) for the least buck (work).
+        List<MoreRules.Reaction> reactions = MoreRules.react(rules, propertyNames).stream()
+            .sorted(Comparator.<MoreRules.Reaction>comparingInt(ri -> -ri.consumed().size())
+                .thenComparingInt(ri -> ri.evaluated().size()))
+            .toList();
+        if (reactions.isEmpty()) {
+          // I'm not even sure how this would happen. A class with no fields and no default
+          // constructor? We should catch that earlier.
+          throw new AssertionError("Failed to test rules");
+        }
+        MoreRules.Reaction bestReaction = reactions.get(0);
+        for (int i = 1; i < reactions.size(); i++) {
+          MoreRules.Reaction ri = reactions.get(i);
+          if (!bestReaction.consumed().containsAll(ri.consumed())) {
+            // Oops. Different sets of rules do different work. That's not good.
+            // TODO better exception
+            throw new IllegalArgumentException("Not all rules are reachable: "
+                + MoreSets.difference(ri.consumed(), bestReaction.consumed()));
+          }
+        }
+        if (!bestReaction.consumed().containsAll(propertyNames)) {
+          // Oops. Not all properties are consumed. That's not good.
+          // TODO better exception
+          throw new IllegalArgumentException("Not all properties are consumed: "
+              + MoreSets.difference(propertyNames, bestReaction.consumed()));
+        }
+
+        body = new CommandBody(properties, bestReaction.evaluated());
       }
 
       preparedClasses.add(new PreparedClass(walkedClass.supercommand(), walkedClass.clazz(),

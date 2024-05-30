@@ -17,7 +17,7 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.invocation.phase.scan.util;
+package com.sigpwned.discourse.core.pipeline.invocation.step.scan.util;
 
 import com.sigpwned.discourse.core.util.MoreSets;
 import java.util.ArrayList;
@@ -31,7 +31,6 @@ import java.util.Set;
 public class Ruling {
 
   public static record ProducedAndConsumed(Set<String> produced, Set<String> consumed) {
-
     public ProducedAndConsumed {
       produced = Set.copyOf(produced);
       consumed = Set.copyOf(consumed);

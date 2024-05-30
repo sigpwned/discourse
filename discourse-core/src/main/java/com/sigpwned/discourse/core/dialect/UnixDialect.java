@@ -49,20 +49,21 @@ public class UnixDialect implements Dialect {
           if (sep != -1) {
             SwitchName switchName = SwitchName.fromString(text.substring(0, sep));
             String value = text.substring(sep + 1, text.length());
-            return List.of(new SwitchNameToken(switchName), new ValueToken(value, true));
+            return List.of(new SwitchNameToken(switchName, false), new ValueToken(value, true));
           } else {
-            return List.of(new SwitchNameToken(SwitchName.fromString(text)));
+            return List.of(new SwitchNameToken(SwitchName.fromString(text), false));
           }
         } else if (token.startsWith(SHORT_NAME_PREFIX)) {
           String text = token.substring(SHORT_NAME_PREFIX.length(), token.length());
           if (text.length() == 0) {
             return List.of(new ValueToken(SHORT_NAME_PREFIX, false));
           } else if (text.length() == 1) {
-            return List.of(new SwitchNameToken(SwitchName.fromString(text)));
+            return List.of(new SwitchNameToken(SwitchName.fromString(text), false));
           } else {
             List<Token> result = new ArrayList<>();
             for (int i = 0; i < text.length(); i++) {
-              result.add(new SwitchNameToken(SwitchName.fromString(text.substring(i, i + 1))));
+              result
+                  .add(new SwitchNameToken(SwitchName.fromString(text.substring(i, i + 1)), i > 0));
             }
             return unmodifiableList(result);
           }

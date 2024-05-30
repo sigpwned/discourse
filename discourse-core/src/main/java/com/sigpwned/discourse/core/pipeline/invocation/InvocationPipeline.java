@@ -128,12 +128,44 @@ public class InvocationPipeline {
     this.context = requireNonNull(context);
   }
 
-  public <T> T invoke(Class<T> clazz, List<String> args) {
+  /**
+   * Runs the scan step only
+   * 
+   * @param <T>
+   * @param clazz
+   * @return
+   */
+  public <T> RootCommand<T> scan(Class<T> clazz) {
+    RootCommand<T> root;
+
+    try {
+      getListener(context).beforePipeline(context);
+      root = scan.scan(clazz, context);
+      getListener(context).afterPipeline(context);
+    } catch (Exception e) {
+      getListener(context).catchPipeline(e, context);
+      throw e;
+    } finally {
+      getListener(context).finallyPipeline(context);
+    }
+
+    return root;
+  }
+
+  /**
+   * Runs steps from Plan to Finish.
+   * 
+   * @param <T>
+   * @param command
+   * @param args
+   * @return
+   */
+  public <T> T invoke(ResolvedCommand<T> command, List<String> args) {
     T instance;
     try {
       getListener(context).beforePipeline(context);
-      instance = doInvoke(clazz, args);
-      getListener(context).afterPipeline(instance, context);
+      instance = doPlanToFinish(command, args);
+      getListener(context).afterPipeline(context);
     } catch (Exception e) {
       getListener(context).catchPipeline(e, context);
       throw e;
@@ -143,15 +175,44 @@ public class InvocationPipeline {
     return instance;
   }
 
-  protected <T> T doInvoke(Class<T> clazz, List<String> args) {
+  /**
+   * Runs all steps from Scan to Finish.
+   * 
+   * @param <T>
+   * @param clazz
+   * @param args
+   * @return
+   */
+  public <T> T invoke(Class<T> clazz, List<String> args) {
+    T instance;
+    try {
+      getListener(context).beforePipeline(context);
+      CommandResolution<? extends T> resolution = doScanToResolve(clazz, args);
+      instance = doPlanToFinish(resolution.getCommand(), resolution.getArgs());
+      getListener(context).afterPipeline(context);
+    } catch (Exception e) {
+      getListener(context).catchPipeline(e, context);
+      throw e;
+    } finally {
+      getListener(context).finallyPipeline(context);
+    }
+    return instance;
+  }
+
+  protected <T> CommandResolution<? extends T> doScanToResolve(Class<T> clazz, List<String> args) {
     RootCommand<T> rootCommand = scan.scan(clazz, context);
 
     context.set(ResolveStep.COMMAND_RESOLVER_KEY, new RootCommandResolver<>(rootCommand));
 
-    CommandResolution<? extends T> commandResolution = resolve.<T>resolve(args, context);
-    ResolvedCommand<? extends T> resolvedCommand = commandResolution.getCommand();
-    List<String> resolvedArgs = commandResolution.getArgs();
+    context.set(InvocationPipelineStep.ROOT_COMMAND_KEY, rootCommand);
 
+    CommandResolution<? extends T> commandResolution = resolve.<T>resolve(args, context);
+
+    return commandResolution;
+  }
+
+  protected <T> T doPlanToFinish(ResolvedCommand<? extends T> resolvedCommand,
+      List<String> resolvedArgs) {
     PlannedCommand<? extends T> plannedCommand = plan.plan(resolvedCommand, context);
 
     context.get(PostprocessArgsStep.ARGS_POSTPROCESSOR_KEY).map(ArgsPostprocessorChain.class::cast)

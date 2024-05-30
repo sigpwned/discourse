@@ -38,7 +38,7 @@ public class WindowsDialect implements Dialect {
       public List<Token> tokenize(String token) {
         if (token.startsWith(SWITCH_NAME_PREFIX)) {
           String text = token.substring(SWITCH_NAME_PREFIX.length(), token.length());
-          return List.of(new SwitchNameToken(SwitchName.fromString(text)));
+          return List.of(new SwitchNameToken(SwitchName.fromString(text), false));
         } else {
           return List.of(new ValueToken(token, false));
         }

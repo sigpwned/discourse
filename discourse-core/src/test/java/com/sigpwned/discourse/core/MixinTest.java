@@ -157,4 +157,15 @@ public class MixinTest {
 
     assertThat(instance, is(expectedInstance));
   }
+
+  @Configurable(name = "foo", description = "foo")
+  public static class FooClass {
+    public void FooClass(int x, int y) {}
+  }
+
+  @Test
+  public void test() {
+    new InvocationPipelineBuilder().register(new CoreModule()).build().invoke(FooClass.class,
+        List.of());
+  }
 }

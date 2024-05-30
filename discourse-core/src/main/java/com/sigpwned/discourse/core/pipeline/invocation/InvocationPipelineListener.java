@@ -15,7 +15,7 @@ public interface InvocationPipelineListener {
   // PIPELINE /////////////////////////////////////////////////////////////////////////////////////
   default void beforePipeline(InvocationContext context) {}
 
-  default void afterPipeline(Object instance, InvocationContext context) {}
+  default void afterPipeline(InvocationContext context) {}
 
   default void catchPipeline(Throwable t, InvocationContext context) {}
 

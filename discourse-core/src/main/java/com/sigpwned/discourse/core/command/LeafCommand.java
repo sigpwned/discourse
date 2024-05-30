@@ -16,6 +16,7 @@ public final class LeafCommand<T> extends Command<T> {
    * @param properties The properties of the command. This list is not copied or made unmodifiable,
    *        so if the caller wants the list to be immutable, then they will need to handle that
    *        themselves.
+   * @param reactor The reactor for the command.
    * @param constructor The constructor for the command.
    */
   public LeafCommand(String description, List<LeafCommandProperty> properties,

@@ -35,6 +35,7 @@ public class AttributeStep extends InvocationPipelineStepBase {
       Coordinate coordinate = parsedArg.getKey();
       String propertyName = propertyNames.get(coordinate);
       if (propertyName == null) {
+        // This means we have an argument that we don't know what to do with.
         // TODO better exception
         throw new IllegalArgumentException("no property name for " + coordinate);
       }
