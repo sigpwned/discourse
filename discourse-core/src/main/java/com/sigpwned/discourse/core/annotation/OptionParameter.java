@@ -55,12 +55,4 @@ public @interface OptionParameter {
    * @return the description of the option
    */
   public String description() default "";
-
-  /**
-   * If this option is required, then it must appear on the resolvedCommand line. Otherwise, a
-   * {@link RequiredParametersMissingSyntaxException} is thrown.
-   *
-   * @return whether the option is required
-   */
-  public boolean required() default false;
 }

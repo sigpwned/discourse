@@ -195,8 +195,8 @@ public class MixinModule extends Module {
         }
 
         if (candidate.annotations().stream().anyMatch(a -> a instanceof DiscourseMixin)) {
-          return Maybe.yes(new SyntaxDetection(false, false, false,
-              Set.of(new MixinCoordinate(mixin.prefix, mixin.name))));
+          return Maybe
+              .yes(new SyntaxDetection(Set.of(new MixinCoordinate(mixin.prefix, mixin.name))));
         }
 
         for (SyntaxDetector detector : syntaxDetectorChain) {
@@ -298,8 +298,7 @@ public class MixinModule extends Module {
         for (NamedSyntax namedSyntax : syntax) {
           if (namedSyntax.nominated() instanceof MixinNomination mixin2) {
             mixinSyntax.add(new NamedSyntax(mixin2.nominated, namedSyntax.genericType(),
-                namedSyntax.annotations(), namedSyntax.required(), namedSyntax.coordinates(),
-                namedSyntax.name()));
+                namedSyntax.annotations(), namedSyntax.coordinates(), namedSyntax.name()));
           }
         }
 

@@ -62,7 +62,7 @@ public class EnvironmentVariableParameterModule extends Module {
         Set<Coordinate> coordinates =
             Set.of(new EnvironmentVariableCoordinate(variable.variable()));
 
-        return Maybe.yes(new SyntaxDetection(false, false, false, coordinates));
+        return Maybe.yes(new SyntaxDetection(coordinates));
       }
     });
   }

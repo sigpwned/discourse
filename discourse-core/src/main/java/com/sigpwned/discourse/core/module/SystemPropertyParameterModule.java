@@ -61,7 +61,7 @@ public class SystemPropertyParameterModule extends Module {
         }
         Set<Coordinate> coordinates = Set.of(new SystemPropertyCoordinate(property.property()));
 
-        return Maybe.yes(new SyntaxDetection(false, false, false, coordinates));
+        return Maybe.yes(new SyntaxDetection(coordinates));
       }
     });
   }

@@ -45,8 +45,6 @@ public class OptionSyntaxDetector implements SyntaxDetector {
       return Maybe.maybe();
     }
 
-    boolean required = option.required();
-
     Set<Coordinate> coordinates = new HashSet<>(2);
     if (!option.longName().equals("")) {
       coordinates.add(new OptionCoordinate(SwitchName.fromString(option.longName())));
@@ -60,6 +58,6 @@ public class OptionSyntaxDetector implements SyntaxDetector {
       throw new IllegalArgumentException("option must have a long or short name");
     }
 
-    return Maybe.yes(new SyntaxDetection(required, false, false, coordinates));
+    return Maybe.yes(new SyntaxDetection(coordinates));
   }
 }

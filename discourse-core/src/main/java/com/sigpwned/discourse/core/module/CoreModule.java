@@ -299,7 +299,9 @@ public class CoreModule extends Module {
   public List<Module> getDependencies() {
     return List.of(new EnvironmentVariableParameterModule(), new SystemPropertyParameterModule(),
         new FlagParameterModule(), new StandardHelpAndVersionFlagsModule(),
-        new DefaultParameterValueModule(), new RequiredParameterModule(), new MixinModule());
+        new DefaultParameterValueModule(), new RequiredParameterModule(), new MixinModule(),
+        new HelpFlagParameterModule(), new VersionFlagParameterModule(),
+        new StandardHelpAndVersionFlagsModule());
 
   }
 }

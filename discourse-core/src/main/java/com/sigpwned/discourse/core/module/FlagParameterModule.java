@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.Module;
+import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.args.SwitchName;
 import com.sigpwned.discourse.core.args.Token;
@@ -36,7 +37,6 @@ import com.sigpwned.discourse.core.args.coordinate.OptionCoordinate;
 import com.sigpwned.discourse.core.args.token.SwitchNameToken;
 import com.sigpwned.discourse.core.args.token.ValueToken;
 import com.sigpwned.discourse.core.module.parameter.flag.FlagCoordinate;
-import com.sigpwned.discourse.core.module.parameter.flag.FlagParameter;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.coordinates.CoordinatesPreprocessor;
 import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.tokens.TokensPreprocessor;
@@ -73,7 +73,7 @@ public class FlagParameterModule extends Module {
               "@FlagParameter must have at least one of longName or shortName");
         }
 
-        return Maybe.yes(new SyntaxDetection(false, flag.help(), flag.version(), coordinates));
+        return Maybe.yes(new SyntaxDetection(coordinates));
       }
     });
   }
@@ -95,8 +95,7 @@ public class FlagParameterModule extends Module {
           String propertyName = entry.getValue();
           if (coordinate instanceof FlagCoordinate flag) {
             flags.add(flag.getName());
-            preprocessedCoordinates.put(new OptionCoordinate(flag.getName()),
-                propertyName);
+            preprocessedCoordinates.put(new OptionCoordinate(flag.getName()), propertyName);
           } else {
             preprocessedCoordinates.put(coordinate, propertyName);
           }

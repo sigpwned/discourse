@@ -27,11 +27,10 @@ import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetection;
 
 public record DetectedSyntax(Object nominated, Type genericType, List<Annotation> annotations,
-    boolean required, boolean help, boolean version, Set<Coordinate> coordinates) {
+    Set<Coordinate> coordinates) {
   public static DetectedSyntax fromCandidateAndDetection(CandidateSyntax candidate,
       SyntaxDetection detection) {
     return new DetectedSyntax(candidate.nominated(), candidate.genericType(),
-        candidate.annotations(), detection.required(), detection.help(), detection.version(),
-        detection.coordinates());
+        candidate.annotations(), detection.coordinates());
   }
 }

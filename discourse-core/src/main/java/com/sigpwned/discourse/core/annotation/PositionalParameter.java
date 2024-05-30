@@ -56,12 +56,4 @@ public @interface PositionalParameter {
    * @return the description of the parameter
    */
   public String description() default "";
-
-  /**
-   * If the parameter is required, then it must appear on the resolvedCommand line, or else a
-   * {@link RequiredParametersMissingSyntaxException} is thrown.
-   *
-   * @return whether the parameter is required
-   */
-  public boolean required() default true;
 }

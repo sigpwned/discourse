@@ -22,7 +22,5 @@ package com.sigpwned.discourse.core.pipeline.invocation.step.scan;
 import java.util.Set;
 import com.sigpwned.discourse.core.args.Coordinate;
 
-public record SyntaxDetection(boolean required, boolean help, boolean version,
-    Set<Coordinate> coordinates) {
-
+public record SyntaxDetection(Set<Coordinate> coordinates) {
 }

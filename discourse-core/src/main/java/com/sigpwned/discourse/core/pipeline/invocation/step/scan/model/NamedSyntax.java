@@ -26,10 +26,10 @@ import java.util.Set;
 import com.sigpwned.discourse.core.args.Coordinate;
 
 public record NamedSyntax(Object nominated, Type genericType, List<Annotation> annotations,
-    boolean required, Set<Coordinate> coordinates, String name) {
+    Set<Coordinate> coordinates, String name) {
 
   public static NamedSyntax fromDetectedSyntax(DetectedSyntax syntax, String name) {
     return new NamedSyntax(syntax.nominated(), syntax.genericType(), syntax.annotations(),
-        syntax.required(), syntax.coordinates(), name);
+        syntax.coordinates(), name);
   }
 }

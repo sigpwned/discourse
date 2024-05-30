@@ -5,21 +5,15 @@ import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import com.sigpwned.discourse.core.Chain;
-import com.sigpwned.discourse.core.Dialect;
 import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.args.SwitchName;
 import com.sigpwned.discourse.core.command.LeafCommand;
 import com.sigpwned.discourse.core.command.LeafCommandProperty;
 import com.sigpwned.discourse.core.command.ResolvedCommand;
-import com.sigpwned.discourse.core.command.RootCommand;
-import com.sigpwned.discourse.core.error.ExitError;
-import com.sigpwned.discourse.core.format.HelpFormatter;
-import com.sigpwned.discourse.core.format.VersionFormatter;
-import com.sigpwned.discourse.core.module.parameter.flag.FlagCoordinate;
+import com.sigpwned.discourse.core.module.parameter.flag.help.HelpFlagCoordinate;
+import com.sigpwned.discourse.core.module.parameter.flag.version.VersionFlagCoordinate;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener;
 import com.sigpwned.discourse.core.util.Internationalization;
@@ -74,8 +68,6 @@ public class StandardHelpAndVersionFlagsModule extends com.sigpwned.discourse.co
   @Override
   public void registerListeners(Chain<InvocationPipelineListener> chain) {
     chain.addFirst(new InvocationPipelineListener() {
-      private LeafCommand<?> leaf;
-
       @Override
       public <T> void beforePlanStep(ResolvedCommand<? extends T> resolvedCommand,
           InvocationContext context) {
@@ -92,57 +84,15 @@ public class StandardHelpAndVersionFlagsModule extends com.sigpwned.discourse.co
         if (!getHelpSwitches().isEmpty()) {
           leaf.getProperties()
               .add(new LeafCommandProperty(HELP_PROPERTY_NAME, getHelpDescription(),
-                  getHelpSwitches().stream().map(FlagCoordinate::new).collect(toSet()),
+                  getHelpSwitches().stream().map(HelpFlagCoordinate::new).collect(toSet()),
                   Boolean.class, emptyList()));
         }
 
         if (!getVersionSwitches().isEmpty()) {
           leaf.getProperties()
               .add(new LeafCommandProperty(VERSION_PROPERTY_NAME, getVersionDescription(),
-                  getVersionSwitches().stream().map(FlagCoordinate::new).collect(toSet()),
+                  getVersionSwitches().stream().map(VersionFlagCoordinate::new).collect(toSet()),
                   Boolean.class, emptyList()));
-        }
-
-        this.leaf = leaf;
-      }
-
-      @Override
-      public void afterGroupStep(List<Entry<String, String>> attributedArgs,
-          Map<String, List<String>> groupedArgs, InvocationContext context) {
-        boolean hasHelp;
-        if (groupedArgs.containsKey(HELP_PROPERTY_NAME)
-            && !groupedArgs.get(HELP_PROPERTY_NAME).isEmpty()
-            && Boolean.parseBoolean(groupedArgs.get(HELP_PROPERTY_NAME).get(0))) {
-          hasHelp = true;
-        } else {
-          hasHelp = false;
-        }
-
-        boolean hasVersion;
-        if (groupedArgs.containsKey(VERSION_PROPERTY_NAME)
-            && !groupedArgs.get(VERSION_PROPERTY_NAME).isEmpty()
-            && Boolean.parseBoolean(groupedArgs.get(VERSION_PROPERTY_NAME).get(0))) {
-          hasVersion = true;
-        } else {
-          hasVersion = false;
-        }
-
-        // TODO What stream should we print to?
-        if (hasVersion) {
-          RootCommand<?> root = context.get(RootCommand.class).orElseThrow();
-          VersionFormatter formatter = context.get(VersionFormatter.class).orElseThrow();
-          formatter.formatVersion(root);
-        }
-        if (hasHelp) {
-          Dialect dialect = context.get(Dialect.class).orElseThrow();
-          HelpFormatter formatter = context.get(HelpFormatter.class).orElseThrow();
-          formatter.formatHelp(dialect, leaf);
-        }
-
-        if (hasHelp || hasVersion) {
-          // TODO parameterize exit code?
-          ExitError.Factory exitFactory = context.get(ExitError.Factory.class).orElseThrow();
-          throw exitFactory.createExitError(0);
         }
       }
     });
@@ -151,7 +101,7 @@ public class StandardHelpAndVersionFlagsModule extends com.sigpwned.discourse.co
   @Override
   public List<Module> getDependencies() {
     // We depend on the FlagParameterModule because we use flag parameters.
-    return List.of(new FlagParameterModule());
+    return List.of(new HelpFlagParameterModule(), new VersionFlagParameterModule());
   }
 
   /**

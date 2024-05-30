@@ -20,7 +20,8 @@
 package com.sigpwned.discourse.core;
 
 import java.util.Objects;
-import com.sigpwned.discourse.core.annotation.FlagParameter;
+import com.sigpwned.discourse.core.annotation.HelpFlagParameter;
+import com.sigpwned.discourse.core.annotation.VersionFlagParameter;
 
 /**
  * A base class for configuration objects that have standard options. Provides {@code --help} and
@@ -29,7 +30,7 @@ import com.sigpwned.discourse.core.annotation.FlagParameter;
  */
 public class StandardConfigurationBase {
 
-  @FlagParameter(longName = "help", help = true, description = "Print this help message")
+  @HelpFlagParameter
   private boolean help = false;
 
   /**
@@ -46,8 +47,7 @@ public class StandardConfigurationBase {
     this.help = help;
   }
 
-  @FlagParameter(longName = "version", version = true,
-      description = " The current version of this software")
+  @VersionFlagParameter
   private boolean version = false;
 
   /**

@@ -43,10 +43,8 @@ public class PositionalSyntaxDetector implements SyntaxDetector {
       return Maybe.maybe();
     }
 
-    boolean required = positional.required();
-
     Set<Coordinate> coordinates = Set.of(PositionalCoordinate.of(positional.position()));
 
-    return Maybe.yes(new SyntaxDetection(required, false, false, coordinates));
+    return Maybe.yes(new SyntaxDetection(coordinates));
   }
 }

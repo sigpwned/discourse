@@ -1,9 +1,12 @@
 package com.sigpwned.discourse.core.pipeline.invocation;
 
+import com.sigpwned.discourse.core.Dialect;
 import com.sigpwned.discourse.core.command.LeafCommand;
 import com.sigpwned.discourse.core.command.RootCommand;
 import com.sigpwned.discourse.core.error.ExitError;
 import com.sigpwned.discourse.core.format.ExceptionFormatter;
+import com.sigpwned.discourse.core.format.HelpFormatter;
+import com.sigpwned.discourse.core.format.VersionFormatter;
 import com.sigpwned.discourse.core.pipeline.invocation.step.ScanStep;
 
 public interface InvocationPipelineStep {
@@ -31,4 +34,13 @@ public interface InvocationPipelineStep {
 
   public static final InvocationContext.Key<ExceptionFormatter> EXCEPTION_FORMATTER_KEY =
       InvocationContext.Key.of(ExceptionFormatter.class);
+
+  public static final InvocationContext.Key<HelpFormatter> HELP_FORMATTER_KEY =
+      InvocationContext.Key.of(HelpFormatter.class);
+
+  public static final InvocationContext.Key<VersionFormatter> VERSION_FORMATTER_KEY =
+      InvocationContext.Key.of(VersionFormatter.class);
+
+  public static final InvocationContext.Key<Dialect> DIALECT_KEY =
+      InvocationContext.Key.of(Dialect.class);
 }

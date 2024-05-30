@@ -22,7 +22,6 @@ package com.sigpwned.discourse.core.annotation;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -35,8 +34,8 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <pre>
- *   &#x40;FlagParameter(longName = "verbose")
- *   public boolean verbose;
+ * &#x40;FlagParameter(longName = "verbose")
+ * public boolean verbose;
  * </pre>
  */
 @Retention(RUNTIME)
@@ -48,8 +47,4 @@ public @interface FlagParameter {
   public String longName() default "";
 
   public String description() default "";
-
-  public boolean help() default false;
-
-  public boolean version() default false;
 }
