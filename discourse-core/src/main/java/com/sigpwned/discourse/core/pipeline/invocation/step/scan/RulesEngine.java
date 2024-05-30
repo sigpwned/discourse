@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedRule;
 
 
@@ -49,7 +50,7 @@ public class RulesEngine {
       Iterator<NamedRule> iterator = rules.iterator();
       while (iterator.hasNext()) {
         NamedRule rule = iterator.next();
-        if (input.keySet().containsAll(rule.antecedents())) {
+        if (ready(input, rule)) {
           iterator.remove();
 
           Optional<Optional<Object>> maybeEvaluated = getEvaluator().run(input, rule);
@@ -71,6 +72,26 @@ public class RulesEngine {
     } while (changed);
 
     return unmodifiableMap(input);
+  }
+
+  protected static boolean ready(Map<String, Object> input, NamedRule rule) {
+    // What properties are computed at the moment?
+    final Set<String> computed = input.keySet();
+
+    // If the antecedent properties are not computed, then the rule is not ready to be evaluated.
+    if (!computed.containsAll(rule.antecedents()))
+      return false;
+
+    // Do we have any conditions?
+    if (rule.conditions() != null && !rule.conditions().isEmpty()) {
+      // We have conditions. Are any of the conditions met? If no conditions are met, then the rule
+      // is not ready to be evaluated.
+      if (rule.conditions().stream().noneMatch(csi -> computed.containsAll(csi)))
+        return false;
+    }
+
+    // We passed the gauntlet. The rule is ready to be evaluated.
+    return true;
   }
 
   private RuleEvaluator getEvaluator() {

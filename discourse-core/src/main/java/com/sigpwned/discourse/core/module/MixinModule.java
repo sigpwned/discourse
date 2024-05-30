@@ -294,10 +294,6 @@ public class MixinModule extends Module {
           return Maybe.maybe();
         }
 
-        // if (candidate.annotations().stream().anyMatch(a -> a instanceof DiscourseMixin)) {
-        //
-        // }
-
         List<NamedSyntax> mixinSyntax = new ArrayList<>();
         for (NamedSyntax namedSyntax : syntax) {
           if (namedSyntax.nominated() instanceof MixinNomination mixin2) {
@@ -326,7 +322,15 @@ public class MixinModule extends Module {
               antecedents.add(antecedent);
             }
 
-            return Maybe.yes(new RuleDetection(antecedents, detection.hasConsequent()));
+            Set<Set<String>> conditions = new HashSet<>();
+            conditions.addAll(detection.conditions());
+            for (NamedSyntax namedSyntax : mixinSyntax) {
+              if (namedSyntax.name().startsWith(mixin.prefix + ".")) {
+                conditions.add(Set.of(namedSyntax.name()));
+              }
+            }
+
+            return Maybe.yes(new RuleDetection(antecedents, conditions, detection.hasConsequent()));
           }
         }
 
@@ -348,11 +352,12 @@ public class MixinModule extends Module {
           if (evaluator == this)
             continue;
 
-          Optional<Optional<Object>> result = evaluator.run(input, new NamedRule(mixin.nominated,
-              rule.genericType(), rule.annotations(), rule.antecedents(), rule.consequent()));
-          if (result.isPresent()) {
+          Optional<Optional<Object>> result =
+              evaluator.run(input, new NamedRule(mixin.nominated, rule.genericType(),
+                  rule.annotations(), rule.antecedents(), rule.conditions(), rule.consequent()));
+
+          if (result.isPresent())
             return result;
-          }
         }
 
         return Optional.empty();

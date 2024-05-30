@@ -21,6 +21,7 @@ package com.sigpwned.discourse.core.pipeline.invocation.step.scan;
 
 import java.util.Set;
 
-public record RuleDetection(Set<String> antecedents, boolean hasConsequent) {
+public record RuleDetection(Set<String> antecedents, Set<Set<String>> conditions,
+    boolean hasConsequent) {
 
 }

@@ -19,6 +19,7 @@
  */
 package com.sigpwned.discourse.core.module.core.scan.rules.detect;
 
+import static java.util.Collections.emptySet;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
@@ -64,6 +65,6 @@ public class SetterMethodRuleDetector implements RuleDetector {
     // A setter produces no new values
     boolean hasConsequent = false;
 
-    return Maybe.yes(new RuleDetection(antecedents, hasConsequent));
+    return Maybe.yes(new RuleDetection(antecedents, emptySet(), hasConsequent));
   }
 }

@@ -90,19 +90,70 @@ public class MixinTest {
   }
 
   @Test
-  public void givenAConfigurableClassWithMixin_whenInvokeWithMixinParams_thenResultIncludesMixin() {
-//    MixinTestConfigurable instance =
-//        new InvocationPipelineBuilder().register(new CoreModule()).build().invoke(
-//            MixinTestConfigurable.class, List.of("-a", "alpha", "-b", "bravo", "-f", "foo", "42"));
-
+  public void givenAConfigurableClassWithMixin_whenInvokeWithAlphaBravoMixinParams_thenAlphaBravoMixinsPresent() {
     MixinTestConfigurable instance =
         new InvocationPipelineBuilder().register(new CoreModule()).build().invoke(
-            MixinTestConfigurable.class, List.of("-a", "alpha", "-f", "foo", "42"));
-    
-    MixinTestConfigurable expectedInstance = new MixinTestConfigurable();
-    expectedInstance.foo = "alpha";
-    expectedInstance.bar = 42;
+            MixinTestConfigurable.class, List.of("-a", "alpha", "-b", "bravo", "-f", "foo", "42"));
 
+    MixinBravo bravo = new MixinBravo();
+    bravo.bravoValue = "bravo";
+
+    MixinAlpha alpha = new MixinAlpha();
+    alpha.alphaValue = "alpha";
+    alpha.bravo = bravo;
+
+    MixinTestConfigurable expectedInstance = new MixinTestConfigurable();
+    expectedInstance.foo = "foo";
+    expectedInstance.bar = 42;
+    expectedInstance.alpha = alpha;
+
+
+    assertThat(instance, is(expectedInstance));
+  }
+
+  @Test
+  public void givenAConfigurableClassWithMixin_whenInvokeWithBravoMixinParams_thenAlphaBravoMixinsPresent() {
+    MixinTestConfigurable instance = new InvocationPipelineBuilder().register(new CoreModule())
+        .build().invoke(MixinTestConfigurable.class, List.of("-b", "bravo", "-f", "foo", "42"));
+
+    MixinBravo bravo = new MixinBravo();
+    bravo.bravoValue = "bravo";
+
+    MixinAlpha alpha = new MixinAlpha();
+    alpha.bravo = bravo;
+
+    MixinTestConfigurable expectedInstance = new MixinTestConfigurable();
+    expectedInstance.foo = "foo";
+    expectedInstance.bar = 42;
+    expectedInstance.alpha = alpha;
+
+    assertThat(instance, is(expectedInstance));
+  }
+
+  @Test
+  public void givenAConfigurableClassWithMixin_whenInvokeWithAlphaMixinParams_thenAlphaMixinPresent() {
+    MixinTestConfigurable instance = new InvocationPipelineBuilder().register(new CoreModule())
+        .build().invoke(MixinTestConfigurable.class, List.of("-a", "alpha", "-f", "foo", "42"));
+
+    MixinAlpha alpha = new MixinAlpha();
+    alpha.alphaValue = "alpha";
+
+    MixinTestConfigurable expectedInstance = new MixinTestConfigurable();
+    expectedInstance.foo = "foo";
+    expectedInstance.bar = 42;
+    expectedInstance.alpha = alpha;
+
+    assertThat(instance, is(expectedInstance));
+  }
+
+  @Test
+  public void givenAConfigurableClassWithMixin_whenInvokeWithoutMixinParams_thenMixinsAbsent() {
+    MixinTestConfigurable instance = new InvocationPipelineBuilder().register(new CoreModule())
+        .build().invoke(MixinTestConfigurable.class, List.of("-f", "foo", "42"));
+
+    MixinTestConfigurable expectedInstance = new MixinTestConfigurable();
+    expectedInstance.foo = "foo";
+    expectedInstance.bar = 42;
 
     assertThat(instance, is(expectedInstance));
   }

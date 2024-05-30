@@ -34,10 +34,10 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleDetection;
  * @param antecedents
  */
 public record DetectedRule(Object nominated, Type genericType, List<Annotation> annotations,
-    Set<String> antecedents, boolean hasConsequent) {
+    Set<String> antecedents, Set<Set<String>> conditions, boolean hasConsequent) {
   public static DetectedRule fromCandidateAndDetection(CandidateRule candidate,
       RuleDetection detection) {
     return new DetectedRule(candidate.nominated(), candidate.genericType(), candidate.annotations(),
-        detection.antecedents(), detection.hasConsequent());
+        detection.antecedents(), detection.conditions(), detection.hasConsequent());
   }
 }

@@ -419,7 +419,7 @@ public class ScanStep extends InvocationPipelineStepBase {
             Maybe<String> maybeName = naming.name(dri.nominated());
             if (maybeName.isYes()) {
               rules.add(new NamedRule(dri.nominated(), dri.genericType(), dri.annotations(),
-                  dri.antecedents(), Optional.of(maybeName.orElseThrow())));
+                  dri.antecedents(), dri.conditions(), Optional.of(maybeName.orElseThrow())));
             } else {
               // This is not OK. Everything has to be named.
               // TODO better exception
@@ -428,7 +428,7 @@ public class ScanStep extends InvocationPipelineStepBase {
           } else {
             // No consequent, no name.
             rules.add(new NamedRule(dri.nominated(), dri.genericType(), dri.annotations(),
-                dri.antecedents(), Optional.empty()));
+                dri.antecedents(), dri.conditions(), Optional.empty()));
           }
         }
 

@@ -19,6 +19,7 @@
  */
 package com.sigpwned.discourse.core.module.core.scan.rules.detect;
 
+import static java.util.Collections.emptySet;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.List;
@@ -54,6 +55,6 @@ public class DefaultConstructorRuleDetector implements RuleDetector {
     // A default constructor produces a new value, by definition
     boolean hasConsequent = true;
 
-    return Maybe.yes(new RuleDetection(antecedents, hasConsequent));
+    return Maybe.yes(new RuleDetection(antecedents, emptySet(), hasConsequent));
   }
 }

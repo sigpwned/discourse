@@ -35,10 +35,10 @@ import java.util.Set;
  * @param consequent
  */
 public record NamedRule(Object nominated, Type genericType, List<Annotation> annotations,
-    Set<String> antecedents, Optional<String> consequent) {
+    Set<String> antecedents, Set<Set<String>> conditions, Optional<String> consequent) {
 
   public static NamedRule fromDetectedRule(DetectedRule rule, String name) {
     return new NamedRule(rule.nominated(), rule.genericType(), rule.annotations(),
-        rule.antecedents(), Optional.ofNullable(name));
+        rule.antecedents(), rule.conditions(), Optional.ofNullable(name));
   }
 }
