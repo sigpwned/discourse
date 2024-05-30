@@ -182,10 +182,21 @@ public interface InvocationPipelineListener {
 
   default void finallyReduceStep(InvocationContext context) {}
 
-  // FINISH STEP //////////////////////////////////////////////////////////////////////////////////
-  default void beforeFinishStep(Map<String, Object> sinkedArgs, InvocationContext context) {}
+  // POSTPROCESS PROPERTIES STEP //////////////////////////////////////////////////////////////////
+  default void beforePostprocessPropertiesStep(Map<String, Object> sinkedArgs,
+      InvocationContext context) {}
 
-  default void afterFinishStep(Map<String, Object> sinkedArgs, Object result,
+  default void afterPostprocessPropertiesStep(Map<String, Object> sinkedArgs,
+      Map<String, Object> postprocessedArgs, InvocationContext context) {}
+
+  default void catchPostprocessPropertiesStep(Throwable t, InvocationContext context) {}
+
+  default void finallyPostprocessPropertiesStep(InvocationContext context) {}
+
+  // FINISH STEP //////////////////////////////////////////////////////////////////////////////////
+  default void beforeFinishStep(Map<String, Object> postprocessedArgs, InvocationContext context) {}
+
+  default void afterFinishStep(Map<String, Object> postprocessedArgs, Object result,
       InvocationContext context) {}
 
   default void catchFinishStep(Throwable t, InvocationContext context) {}

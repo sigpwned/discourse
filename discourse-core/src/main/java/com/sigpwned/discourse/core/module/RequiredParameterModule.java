@@ -1,12 +1,11 @@
 package com.sigpwned.discourse.core.module;
 
-import static java.util.Collections.emptyList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import com.sigpwned.discourse.core.Chain;
+import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.annotation.DiscourseRequired;
 import com.sigpwned.discourse.core.command.LeafCommandProperty;
 import com.sigpwned.discourse.core.command.ResolvedCommand;
@@ -14,7 +13,7 @@ import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener;
 import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.model.CommandResolution;
 
-public class RequiredParameterModule extends com.sigpwned.discourse.core.Module {
+public class RequiredParameterModule extends Module {
   @Override
   public void registerListeners(Chain<InvocationPipelineListener> chain) {
     chain.addFirst(new InvocationPipelineListener() {
@@ -35,10 +34,10 @@ public class RequiredParameterModule extends com.sigpwned.discourse.core.Module 
       }
 
       @Override
-      public void afterGroupStep(List<Entry<String, String>> attributedArgs,
-          Map<String, List<String>> groupedArgs, InvocationContext context) {
+      public void afterPostprocessPropertiesStep(Map<String, Object> reducedArgs,
+          Map<String, Object> postprocessedArgs, InvocationContext context) {
         for (String requiredParameter : requiredParameters) {
-          if (groupedArgs.getOrDefault(requiredParameter, emptyList()).isEmpty()) {
+          if (postprocessedArgs.get(requiredParameter) == null) {
             // TODO better exception
             throw new IllegalArgumentException("Missing required parameter: " + requiredParameter);
           }

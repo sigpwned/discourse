@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class PlannedCommand<T> {
@@ -13,16 +14,18 @@ public final class PlannedCommand<T> {
   private final String version;
   private final String description;
   private final List<PlannedCommandProperty> properties;
+  private final Consumer<Map<String, Object>> reactor;
   private final Function<Map<String, Object>, T> constructor;
 
   public PlannedCommand(List<ParentCommand> parents, String name, String version,
       String description, List<PlannedCommandProperty> properties,
-      Function<Map<String, Object>, T> constructor) {
+      Consumer<Map<String, Object>> reactor, Function<Map<String, Object>, T> constructor) {
     this.parents = unmodifiableList(parents);
     this.name = name;
     this.version = version;
     this.description = description;
     this.properties = unmodifiableList(properties);
+    this.reactor = requireNonNull(reactor);
     this.constructor = requireNonNull(constructor);
   }
 
@@ -59,6 +62,13 @@ public final class PlannedCommand<T> {
    */
   public List<PlannedCommandProperty> getProperties() {
     return properties;
+  }
+
+  /**
+   * @return the reactor
+   */
+  public Consumer<Map<String, Object>> getReactor() {
+    return reactor;
   }
 
   /**

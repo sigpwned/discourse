@@ -25,6 +25,7 @@ import com.sigpwned.discourse.core.format.ExceptionFormatter;
 import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDeserializerFactory;
 import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSinkFactory;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener;
+import com.sigpwned.discourse.core.pipeline.invocation.step.postprocess.args.ArgsPostprocessor;
 import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.args.ArgsPreprocessor;
 import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.coordinates.CoordinatesPreprocessor;
 import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.tokens.TokensPreprocessor;
@@ -64,6 +65,8 @@ public abstract class Module {
   public void registerArgsPreprocessors(Chain<ArgsPreprocessor> chain) {}
 
   public void registerTokensPreprocessors(Chain<TokensPreprocessor> chain) {}
+
+  public void registerArgsPostprocessors(Chain<ArgsPostprocessor> chain) {}
 
   public void registerExceptionFormatters(Chain<ExceptionFormatter> chain) {}
 

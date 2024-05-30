@@ -3,10 +3,12 @@ package com.sigpwned.discourse.core.command;
 import static java.util.Objects.requireNonNull;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class LeafCommand<T> extends Command<T> {
   private final List<LeafCommandProperty> properties;
+  private final Consumer<Map<String, Object>> reactor;
   private final Function<Map<String, Object>, T> constructor;
 
   /**
@@ -17,11 +19,12 @@ public final class LeafCommand<T> extends Command<T> {
    * @param constructor The constructor for the command.
    */
   public LeafCommand(String description, List<LeafCommandProperty> properties,
-      Function<Map<String, Object>, T> constructor) {
+      Consumer<Map<String, Object>> reactor, Function<Map<String, Object>, T> constructor) {
     super(description);
     // Note that we do not make this unmodifiable or even perform a defensive copy. Where or not
     // not this list is mutable is up to the caller.
     this.properties = requireNonNull(properties);
+    this.reactor = requireNonNull(reactor);
     this.constructor = requireNonNull(constructor);
   }
 
@@ -30,6 +33,13 @@ public final class LeafCommand<T> extends Command<T> {
    */
   public List<LeafCommandProperty> getProperties() {
     return properties;
+  }
+
+  /**
+   * @return the reactor
+   */
+  public Consumer<Map<String, Object>> getReactor() {
+    return reactor;
   }
 
   /**

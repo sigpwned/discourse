@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -563,7 +564,7 @@ public class ScanStep extends InvocationPipelineStepBase {
         List<LeafCommandProperty> immutablePropertiesCopy = List.copyOf(body.getProperties());
         command =
             new LeafCommand<>(preparedClass.configurable().description(), immutablePropertiesCopy,
-                toConstructor(reactor, preparedClass.clazz(), body.getRules()));
+                toReactor(reactor, body.getRules()), toConstructor(preparedClass.clazz()));
       } else {
         command = new com.sigpwned.discourse.core.command.SuperCommand(
             preparedClass.configurable().description(), subs);
@@ -591,12 +592,19 @@ public class ScanStep extends InvocationPipelineStepBase {
     return (RootCommand<T>) roots.get(0);
   }
 
-  private <T> Function<Map<String, Object>, T> toConstructor(RulesEngine reactor, Class<T> clazz,
-      List<NamedRule> rules) {
+  private Consumer<Map<String, Object>> toReactor(RulesEngine reactor, List<NamedRule> rules) {
     return arguments -> {
       // TODO instance constant
-      Map<String, Object> output = reactor.run(arguments, rules);
-      Object instance = output.get("");
+      Map<String, Object> reacted = reactor.run(arguments, rules);
+      arguments.clear();
+      arguments.putAll(reacted);
+    };
+  }
+
+  private <T> Function<Map<String, Object>, T> toConstructor(Class<T> clazz) {
+    return arguments -> {
+      // TODO instance constant
+      Object instance = arguments.get("");
       return clazz.cast(instance);
     };
   }

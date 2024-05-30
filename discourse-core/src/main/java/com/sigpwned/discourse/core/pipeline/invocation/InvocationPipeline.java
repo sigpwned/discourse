@@ -1,10 +1,12 @@
 package com.sigpwned.discourse.core.pipeline.invocation;
 
+import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,7 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.GroupStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.MapStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.ParseStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.PlanStep;
+import com.sigpwned.discourse.core.pipeline.invocation.step.PostprocessArgsStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.PreprocessArgsStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.PreprocessCoordinatesStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.PreprocessTokensStep;
@@ -35,6 +38,8 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.ReduceStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.ResolveStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.ScanStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.TokenizeStep;
+import com.sigpwned.discourse.core.pipeline.invocation.step.postprocess.args.ArgsPostprocessor;
+import com.sigpwned.discourse.core.pipeline.invocation.step.postprocess.args.ArgsPostprocessorChain;
 import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.CommandResolver;
 import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.exception.PartialCommandResolutionResolveException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.model.CommandResolution;
@@ -97,14 +102,15 @@ public class InvocationPipeline {
   private final GroupStep group;
   private final MapStep map;
   private final ReduceStep reduce;
+  private final PostprocessArgsStep postprocessArgs;
   private final FinishStep finish;
   private final InvocationContext context;
 
   public InvocationPipeline(ScanStep scan, ResolveStep resolve, PlanStep plan,
       PreprocessCoordinatesStep preprocessCoordinates, PreprocessArgsStep preprocessArgs,
       TokenizeStep tokenize, PreprocessTokensStep preprocessTokens, ParseStep parse,
-      AttributeStep attribute, GroupStep group, MapStep map, ReduceStep reduce, FinishStep finish,
-      InvocationContext context) {
+      AttributeStep attribute, GroupStep group, MapStep map, ReduceStep reduce,
+      PostprocessArgsStep postprocessProperties, FinishStep finish, InvocationContext context) {
     this.scan = requireNonNull(scan);
     this.resolve = requireNonNull(resolve);
     this.plan = requireNonNull(plan);
@@ -117,6 +123,7 @@ public class InvocationPipeline {
     this.group = requireNonNull(group);
     this.map = requireNonNull(map);
     this.reduce = requireNonNull(reduce);
+    this.postprocessArgs = requireNonNull(postprocessProperties);
     this.finish = requireNonNull(finish);
     this.context = requireNonNull(context);
   }
@@ -146,6 +153,17 @@ public class InvocationPipeline {
     List<String> resolvedArgs = commandResolution.getArgs();
 
     PlannedCommand<? extends T> plannedCommand = plan.plan(resolvedCommand, context);
+
+    context.get(PostprocessArgsStep.ARGS_POSTPROCESSOR_KEY).map(ArgsPostprocessorChain.class::cast)
+        .orElseThrow().addLast(new ArgsPostprocessor() {
+          @Override
+          public Map<String, Object> postprocessProperties(Map<String, Object> properties,
+              InvocationContext context) {
+            properties = new HashMap<>(properties);
+            plannedCommand.getReactor().accept(properties);
+            return unmodifiableMap(properties);
+          }
+        });
 
     Map<Coordinate, String> commandProperties = plannedCommand.getProperties().stream()
         .flatMap(p -> p.getCoordinates().stream().map(c -> Map.entry(c, p)))
@@ -194,7 +212,9 @@ public class InvocationPipeline {
 
     Map<String, Object> reducedArgs = reduce.reduce(reducers, mappedArgs, context);
 
-    T instance = finish.finish(plannedCommand.getConstructor(), reducedArgs, context);
+    Map<String, Object> postprocessedArgs = postprocessArgs.postprocessArgs(reducedArgs, context);
+
+    T instance = finish.finish(plannedCommand.getConstructor(), postprocessedArgs, context);
 
     return instance;
   }

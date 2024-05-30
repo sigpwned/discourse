@@ -26,6 +26,7 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.GroupStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.MapStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.ParseStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.PlanStep;
+import com.sigpwned.discourse.core.pipeline.invocation.step.PostprocessArgsStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.PreprocessArgsStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.PreprocessCoordinatesStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.PreprocessTokensStep;
@@ -33,6 +34,7 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.ReduceStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.ResolveStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.ScanStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.TokenizeStep;
+import com.sigpwned.discourse.core.pipeline.invocation.step.postprocess.args.ArgsPostprocessorChain;
 import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.args.ArgsPreprocessorChain;
 import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.coordinates.CoordinatesPreprocessorChain;
 import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.tokens.TokensPreprocessorChain;
@@ -93,6 +95,7 @@ public class InvocationPipelineBuilder {
           new CoordinatesPreprocessorChain());
       context.set(PreprocessArgsStep.ARGS_PREPROCESSOR_KEY, new ArgsPreprocessorChain());
       context.set(PreprocessTokensStep.TOKENS_PREPROCESSOR_KEY, new TokensPreprocessorChain());
+      context.set(PostprocessArgsStep.ARGS_POSTPROCESSOR_KEY, new ArgsPostprocessorChain());
     });
   }
 
@@ -190,6 +193,8 @@ public class InvocationPipelineBuilder {
         module
             .registerValueDeserializerFactories(context.get(PlanStep.VALUE_DESERIALIZER_FACTORY_KEY)
                 .map(ValueDeserializerFactoryChain.class::cast).orElseThrow());
+        module.registerArgsPostprocessors(context.get(PostprocessArgsStep.ARGS_POSTPROCESSOR_KEY)
+            .map(ArgsPostprocessorChain.class::cast).orElseThrow());
       });
 
       loaded.add(module.getClass());
@@ -209,6 +214,6 @@ public class InvocationPipelineBuilder {
     return new InvocationPipeline(new ScanStep(), new ResolveStep(), new PlanStep(),
         new PreprocessCoordinatesStep(), new PreprocessArgsStep(), new TokenizeStep(),
         new PreprocessTokensStep(), new ParseStep(), new AttributeStep(), new GroupStep(),
-        new MapStep(), new ReduceStep(), new FinishStep(), context);
+        new MapStep(), new ReduceStep(), new PostprocessArgsStep(), new FinishStep(), context);
   }
 }

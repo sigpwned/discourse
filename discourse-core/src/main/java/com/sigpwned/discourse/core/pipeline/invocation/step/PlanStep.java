@@ -74,15 +74,16 @@ public class PlanStep extends InvocationPipelineStepBase {
 
     return new PlannedCommand<>(resolvedCommand.getParents(),
         resolvedCommand.getName().orElse(null), resolvedCommand.getVersion().orElse(null),
-        leaf.getDescription().orElse(null), properties, leaf.getConstructor());
+        leaf.getDescription().orElse(null), properties, leaf.getReactor(), leaf.getConstructor());
   }
 
   protected <T> ResolvedCommand<T> mutableCopyOf(ResolvedCommand<T> originalResolvedCommand) {
     LeafCommand<T> originalLeafCommand = originalResolvedCommand.getCommand();
 
-    LeafCommand<T> mutableLeafCommand = new LeafCommand<T>(
-        originalLeafCommand.getDescription().orElse(null),
-        new ArrayList<>(originalLeafCommand.getProperties()), originalLeafCommand.getConstructor());
+    LeafCommand<T> mutableLeafCommand =
+        new LeafCommand<T>(originalLeafCommand.getDescription().orElse(null),
+            new ArrayList<>(originalLeafCommand.getProperties()), originalLeafCommand.getReactor(),
+            originalLeafCommand.getConstructor());
     List<ParentCommand> mutableParents = new ArrayList<>(originalResolvedCommand.getParents());
 
     return new ResolvedCommand<T>(originalResolvedCommand.getName().orElse(null),
@@ -94,7 +95,8 @@ public class PlanStep extends InvocationPipelineStepBase {
 
     LeafCommand<T> immutableLeafCommand =
         new LeafCommand<T>(originalLeafCommand.getDescription().orElse(null),
-            List.copyOf(originalLeafCommand.getProperties()), originalLeafCommand.getConstructor());
+            List.copyOf(originalLeafCommand.getProperties()), originalLeafCommand.getReactor(),
+            originalLeafCommand.getConstructor());
     List<ParentCommand> immutableParents = List.copyOf(originalResolvedCommand.getParents());
 
     return new ResolvedCommand<T>(originalResolvedCommand.getName().orElse(null),
