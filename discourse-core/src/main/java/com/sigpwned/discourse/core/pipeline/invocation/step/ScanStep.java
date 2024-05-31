@@ -460,6 +460,7 @@ public class ScanStep extends InvocationPipelineStepBase {
           // constructor? We should catch that earlier.
           throw new AssertionError("Failed to test rules");
         }
+        boolean alternativeReactionExists = false;
         MoreRules.Reaction bestReaction = reactions.get(0);
         for (int i = 1; i < reactions.size(); i++) {
           MoreRules.Reaction ri = reactions.get(i);
@@ -469,12 +470,23 @@ public class ScanStep extends InvocationPipelineStepBase {
             throw new IllegalArgumentException("Not all rules are reachable: "
                 + MoreSets.difference(ri.consumed(), bestReaction.consumed()));
           }
+          if (ri.consumed().size() == bestReaction.consumed().size()
+              && ri.evaluated().size() == bestReaction.evaluated().size()) {
+            alternativeReactionExists = true;
+            break;
+          }
         }
         if (!bestReaction.consumed().containsAll(propertyNames)) {
           // Oops. Not all properties are consumed. That's not good.
           // TODO better exception
           throw new IllegalArgumentException("Not all properties are consumed: "
               + MoreSets.difference(propertyNames, bestReaction.consumed()));
+        }
+        if (alternativeReactionExists) {
+          if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(
+                "There is no best way to evaluate and construct the command, so process may not be deterministic.");
+          }
         }
 
         body = new CommandBody(properties, bestReaction.evaluated());

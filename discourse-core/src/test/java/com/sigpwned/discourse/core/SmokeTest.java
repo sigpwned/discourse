@@ -87,4 +87,16 @@ public class SmokeTest {
 
     assertThat(invocationInstance, is(expectedInstance));
   }
+
+  @Configurable(name = "badrules", description = "Bad Rules")
+  public static class InaccessableFieldConfigurable {
+    @OptionParameter(shortName = "f", longName = "foo", description = "foo")
+    private String foo;
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void givenAConfigurableClassWithInaccessibleField_whenUseWizard_thenThrowException() {
+    // TODO fix when better exception is done
+    Discourse.configuration(InaccessableFieldConfigurable.class, List.of("-f", "alpha"));
+  }
 }
