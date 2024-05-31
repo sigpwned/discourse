@@ -33,7 +33,7 @@ import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.EnvironmentParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PropertyParameter;
-import com.sigpwned.discourse.core.invocation.InvocationPipeline;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipeline;
 
 /**
  * Tests every stock serializer
@@ -329,7 +329,7 @@ public class ValueDeserializersTest {
   @Test
   @SuppressWarnings("unused")
   public void givenConfigurationClassWithParametersOfAllStockTypes_whenInvoke_thenSucceed() {
-    SerializationExample example = InvocationPipeline.builder().build()
-        .execute(SerializationExample.class, List.of()).getInstance();
+    SerializationExample example =
+        InvocationPipeline.builder().build().invoke(SerializationExample.class, List.of());
   }
 }

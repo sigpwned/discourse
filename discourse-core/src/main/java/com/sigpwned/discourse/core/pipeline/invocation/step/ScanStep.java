@@ -437,6 +437,7 @@ public class ScanStep extends InvocationPipelineStepBase {
 
         // Duplicate rules are fine. We let the reactor sort it out.
 
+        // TODO Where does the description come from?
         List<LeafCommandProperty> properties = new ArrayList<>();
         for (NamedSyntax namedSyntax : syntax) {
           properties.add(new LeafCommandProperty(namedSyntax.name(), "", namedSyntax.coordinates(),
@@ -445,13 +446,13 @@ public class ScanStep extends InvocationPipelineStepBase {
 
         // TODO Should we defer validation of the rules until later? Developers may customize after.
         // Do we have a clear winner for evaluation and construction?
-        Set<String> propertyNames = new HashSet<>();
+        Set<String> allPropertyNames = new HashSet<>();
         for (LeafCommandProperty property : properties)
-          propertyNames.add(property.getName());
+          allPropertyNames.add(property.getName());
 
         // We sort by the highest number of consumed properties first, then by the lowest number of
         // evaluated rules. Give me the most bang (side effects) for the least buck (work).
-        List<MoreRules.Reaction> reactions = MoreRules.react(rules, propertyNames).stream()
+        List<MoreRules.Reaction> reactions = MoreRules.react(rules, allPropertyNames).stream()
             .sorted(Comparator.<MoreRules.Reaction>comparingInt(ri -> -ri.consumed().size())
                 .thenComparingInt(ri -> ri.evaluated().size()))
             .toList();
@@ -473,22 +474,52 @@ public class ScanStep extends InvocationPipelineStepBase {
           if (ri.consumed().size() == bestReaction.consumed().size()
               && ri.evaluated().size() == bestReaction.evaluated().size()) {
             alternativeReactionExists = true;
-            break;
           }
         }
-        if (!bestReaction.consumed().containsAll(propertyNames)) {
+        if (!bestReaction.consumed().containsAll(allPropertyNames)) {
           // Oops. Not all properties are consumed. That's not good.
           // TODO better exception
           throw new IllegalArgumentException("Not all properties are consumed: "
-              + MoreSets.difference(propertyNames, bestReaction.consumed()));
+              + MoreSets.difference(allPropertyNames, bestReaction.consumed()));
         }
         if (alternativeReactionExists) {
+          // Oops. There are multiple ways to evaluate and construct the command. That's not good.
           if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(
                 "There is no best way to evaluate and construct the command, so process may not be deterministic.");
           }
         }
 
+        // What about required properties?
+        Set<String> guaranteedPropertyNames = new HashSet<>();
+        for (LeafCommandProperty property : properties)
+          guaranteedPropertyNames.add(property.getName());
+
+        // If we have just the required syntax, then can we create everything?
+        List<MoreRules.Reaction> guaranteedReactions =
+            MoreRules.react(rules, guaranteedPropertyNames).stream()
+                .sorted(Comparator.<MoreRules.Reaction>comparingInt(ri -> -ri.consumed().size())
+                    .thenComparingInt(ri -> ri.evaluated().size()))
+                .toList();
+        if (guaranteedReactions.isEmpty()) {
+          // Is this even possible?
+          throw new AssertionError("Failed to test guaranteed rules");
+        }
+        MoreRules.Reaction bestGuaranteedReaction = guaranteedReactions.get(0);
+
+        // TODO instance constant
+        Set<String> requiredPropertyNames = new HashSet<>(guaranteedPropertyNames);
+        requiredPropertyNames.add("");
+
+        // If we have just the required syntax, then can we create all the required fields?
+        if (!bestGuaranteedReaction.consumed().containsAll(requiredPropertyNames)) {
+          // Oops. Not all required properties are consumed. That's not good.
+          // TODO better exception
+          throw new IllegalArgumentException("Not all required properties are consumed: "
+              + MoreSets.difference(requiredPropertyNames, bestGuaranteedReaction.consumed()));
+        }
+
+        // We have a clear winner for evaluation and construction. Let's build our body.
         body = new CommandBody(properties, bestReaction.evaluated());
       }
 

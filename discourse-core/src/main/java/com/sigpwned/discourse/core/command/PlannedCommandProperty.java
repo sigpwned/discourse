@@ -50,7 +50,6 @@ public class PlannedCommandProperty {
    */
   private final Set<Coordinate> coordinates;
 
-
   private final ValueSink sink;
 
   private final ValueDeserializer<?> deserializer;
@@ -77,6 +76,7 @@ public class PlannedCommandProperty {
   public Optional<String> getDescription() {
     return Optional.ofNullable(description);
   }
+
 
   /**
    * @return the coordinates

@@ -19,13 +19,14 @@
  */
 package com.sigpwned.discourse.core.util;
 
-import com.sigpwned.discourse.core.thirdparty.com.google.guava.collect.CartesianList;
+import static java.util.Collections.unmodifiableList;
+import java.util.ArrayList;
 import java.util.List;
+import com.sigpwned.discourse.core.thirdparty.com.google.guava.collect.CartesianList;
 
 public final class MoreLists {
 
-  private MoreLists() {
-  }
+  private MoreLists() {}
 
   /**
    * <p>
@@ -38,10 +39,19 @@ public final class MoreLists {
    * </p>
    *
    * @param lists the input lists
-   * @param <E>   the element type
+   * @param <E> the element type
    * @return the Cartesian product
    */
   public static <E> List<List<E>> cartesianProduct(List<? extends List<? extends E>> lists) {
     return CartesianList.of(lists);
+  }
+
+  public static <E> List<E> concat(List<? extends E> firstList, List<? extends E>... moreLists) {
+    List<E> result = new ArrayList<>();
+    result.addAll(firstList);
+    for (List<? extends E> moreList : moreLists) {
+      result.addAll(moreList);
+    }
+    return unmodifiableList(result);
   }
 }
