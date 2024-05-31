@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Objects;
 import org.junit.Test;
 import com.sigpwned.discourse.core.annotation.Configurable;
+import com.sigpwned.discourse.core.annotation.DiscourseAttribute;
+import com.sigpwned.discourse.core.annotation.DiscourseCreator;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.module.CoreModule;
@@ -98,5 +100,88 @@ public class SmokeTest {
   public void givenAConfigurableClassWithInaccessibleField_whenUseWizard_thenThrowException() {
     // TODO fix when better exception is done
     Discourse.configuration(InaccessableFieldConfigurable.class, List.of("-f", "alpha"));
+  }
+
+  @Configurable(name = "customconstructorsyntaxparam",
+      description = "Custom Constructor with Syntax Parameter")
+  public static class CustomConstructorWithSyntaxParameterConfigurable {
+    @DiscourseCreator
+    public CustomConstructorWithSyntaxParameterConfigurable(@OptionParameter(shortName = "f",
+        longName = "foo", description = "foo") @DiscourseAttribute("foo") String foo) {
+      this.foo = foo;
+    }
+
+
+    private final String foo;
+
+    public String getFoo() {
+      return foo;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(foo);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      CustomConstructorWithSyntaxParameterConfigurable other =
+          (CustomConstructorWithSyntaxParameterConfigurable) obj;
+      return Objects.equals(foo, other.foo);
+    }
+  }
+
+  @Test
+  public void givenAConfigurableClassWithCustomConstructorAndSyntaxParameter_whenUseWizard_thenBuildExpectedInstance() {
+    CustomConstructorWithSyntaxParameterConfigurable instance = Discourse.configuration(
+        CustomConstructorWithSyntaxParameterConfigurable.class, List.of("-f", "alpha"));
+    assertThat(instance, is(new CustomConstructorWithSyntaxParameterConfigurable("alpha")));
+  }
+
+  @Configurable(name = "customconstructorsyntaxfield",
+      description = "Custom Constructor with Syntax Field")
+  public static class CustomConstructorWithSyntaxFieldConfigurable {
+    @DiscourseCreator
+    public CustomConstructorWithSyntaxFieldConfigurable(@DiscourseAttribute("foo") String foo) {
+      this.foo = foo;
+    }
+
+    @OptionParameter(shortName = "f", longName = "foo", description = "foo")
+    private final String foo;
+
+    public String getFoo() {
+      return foo;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(foo);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      CustomConstructorWithSyntaxFieldConfigurable other =
+          (CustomConstructorWithSyntaxFieldConfigurable) obj;
+      return Objects.equals(foo, other.foo);
+    }
+  }
+
+  @Test
+  public void givenAConfigurableClassWithCustomConstructorAndSyntaxField_whenUseWizard_thenBuildExpectedInstance() {
+    CustomConstructorWithSyntaxFieldConfigurable instance = Discourse
+        .configuration(CustomConstructorWithSyntaxFieldConfigurable.class, List.of("-f", "alpha"));
+    assertThat(instance, is(new CustomConstructorWithSyntaxFieldConfigurable("alpha")));
   }
 }

@@ -59,15 +59,20 @@ import com.sigpwned.discourse.core.module.core.plan.value.sink.SortedSetAddValue
 import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSinkFactory;
 import com.sigpwned.discourse.core.module.core.scan.naming.BeanGetterNamingScheme;
 import com.sigpwned.discourse.core.module.core.scan.naming.BeanSetterNamingScheme;
+import com.sigpwned.discourse.core.module.core.scan.naming.CreatorNamingScheme;
 import com.sigpwned.discourse.core.module.core.scan.naming.DefaultConstructorNamingScheme;
 import com.sigpwned.discourse.core.module.core.scan.naming.DiscourseAttributeAnnotationNamingScheme;
 import com.sigpwned.discourse.core.module.core.scan.naming.FieldNamingScheme;
+import com.sigpwned.discourse.core.module.core.scan.naming.ParameterNamingScheme;
+import com.sigpwned.discourse.core.module.core.scan.rules.detect.CreatorRuleDetector;
 import com.sigpwned.discourse.core.module.core.scan.rules.detect.DefaultConstructorRuleDetector;
 import com.sigpwned.discourse.core.module.core.scan.rules.detect.FieldRuleDetector;
 import com.sigpwned.discourse.core.module.core.scan.rules.detect.SetterMethodRuleDetector;
+import com.sigpwned.discourse.core.module.core.scan.rules.eval.CreatorCallRuleEvaluator;
 import com.sigpwned.discourse.core.module.core.scan.rules.eval.DefaultConstructorCallRuleEvaluator;
 import com.sigpwned.discourse.core.module.core.scan.rules.eval.FieldAssignmentRuleEvaluator;
 import com.sigpwned.discourse.core.module.core.scan.rules.eval.SetterMethodCallRuleEvaluator;
+import com.sigpwned.discourse.core.module.core.scan.rules.nominate.CreatorRuleNominator;
 import com.sigpwned.discourse.core.module.core.scan.rules.nominate.DefaultConstructorRuleNominator;
 import com.sigpwned.discourse.core.module.core.scan.rules.nominate.FieldRuleNominator;
 import com.sigpwned.discourse.core.module.core.scan.rules.nominate.SetterMethodRuleNominator;
@@ -75,6 +80,7 @@ import com.sigpwned.discourse.core.module.core.scan.subcommands.ConfigurableSubC
 import com.sigpwned.discourse.core.module.core.scan.syntax.detect.DiscourseIgnoreSyntaxDetector;
 import com.sigpwned.discourse.core.module.core.scan.syntax.detect.OptionSyntaxDetector;
 import com.sigpwned.discourse.core.module.core.scan.syntax.detect.PositionalSyntaxDetector;
+import com.sigpwned.discourse.core.module.core.scan.syntax.nominate.CreatorSyntaxNominator;
 import com.sigpwned.discourse.core.module.core.scan.syntax.nominate.FieldSyntaxNominator;
 import com.sigpwned.discourse.core.module.core.scan.syntax.nominate.GetterMethodSyntaxNominator;
 import com.sigpwned.discourse.core.module.core.scan.syntax.nominate.SetterMethodSyntaxNominator;
@@ -229,6 +235,7 @@ public class CoreModule extends Module {
     chain.addLast(DefaultConstructorNamingScheme.INSTANCE);
     chain.addLast(BeanGetterNamingScheme.INSTANCE);
     chain.addLast(BeanSetterNamingScheme.INSTANCE);
+    chain.addLast(CreatorNamingScheme.INSTANCE);
   }
 
   @Override
@@ -236,6 +243,7 @@ public class CoreModule extends Module {
     chain.addLast(FieldSyntaxNominator.INSTANCE);
     chain.addLast(SetterMethodSyntaxNominator.INSTANCE);
     chain.addLast(GetterMethodSyntaxNominator.INSTANCE);
+    chain.addLast(CreatorSyntaxNominator.INSTANCE);
   }
 
   @Override
@@ -250,6 +258,7 @@ public class CoreModule extends Module {
     chain.addLast(FieldRuleNominator.INSTANCE);
     chain.addLast(SetterMethodRuleNominator.INSTANCE);
     chain.addLast(DefaultConstructorRuleNominator.INSTANCE);
+    chain.addLast(CreatorRuleNominator.INSTANCE);
   }
 
   @Override
@@ -257,6 +266,7 @@ public class CoreModule extends Module {
     chain.addLast(FieldRuleDetector.INSTANCE);
     chain.addLast(SetterMethodRuleDetector.INSTANCE);
     chain.addLast(DefaultConstructorRuleDetector.INSTANCE);
+    chain.addLast(CreatorRuleDetector.INSTANCE);
   }
 
   @Override
@@ -264,6 +274,7 @@ public class CoreModule extends Module {
     chain.addLast(DefaultConstructorCallRuleEvaluator.INSTANCE);
     chain.addLast(SetterMethodCallRuleEvaluator.INSTANCE);
     chain.addLast(FieldAssignmentRuleEvaluator.INSTANCE);
+    chain.addLast(CreatorCallRuleEvaluator.INSTANCE);
   }
 
   @Override

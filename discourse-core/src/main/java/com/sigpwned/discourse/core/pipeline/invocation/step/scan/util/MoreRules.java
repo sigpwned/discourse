@@ -290,6 +290,11 @@ public class MoreRules {
       }
     }
 
+    // TODO instance constant
+    // And if instance is available, then let's assume we always consume it.
+    if (available.contains(""))
+      consumed.add("");
+
     return new WrappedReaction(evaluated, available, produced, consumed);
   }
 
@@ -316,6 +321,7 @@ public class MoreRules {
     do {
       updated = false;
 
+      // Set of all symbols consumed by any rule
       Set<String> consumed = new HashSet<>();
       for (RuleWrapper sink : sinks) {
         consumed.addAll(sink.antecedents());
@@ -324,18 +330,20 @@ public class MoreRules {
         consumed.addAll(source.antecedents());
       }
 
-      Iterator<RuleWrapper> sourcesConsumedScanIterator = sources.iterator();
-      while (sourcesConsumedScanIterator.hasNext()) {
-        RuleWrapper source = sourcesConsumedScanIterator.next();
-        if (!consumed.contains(source.consequent().orElseThrow())) {
-          sourcesConsumedScanIterator.remove();
-          updated = true;
-        }
-      }
-
+      // Set of symbols produced by any rule
       Set<String> produced = new HashSet<>();
       for (RuleWrapper source : sources) {
         produced.add(source.consequent().orElseThrow());
+      }
+
+      Iterator<RuleWrapper> sourcesScanIterator = sources.iterator();
+      while (sourcesScanIterator.hasNext()) {
+        RuleWrapper source = sourcesScanIterator.next();
+        if (!consumed.contains(source.consequent().orElseThrow())
+            && !produced.containsAll(source.antecedents())) {
+          sourcesScanIterator.remove();
+          updated = true;
+        }
       }
 
       Iterator<RuleWrapper> sinksProducedScanIterator = sinks.iterator();
@@ -343,15 +351,6 @@ public class MoreRules {
         RuleWrapper rule = sinksProducedScanIterator.next();
         if (!produced.containsAll(rule.antecedents())) {
           sinksProducedScanIterator.remove();
-          updated = true;
-        }
-      }
-
-      Iterator<RuleWrapper> sourcesProducedScanIterator = sources.iterator();
-      while (sourcesProducedScanIterator.hasNext()) {
-        RuleWrapper rule = sourcesProducedScanIterator.next();
-        if (!produced.containsAll(rule.antecedents())) {
-          sourcesProducedScanIterator.remove();
           updated = true;
         }
       }
