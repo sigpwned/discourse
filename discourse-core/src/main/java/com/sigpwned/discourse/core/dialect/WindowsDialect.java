@@ -19,35 +19,28 @@
  */
 package com.sigpwned.discourse.core.dialect;
 
-import java.util.List;
 import com.sigpwned.discourse.core.Dialect;
-import com.sigpwned.discourse.core.args.SwitchName;
-import com.sigpwned.discourse.core.args.Token;
-import com.sigpwned.discourse.core.args.token.SwitchNameToken;
-import com.sigpwned.discourse.core.args.token.ValueToken;
+import com.sigpwned.discourse.core.dialect.windows.format.SwitchNameTokenFormatter;
+import com.sigpwned.discourse.core.dialect.windows.format.ValueTokenFormatter;
+import com.sigpwned.discourse.core.dialect.windows.tokenize.SwitchNameWindowsArgTokenizer;
+import com.sigpwned.discourse.core.dialect.windows.tokenize.ValueWindowsArgTokenizer;
 
-public class WindowsDialect implements Dialect {
+public final class WindowsDialect implements Dialect {
   public static final WindowsDialect INSTANCE = new WindowsDialect();
 
-  public static final String SWITCH_NAME_PREFIX = "/";
-
   @Override
-  public DialectTokenizer newTokenizer() {
-    return new DialectTokenizer() {
-      @Override
-      public List<Token> tokenize(String token) {
-        if (token.startsWith(SWITCH_NAME_PREFIX)) {
-          String text = token.substring(SWITCH_NAME_PREFIX.length(), token.length());
-          return List.of(new SwitchNameToken(SwitchName.fromString(text), false));
-        } else {
-          return List.of(new ValueToken(token, false));
-        }
-      }
-    };
+  public ArgTokenizer newTokenizer() {
+    ArgTokenizerChain result = new ArgTokenizerChain();
+    result.addLast(new SwitchNameWindowsArgTokenizer());
+    result.addLast(new ValueWindowsArgTokenizer());
+    return result;
   }
 
   @Override
-  public String formatSwitchName(SwitchName name) {
-    return SWITCH_NAME_PREFIX + name;
+  public TokenFormatter newTokenFormatter() {
+    TokenFormatterChain result = new TokenFormatterChain();
+    result.addLast(new SwitchNameTokenFormatter());
+    result.addLast(new ValueTokenFormatter());
+    return result;
   }
 }

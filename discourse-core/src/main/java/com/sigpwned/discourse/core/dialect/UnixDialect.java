@@ -19,67 +19,38 @@
  */
 package com.sigpwned.discourse.core.dialect;
 
-import static java.util.Collections.unmodifiableList;
-import java.util.ArrayList;
-import java.util.List;
 import com.sigpwned.discourse.core.Dialect;
-import com.sigpwned.discourse.core.args.SwitchName;
-import com.sigpwned.discourse.core.args.Token;
-import com.sigpwned.discourse.core.args.token.SwitchNameToken;
-import com.sigpwned.discourse.core.args.token.ValueToken;
+import com.sigpwned.discourse.core.dialect.unix.format.SwitchNameUnixTokenFormatter;
+import com.sigpwned.discourse.core.dialect.unix.format.ValueUnixTokenFormatter;
+import com.sigpwned.discourse.core.dialect.unix.tokenize.LongSwitchArgTokenizer;
+import com.sigpwned.discourse.core.dialect.unix.tokenize.LongSwitchWithAttachedValueArgTokenizer;
+import com.sigpwned.discourse.core.dialect.unix.tokenize.SeparatorUnixArgTokenizer;
+import com.sigpwned.discourse.core.dialect.unix.tokenize.ShortSwitchBundleUnixArgTokenizer;
+import com.sigpwned.discourse.core.dialect.unix.tokenize.ShortSwitchPrefixUnixArgTokenizer;
+import com.sigpwned.discourse.core.dialect.unix.tokenize.ShortSwitchUnixArgTokenizer;
+import com.sigpwned.discourse.core.dialect.unix.tokenize.ValueUnixArgTokenizer;
 
-public class UnixDialect implements Dialect {
+public final class UnixDialect implements Dialect {
   public static final UnixDialect INSTANCE = new UnixDialect();
 
-  public static final String LONG_NAME_PREFIX = "--";
-
-  public static final char LONG_NAME_VALUE_SEPARATOR = '=';
-
-  public static final String SHORT_NAME_PREFIX = "-";
-
   @Override
-  public DialectTokenizer newTokenizer() {
-    return new DialectTokenizer() {
-      @Override
-      public List<Token> tokenize(String token) {
-        if (token.startsWith(LONG_NAME_PREFIX)) {
-          String text = token.substring(LONG_NAME_PREFIX.length(), token.length());
-
-          int sep = text.indexOf(LONG_NAME_VALUE_SEPARATOR);
-          if (sep != -1) {
-            SwitchName switchName = SwitchName.fromString(text.substring(0, sep));
-            String value = text.substring(sep + 1, text.length());
-            return List.of(new SwitchNameToken(switchName, false), new ValueToken(value, true));
-          } else {
-            return List.of(new SwitchNameToken(SwitchName.fromString(text), false));
-          }
-        } else if (token.startsWith(SHORT_NAME_PREFIX)) {
-          String text = token.substring(SHORT_NAME_PREFIX.length(), token.length());
-          if (text.length() == 0) {
-            return List.of(new ValueToken(SHORT_NAME_PREFIX, false));
-          } else if (text.length() == 1) {
-            return List.of(new SwitchNameToken(SwitchName.fromString(text), false));
-          } else {
-            List<Token> result = new ArrayList<>();
-            for (int i = 0; i < text.length(); i++) {
-              result
-                  .add(new SwitchNameToken(SwitchName.fromString(text.substring(i, i + 1)), i > 0));
-            }
-            return unmodifiableList(result);
-          }
-        } else {
-          return List.of(new ValueToken(token, false));
-        }
-      }
-    };
+  public ArgTokenizer newTokenizer() {
+    ArgTokenizerChain result = new ArgTokenizerChain();
+    result.addLast(new SeparatorUnixArgTokenizer());
+    result.addLast(new ShortSwitchPrefixUnixArgTokenizer());
+    result.addLast(new LongSwitchWithAttachedValueArgTokenizer());
+    result.addLast(new LongSwitchArgTokenizer());
+    result.addLast(new ShortSwitchUnixArgTokenizer());
+    result.addLast(new ShortSwitchBundleUnixArgTokenizer());
+    result.addLast(new ValueUnixArgTokenizer());
+    return result;
   }
 
   @Override
-  public String formatSwitchName(SwitchName name) {
-    if (name.length() == 1) {
-      return "-" + name.getText();
-    } else {
-      return "--" + name.getText();
-    }
+  public TokenFormatter newTokenFormatter() {
+    TokenFormatterChain result = new TokenFormatterChain();
+    result.addLast(new SwitchNameUnixTokenFormatter());
+    result.addLast(new ValueUnixTokenFormatter());
+    return result;
   }
 }

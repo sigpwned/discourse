@@ -20,8 +20,9 @@
 package com.sigpwned.discourse.core.dialect;
 
 import java.util.List;
+import java.util.Optional;
 import com.sigpwned.discourse.core.args.Token;
 
-public interface DialectTokenizer {
-  public List<Token> tokenize(String text);
+public interface ArgTokenizer {
+  public Optional<List<Token>> tokenize(String text);
 }
