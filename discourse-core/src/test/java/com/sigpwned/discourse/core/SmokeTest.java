@@ -184,4 +184,50 @@ public class SmokeTest {
         .configuration(CustomConstructorWithSyntaxFieldConfigurable.class, List.of("-f", "alpha"));
     assertThat(instance, is(new CustomConstructorWithSyntaxFieldConfigurable("alpha")));
   }
+
+  @Configurable(name = "factorymethodsyntaxfield", description = "Factory Method with Syntax Field")
+  public static class FactoryMethodWithSyntaxFieldConfigurable {
+    @DiscourseCreator
+    @DiscourseAttribute("")
+    public static FactoryMethodWithSyntaxFieldConfigurable of(
+        @DiscourseAttribute("foo") String foo) {
+      return new FactoryMethodWithSyntaxFieldConfigurable(foo);
+    }
+
+    private FactoryMethodWithSyntaxFieldConfigurable(String foo) {
+      this.foo = foo;
+    }
+
+    @OptionParameter(shortName = "f", longName = "foo", description = "foo")
+    private final String foo;
+
+    public String getFoo() {
+      return foo;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(foo);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      FactoryMethodWithSyntaxFieldConfigurable other =
+          (FactoryMethodWithSyntaxFieldConfigurable) obj;
+      return Objects.equals(foo, other.foo);
+    }
+  }
+
+  @Test
+  public void givenAConfigurableClassWithFactoryMethodAndSyntaxField_whenUseWizard_thenBuildExpectedInstance() {
+    FactoryMethodWithSyntaxFieldConfigurable instance = Discourse
+        .configuration(FactoryMethodWithSyntaxFieldConfigurable.class, List.of("-f", "alpha"));
+    assertThat(instance, is(FactoryMethodWithSyntaxFieldConfigurable.of("alpha")));
+  }
 }
