@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.sigpwned.discourse.core.annotation.DiscourseLocalize;
+import com.sigpwned.discourse.core.format.help.HelpMessage;
 import com.sigpwned.discourse.core.format.help.MessageLocalizer;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.util.Streams;
@@ -19,7 +20,7 @@ public class AnnotationBundleMessageLocalizer implements MessageLocalizer {
       new AnnotationBundleMessageLocalizer();
 
   @Override
-  public String localizeMessage(String message, List<Annotation> annotations,
+  public HelpMessage localizeMessage(HelpMessage message, List<Annotation> annotations,
       InvocationContext context) {
     DiscourseLocalize annotation = annotations.stream()
         .mapMulti(Streams.filterAndCast(DiscourseLocalize.class)).findFirst().orElse(null);
@@ -35,9 +36,11 @@ public class AnnotationBundleMessageLocalizer implements MessageLocalizer {
       return message;
     }
 
-    if (!bundle.containsKey(message))
+    if (!bundle.containsKey(message.getMessage()))
       return message;
 
-    return bundle.getString(message);
+    String localizedMessage = bundle.getString(message.getMessage());
+
+    return new HelpMessage(localizedMessage, message.getArguments());
   }
 }

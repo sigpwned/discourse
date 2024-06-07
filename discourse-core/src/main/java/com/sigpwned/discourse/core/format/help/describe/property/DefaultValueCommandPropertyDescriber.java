@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import com.sigpwned.discourse.core.command.LeafCommandProperty;
 import com.sigpwned.discourse.core.format.help.CommandPropertyDescriber;
+import com.sigpwned.discourse.core.format.help.HelpMessage;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 
 public class DefaultValueCommandPropertyDescriber implements CommandPropertyDescriber {
@@ -11,11 +12,13 @@ public class DefaultValueCommandPropertyDescriber implements CommandPropertyDesc
       new DefaultValueCommandPropertyDescriber();
 
   @Override
-  public Optional<List<String>> describe(LeafCommandProperty property, InvocationContext context) {
+  public Optional<List<HelpMessage>> describe(LeafCommandProperty property,
+      InvocationContext context) {
     if (property.getDefaultValue().isEmpty())
       return Optional.empty();
     // TODO i18n
-    return Optional.of(List.of("If no value is given, then the default value is \""
-        + property.getDefaultValue().orElseThrow() + "\"."));
+    return Optional
+        .of(List.of(new HelpMessage("If no value is given, then the default value is \"{0}\".",
+            List.of(property.getDefaultValue().orElseThrow()))));
   }
 }

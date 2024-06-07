@@ -13,11 +13,12 @@ public class CommandPropertyDescriberChain extends Chain<CommandPropertyDescribe
   public static final CommandPropertyDescriberChain INSTANCE = new CommandPropertyDescriberChain();
 
   @Override
-  public Optional<List<String>> describe(LeafCommandProperty property, InvocationContext context) {
-    List<String> descriptions = new ArrayList<>();
+  public Optional<List<HelpMessage>> describe(LeafCommandProperty property,
+      InvocationContext context) {
+    List<HelpMessage> descriptions = new ArrayList<>();
 
     for (CommandPropertyDescriber describer : this) {
-      Optional<List<String>> maybeDescription = describer.describe(property, context);
+      Optional<List<HelpMessage>> maybeDescription = describer.describe(property, context);
       if (maybeDescription.isPresent())
         descriptions.addAll(maybeDescription.orElseThrow());
     }

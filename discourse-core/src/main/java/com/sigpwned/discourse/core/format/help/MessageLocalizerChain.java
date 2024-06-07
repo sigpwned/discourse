@@ -7,10 +7,11 @@ import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 
 public class MessageLocalizerChain extends Chain<MessageLocalizer> implements MessageLocalizer {
   @Override
-  public String localizeMessage(String message, List<Annotation> annotations, InvocationContext context) {
-    String result = message;
+  public HelpMessage localizeMessage(HelpMessage message, List<Annotation> annotations,
+      InvocationContext context) {
+    HelpMessage result = message;
     for (MessageLocalizer localizer : this)
-      result = localizer.localizeMessage(result, annotations, context);
+      result = localizer.localizeMessage(message, annotations, context);
     return result;
   }
 }

@@ -28,12 +28,15 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Type;
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import com.sigpwned.discourse.core.Dialect;
 import com.sigpwned.discourse.core.args.Coordinate;
+import com.sigpwned.discourse.core.args.coordinate.PositionalCoordinate;
 import com.sigpwned.discourse.core.command.LeafCommand;
 import com.sigpwned.discourse.core.command.LeafCommandProperty;
 import com.sigpwned.discourse.core.command.ResolvedCommand;
@@ -208,9 +211,36 @@ public class DefaultHelpFormatter implements HelpFormatter {
       try {
         try (PrintWriter out = new PrintWriter(result)) {
           // TODO How do we get the command name?
+          // TODO What do we do if there isn't one?
+          // TODO How do we know if a property is a collection?
           String commandName = command.getName().orElse("hello");
-          out.println(commandName);
+
+          List<LeafCommandProperty> positionalArgs = new ArrayList<>();
+          for (int pos = 0; pos < command.getCommand().getProperties().size(); pos++) {
+            final Coordinate coordinate = PositionalCoordinate.of(pos);
+            LeafCommandProperty property = command.getCommand().getProperties().stream()
+                .filter(p -> p.getCoordinates().contains(coordinate)).findFirst().orElse(null);
+            if (property != null) {
+              positionalArgs.add(property);
+            } else {
+              break;
+            }
+          }
+
+          out.println(String.format("%s [options] %s", commandName,
+              positionalArgs.stream()
+                  .map(c -> c.isRequired() ? "<" + c.getName() + ">" : "[" + c.getName() + "]")
+                  .collect(joining(" "))));
           out.println();
+
+          if (command.getCommand().getDescription().isPresent()) {
+            // TODO How should we localize?
+            String localizedDescription = localizer.localizeMessage(
+                HelpMessage.of(command.getCommand().getDescription().orElseThrow()), List.of(),
+                context).getMessage();
+            out.println(localizedDescription);
+            out.println();
+          }
 
           for (Map.Entry<Class<?>, List<LeafCommandProperty>> e : partitionedCommandProperties
               .entrySet()) {
@@ -227,16 +257,22 @@ public class DefaultHelpFormatter implements HelpFormatter {
                   .sorted(Comparator.comparingInt(String::length).reversed())
                   .collect(joining("\n"));
 
-              List<String> originalDescriptions =
+              List<HelpMessage> originalDescriptions =
                   propertyDescriber.describe(commandProperty, context).orElseGet(List::of);
 
-              List<String> localizedDescriptions = originalDescriptions.stream()
+              List<HelpMessage> localizedDescriptions = originalDescriptions.stream()
                   .map(description -> localizer.localizeMessage(description,
                       commandProperty.getAnnotations(), context))
                   .collect(toList());
 
+              List<String> formattedDescriptions = localizedDescriptions.stream()
+                  .map(localizedDescription -> MessageFormat.format(
+                      localizedDescription.getMessage(),
+                      localizedDescription.getArguments().toArray(Object[]::new)))
+                  .collect(toList());
+
               String description = String.join(System.lineSeparator() + System.lineSeparator(),
-                  localizedDescriptions);
+                  formattedDescriptions);
 
               layout.addRow(new TableLayout.Row(List.of(syntax, description)));
             }
@@ -248,7 +284,9 @@ public class DefaultHelpFormatter implements HelpFormatter {
       } finally {
         result.close();
       }
-    } catch (IOException e) {
+    } catch (
+
+    IOException e) {
       // Should never happen...
       throw new UncheckedIOException("Failed to generate help message", e);
     }

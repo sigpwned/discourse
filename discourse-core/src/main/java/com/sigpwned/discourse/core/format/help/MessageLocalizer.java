@@ -5,5 +5,6 @@ import java.util.List;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 
 public interface MessageLocalizer {
-  public String localizeMessage(String message, List<Annotation> annotations, InvocationContext context);
+  public HelpMessage localizeMessage(HelpMessage message, List<Annotation> annotations,
+      InvocationContext context);
 }
