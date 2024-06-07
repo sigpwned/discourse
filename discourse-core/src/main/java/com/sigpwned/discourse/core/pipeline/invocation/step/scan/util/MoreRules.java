@@ -167,11 +167,15 @@ public class MoreRules {
     List<RuleWrapper> sinksList =
         sinksMap.values().stream().flatMap(List::stream).collect(toList());
 
+    // We want to figure out all the different ways to build a consequent. Each consequent can have
+    // multiple rules. Each rule should have different antecedents.
+    Map<String, List<RuleWrapper>> sourcesBestMap = new HashMap<>();
+
+    // This starting map goes from consequents to antecedents to rules
     Map<String, Map<Set<String>, List<RuleWrapper>>> sourcesMap =
         grouped.entrySet().stream().filter(e -> e.getKey().isPresent())
             .map(e -> Map.entry(e.getKey().orElseThrow(), e.getValue()))
             .collect(MoreCollectors.mapFromEntries());
-    Map<String, List<RuleWrapper>> sourcesBestMap = new HashMap<>();
     for (Map.Entry<String, Map<Set<String>, List<RuleWrapper>>> sourcesEntry : sourcesMap
         .entrySet()) {
       String consequent = sourcesEntry.getKey();
@@ -190,6 +194,7 @@ public class MoreRules {
           }
         }
 
+        // We just choose one arbitrarily
         RuleWrapper bestRule = rulesList.get(0);
 
         sourcesBestMap.computeIfAbsent(consequent, c -> new ArrayList<>()).add(bestRule);

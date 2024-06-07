@@ -39,6 +39,10 @@ public class PlannedCommandProperty {
    */
   private final String description;
 
+  private final boolean required;
+
+  private final Object defaultValue;
+
   /**
    * <p>
    * The syntax for specifying the value of this property. For example:
@@ -54,10 +58,13 @@ public class PlannedCommandProperty {
 
   private final ValueDeserializer<?> deserializer;
 
-  public PlannedCommandProperty(String name, String description, Set<Coordinate> coordinates,
-      ValueSink sink, ValueDeserializer<?> deserializer) {
+  public PlannedCommandProperty(String name, String description, boolean required,
+      Object defaultValue, Set<Coordinate> coordinates, ValueSink sink,
+      ValueDeserializer<?> deserializer) {
     this.name = requireNonNull(name);
     this.description = description;
+    this.required = required;
+    this.defaultValue = defaultValue;
     this.coordinates = unmodifiableSet(coordinates);
     this.sink = requireNonNull(sink);
     this.deserializer = requireNonNull(deserializer);
@@ -77,6 +84,19 @@ public class PlannedCommandProperty {
     return Optional.ofNullable(description);
   }
 
+  /**
+   * @return the required
+   */
+  public boolean isRequired() {
+    return required;
+  }
+
+  /**
+   * @return the defaultValue
+   */
+  public Optional<Object> getDefaultValue() {
+    return Optional.ofNullable(defaultValue);
+  }
 
   /**
    * @return the coordinates

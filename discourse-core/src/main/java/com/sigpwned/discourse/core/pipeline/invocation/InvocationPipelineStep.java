@@ -1,7 +1,9 @@
 package com.sigpwned.discourse.core.pipeline.invocation;
 
+import java.util.ResourceBundle;
 import com.sigpwned.discourse.core.Dialect;
 import com.sigpwned.discourse.core.command.LeafCommand;
+import com.sigpwned.discourse.core.command.ResolvedCommand;
 import com.sigpwned.discourse.core.command.RootCommand;
 import com.sigpwned.discourse.core.error.ExitError;
 import com.sigpwned.discourse.core.format.ExceptionFormatter;
@@ -10,6 +12,13 @@ import com.sigpwned.discourse.core.format.VersionFormatter;
 import com.sigpwned.discourse.core.pipeline.invocation.step.ScanStep;
 
 public interface InvocationPipelineStep {
+  /**
+   * The key for the {@link ResourceBundle application bundle} in the {@link InvocationContext
+   * invocation context}. This key is optionally populated by the user before pipeline execution.
+   */
+  public static final InvocationContext.Key<ResourceBundle> APPLICATION_BUNDLE_KEY =
+      InvocationContext.Key.of(ResourceBundle.class);
+
   /**
    * The key for the {@link RootCommand root command} in the {@link InvocationContext invocation
    * context}. This key is populated by the {@link ScanStep scan step}.
@@ -23,8 +32,8 @@ public interface InvocationPipelineStep {
    * context}. This key is populated by the {@link ScanStep scan step}.
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public static final InvocationContext.Key<LeafCommand<?>> LEAF_COMMAND_KEY =
-      (InvocationContext.Key) InvocationContext.Key.of(LeafCommand.class);
+  public static final InvocationContext.Key<ResolvedCommand<?>> RESOLVED_COMMAND_KEY =
+      (InvocationContext.Key) InvocationContext.Key.of(ResolvedCommand.class);
 
   public static final InvocationContext.Key<ExitError.Factory> EXIT_ERROR_FACTORY_KEY =
       InvocationContext.Key.of(ExitError.Factory.class);

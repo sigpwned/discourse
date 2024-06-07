@@ -28,6 +28,8 @@ import org.junit.Test;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.DiscourseAttribute;
 import com.sigpwned.discourse.core.annotation.DiscourseCreator;
+import com.sigpwned.discourse.core.annotation.DiscourseDescription;
+import com.sigpwned.discourse.core.annotation.DiscourseRequired;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.module.CoreModule;
@@ -38,12 +40,15 @@ import com.sigpwned.discourse.core.util.Discourse;
  * Perform a smoke test with a simple configuration and field assignments.
  */
 public class SmokeTest {
-  @Configurable(name = "smoke", description = "smoke test")
+  @DiscourseDescription("smoke test")
+  @Configurable(name = "smoke")
   public static class SmokeTestConfigurable {
-    @OptionParameter(shortName = "f", longName = "foo", description = "foo")
+    @DiscourseDescription("foo")
+    @OptionParameter(shortName = "f", longName = "foo")
     public String foo;
 
-    @PositionalParameter(position = 0, description = "bar")
+    @DiscourseDescription("bar")
+    @PositionalParameter(position = 0)
     public int bar;
 
     @Override
@@ -90,9 +95,11 @@ public class SmokeTest {
     assertThat(invocationInstance, is(expectedInstance));
   }
 
-  @Configurable(name = "badrules", description = "Bad Rules")
+  @DiscourseDescription("Bad Rules")
+  @Configurable(name = "badrules")
   public static class InaccessableFieldConfigurable {
-    @OptionParameter(shortName = "f", longName = "foo", description = "foo")
+    @DiscourseDescription("foo")
+    @OptionParameter(shortName = "f", longName = "foo")
     private String foo;
   }
 
@@ -102,12 +109,13 @@ public class SmokeTest {
     Discourse.configuration(InaccessableFieldConfigurable.class, List.of("-f", "alpha"));
   }
 
-  @Configurable(name = "customconstructorsyntaxparam",
-      description = "Custom Constructor with Syntax Parameter")
+  @DiscourseDescription("Custom Constructor with Syntax Parameter")
+  @Configurable(name = "customconstructorsyntaxparam")
   public static class CustomConstructorWithSyntaxParameterConfigurable {
     @DiscourseCreator
-    public CustomConstructorWithSyntaxParameterConfigurable(@OptionParameter(shortName = "f",
-        longName = "foo", description = "foo") @DiscourseAttribute("foo") String foo) {
+    public CustomConstructorWithSyntaxParameterConfigurable(
+        @DiscourseRequired @DiscourseDescription("foo") @OptionParameter(shortName = "f",
+            longName = "foo") @DiscourseAttribute("foo") String foo) {
       this.foo = foo;
     }
 
@@ -144,15 +152,17 @@ public class SmokeTest {
     assertThat(instance, is(new CustomConstructorWithSyntaxParameterConfigurable("alpha")));
   }
 
-  @Configurable(name = "customconstructorsyntaxfield",
-      description = "Custom Constructor with Syntax Field")
+  @DiscourseDescription("Custom Constructor with Syntax Field")
+  @Configurable(name = "customconstructorsyntaxfield")
   public static class CustomConstructorWithSyntaxFieldConfigurable {
     @DiscourseCreator
     public CustomConstructorWithSyntaxFieldConfigurable(@DiscourseAttribute("foo") String foo) {
       this.foo = foo;
     }
 
-    @OptionParameter(shortName = "f", longName = "foo", description = "foo")
+    @DiscourseRequired
+    @DiscourseDescription("foo")
+    @OptionParameter(shortName = "f", longName = "foo")
     private final String foo;
 
     public String getFoo() {
@@ -185,7 +195,8 @@ public class SmokeTest {
     assertThat(instance, is(new CustomConstructorWithSyntaxFieldConfigurable("alpha")));
   }
 
-  @Configurable(name = "factorymethodsyntaxfield", description = "Factory Method with Syntax Field")
+  @DiscourseDescription("Factory Method with Syntax Parameter")
+  @Configurable(name = "factorymethodsyntaxfield")
   public static class FactoryMethodWithSyntaxFieldConfigurable {
     @DiscourseCreator
     @DiscourseAttribute("")
@@ -198,7 +209,9 @@ public class SmokeTest {
       this.foo = foo;
     }
 
-    @OptionParameter(shortName = "f", longName = "foo", description = "foo")
+    @DiscourseRequired
+    @DiscourseDescription("foo")
+    @OptionParameter(shortName = "f", longName = "foo")
     private final String foo;
 
     public String getFoo() {
@@ -225,7 +238,7 @@ public class SmokeTest {
   }
 
   @Test
-  public void givenAConfigurableClassWithFactoryMethodAndSyntaxField_whenUseWizard_thenBuildExpectedInstance() {
+  public void givenConfigurableClassWithFactoryMethodAndSyntaxField_whenUseWizard_thenBuildExpectedInstance() {
     FactoryMethodWithSyntaxFieldConfigurable instance = Discourse
         .configuration(FactoryMethodWithSyntaxFieldConfigurable.class, List.of("-f", "alpha"));
     assertThat(instance, is(FactoryMethodWithSyntaxFieldConfigurable.of("alpha")));

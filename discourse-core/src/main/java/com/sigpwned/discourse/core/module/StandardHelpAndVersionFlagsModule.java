@@ -83,14 +83,15 @@ public class StandardHelpAndVersionFlagsModule extends com.sigpwned.discourse.co
 
         if (!getHelpSwitches().isEmpty()) {
           leaf.getProperties()
-              .add(new LeafCommandProperty(HELP_PROPERTY_NAME, getHelpDescription(),
+              .add(new LeafCommandProperty(HELP_PROPERTY_NAME, getHelpDescription(), false, "false",
                   getHelpSwitches().stream().map(HelpFlagCoordinate::new).collect(toSet()),
                   Boolean.class, emptyList()));
         }
 
         if (!getVersionSwitches().isEmpty()) {
           leaf.getProperties()
-              .add(new LeafCommandProperty(VERSION_PROPERTY_NAME, getVersionDescription(),
+              .add(new LeafCommandProperty(VERSION_PROPERTY_NAME, getVersionDescription(), false,
+                  "false",
                   getVersionSwitches().stream().map(VersionFlagCoordinate::new).collect(toSet()),
                   Boolean.class, emptyList()));
         }

@@ -18,6 +18,9 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.sigpwned.discourse.core.annotation.Configurable;
+import com.sigpwned.discourse.core.annotation.DiscourseDefaultValue;
+import com.sigpwned.discourse.core.annotation.DiscourseDescription;
+import com.sigpwned.discourse.core.annotation.DiscourseRequired;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.Discriminator;
@@ -107,9 +110,9 @@ public class ScanStep extends InvocationPipelineStepBase {
   private <T> RootCommand<T> doScan(Class<T> clazz, InvocationContext context) {
     List<WalkedClass<? extends T>> walkedClasses = doWalkStep(clazz, context);
 
-    List<PreparedClass<? extends T>> bodiedClasses = doPrepareStep(walkedClasses, context);
+    List<PreparedClass<? extends T>> preparedClasses = doPrepareStep(walkedClasses, context);
 
-    RootCommand<T> tree = doTreeStep(bodiedClasses, context);
+    RootCommand<T> tree = doTreeStep(preparedClasses, context);
 
     return tree;
   }
@@ -440,8 +443,20 @@ public class ScanStep extends InvocationPipelineStepBase {
         // TODO Where does the description come from?
         List<LeafCommandProperty> properties = new ArrayList<>();
         for (NamedSyntax namedSyntax : syntax) {
-          properties.add(new LeafCommandProperty(namedSyntax.name(), "", namedSyntax.coordinates(),
-              namedSyntax.genericType(), namedSyntax.annotations()));
+          // TODO Should this be a pluggable implementation?
+          String description = namedSyntax.annotations().stream()
+              .mapMulti(Streams.filterAndCast(DiscourseDescription.class)).findFirst()
+              .map(DiscourseDescription::value).orElse(null);
+          // TODO Should this be a pluggable implementation? For example, @NonNull?
+          boolean required = namedSyntax.annotations().stream()
+              .mapMulti(Streams.filterAndCast(DiscourseRequired.class)).findFirst().isPresent();
+          // TODO Should this be a pluggable implementation?
+          String defaultValue = namedSyntax.annotations().stream()
+              .mapMulti(Streams.filterAndCast(DiscourseDefaultValue.class)).findFirst()
+              .map(DiscourseDefaultValue::value).orElse(null);
+          properties
+              .add(new LeafCommandProperty(namedSyntax.name(), description, required, defaultValue,
+                  namedSyntax.coordinates(), namedSyntax.genericType(), namedSyntax.annotations()));
         }
 
         // TODO Should we defer validation of the rules until later? Developers may customize after.
@@ -493,7 +508,8 @@ public class ScanStep extends InvocationPipelineStepBase {
         // What about required properties?
         Set<String> guaranteedPropertyNames = new HashSet<>();
         for (LeafCommandProperty property : properties)
-          guaranteedPropertyNames.add(property.getName());
+          if (property.isGuaranted())
+            guaranteedPropertyNames.add(property.getName());
 
         // If we have just the required syntax, then can we create everything?
         List<MoreRules.Reaction> guaranteedReactions =
@@ -508,15 +524,47 @@ public class ScanStep extends InvocationPipelineStepBase {
         MoreRules.Reaction bestGuaranteedReaction = guaranteedReactions.get(0);
 
         // TODO instance constant
-        Set<String> requiredPropertyNames = new HashSet<>(guaranteedPropertyNames);
-        requiredPropertyNames.add("");
+        // Set<String> requiredPropertyNames = new HashSet<>(guaranteedPropertyNames);
+        // requiredPropertyNames.add("");
 
         // If we have just the required syntax, then can we create all the required fields?
-        if (!bestGuaranteedReaction.consumed().containsAll(requiredPropertyNames)) {
+        if (!bestGuaranteedReaction.consumed().containsAll(guaranteedPropertyNames)) {
           // Oops. Not all required properties are consumed. That's not good.
           // TODO better exception
           throw new IllegalArgumentException("Not all required properties are consumed: "
-              + MoreSets.difference(requiredPropertyNames, bestGuaranteedReaction.consumed()));
+              + MoreSets.difference(guaranteedPropertyNames, bestGuaranteedReaction.consumed()));
+        }
+        if (!bestGuaranteedReaction.produced().contains("")) {
+          // Welp, we didn't create our instance. That's bad.
+          // TODO better exception
+          throw new IllegalArgumentException("Instance not created");
+        }
+
+        // What about all the other property names? If we have the guaranteed property names PLUS
+        // one other, then can we assign the other?
+        for (String propertyName : allPropertyNames) {
+          if (guaranteedPropertyNames.contains(propertyName))
+            continue;
+
+          Set<String> availableNames = new HashSet<>(guaranteedPropertyNames);
+          availableNames.add(propertyName);
+
+          MoreRules.Reaction reaction = MoreRules.react(rules, availableNames).stream()
+              .sorted(Comparator.<MoreRules.Reaction>comparingInt(ri -> -ri.consumed().size())
+                  .thenComparingInt(ri -> ri.evaluated().size()))
+              .findFirst().orElseThrow(() -> new AssertionError("Failed to test guaranteed rules"));
+
+          if (!reaction.consumed().containsAll(availableNames)) {
+            // Oops. Not all required properties are consumed. That's not good.
+            // TODO better exception
+            throw new IllegalArgumentException("Not all required properties are consumed: "
+                + MoreSets.difference(availableNames, reaction.consumed()));
+          }
+          if (!reaction.produced().contains("")) {
+            // Welp, we didn't create our instance. That's bad.
+            // TODO better exception
+            throw new IllegalArgumentException("Instance not created");
+          }
         }
 
         // We have a clear winner for evaluation and construction. Let's build our body.
@@ -631,6 +679,15 @@ public class ScanStep extends InvocationPipelineStepBase {
         subs.put(discriminator, sub);
       }
 
+      String description;
+      DiscourseDescription descriptionAnnotation =
+          preparedClass.clazz().getAnnotation(DiscourseDescription.class);
+      if (descriptionAnnotation != null) {
+        description = descriptionAnnotation.value();
+      } else {
+        description = null;
+      }
+
       // TODO should command be generic?
       Command<?> command;
       if (subs.isEmpty()) {
@@ -641,12 +698,10 @@ public class ScanStep extends InvocationPipelineStepBase {
         // We want the leaf command to be immutable by default. If anyone wants to make it mutable
         // down the line, they can always make a copy.
         List<LeafCommandProperty> immutablePropertiesCopy = List.copyOf(body.getProperties());
-        command =
-            new LeafCommand<>(preparedClass.configurable().description(), immutablePropertiesCopy,
-                toReactor(reactor, body.getRules()), toConstructor(preparedClass.clazz()));
+        command = new LeafCommand<>(description, immutablePropertiesCopy,
+            toReactor(reactor, body.getRules()), toConstructor(preparedClass.clazz()));
       } else {
-        command = new com.sigpwned.discourse.core.command.SuperCommand(
-            preparedClass.configurable().description(), subs);
+        command = new com.sigpwned.discourse.core.command.SuperCommand(description, subs);
       }
 
       if (preparedClass.supercommand().isPresent()) {

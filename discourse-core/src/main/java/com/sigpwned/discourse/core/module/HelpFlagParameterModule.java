@@ -29,7 +29,7 @@ import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.annotation.HelpFlagParameter;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.args.SwitchName;
-import com.sigpwned.discourse.core.command.LeafCommand;
+import com.sigpwned.discourse.core.command.ResolvedCommand;
 import com.sigpwned.discourse.core.error.ExitError;
 import com.sigpwned.discourse.core.format.HelpFormatter;
 import com.sigpwned.discourse.core.module.parameter.flag.help.HelpFlagCoordinate;
@@ -115,13 +115,13 @@ public class HelpFlagParameterModule extends Module {
 
               Dialect dialect = context.get(InvocationPipelineStep.DIALECT_KEY).orElseThrow();
 
-              LeafCommand<?> command =
-                  context.get(InvocationPipelineStep.LEAF_COMMAND_KEY).orElseThrow();
+              ResolvedCommand<?> command =
+                  context.get(InvocationPipelineStep.RESOLVED_COMMAND_KEY).orElseThrow();
 
               ExitError.Factory exit =
                   context.get(InvocationPipelineStep.EXIT_ERROR_FACTORY_KEY).orElseThrow();
 
-              formatter.formatHelp(dialect, command);
+              formatter.formatHelp(dialect, command, context);
 
               throw exit.createExitError(0);
             }

@@ -41,6 +41,10 @@ public class LeafCommandProperty {
    */
   private final String description;
 
+  private final boolean required;
+
+  private final String defaultValue;
+
   /**
    * <p>
    * The syntax for specifying the value of this property. For example:
@@ -52,15 +56,16 @@ public class LeafCommandProperty {
    */
   private final Set<Coordinate> coordinates;
 
-
   private final Type genericType;
 
   private final List<Annotation> annotations;
 
-  public LeafCommandProperty(String name, String description, Set<Coordinate> coordinates,
-      Type genericType, List<Annotation> annotations) {
+  public LeafCommandProperty(String name, String description, boolean required, String defaultValue,
+      Set<Coordinate> coordinates, Type genericType, List<Annotation> annotations) {
     this.name = requireNonNull(name);
     this.description = description;
+    this.required = required;
+    this.defaultValue = defaultValue;
     this.coordinates = unmodifiableSet(coordinates);
     this.genericType = requireNonNull(genericType);
     this.annotations = unmodifiableList(annotations);
@@ -78,6 +83,18 @@ public class LeafCommandProperty {
    */
   public Optional<String> getDescription() {
     return Optional.ofNullable(description);
+  }
+
+  public boolean isRequired() {
+    return required;
+  }
+
+  public Optional<String> getDefaultValue() {
+    return Optional.ofNullable(defaultValue);
+  }
+
+  public boolean isGuaranted() {
+    return isRequired() || getDefaultValue().isPresent();
   }
 
   /**

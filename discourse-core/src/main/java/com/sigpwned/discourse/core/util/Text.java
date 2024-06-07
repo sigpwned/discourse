@@ -117,4 +117,10 @@ public final class Text {
 
     return result.toString();
   }
+
+  public static String rpad(String s, int width) {
+    if (s.length() >= width)
+      return s;
+    return s + times(" ", width - s.length());
+  }
 }

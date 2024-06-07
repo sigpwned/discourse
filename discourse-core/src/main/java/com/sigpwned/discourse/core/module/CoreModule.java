@@ -302,7 +302,9 @@ public class CoreModule extends Module {
    * @param chain the chain to register the discourse listeners into
    */
   @Override
-  public void registerListeners(Chain<InvocationPipelineListener> chain) {}
+  public void registerListeners(Chain<InvocationPipelineListener> chain) {
+    
+  }
 
 
 

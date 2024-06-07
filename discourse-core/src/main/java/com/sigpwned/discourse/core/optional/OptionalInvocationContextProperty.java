@@ -52,8 +52,7 @@ public class OptionalInvocationContextProperty<K, V> {
     return new OptionalInvocationContextProperty<>(key, value);
   }
 
-  public static <K> OptionalInvocationContextProperty<K, ? extends K> empty(
-      InvocationContext.Key<K> key) {
+  public static <K> OptionalInvocationContextProperty<K, K> empty(InvocationContext.Key<K> key) {
     return new OptionalInvocationContextProperty<>(key, null);
   }
 

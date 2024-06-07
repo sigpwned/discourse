@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import org.junit.Test;
 import com.sigpwned.discourse.core.annotation.Configurable;
+import com.sigpwned.discourse.core.annotation.DiscourseDescription;
 import com.sigpwned.discourse.core.annotation.DiscourseMixin;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
@@ -14,7 +15,8 @@ import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineBuilder
 
 public class MixinTest {
   public static class MixinBravo {
-    @OptionParameter(shortName = "b", longName = "bravo", description = "bravo")
+    @DiscourseDescription("bravo")
+    @OptionParameter(shortName = "b", longName = "bravo")
     public String bravoValue;
 
     @Override
@@ -36,7 +38,8 @@ public class MixinTest {
   }
 
   public static class MixinAlpha {
-    @OptionParameter(shortName = "a", longName = "alpha", description = "alpha")
+    @DiscourseDescription("alpha")
+    @OptionParameter(shortName = "a", longName = "alpha")
     public String alphaValue;
 
     @DiscourseMixin
@@ -60,12 +63,15 @@ public class MixinTest {
     }
   }
 
-  @Configurable(name = "mixin", description = "mixin test")
+  @DiscourseDescription("mixin test")
+  @Configurable(name = "mixin")
   public static class MixinTestConfigurable {
-    @OptionParameter(shortName = "f", longName = "foo", description = "foo")
+    @DiscourseDescription("foo")
+    @OptionParameter(shortName = "f", longName = "foo")
     public String foo;
 
-    @PositionalParameter(position = 0, description = "bar")
+    @DiscourseDescription("bar")
+    @PositionalParameter(position = 0)
     public int bar;
 
     @DiscourseMixin

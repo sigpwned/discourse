@@ -7,11 +7,9 @@ import com.sigpwned.discourse.core.annotation.Subcommand;
 
 public class ConfigurableWalker {
   public static interface Listener<T> {
-    public void enterRootConfigurable(Class<T> clazz, String name, String description,
-        String version);
+    public void enterRootConfigurable(Class<T> clazz, String name, String version);
 
-    public void enterSubConfigurable(String discriminator, Class<? extends T> clazz,
-        String description);
+    public void enterSubConfigurable(String discriminator, Class<? extends T> clazz);
 
     public void leaveSubConfigurable();
 
@@ -26,10 +24,9 @@ public class ConfigurableWalker {
     }
 
     String name = fromAnnotationString(configurable.name()).orElse(null);
-    String description = fromAnnotationString(configurable.description()).orElse(null);
     String version = fromAnnotationString(configurable.version()).orElse(null);
 
-    listener.enterRootConfigurable(clazz, name, description, version);
+    listener.enterRootConfigurable(clazz, name, version);
     if (configurable.subcommands().length > 0) {
       subwalk(clazz, configurable.subcommands(), listener);
     }
@@ -61,14 +58,13 @@ public class ConfigurableWalker {
       }
 
       String discriminator = fromAnnotationString(configurable.discriminator()).orElse(null);
-      String description = fromAnnotationString(configurable.description()).orElse(null);
       if (!Objects.equals(discriminator, expectedDiscriminator)) {
         // TODO better exception
         throw new IllegalArgumentException("subclass " + subclazz + " has discriminator "
             + discriminator + " but expected " + expectedDiscriminator);
       }
 
-      listener.enterSubConfigurable(discriminator, subclazz, description);
+      listener.enterSubConfigurable(discriminator, subclazz);
       if (configurable.subcommands().length > 0) {
         subwalk(subclazz, configurable.subcommands(), listener);
       }

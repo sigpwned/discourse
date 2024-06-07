@@ -40,10 +40,10 @@ public @interface Configurable {
   public String name() default "";
 
   /**
-   * An optional description of the configurable object. This is the description that will be used
-   * to describe the application in help messages and other output.
+   * The version of the configurable object. This is the version that will be used to describe which
+   * version of the application is running in help messages and other output.
    */
-  public String description() default "";
+  public String version() default "";
 
   /**
    * The discriminator for the configurable object. This is the discriminator that will be used to
@@ -53,12 +53,6 @@ public @interface Configurable {
    * @see MultiCommand#getSubcommands()
    */
   public String discriminator() default "";
-
-  /**
-   * The version of the configurable object. This is the version that will be used to describe which
-   * version of the application is running in help messages and other output.
-   */
-  public String version() default "";
 
   /**
    * The subcommands of this configurable object. This list "points" to this logical

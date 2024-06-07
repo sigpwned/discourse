@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.Module;
-import com.sigpwned.discourse.core.annotation.DiscourseRequired;
 import com.sigpwned.discourse.core.command.LeafCommandProperty;
 import com.sigpwned.discourse.core.command.ResolvedCommand;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
@@ -27,7 +26,7 @@ public class RequiredParameterModule extends Module {
         ResolvedCommand<? extends T> resolvedCommand = resolution.getCommand();
 
         for (LeafCommandProperty property : resolvedCommand.getCommand().getProperties()) {
-          if (property.getAnnotations().stream().anyMatch(a -> a instanceof DiscourseRequired)) {
+          if (property.isRequired()) {
             requiredParameters.add(property.getName());
           }
         }

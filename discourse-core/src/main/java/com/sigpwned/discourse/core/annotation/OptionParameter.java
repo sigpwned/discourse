@@ -51,9 +51,4 @@ public @interface OptionParameter {
    * @return the long name of the option, e.g., --xray
    */
   public String longName() default "";
-
-  /**
-   * @return the description of the option
-   */
-  public String description() default "";
 }

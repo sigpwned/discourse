@@ -21,8 +21,8 @@ package com.sigpwned.discourse.core.annotation;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -34,19 +34,14 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <pre>
- *   &#x40;EnvironmentParameter(variableName = "MY_VAR")
- *   public String myVar;
+ * &#x40;EnvironmentParameter(variableName = "MY_VAR")
+ * public String myVar;
  * </pre>
  *
  * @see System#getenv(String)
  */
 @Retention(RUNTIME)
-@Target({FIELD, METHOD})
+@Target({FIELD, METHOD, PARAMETER})
 public @interface EnvironmentParameter {
-
   public String variableName();
-
-  public String description() default "";
-
-  public boolean required() default false;
 }

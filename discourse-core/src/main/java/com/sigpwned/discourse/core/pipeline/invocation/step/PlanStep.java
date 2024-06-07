@@ -64,12 +64,27 @@ public class PlanStep extends InvocationPipelineStepBase {
           .orElseThrow(() -> {
             return new NoSinkAvailablePlanException(leaf, property);
           });
+
       ValueDeserializer<?> deserializer = deserializerFactory
           .getDeserializer(sink.getGenericType(), property.getAnnotations()).orElseThrow(() -> {
             return new NoDeserializerAvailablePlanException(leaf, property);
           });
-      properties.add(new PlannedCommandProperty(property.getName(),
-          property.getDescription().orElse(null), property.getCoordinates(), sink, deserializer));
+
+      Object defaultValue;
+      if (property.getDefaultValue().isPresent()) {
+        try {
+          defaultValue = deserializer.deserialize(property.getDefaultValue().orElseThrow());
+        } catch (Exception e) {
+          // TODO better exception
+          throw new IllegalArgumentException("invalid default value", e);
+        }
+      } else {
+        defaultValue = null;
+      }
+
+      properties.add(
+          new PlannedCommandProperty(property.getName(), property.getDescription().orElse(null),
+              property.isRequired(), defaultValue, property.getCoordinates(), sink, deserializer));
     }
 
     return new PlannedCommand<>(resolvedCommand.getParents(),

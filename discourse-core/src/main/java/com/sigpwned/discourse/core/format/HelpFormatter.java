@@ -20,7 +20,8 @@
 package com.sigpwned.discourse.core.format;
 
 import com.sigpwned.discourse.core.Dialect;
-import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.ResolvedCommand;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 
 /**
  * A formatter that formats help for a resolvedCommand for display.
@@ -28,5 +29,5 @@ import com.sigpwned.discourse.core.command.Command;
 @FunctionalInterface
 public interface HelpFormatter {
 
-  public String formatHelp(Dialect dialect, Command<?> command);
+  public String formatHelp(Dialect dialect, ResolvedCommand<?> command, InvocationContext context);
 }
