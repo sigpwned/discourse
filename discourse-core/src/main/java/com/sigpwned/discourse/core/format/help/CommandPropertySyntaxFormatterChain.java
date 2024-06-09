@@ -1,6 +1,5 @@
 package com.sigpwned.discourse.core.format.help;
 
-import java.util.List;
 import java.util.Optional;
 import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.command.LeafCommandProperty;
@@ -10,10 +9,10 @@ public class CommandPropertySyntaxFormatterChain extends Chain<CommandPropertySy
     implements CommandPropertySyntaxFormatter {
 
   @Override
-  public Optional<List<String>> formatParameterSyntax(LeafCommandProperty property,
+  public Optional<CommandPropertySyntax> formatParameterSyntax(LeafCommandProperty property,
       InvocationContext context) {
     for (CommandPropertySyntaxFormatter formatter : this) {
-      Optional<List<String>> result = formatter.formatParameterSyntax(property, context);
+      Optional<CommandPropertySyntax> result = formatter.formatParameterSyntax(property, context);
       if (result.isPresent())
         return result;
     }

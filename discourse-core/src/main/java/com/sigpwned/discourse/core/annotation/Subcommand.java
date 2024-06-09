@@ -19,7 +19,11 @@
  */
 package com.sigpwned.discourse.core.annotation;
 
-
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import com.sigpwned.discourse.core.command.Discriminator;
 
 /**
  * An annotation that marks a class as a subcommand of a {@link MultiCommand}. Subcommands are
@@ -29,6 +33,8 @@ package com.sigpwned.discourse.core.annotation;
  * must match the discriminator that appears in the subcommand's {@link Configurable @Configurable}
  * annotation.
  */
+@Retention(RUNTIME)
+@Target({TYPE})
 public @interface Subcommand {
 
   /**

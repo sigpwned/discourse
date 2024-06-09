@@ -22,7 +22,7 @@ package com.sigpwned.discourse.core.args;
 import static java.util.Objects.requireNonNull;
 import java.util.Objects;
 
-public class SwitchName {
+public class SwitchName implements Comparable<SwitchName> {
   public static SwitchName fromString(String s) {
     return new SwitchName(s);
   }
@@ -63,5 +63,10 @@ public class SwitchName {
   @Override
   public String toString() {
     return text;
+  }
+
+  @Override
+  public int compareTo(SwitchName that) {
+    return this.toString().compareTo(that.toString());
   }
 }

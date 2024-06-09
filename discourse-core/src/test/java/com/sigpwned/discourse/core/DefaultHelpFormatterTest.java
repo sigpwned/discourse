@@ -4,14 +4,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import org.junit.Test;
 import com.sigpwned.discourse.core.annotation.Configurable;
+import com.sigpwned.discourse.core.annotation.DiscourseAttribute;
 import com.sigpwned.discourse.core.annotation.DiscourseDefaultValue;
 import com.sigpwned.discourse.core.annotation.DiscourseDescription;
 import com.sigpwned.discourse.core.annotation.DiscourseRequired;
+import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
+import com.sigpwned.discourse.core.annotation.PositionalParameter;
+import com.sigpwned.discourse.core.annotation.Undocumented;
 import com.sigpwned.discourse.core.command.LeafCommand;
 import com.sigpwned.discourse.core.command.ResolvedCommand;
 import com.sigpwned.discourse.core.dialect.UnixDialect;
@@ -26,16 +31,29 @@ import com.sigpwned.discourse.core.format.help.coordinate.OptionParameterCoordin
 import com.sigpwned.discourse.core.format.help.coordinate.PositionalParameterCoordinateFormatter;
 import com.sigpwned.discourse.core.format.help.describe.property.DefaultValueCommandPropertyDescriber;
 import com.sigpwned.discourse.core.format.help.describe.property.DescriptionCommandPropertyDescriber;
+import com.sigpwned.discourse.core.format.help.describe.property.ExampleCommandPropertyDescriber;
 import com.sigpwned.discourse.core.format.help.describe.property.RequiredCommandPropertyDescriber;
+import com.sigpwned.discourse.core.format.help.describe.property.UndocumentedCommandPropertyDescriber;
 import com.sigpwned.discourse.core.format.help.localize.message.AnnotationBundleMessageLocalizer;
 import com.sigpwned.discourse.core.format.help.localize.message.ApplicationBundleMessageLocalizer;
 import com.sigpwned.discourse.core.format.help.text.console.ConsoleBoldTextFormatter;
 import com.sigpwned.discourse.core.format.help.text.console.ConsoleItalicTextFormatter;
 import com.sigpwned.discourse.core.format.help.text.console.ConsoleStrikethruTextFormatter;
+import com.sigpwned.discourse.core.module.CoreModule;
+import com.sigpwned.discourse.core.module.core.plan.value.deserializer.StringValueDeserializerFactory;
+import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDeserializerFactoryChain;
+import com.sigpwned.discourse.core.module.core.plan.value.sink.AssignValueSinkFactory;
+import com.sigpwned.discourse.core.module.core.plan.value.sink.ListAddValueSinkFactory;
+import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSinkFactoryChain;
+import com.sigpwned.discourse.core.module.parameter.environmentvariable.EnvironmentVariableCoordinateFormatter;
+import com.sigpwned.discourse.core.module.parameter.environmentvariable.EnvironmentVariableParameter;
+import com.sigpwned.discourse.core.module.parameter.systemproperty.SystemPropertyCoordinateFormatter;
+import com.sigpwned.discourse.core.module.parameter.systemproperty.SystemPropertyParameter;
 import com.sigpwned.discourse.core.optional.OptionalInvocationContextProperty;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipeline;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStep;
+import com.sigpwned.discourse.core.pipeline.invocation.step.PlanStep;
 
 public class DefaultHelpFormatterTest {
   @DiscourseDescription("Test @Configurable #1")
@@ -158,7 +176,6 @@ public class DefaultHelpFormatterTest {
     System.out.println(help.formatHelp(UnixDialect.INSTANCE, resolved, context));
   }
 
-
   @DiscourseDescription("Test @Configurable #3")
   @Configurable(name = "test3")
   public static class TestConfigurable3 {
@@ -204,6 +221,226 @@ public class DefaultHelpFormatterTest {
             UnixDialect.INSTANCE));
     when(context.get(InvocationPipelineStep.APPLICATION_BUNDLE_KEY)).thenReturn(
         OptionalInvocationContextProperty.empty(InvocationPipelineStep.APPLICATION_BUNDLE_KEY));
+
+    HelpFormatter help =
+        new DefaultHelpFormatter(100, syntaxChain, describerChain, localizer, textFormatter);
+
+    System.out.println(help.formatHelp(UnixDialect.INSTANCE, resolved, context));
+  }
+
+  @DiscourseDescription("Test @Configurable #4")
+  @Configurable(name = "test4")
+  public static class TestConfigurable4 {
+    @DiscourseDefaultValue("foobar")
+    @DiscourseRequired
+    @DiscourseDescription("This is a foo.")
+    @OptionParameter(shortName = "f", longName = "foo")
+    public String foo;
+
+    @DiscourseRequired
+    @DiscourseDescription("This is a bar.")
+    @PositionalParameter(position = 0)
+    public String bar;
+
+    @DiscourseDescription("This is a quux.")
+    @PositionalParameter(position = 1)
+    public String quux;
+  }
+
+  /**
+   * Application resource bundle localization test
+   */
+  @Test
+  public void test4() {
+    CommandPropertySyntaxFormatterChain syntaxChain = new CommandPropertySyntaxFormatterChain();
+    syntaxChain.addLast(FlagParameterCoordinateFormatter.INSTANCE);
+    syntaxChain.addLast(OptionParameterCoordinateFormatter.INSTANCE);
+    syntaxChain.addLast(PositionalParameterCoordinateFormatter.INSTANCE);
+
+    CommandPropertyDescriberChain describerChain = new CommandPropertyDescriberChain();
+    describerChain.addLast(DescriptionCommandPropertyDescriber.INSTANCE);
+    describerChain.addLast(RequiredCommandPropertyDescriber.INSTANCE);
+    describerChain.addLast(DefaultValueCommandPropertyDescriber.INSTANCE);
+
+    MessageLocalizerChain localizer = new MessageLocalizerChain();
+    localizer.addLast(AnnotationBundleMessageLocalizer.INSTANCE);
+    localizer.addLast(ApplicationBundleMessageLocalizer.INSTANCE);
+
+    TextFormatterChain textFormatter = new TextFormatterChain();
+    textFormatter.addLast(ConsoleBoldTextFormatter.INSTANCE);
+    textFormatter.addLast(ConsoleItalicTextFormatter.INSTANCE);
+    textFormatter.addLast(ConsoleStrikethruTextFormatter.INSTANCE);
+
+    LeafCommand<TestConfigurable4> leaf = (LeafCommand<TestConfigurable4>) InvocationPipeline
+        .builder().dialect(UnixDialect.INSTANCE).build().scan(TestConfigurable4.class).getRoot();
+
+    ResolvedCommand<?> resolved = new ResolvedCommand<>("name", "version", leaf);
+
+    InvocationContext context = mock(InvocationContext.class);
+    when(context.get(InvocationPipelineStep.DIALECT_KEY))
+        .thenReturn(OptionalInvocationContextProperty.of(InvocationPipelineStep.DIALECT_KEY,
+            UnixDialect.INSTANCE));
+    when(context.get(InvocationPipelineStep.APPLICATION_BUNDLE_KEY)).thenReturn(
+        OptionalInvocationContextProperty.empty(InvocationPipelineStep.APPLICATION_BUNDLE_KEY));
+
+    HelpFormatter help =
+        new DefaultHelpFormatter(100, syntaxChain, describerChain, localizer, textFormatter);
+
+    System.out.println(help.formatHelp(UnixDialect.INSTANCE, resolved, context));
+  }
+
+  @DiscourseDescription("Test @Configurable #5")
+  @Configurable(name = "test5")
+  public static class TestConfigurable5 {
+    @DiscourseDefaultValue("foobar")
+    @DiscourseRequired
+    @DiscourseDescription("This is a foo.")
+    @OptionParameter(shortName = "f", longName = "foo")
+    public String foo;
+
+    @DiscourseRequired
+    @DiscourseDescription("This is a bar.")
+    @PositionalParameter(position = 0)
+    public String bar;
+
+    @DiscourseAttribute("quux")
+    @DiscourseDescription("This is a quux.")
+    @PositionalParameter(position = 1)
+    public List<String> quuxes;
+  }
+
+  /**
+   * Application resource bundle localization test
+   */
+  @Test
+  public void test5() {
+    CommandPropertySyntaxFormatterChain syntaxChain = new CommandPropertySyntaxFormatterChain();
+    syntaxChain.addLast(FlagParameterCoordinateFormatter.INSTANCE);
+    syntaxChain.addLast(OptionParameterCoordinateFormatter.INSTANCE);
+    syntaxChain.addLast(PositionalParameterCoordinateFormatter.INSTANCE);
+
+    CommandPropertyDescriberChain describerChain = new CommandPropertyDescriberChain();
+    describerChain.addLast(DescriptionCommandPropertyDescriber.INSTANCE);
+    describerChain.addLast(RequiredCommandPropertyDescriber.INSTANCE);
+    describerChain.addLast(DefaultValueCommandPropertyDescriber.INSTANCE);
+
+    MessageLocalizerChain localizer = new MessageLocalizerChain();
+    localizer.addLast(AnnotationBundleMessageLocalizer.INSTANCE);
+    localizer.addLast(ApplicationBundleMessageLocalizer.INSTANCE);
+
+    TextFormatterChain textFormatter = new TextFormatterChain();
+    textFormatter.addLast(ConsoleBoldTextFormatter.INSTANCE);
+    textFormatter.addLast(ConsoleItalicTextFormatter.INSTANCE);
+    textFormatter.addLast(ConsoleStrikethruTextFormatter.INSTANCE);
+
+    ValueSinkFactoryChain sinkFactory = new ValueSinkFactoryChain();
+    sinkFactory.addLast(ListAddValueSinkFactory.INSTANCE);
+    sinkFactory.addLast(AssignValueSinkFactory.INSTANCE);
+
+    LeafCommand<TestConfigurable5> leaf = (LeafCommand<TestConfigurable5>) InvocationPipeline
+        .builder().dialect(UnixDialect.INSTANCE).build().scan(TestConfigurable5.class).getRoot();
+
+    ResolvedCommand<?> resolved = new ResolvedCommand<>("name", "version", leaf);
+
+    InvocationContext context = mock(InvocationContext.class);
+    when(context.get(InvocationPipelineStep.DIALECT_KEY))
+        .thenReturn(OptionalInvocationContextProperty.of(InvocationPipelineStep.DIALECT_KEY,
+            UnixDialect.INSTANCE));
+    when(context.get(InvocationPipelineStep.APPLICATION_BUNDLE_KEY)).thenReturn(
+        OptionalInvocationContextProperty.empty(InvocationPipelineStep.APPLICATION_BUNDLE_KEY));
+    when(context.get(PlanStep.VALUE_SINK_FACTORY_KEY)).thenReturn(
+        OptionalInvocationContextProperty.of(PlanStep.VALUE_SINK_FACTORY_KEY, sinkFactory));
+
+    HelpFormatter help =
+        new DefaultHelpFormatter(100, syntaxChain, describerChain, localizer, textFormatter);
+
+    System.out.println(help.formatHelp(UnixDialect.INSTANCE, resolved, context));
+  }
+
+  @DiscourseDescription("Test @Configurable #6")
+  @Configurable(name = "test6")
+  public static class TestConfigurable6 {
+    @DiscourseDefaultValue("foobar")
+    @DiscourseRequired
+    @DiscourseDescription("This is a foo.")
+    @OptionParameter(shortName = "f", longName = "foo")
+    public String foo;
+
+    @DiscourseRequired
+    @DiscourseDescription("This is a bar.")
+    @PositionalParameter(position = 0)
+    public String bar;
+
+    @DiscourseAttribute("quux")
+    @DiscourseDescription("This is a quux.")
+    @PositionalParameter(position = 1)
+    public List<String> quuxes;
+
+    @DiscourseDescription("This is a baz.")
+    @FlagParameter(shortName = "b", longName = "baz")
+    public boolean baz;
+
+    @DiscourseDescription("This is a variable.")
+    @EnvironmentVariableParameter(variable = "VARIABLE")
+    public String variable;
+
+    @Undocumented
+    @DiscourseDescription("This is a property.")
+    @SystemPropertyParameter(property = "PROPERTY")
+    public String property;
+  }
+
+  /**
+   * Application resource bundle localization test
+   */
+  @Test
+  public void test6() {
+    CommandPropertySyntaxFormatterChain syntaxChain = new CommandPropertySyntaxFormatterChain();
+    syntaxChain.addLast(FlagParameterCoordinateFormatter.INSTANCE);
+    syntaxChain.addLast(OptionParameterCoordinateFormatter.INSTANCE);
+    syntaxChain.addLast(PositionalParameterCoordinateFormatter.INSTANCE);
+    syntaxChain.addLast(EnvironmentVariableCoordinateFormatter.INSTANCE);
+    syntaxChain.addLast(SystemPropertyCoordinateFormatter.INSTANCE);
+
+    CommandPropertyDescriberChain describerChain = new CommandPropertyDescriberChain();
+    describerChain.addLast(DescriptionCommandPropertyDescriber.INSTANCE);
+    describerChain.addLast(RequiredCommandPropertyDescriber.INSTANCE);
+    describerChain.addLast(DefaultValueCommandPropertyDescriber.INSTANCE);
+    describerChain.addLast(ExampleCommandPropertyDescriber.INSTANCE);
+    describerChain.addLast(UndocumentedCommandPropertyDescriber.INSTANCE);
+
+    MessageLocalizerChain localizer = new MessageLocalizerChain();
+    localizer.addLast(AnnotationBundleMessageLocalizer.INSTANCE);
+    localizer.addLast(ApplicationBundleMessageLocalizer.INSTANCE);
+
+    TextFormatterChain textFormatter = new TextFormatterChain();
+    textFormatter.addLast(ConsoleBoldTextFormatter.INSTANCE);
+    textFormatter.addLast(ConsoleItalicTextFormatter.INSTANCE);
+    textFormatter.addLast(ConsoleStrikethruTextFormatter.INSTANCE);
+
+    ValueSinkFactoryChain sinkFactory = new ValueSinkFactoryChain();
+    sinkFactory.addLast(ListAddValueSinkFactory.INSTANCE);
+    sinkFactory.addLast(AssignValueSinkFactory.INSTANCE);
+
+    ValueDeserializerFactoryChain deserializerFactory = new ValueDeserializerFactoryChain();
+    deserializerFactory.addLast(StringValueDeserializerFactory.INSTANCE);
+
+    LeafCommand<TestConfigurable6> leaf = (LeafCommand<TestConfigurable6>) InvocationPipeline
+        .builder().register(new CoreModule()).build().scan(TestConfigurable6.class).getRoot();
+
+    ResolvedCommand<?> resolved = new ResolvedCommand<>("name", "version", leaf);
+
+    InvocationContext context = mock(InvocationContext.class);
+    when(context.get(InvocationPipelineStep.DIALECT_KEY))
+        .thenReturn(OptionalInvocationContextProperty.of(InvocationPipelineStep.DIALECT_KEY,
+            UnixDialect.INSTANCE));
+    when(context.get(InvocationPipelineStep.APPLICATION_BUNDLE_KEY)).thenReturn(
+        OptionalInvocationContextProperty.empty(InvocationPipelineStep.APPLICATION_BUNDLE_KEY));
+    when(context.get(PlanStep.VALUE_SINK_FACTORY_KEY)).thenReturn(
+        OptionalInvocationContextProperty.of(PlanStep.VALUE_SINK_FACTORY_KEY, sinkFactory));
+    when(context.get(PlanStep.VALUE_DESERIALIZER_FACTORY_KEY))
+        .thenReturn(OptionalInvocationContextProperty.of(PlanStep.VALUE_DESERIALIZER_FACTORY_KEY,
+            deserializerFactory));
 
     HelpFormatter help =
         new DefaultHelpFormatter(100, syntaxChain, describerChain, localizer, textFormatter);

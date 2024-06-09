@@ -19,6 +19,7 @@
  */
 package com.sigpwned.discourse.core.format.help;
 
+import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.mapping;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import com.sigpwned.discourse.core.Dialect;
 import com.sigpwned.discourse.core.args.Coordinate;
@@ -41,9 +43,14 @@ import com.sigpwned.discourse.core.command.LeafCommand;
 import com.sigpwned.discourse.core.command.LeafCommandProperty;
 import com.sigpwned.discourse.core.command.ResolvedCommand;
 import com.sigpwned.discourse.core.format.HelpFormatter;
+import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDeserializerFactory;
+import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSink;
+import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSinkFactory;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
+import com.sigpwned.discourse.core.pipeline.invocation.step.PlanStep;
 import com.sigpwned.discourse.core.text.TableLayout;
 import com.sigpwned.discourse.core.util.JodaBeanUtils;
+import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Types;
 
 /**
@@ -196,8 +203,73 @@ public class DefaultHelpFormatter implements HelpFormatter {
     return formatLeafCommandHelp(dialect, command, context);
   }
 
+  private static class CommandPropertyHelp implements Comparable<CommandPropertyHelp> {
+    private final LeafCommandProperty property;
+    private final CommandPropertyCategory category;
+    private final Comparable<?> syntaxKey;
+    private final List<String> syntaxes;
+    private final List<HelpMessage> description;
+
+    public CommandPropertyHelp(LeafCommandProperty property, CommandPropertyCategory category,
+        Comparable<?> syntaxKey, List<String> syntaxes, List<HelpMessage> description) {
+      this.property = requireNonNull(property);
+      this.category = requireNonNull(category);
+      this.syntaxKey = requireNonNull(syntaxKey);
+      this.syntaxes = unmodifiableList(syntaxes);
+      this.description = unmodifiableList(description);
+    }
+
+    /**
+     * @return the property
+     */
+    public LeafCommandProperty getProperty() {
+      return property;
+    }
+
+    /**
+     * @return the category
+     */
+    public CommandPropertyCategory getCategory() {
+      return category;
+    }
+
+    /**
+     * @return the syntaxKey
+     */
+    public Comparable<?> getSyntaxKey() {
+      return syntaxKey;
+    }
+
+    /**
+     * @return the syntaxes
+     */
+    public List<String> getSyntaxes() {
+      return syntaxes;
+    }
+
+    /**
+     * @return the description
+     */
+    public List<HelpMessage> getDescription() {
+      return description;
+    }
+
+    @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public int compareTo(CommandPropertyHelp that) {
+      Comparable a = this.getSyntaxKey();
+      Comparable b = that.getSyntaxKey();
+      return a.compareTo(b);
+    }
+  }
+
   protected String formatLeafCommandHelp(Dialect dialect, ResolvedCommand<?> command,
       InvocationContext context) {
+    ValueSinkFactory sinkFactory = context.get(PlanStep.VALUE_SINK_FACTORY_KEY).orElseThrow();
+
+    ValueDeserializerFactory<?> deserializerFactory =
+        context.get(PlanStep.VALUE_DESERIALIZER_FACTORY_KEY).orElseThrow();
+
     LeafCommand<?> leaf = (LeafCommand<?>) command.getCommand();
 
     Map<Class<?>, List<LeafCommandProperty>> partitionedCommandProperties = leaf.getProperties()
@@ -210,9 +282,9 @@ public class DefaultHelpFormatter implements HelpFormatter {
     try {
       try {
         try (PrintWriter out = new PrintWriter(result)) {
-          // TODO How do we get the command name?
           // TODO What do we do if there isn't one?
-          // TODO How do we know if a property is a collection?
+          // TODO How do we know if a command has options?
+          // TODO What if a command has things other than options, like flags?
           String commandName = command.getName().orElse("hello");
 
           List<LeafCommandProperty> positionalArgs = new ArrayList<>();
@@ -227,10 +299,26 @@ public class DefaultHelpFormatter implements HelpFormatter {
             }
           }
 
-          out.println(String.format("%s [options] %s", commandName,
+          boolean collection;
+          if (positionalArgs.isEmpty()) {
+            collection = false;
+          } else {
+            LeafCommandProperty last = positionalArgs.get(positionalArgs.size() - 1);
+            ValueSink sink = sinkFactory.getSink(last.getGenericType(), last.getAnnotations())
+                .orElseThrow(() -> {
+                  // TODO better exception
+                  return new IllegalArgumentException("Failed to get sink for: " + last);
+                });
+            collection = sink.isCollection();
+          }
+
+          // TODO should we break out required options?
+          // TODO users should be able to hook in here arbitrarily
+          out.println(String.format("%s [options] %s %s", commandName,
               positionalArgs.stream()
                   .map(c -> c.isRequired() ? "<" + c.getName() + ">" : "[" + c.getName() + "]")
-                  .collect(joining(" "))));
+                  .collect(joining(" ")),
+              collection ? "..." : ""));
           out.println();
 
           if (command.getCommand().getDescription().isPresent()) {
@@ -242,27 +330,57 @@ public class DefaultHelpFormatter implements HelpFormatter {
             out.println();
           }
 
-          for (Map.Entry<Class<?>, List<LeafCommandProperty>> e : partitionedCommandProperties
-              .entrySet()) {
-            Class<?> coordinateType = e.getKey();
-            List<LeafCommandProperty> commandProperties = e.getValue();
+          Map<CommandPropertyCategory, List<CommandPropertyHelp>> commandPropertyHelps =
+              new TreeMap<>();
+          for (LeafCommandProperty commandProperty : command.getCommand().getProperties()) {
+            CommandPropertySyntax syntax =
+                syntaxFormatter.formatParameterSyntax(commandProperty, context).orElseThrow(() -> {
+                  // TODO better exception
+                  return new IllegalArgumentException(
+                      "Failed to format syntax: " + commandProperty);
+                });
 
-            out.println(coordinateType.getSimpleName() + ":");
-            out.println();
+            Maybe<List<HelpMessage>> maybeDescriptions =
+                propertyDescriber.describe(commandProperty, context);
+
+            if (maybeDescriptions.isNo())
+              continue;
+
+            List<HelpMessage> descriptions = maybeDescriptions.orElseGet(List::of);
+
+            CommandPropertyCategory category = syntax.getCategory();
+
+            List<String> syntaxes = syntax.getSyntaxes();
+
+            commandPropertyHelps.computeIfAbsent(category, s -> new ArrayList<>())
+                .add(new CommandPropertyHelp(commandProperty, category, syntax.getKey(), syntaxes,
+                    descriptions));
+          }
+
+          for (Map.Entry<CommandPropertyCategory, List<CommandPropertyHelp>> entry : commandPropertyHelps
+              .entrySet()) {
+            List<CommandPropertyHelp> helps = entry.getValue();
+
+            helps.sort(Comparator.naturalOrder());
+          }
+
+          for (Map.Entry<CommandPropertyCategory, List<CommandPropertyHelp>> entry : commandPropertyHelps
+              .entrySet()) {
+            CommandPropertyCategory category = entry.getKey();
+            List<CommandPropertyHelp> helps = entry.getValue();
 
             TableLayout layout = new TableLayout(2);
-            for (LeafCommandProperty commandProperty : commandProperties) {
-              String syntax = syntaxFormatter.formatParameterSyntax(commandProperty, context)
-                  .orElseGet(List::of).stream()
+
+            for (CommandPropertyHelp help : helps) {
+              LeafCommandProperty commandProperty = help.getProperty();
+
+              String syntax = help.getSyntaxes().stream()
                   .sorted(Comparator.comparingInt(String::length).reversed())
-                  .collect(joining("\n"));
+                  .collect(joining(System.lineSeparator()));
 
-              List<HelpMessage> originalDescriptions =
-                  propertyDescriber.describe(commandProperty, context).orElseGet(List::of);
-
-              List<HelpMessage> localizedDescriptions = originalDescriptions.stream()
-                  .map(description -> localizer.localizeMessage(description,
-                      commandProperty.getAnnotations(), context))
+              List<HelpMessage> localizedDescriptions = help
+                  .getDescription().stream().map(description -> localizer
+                      .localizeMessage(description, commandProperty.getAnnotations(), context))
                   .collect(toList());
 
               List<String> formattedDescriptions = localizedDescriptions.stream()
@@ -276,6 +394,12 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
               layout.addRow(new TableLayout.Row(List.of(syntax, description)));
             }
+
+            String categoryName =
+                localizer.localizeMessage(category.getName(), List.of(), context).getMessage();
+
+            out.println(categoryName + ":");
+            out.println();
             out.println(layout.toString(getWidth(),
                 new int[] {TableLayout.COLUMN_WIDTH_TIGHT, TableLayout.COLUMN_WIDTH_FLEX}, 1, 4));
             out.println();
@@ -284,9 +408,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
       } finally {
         result.close();
       }
-    } catch (
-
-    IOException e) {
+    } catch (IOException e) {
       // Should never happen...
       throw new UncheckedIOException("Failed to generate help message", e);
     }

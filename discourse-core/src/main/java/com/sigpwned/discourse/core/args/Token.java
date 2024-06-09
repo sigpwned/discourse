@@ -31,7 +31,7 @@ public abstract class Token {
    */
   private final boolean attached;
 
-  public Token(boolean attached) {
+  protected Token(boolean attached) {
     this.attached = attached;
   }
 

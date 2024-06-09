@@ -19,12 +19,35 @@
  */
 package com.sigpwned.discourse.core.module.core.plan.value.deserializer;
 
+import java.util.Optional;
+
 /**
  * A function that deserializes a string into a value. This is used to convert resolvedCommand line
  * arguments into the appropriate types.
  */
 @FunctionalInterface
 public interface ValueDeserializer<T> {
-
   public T deserialize(String value);
+
+  /**
+   * Returns the name of the value that this deserializer can deserialize. This is useful for
+   * generating help messages. For example, if this deserializer can deserialize a string into an
+   * integer, the name might be {@code "integer"}.
+   * 
+   * @return the name of the value that this deserializer can deserialize
+   */
+  default Optional<String> name() {
+    return Optional.empty();
+  }
+
+  /**
+   * Returns an example of the value that this deserializer can deserialize. This is useful for
+   * generating help messages. For example, if this deserializer can deserialize a string into an
+   * integer, the example might be {@code "42"}.
+   * 
+   * @return an example of the value that this deserializer can deserialize
+   */
+  default Optional<String> example() {
+    return Optional.empty();
+  }
 }

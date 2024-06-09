@@ -33,6 +33,21 @@ public class StringValueDeserializerFactory implements ValueDeserializerFactory<
       List<Annotation> annotations) {
     if (genericType != String.class)
       return Optional.empty();
-    return Optional.of(String::valueOf);
+    return Optional.of(new ValueDeserializer<>() {
+      @Override
+      public String deserialize(String value) {
+        return String.valueOf(value);
+      }
+
+      @Override
+      public Optional<String> name() {
+        return Optional.of("string");
+      }
+
+      @Override
+      public Optional<String> example() {
+        return Optional.of("foo");
+      }
+    });
   }
 }
