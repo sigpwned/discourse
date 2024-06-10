@@ -1,5 +1,6 @@
 package com.sigpwned.discourse.core;
 
+import static java.util.Collections.emptyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import java.util.Enumeration;
@@ -25,6 +26,8 @@ import com.sigpwned.discourse.core.format.help.CommandPropertyDescriberChain;
 import com.sigpwned.discourse.core.format.help.CommandPropertySyntaxFormatterChain;
 import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 import com.sigpwned.discourse.core.format.help.MessageLocalizerChain;
+import com.sigpwned.discourse.core.format.help.SynopsisEditor;
+import com.sigpwned.discourse.core.format.help.SynopsisEditorChain;
 import com.sigpwned.discourse.core.format.help.TextFormatterChain;
 import com.sigpwned.discourse.core.format.help.coordinate.FlagParameterCoordinateFormatter;
 import com.sigpwned.discourse.core.format.help.coordinate.OptionParameterCoordinateFormatter;
@@ -36,10 +39,14 @@ import com.sigpwned.discourse.core.format.help.describe.property.RequiredCommand
 import com.sigpwned.discourse.core.format.help.describe.property.UndocumentedCommandPropertyDescriber;
 import com.sigpwned.discourse.core.format.help.localize.message.AnnotationBundleMessageLocalizer;
 import com.sigpwned.discourse.core.format.help.localize.message.ApplicationBundleMessageLocalizer;
+import com.sigpwned.discourse.core.format.help.synopsis.editor.CommandNameAndDiscriminatorsSynopsisEditor;
+import com.sigpwned.discourse.core.format.help.synopsis.editor.OptionsPlaceholderSynopsisEditor;
+import com.sigpwned.discourse.core.format.help.synopsis.editor.PositionalArgumentsSynopsisEditor;
 import com.sigpwned.discourse.core.format.help.text.console.ConsoleBoldTextFormatter;
 import com.sigpwned.discourse.core.format.help.text.console.ConsoleItalicTextFormatter;
 import com.sigpwned.discourse.core.format.help.text.console.ConsoleStrikethruTextFormatter;
 import com.sigpwned.discourse.core.module.CoreModule;
+import com.sigpwned.discourse.core.module.core.plan.value.deserializer.BooleanValueDeserializerFactory;
 import com.sigpwned.discourse.core.module.core.plan.value.deserializer.StringValueDeserializerFactory;
 import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDeserializerFactoryChain;
 import com.sigpwned.discourse.core.module.core.plan.value.sink.AssignValueSinkFactory;
@@ -54,6 +61,7 @@ import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipeline;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.PlanStep;
+import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.model.CommandResolution;
 
 public class DefaultHelpFormatterTest {
   @DiscourseDescription("Test @Configurable #1")
@@ -403,11 +411,11 @@ public class DefaultHelpFormatterTest {
     syntaxChain.addLast(SystemPropertyCoordinateFormatter.INSTANCE);
 
     CommandPropertyDescriberChain describerChain = new CommandPropertyDescriberChain();
+    describerChain.addFirst(UndocumentedCommandPropertyDescriber.INSTANCE);
     describerChain.addLast(DescriptionCommandPropertyDescriber.INSTANCE);
     describerChain.addLast(RequiredCommandPropertyDescriber.INSTANCE);
-    describerChain.addLast(DefaultValueCommandPropertyDescriber.INSTANCE);
     describerChain.addLast(ExampleCommandPropertyDescriber.INSTANCE);
-    describerChain.addLast(UndocumentedCommandPropertyDescriber.INSTANCE);
+    describerChain.addLast(DefaultValueCommandPropertyDescriber.INSTANCE);
 
     MessageLocalizerChain localizer = new MessageLocalizerChain();
     localizer.addLast(AnnotationBundleMessageLocalizer.INSTANCE);
@@ -424,13 +432,21 @@ public class DefaultHelpFormatterTest {
 
     ValueDeserializerFactoryChain deserializerFactory = new ValueDeserializerFactoryChain();
     deserializerFactory.addLast(StringValueDeserializerFactory.INSTANCE);
+    deserializerFactory.addLast(BooleanValueDeserializerFactory.INSTANCE);
 
-    LeafCommand<TestConfigurable6> leaf = (LeafCommand<TestConfigurable6>) InvocationPipeline
-        .builder().register(new CoreModule()).build().scan(TestConfigurable6.class).getRoot();
+    SynopsisEditorChain synopsisFactory = new SynopsisEditorChain();
+    synopsisFactory.addLast(new CommandNameAndDiscriminatorsSynopsisEditor());
+    synopsisFactory.addLast(new OptionsPlaceholderSynopsisEditor());
+    synopsisFactory.addLast(new PositionalArgumentsSynopsisEditor());
 
-    ResolvedCommand<?> resolved = new ResolvedCommand<>("name", "version", leaf);
+    CommandResolution<? extends TestConfigurable6> resolution = InvocationPipeline.builder()
+        .register(new CoreModule()).build().resolve(TestConfigurable6.class, emptyList());
+
+    ResolvedCommand<? extends TestConfigurable6> resolved = resolution.getCommand();
 
     InvocationContext context = mock(InvocationContext.class);
+    when(context.get(SynopsisEditor.class)).thenReturn(OptionalInvocationContextProperty
+        .of(InvocationContext.Key.of(SynopsisEditor.class), synopsisFactory));
     when(context.get(InvocationPipelineStep.DIALECT_KEY))
         .thenReturn(OptionalInvocationContextProperty.of(InvocationPipelineStep.DIALECT_KEY,
             UnixDialect.INSTANCE));

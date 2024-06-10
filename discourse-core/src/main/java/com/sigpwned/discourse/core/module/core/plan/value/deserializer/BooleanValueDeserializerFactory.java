@@ -33,6 +33,21 @@ public class BooleanValueDeserializerFactory implements ValueDeserializerFactory
       List<Annotation> annotations) {
     if (genericType != boolean.class && genericType != Boolean.class)
       return Optional.empty();
-    return Optional.of(Boolean::valueOf);
+    return Optional.of(new ValueDeserializer<Boolean>() {
+      @Override
+      public Boolean deserialize(String value) {
+        return Boolean.valueOf(value);
+      }
+
+      @Override
+      public Optional<String> name() {
+        return Optional.of("boolean");
+      }
+
+      @Override
+      public Optional<String> example() {
+        return Optional.of("true");
+      }
+    });
   }
 }

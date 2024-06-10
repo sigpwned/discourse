@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.annotation.DiscourseDefaultValue;
 import com.sigpwned.discourse.core.annotation.DiscourseDescription;
+import com.sigpwned.discourse.core.annotation.DiscourseExampleValue;
 import com.sigpwned.discourse.core.annotation.DiscourseRequired;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.command.Command;
@@ -450,13 +451,22 @@ public class ScanStep extends InvocationPipelineStepBase {
           // TODO Should this be a pluggable implementation? For example, @NonNull?
           boolean required = namedSyntax.annotations().stream()
               .mapMulti(Streams.filterAndCast(DiscourseRequired.class)).findFirst().isPresent();
+
           // TODO Should this be a pluggable implementation?
           String defaultValue = namedSyntax.annotations().stream()
               .mapMulti(Streams.filterAndCast(DiscourseDefaultValue.class)).findFirst()
               .map(DiscourseDefaultValue::value).orElse(null);
-          properties
-              .add(new LeafCommandProperty(namedSyntax.name(), description, required, defaultValue,
-                  namedSyntax.coordinates(), namedSyntax.genericType(), namedSyntax.annotations()));
+
+          // TODO Should this be a pluggable implementation?
+          String exampleValue = namedSyntax.annotations().stream()
+              .mapMulti(Streams.filterAndCast(DiscourseExampleValue.class)).findFirst()
+              .map(DiscourseExampleValue::value).orElse(null);
+          if (exampleValue == null)
+            exampleValue = defaultValue;
+
+          properties.add(new LeafCommandProperty(namedSyntax.name(), description, required,
+              defaultValue, exampleValue, namedSyntax.coordinates(), namedSyntax.genericType(),
+              namedSyntax.annotations()));
         }
 
         // TODO Should we defer validation of the rules until later? Developers may customize after.

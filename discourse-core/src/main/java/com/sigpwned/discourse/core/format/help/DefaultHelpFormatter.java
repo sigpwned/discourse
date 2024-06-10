@@ -19,6 +19,7 @@
  */
 package com.sigpwned.discourse.core.format.help;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
@@ -38,13 +39,12 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import com.sigpwned.discourse.core.Dialect;
 import com.sigpwned.discourse.core.args.Coordinate;
-import com.sigpwned.discourse.core.args.coordinate.PositionalCoordinate;
 import com.sigpwned.discourse.core.command.LeafCommand;
 import com.sigpwned.discourse.core.command.LeafCommandProperty;
 import com.sigpwned.discourse.core.command.ResolvedCommand;
 import com.sigpwned.discourse.core.format.HelpFormatter;
+import com.sigpwned.discourse.core.format.help.synopsis.entry.SynopsisEntry;
 import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDeserializerFactory;
-import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSink;
 import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSinkFactory;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.step.PlanStep;
@@ -270,6 +270,9 @@ public class DefaultHelpFormatter implements HelpFormatter {
     ValueDeserializerFactory<?> deserializerFactory =
         context.get(PlanStep.VALUE_DESERIALIZER_FACTORY_KEY).orElseThrow();
 
+    // TODO Give SynopsisEditor a key
+    SynopsisEditor synopsisFactory = context.get(SynopsisEditor.class).orElseThrow();
+
     LeafCommand<?> leaf = (LeafCommand<?>) command.getCommand();
 
     Map<Class<?>, List<LeafCommandProperty>> partitionedCommandProperties = leaf.getProperties()
@@ -285,41 +288,49 @@ public class DefaultHelpFormatter implements HelpFormatter {
           // TODO What do we do if there isn't one?
           // TODO How do we know if a command has options?
           // TODO What if a command has things other than options, like flags?
-          String commandName = command.getName().orElse("hello");
+          List<SynopsisEntry> synopsisEntries =
+              synopsisFactory.editEntries(command, emptyList(), context);
 
-          List<LeafCommandProperty> positionalArgs = new ArrayList<>();
-          for (int pos = 0; pos < command.getCommand().getProperties().size(); pos++) {
-            final Coordinate coordinate = PositionalCoordinate.of(pos);
-            LeafCommandProperty property = command.getCommand().getProperties().stream()
-                .filter(p -> p.getCoordinates().contains(coordinate)).findFirst().orElse(null);
-            if (property != null) {
-              positionalArgs.add(property);
-            } else {
-              break;
-            }
-          }
+          Synopsis synopsis = new Synopsis(synopsisEntries);
 
-          boolean collection;
-          if (positionalArgs.isEmpty()) {
-            collection = false;
-          } else {
-            LeafCommandProperty last = positionalArgs.get(positionalArgs.size() - 1);
-            ValueSink sink = sinkFactory.getSink(last.getGenericType(), last.getAnnotations())
-                .orElseThrow(() -> {
-                  // TODO better exception
-                  return new IllegalArgumentException("Failed to get sink for: " + last);
-                });
-            collection = sink.isCollection();
-          }
-
-          // TODO should we break out required options?
-          // TODO users should be able to hook in here arbitrarily
-          out.println(String.format("%s [options] %s %s", commandName,
-              positionalArgs.stream()
-                  .map(c -> c.isRequired() ? "<" + c.getName() + ">" : "[" + c.getName() + "]")
-                  .collect(joining(" ")),
-              collection ? "..." : ""));
+          out.println(synopsis.getText());
           out.println();
+
+          // String commandName = command.getName().orElse("hello");
+          //
+          // List<LeafCommandProperty> positionalArgs = new ArrayList<>();
+          // for (int pos = 0; pos < command.getCommand().getProperties().size(); pos++) {
+          // final Coordinate coordinate = PositionalCoordinate.of(pos);
+          // LeafCommandProperty property = command.getCommand().getProperties().stream()
+          // .filter(p -> p.getCoordinates().contains(coordinate)).findFirst().orElse(null);
+          // if (property != null) {
+          // positionalArgs.add(property);
+          // } else {
+          // break;
+          // }
+          // }
+          //
+          // boolean collection;
+          // if (positionalArgs.isEmpty()) {
+          // collection = false;
+          // } else {
+          // LeafCommandProperty last = positionalArgs.get(positionalArgs.size() - 1);
+          // ValueSink sink = sinkFactory.getSink(last.getGenericType(), last.getAnnotations())
+          // .orElseThrow(() -> {
+          // // TODO better exception
+          // return new IllegalArgumentException("Failed to get sink for: " + last);
+          // });
+          // collection = sink.isCollection();
+          // }
+          //
+          // // TODO should we break out required options?
+          // // TODO users should be able to hook in here arbitrarily
+          // out.println(String.format("%s [options] %s %s", commandName,
+          // positionalArgs.stream()
+          // .map(c -> c.isRequired() ? "<" + c.getName() + ">" : "[" + c.getName() + "]")
+          // .collect(joining(" ")),
+          // collection ? "..." : ""));
+          // out.println();
 
           if (command.getCommand().getDescription().isPresent()) {
             // TODO How should we localize?

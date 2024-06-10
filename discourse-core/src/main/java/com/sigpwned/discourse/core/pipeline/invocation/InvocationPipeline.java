@@ -129,7 +129,7 @@ public class InvocationPipeline {
   }
 
   /**
-   * Runs the scan step only
+   * Runs Scan step only.
    * 
    * @param <T>
    * @param clazz
@@ -150,6 +150,30 @@ public class InvocationPipeline {
     }
 
     return root;
+  }
+
+  /**
+   * Runs steps from Scan to Resolve.
+   * 
+   * @param <T>
+   * @param clazz
+   * @return
+   */
+  public <T> CommandResolution<? extends T> resolve(Class<T> clazz, List<String> args) {
+    CommandResolution<? extends T> resolution;
+
+    try {
+      getListener(context).beforePipeline(context);
+      resolution = doScanToResolve(clazz, args);
+      getListener(context).afterPipeline(context);
+    } catch (Exception e) {
+      getListener(context).catchPipeline(e, context);
+      throw e;
+    } finally {
+      getListener(context).finallyPipeline(context);
+    }
+
+    return resolution;
   }
 
   /**

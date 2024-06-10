@@ -22,35 +22,47 @@ public class ExampleCommandPropertyDescriber implements CommandPropertyDescriber
   @Override
   public Maybe<List<HelpMessage>> describe(LeafCommandProperty property,
       InvocationContext context) {
+    String exampleValue = null;
+
+    if (exampleValue == null && property.getExampleValue().isPresent())
+      exampleValue = property.getExampleValue().orElseThrow();
+
+    String expectedType = null;
     ValueSink sink = context.get(PlanStep.VALUE_SINK_FACTORY_KEY)
         .flatMap(factory -> factory.getSink(property.getGenericType(), property.getAnnotations()))
         .orElse(null);
-    if (sink == null) {
+    if (sink != null) {
+      ValueDeserializer<?> deserializer = context.get(PlanStep.VALUE_DESERIALIZER_FACTORY_KEY)
+          .flatMap(
+              factory -> factory.getDeserializer(sink.getGenericType(), property.getAnnotations()))
+          .orElse(null);
+      if (deserializer != null) {
+        if (expectedType == null && deserializer.name().isPresent())
+          expectedType = deserializer.name().orElseThrow();
+        if (deserializer.example().isPresent())
+          exampleValue = deserializer.example().orElseThrow();
+      } else {
+        if (LOGGER.isDebugEnabled())
+          LOGGER.debug("no deserializer for " + property.getGenericType() + " with "
+              + property.getAnnotations() + " for " + property.getName() + " property");
+      }
+    } else {
       if (LOGGER.isDebugEnabled())
         LOGGER.debug("no sink for " + property.getGenericType() + " with "
             + property.getAnnotations() + " for " + property.getName() + " property");
-      return Maybe.maybe();
     }
 
-    ValueDeserializer<?> deserializer = context.get(PlanStep.VALUE_DESERIALIZER_FACTORY_KEY)
-        .flatMap(
-            factory -> factory.getDeserializer(sink.getGenericType(), property.getAnnotations()))
-        .orElse(null);
-    if (deserializer == null) {
-      if (LOGGER.isDebugEnabled())
-        LOGGER.debug("no deserializer for " + property.getGenericType() + " with "
-            + property.getAnnotations() + " for " + property.getName() + " property");
-      return Maybe.maybe();
-    }
+    if (expectedType == null)
+      expectedType = property.getGenericType().getTypeName();
 
-    if (deserializer.example().isEmpty())
+    if (exampleValue == null)
       return Maybe.maybe();
-
-    String example = deserializer.example().orElseThrow();
 
     // TODO i18n
+    // TODO This impleemntation feels a little coupled...
     // TODO Should we allow an example using @DiscourseExampleValue or similar?
-    return Maybe.yes(
-        List.of(new HelpMessage("For example, a valid value could be \"{0}\".", List.of(example))));
+    return Maybe
+        .yes(List.of(new HelpMessage("This property expects a value of type {0}, e.g., \"{1}\".",
+            List.of(expectedType, exampleValue))));
   }
 }
