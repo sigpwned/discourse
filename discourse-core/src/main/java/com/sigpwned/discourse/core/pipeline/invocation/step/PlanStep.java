@@ -82,9 +82,21 @@ public class PlanStep extends InvocationPipelineStepBase {
         defaultValue = null;
       }
 
-      properties.add(
-          new PlannedCommandProperty(property.getName(), property.getDescription().orElse(null),
-              property.isRequired(), defaultValue, property.getCoordinates(), sink, deserializer));
+      Object exampleValue;
+      if (property.getExampleValue().isPresent()) {
+        try {
+          exampleValue = deserializer.deserialize(property.getExampleValue().orElseThrow());
+        } catch (Exception e) {
+          // TODO better exception
+          throw new IllegalArgumentException("invalid example value", e);
+        }
+      } else {
+        exampleValue = null;
+      }
+
+      properties.add(new PlannedCommandProperty(property.getName(),
+          property.getDescription().orElse(null), property.isRequired(), defaultValue, exampleValue,
+          property.getCoordinates(), sink, deserializer));
     }
 
     return new PlannedCommand<>(resolvedCommand.getParents(),

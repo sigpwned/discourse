@@ -62,7 +62,7 @@ public class ExampleCommandPropertyDescriber implements CommandPropertyDescriber
     // TODO This impleemntation feels a little coupled...
     // TODO Should we allow an example using @DiscourseExampleValue or similar?
     return Maybe
-        .yes(List.of(new HelpMessage("This property expects a value of type {0}, e.g., \"{1}\".",
+        .yes(List.of(new HelpMessage("This property expects a {0}, e.g., \"{1}\".",
             List.of(expectedType, exampleValue))));
   }
 }

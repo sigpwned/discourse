@@ -123,4 +123,20 @@ public final class Text {
       return s;
     return s + times(" ", width - s.length());
   }
+
+  public static String rstrip(String s) {
+    if (s == null)
+      throw new NullPointerException();
+    if (s.isEmpty())
+      return s;
+    if (!Character.isWhitespace(s.charAt(s.length() - 1)))
+      return s;
+
+    StringBuilder buf = new StringBuilder(s);
+    do {
+      buf.setLength(buf.length() - 1);
+    } while (buf.length() > 0 && Character.isWhitespace(buf.charAt(buf.length() - 1)));
+
+    return buf.toString();
+  }
 }

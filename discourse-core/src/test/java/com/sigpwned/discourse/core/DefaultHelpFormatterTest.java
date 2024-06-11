@@ -28,6 +28,7 @@ import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 import com.sigpwned.discourse.core.format.help.MessageLocalizerChain;
 import com.sigpwned.discourse.core.format.help.SynopsisEditor;
 import com.sigpwned.discourse.core.format.help.SynopsisEditorChain;
+import com.sigpwned.discourse.core.format.help.SynopsisFormatter;
 import com.sigpwned.discourse.core.format.help.TextFormatterChain;
 import com.sigpwned.discourse.core.format.help.coordinate.FlagParameterCoordinateFormatter;
 import com.sigpwned.discourse.core.format.help.coordinate.OptionParameterCoordinateFormatter;
@@ -42,6 +43,7 @@ import com.sigpwned.discourse.core.format.help.localize.message.ApplicationBundl
 import com.sigpwned.discourse.core.format.help.synopsis.editor.CommandNameAndDiscriminatorsSynopsisEditor;
 import com.sigpwned.discourse.core.format.help.synopsis.editor.OptionsPlaceholderSynopsisEditor;
 import com.sigpwned.discourse.core.format.help.synopsis.editor.PositionalArgumentsSynopsisEditor;
+import com.sigpwned.discourse.core.format.help.synopsis.format.DefaultSynopsisFormatter;
 import com.sigpwned.discourse.core.format.help.text.console.ConsoleBoldTextFormatter;
 import com.sigpwned.discourse.core.format.help.text.console.ConsoleItalicTextFormatter;
 import com.sigpwned.discourse.core.format.help.text.console.ConsoleStrikethruTextFormatter;
@@ -439,6 +441,8 @@ public class DefaultHelpFormatterTest {
     synopsisFactory.addLast(new OptionsPlaceholderSynopsisEditor());
     synopsisFactory.addLast(new PositionalArgumentsSynopsisEditor());
 
+    SynopsisFormatter synopsisFormatter = new DefaultSynopsisFormatter();
+
     CommandResolution<? extends TestConfigurable6> resolution = InvocationPipeline.builder()
         .register(new CoreModule()).build().resolve(TestConfigurable6.class, emptyList());
 
@@ -447,6 +451,8 @@ public class DefaultHelpFormatterTest {
     InvocationContext context = mock(InvocationContext.class);
     when(context.get(SynopsisEditor.class)).thenReturn(OptionalInvocationContextProperty
         .of(InvocationContext.Key.of(SynopsisEditor.class), synopsisFactory));
+    when(context.get(SynopsisFormatter.class)).thenReturn(OptionalInvocationContextProperty
+        .of(InvocationContext.Key.of(SynopsisFormatter.class), synopsisFormatter));
     when(context.get(InvocationPipelineStep.DIALECT_KEY))
         .thenReturn(OptionalInvocationContextProperty.of(InvocationPipelineStep.DIALECT_KEY,
             UnixDialect.INSTANCE));

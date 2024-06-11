@@ -29,18 +29,7 @@ public class Synopsis {
       throw new IllegalArgumentException("entries must not be empty");
   }
 
-  private List<SynopsisEntry> getEntries() {
+  public List<SynopsisEntry> getEntries() {
     return this.entries;
-  }
-
-  public String getText() {
-    // TODO Do we want any formatting? Text wrap?
-    StringBuilder result = new StringBuilder();
-    result.append(getEntries().get(0).getText());
-    for (int i = 1; i < getEntries().size(); i++) {
-      result.append(' ');
-      result.append(getEntries().get(i).getText());
-    }
-    return result.toString();
   }
 }

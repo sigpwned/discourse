@@ -43,15 +43,8 @@ public class PlannedCommandProperty {
 
   private final Object defaultValue;
 
-  /**
-   * <p>
-   * The syntax for specifying the value of this property. For example:
-   * </p>
-   *
-   * <pre>
-   * Map.of("-h", "flag", "--help", "flag")
-   * </pre>
-   */
+  private final Object exampleValue;
+
   private final Set<Coordinate> coordinates;
 
   private final ValueSink sink;
@@ -59,12 +52,13 @@ public class PlannedCommandProperty {
   private final ValueDeserializer<?> deserializer;
 
   public PlannedCommandProperty(String name, String description, boolean required,
-      Object defaultValue, Set<Coordinate> coordinates, ValueSink sink,
+      Object defaultValue, Object exampleValue, Set<Coordinate> coordinates, ValueSink sink,
       ValueDeserializer<?> deserializer) {
     this.name = requireNonNull(name);
     this.description = description;
     this.required = required;
     this.defaultValue = defaultValue;
+    this.exampleValue = exampleValue;
     this.coordinates = unmodifiableSet(coordinates);
     this.sink = requireNonNull(sink);
     this.deserializer = requireNonNull(deserializer);
@@ -96,6 +90,13 @@ public class PlannedCommandProperty {
    */
   public Optional<Object> getDefaultValue() {
     return Optional.ofNullable(defaultValue);
+  }
+
+  /**
+   * @return the exampleValue
+   */
+  public Optional<Object> getExampleValue() {
+    return Optional.ofNullable(exampleValue);
   }
 
   /**

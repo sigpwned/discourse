@@ -51,6 +51,7 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.PlanStep;
 import com.sigpwned.discourse.core.text.TableLayout;
 import com.sigpwned.discourse.core.util.JodaBeanUtils;
 import com.sigpwned.discourse.core.util.Maybe;
+import com.sigpwned.discourse.core.util.Text;
 import com.sigpwned.discourse.core.util.Types;
 
 /**
@@ -293,51 +294,17 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
           Synopsis synopsis = new Synopsis(synopsisEntries);
 
-          out.println(synopsis.getText());
-          out.println();
+          SynopsisFormatter synopsisFormatter = context.get(SynopsisFormatter.class).orElseThrow();
 
-          // String commandName = command.getName().orElse("hello");
-          //
-          // List<LeafCommandProperty> positionalArgs = new ArrayList<>();
-          // for (int pos = 0; pos < command.getCommand().getProperties().size(); pos++) {
-          // final Coordinate coordinate = PositionalCoordinate.of(pos);
-          // LeafCommandProperty property = command.getCommand().getProperties().stream()
-          // .filter(p -> p.getCoordinates().contains(coordinate)).findFirst().orElse(null);
-          // if (property != null) {
-          // positionalArgs.add(property);
-          // } else {
-          // break;
-          // }
-          // }
-          //
-          // boolean collection;
-          // if (positionalArgs.isEmpty()) {
-          // collection = false;
-          // } else {
-          // LeafCommandProperty last = positionalArgs.get(positionalArgs.size() - 1);
-          // ValueSink sink = sinkFactory.getSink(last.getGenericType(), last.getAnnotations())
-          // .orElseThrow(() -> {
-          // // TODO better exception
-          // return new IllegalArgumentException("Failed to get sink for: " + last);
-          // });
-          // collection = sink.isCollection();
-          // }
-          //
-          // // TODO should we break out required options?
-          // // TODO users should be able to hook in here arbitrarily
-          // out.println(String.format("%s [options] %s %s", commandName,
-          // positionalArgs.stream()
-          // .map(c -> c.isRequired() ? "<" + c.getName() + ">" : "[" + c.getName() + "]")
-          // .collect(joining(" ")),
-          // collection ? "..." : ""));
-          // out.println();
+          out.println(Text.rstrip(synopsisFormatter.formatSynopsis(synopsis)));
+          out.println();
 
           if (command.getCommand().getDescription().isPresent()) {
             // TODO How should we localize?
             String localizedDescription = localizer.localizeMessage(
                 HelpMessage.of(command.getCommand().getDescription().orElseThrow()), List.of(),
                 context).getMessage();
-            out.println(localizedDescription);
+            out.println(Text.rstrip(localizedDescription));
             out.println();
           }
 
@@ -411,8 +378,8 @@ public class DefaultHelpFormatter implements HelpFormatter {
 
             out.println(categoryName + ":");
             out.println();
-            out.println(layout.toString(getWidth(),
-                new int[] {TableLayout.COLUMN_WIDTH_TIGHT, TableLayout.COLUMN_WIDTH_FLEX}, 1, 4));
+            out.println(Text.rstrip(layout.toString(getWidth(),
+                new int[] {TableLayout.COLUMN_WIDTH_TIGHT, TableLayout.COLUMN_WIDTH_FLEX}, 1, 4)));
             out.println();
           }
         }
