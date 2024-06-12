@@ -58,8 +58,7 @@ public class InvocationPipelineBuilder {
       private final Map<InvocationContext.Key<?>, Object> values = new HashMap<>();
 
       @Override
-      public <T> OptionalInvocationContextProperty<T, ? extends T> get(
-          InvocationContext.Key<T> key) {
+      public <T> OptionalInvocationContextProperty<T, T> get(InvocationContext.Key<T> key) {
         Object value = values.get(key);
         if (value == null)
           return OptionalInvocationContextProperty.empty(key);

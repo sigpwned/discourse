@@ -58,11 +58,11 @@ public interface InvocationContext {
     }
   }
 
-  default <T> OptionalInvocationContextProperty<T, ? extends T> get(Class<T> type) {
+  default <T> OptionalInvocationContextProperty<T, T> get(Class<T> type) {
     return get(Key.of(type));
   }
 
-  public <T> OptionalInvocationContextProperty<T, ? extends T> get(Key<T> key);
+  public <T> OptionalInvocationContextProperty<T, T> get(Key<T> key);
 
   default <T> void set(Class<T> type, T value) {
     set(Key.of(type), value);

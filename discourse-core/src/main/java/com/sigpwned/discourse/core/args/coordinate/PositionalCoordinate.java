@@ -23,7 +23,8 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import com.sigpwned.discourse.core.args.Coordinate;
 
-public final class PositionalCoordinate extends Coordinate {
+public final class PositionalCoordinate extends Coordinate
+    implements Comparable<PositionalCoordinate> {
   public static final Pattern PATTERN = Pattern.compile("[a-zA-Z0-9]");
 
   public static final PositionalCoordinate ZERO = new PositionalCoordinate(0);
@@ -70,5 +71,10 @@ public final class PositionalCoordinate extends Coordinate {
   @Override
   public String toString() {
     return "PositionalCoordinate[" + position + "]";
+  }
+
+  @Override
+  public int compareTo(PositionalCoordinate that) {
+    return Integer.compare(this.position, that.position);
   }
 }
