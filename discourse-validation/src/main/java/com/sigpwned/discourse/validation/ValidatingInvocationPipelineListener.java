@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
-import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.tree.Command;
 import com.sigpwned.discourse.core.invocation.InvocationPipelineListener;
 import com.sigpwned.discourse.validation.exception.argument.ValidationArgumentException;
 import com.sigpwned.discourse.validation.util.Validation;

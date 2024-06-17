@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
+import com.sigpwned.discourse.core.l11n.UserMessage;
 
 public class BooleanValueDeserializerFactory implements ValueDeserializerFactory<Boolean> {
   public static final BooleanValueDeserializerFactory INSTANCE =
@@ -40,13 +41,13 @@ public class BooleanValueDeserializerFactory implements ValueDeserializerFactory
       }
 
       @Override
-      public Optional<String> name() {
-        return Optional.of("boolean");
+      public Optional<UserMessage> name() {
+        return Optional.of(UserMessage.of("boolean"));
       }
 
       @Override
-      public Optional<String> example() {
-        return Optional.of("true");
+      public Optional<UserMessage> example() {
+        return Optional.of(UserMessage.of("true"));
       }
     });
   }

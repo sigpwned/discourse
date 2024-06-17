@@ -19,7 +19,7 @@
  */
 package com.sigpwned.discourse.core.format;
 
-import com.sigpwned.discourse.core.command.RootCommand;
+import com.sigpwned.discourse.core.command.tree.RootCommand;
 
 /**
  * A function that formats a resolvedCommand's version into a string for display.

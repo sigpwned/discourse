@@ -10,9 +10,9 @@ import java.util.Map.Entry;
 import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.args.Token;
-import com.sigpwned.discourse.core.command.PlannedCommand;
-import com.sigpwned.discourse.core.command.ResolvedCommand;
-import com.sigpwned.discourse.core.command.RootCommand;
+import com.sigpwned.discourse.core.command.planned.PlannedCommand;
+import com.sigpwned.discourse.core.command.resolved.ResolvedCommand;
+import com.sigpwned.discourse.core.command.tree.RootCommand;
 import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.model.CommandResolution;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.PreparedClass;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.WalkedClass;
@@ -93,7 +93,7 @@ public class InvocationPipelineListenerChain extends Chain<InvocationPipelineLis
    * @param root
    * @param context
    * @see com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener#afterScanStep(java.lang.Class,
-   *      com.sigpwned.discourse.core.command.RootCommand,
+   *      com.sigpwned.discourse.core.command.tree.RootCommand,
    *      com.sigpwned.discourse.core.pipeline.invocation.InvocationContext)
    */
   public <T> void afterScanStep(Class<T> clazz, RootCommand<T> root, InvocationContext context) {
@@ -221,7 +221,7 @@ public class InvocationPipelineListenerChain extends Chain<InvocationPipelineLis
    * @param root
    * @param context
    * @see com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener#afterScanStepTree(java.util.List,
-   *      com.sigpwned.discourse.core.command.RootCommand,
+   *      com.sigpwned.discourse.core.command.tree.RootCommand,
    *      com.sigpwned.discourse.core.pipeline.invocation.InvocationContext)
    */
   public <T> void afterScanStepTree(List<PreparedClass<? extends T>> preparedClasses,
@@ -292,7 +292,7 @@ public class InvocationPipelineListenerChain extends Chain<InvocationPipelineLis
    * @param <T>
    * @param resolvedCommand
    * @param context
-   * @see com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener#beforePlanStep(com.sigpwned.discourse.core.command.ResolvedCommand,
+   * @see com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener#beforePlanStep(com.sigpwned.discourse.core.command.resolved.ResolvedCommand,
    *      com.sigpwned.discourse.core.pipeline.invocation.InvocationContext)
    */
   public <T> void beforePlanStep(ResolvedCommand<? extends T> resolvedCommand,
@@ -305,8 +305,8 @@ public class InvocationPipelineListenerChain extends Chain<InvocationPipelineLis
    * @param resolvedCommand
    * @param plannedCommand
    * @param context
-   * @see com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener#afterPlanStep(com.sigpwned.discourse.core.command.ResolvedCommand,
-   *      com.sigpwned.discourse.core.command.PlannedCommand,
+   * @see com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener#afterPlanStep(com.sigpwned.discourse.core.command.resolved.ResolvedCommand,
+   *      com.sigpwned.discourse.core.command.planned.PlannedCommand,
    *      com.sigpwned.discourse.core.pipeline.invocation.InvocationContext)
    */
   public <T> void afterPlanStep(ResolvedCommand<? extends T> resolvedCommand,

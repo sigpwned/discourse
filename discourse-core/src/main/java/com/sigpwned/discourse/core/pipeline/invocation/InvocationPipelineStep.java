@@ -2,9 +2,9 @@ package com.sigpwned.discourse.core.pipeline.invocation;
 
 import java.util.ResourceBundle;
 import com.sigpwned.discourse.core.Dialect;
-import com.sigpwned.discourse.core.command.LeafCommand;
-import com.sigpwned.discourse.core.command.ResolvedCommand;
-import com.sigpwned.discourse.core.command.RootCommand;
+import com.sigpwned.discourse.core.command.resolved.ResolvedCommand;
+import com.sigpwned.discourse.core.command.tree.LeafCommand;
+import com.sigpwned.discourse.core.command.tree.RootCommand;
 import com.sigpwned.discourse.core.error.ExitError;
 import com.sigpwned.discourse.core.format.ExceptionFormatter;
 import com.sigpwned.discourse.core.format.HelpFormatter;

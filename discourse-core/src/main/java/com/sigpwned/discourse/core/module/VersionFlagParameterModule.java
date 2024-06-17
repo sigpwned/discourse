@@ -28,7 +28,7 @@ import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.annotation.VersionFlagParameter;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.args.SwitchName;
-import com.sigpwned.discourse.core.command.RootCommand;
+import com.sigpwned.discourse.core.command.tree.RootCommand;
 import com.sigpwned.discourse.core.error.ExitError;
 import com.sigpwned.discourse.core.format.VersionFormatter;
 import com.sigpwned.discourse.core.module.parameter.flag.version.VersionFlagCoordinate;

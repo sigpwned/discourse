@@ -20,10 +20,10 @@
 package com.sigpwned.discourse.core;
 
 import com.sigpwned.discourse.core.dialect.ArgTokenizer;
-import com.sigpwned.discourse.core.dialect.TokenFormatter;
+import com.sigpwned.discourse.core.dialect.ArgFormatter;
 
 public interface Dialect {
   public ArgTokenizer newTokenizer();
 
-  public TokenFormatter newTokenFormatter();
+  public ArgFormatter newArgFormatter();
 }

@@ -20,7 +20,7 @@
 package com.sigpwned.discourse.core.format;
 
 import com.sigpwned.discourse.core.Dialect;
-import com.sigpwned.discourse.core.command.ResolvedCommand;
+import com.sigpwned.discourse.core.command.resolved.ResolvedCommand;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 
 /**

@@ -29,7 +29,7 @@ import com.sigpwned.discourse.core.Module;
 import com.sigpwned.discourse.core.annotation.HelpFlagParameter;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.args.SwitchName;
-import com.sigpwned.discourse.core.command.ResolvedCommand;
+import com.sigpwned.discourse.core.command.resolved.ResolvedCommand;
 import com.sigpwned.discourse.core.error.ExitError;
 import com.sigpwned.discourse.core.format.HelpFormatter;
 import com.sigpwned.discourse.core.module.parameter.flag.help.HelpFlagCoordinate;

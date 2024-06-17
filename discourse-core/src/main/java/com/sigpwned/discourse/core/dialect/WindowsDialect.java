@@ -20,8 +20,9 @@
 package com.sigpwned.discourse.core.dialect;
 
 import com.sigpwned.discourse.core.Dialect;
-import com.sigpwned.discourse.core.dialect.windows.format.SwitchNameTokenFormatter;
-import com.sigpwned.discourse.core.dialect.windows.format.ValueTokenFormatter;
+import com.sigpwned.discourse.core.dialect.windows.format.FlagWindowsArgFormatter;
+import com.sigpwned.discourse.core.dialect.windows.format.OptionWindowsArgFormatter;
+import com.sigpwned.discourse.core.dialect.windows.format.PositionalWindowsArgFormatter;
 import com.sigpwned.discourse.core.dialect.windows.tokenize.SwitchNameWindowsArgTokenizer;
 import com.sigpwned.discourse.core.dialect.windows.tokenize.ValueWindowsArgTokenizer;
 
@@ -37,10 +38,11 @@ public final class WindowsDialect implements Dialect {
   }
 
   @Override
-  public TokenFormatter newTokenFormatter() {
-    TokenFormatterChain result = new TokenFormatterChain();
-    result.addLast(new SwitchNameTokenFormatter());
-    result.addLast(new ValueTokenFormatter());
+  public ArgFormatter newArgFormatter() {
+    ArgFormatterChain result = new ArgFormatterChain();
+    result.addLast(new OptionWindowsArgFormatter());
+    result.addLast(new FlagWindowsArgFormatter());
+    result.addLast(new PositionalWindowsArgFormatter());
     return result;
   }
 }

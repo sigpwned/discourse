@@ -1,7 +1,7 @@
 package com.sigpwned.discourse.core.pipeline.invocation.step.plan;
 
 import static java.util.Objects.requireNonNull;
-import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.tree.Command;
 import com.sigpwned.discourse.core.exception.DiscourseException;
 
 @SuppressWarnings("serial")

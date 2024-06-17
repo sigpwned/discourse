@@ -16,7 +16,7 @@ public class SeparatorUnixArgTokenizer implements ArgTokenizer, UnixDialectEleme
    * When the separator token is encountered, the tokenizer will return a list containing zero
    * tokens. All tokens after the separator token will be returned as value tokens, even if they
    * start with the {@link ShortSwitchUnixArgTokenizer#SHORT_NAME_PREFIX short switch prefix} or
-   * {@link LongSwitchArgTokenizer#LONG_NAME_PREFIX long switch prefix}.
+   * {@link LongSwitchUnixArgTokenizer#LONG_NAME_PREFIX long switch prefix}.
    * </p>
    * 
    * @param arg The token to tokenize.

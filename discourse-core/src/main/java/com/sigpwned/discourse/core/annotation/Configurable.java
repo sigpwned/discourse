@@ -23,7 +23,7 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import com.sigpwned.discourse.core.command.Command;
+import com.sigpwned.discourse.core.command.tree.Command;
 
 /**
  * An annotation that marks a class as a configurable object. Configurable objects can be used to

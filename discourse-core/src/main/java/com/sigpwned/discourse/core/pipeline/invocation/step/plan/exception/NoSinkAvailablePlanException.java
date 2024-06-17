@@ -2,8 +2,8 @@ package com.sigpwned.discourse.core.pipeline.invocation.step.plan.exception;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import com.sigpwned.discourse.core.command.LeafCommand;
-import com.sigpwned.discourse.core.command.LeafCommandProperty;
+import com.sigpwned.discourse.core.command.tree.LeafCommand;
+import com.sigpwned.discourse.core.command.tree.LeafCommandProperty;
 import com.sigpwned.discourse.core.pipeline.invocation.step.plan.PlanException;
 
 @SuppressWarnings("serial")

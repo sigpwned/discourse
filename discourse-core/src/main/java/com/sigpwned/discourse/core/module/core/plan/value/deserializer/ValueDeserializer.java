@@ -20,6 +20,7 @@
 package com.sigpwned.discourse.core.module.core.plan.value.deserializer;
 
 import java.util.Optional;
+import com.sigpwned.discourse.core.l11n.UserMessage;
 
 /**
  * A function that deserializes a string into a value. This is used to convert resolvedCommand line
@@ -36,7 +37,7 @@ public interface ValueDeserializer<T> {
    * 
    * @return the name of the value that this deserializer can deserialize
    */
-  default Optional<String> name() {
+  default Optional<UserMessage> name() {
     return Optional.empty();
   }
 
@@ -47,7 +48,7 @@ public interface ValueDeserializer<T> {
    * 
    * @return an example of the value that this deserializer can deserialize
    */
-  default Optional<String> example() {
+  default Optional<UserMessage> example() {
     return Optional.empty();
   }
 }

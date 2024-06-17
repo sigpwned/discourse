@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.sigpwned.discourse.core.Chain;
-import com.sigpwned.discourse.core.command.PlannedCommand;
-import com.sigpwned.discourse.core.command.PlannedCommandProperty;
-import com.sigpwned.discourse.core.command.ResolvedCommand;
+import com.sigpwned.discourse.core.command.planned.PlannedCommand;
+import com.sigpwned.discourse.core.command.planned.PlannedCommandProperty;
+import com.sigpwned.discourse.core.command.resolved.ResolvedCommand;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener;
 

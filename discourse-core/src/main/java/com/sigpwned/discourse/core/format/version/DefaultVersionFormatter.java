@@ -21,7 +21,7 @@ package com.sigpwned.discourse.core.format.version;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.sigpwned.discourse.core.command.RootCommand;
+import com.sigpwned.discourse.core.command.tree.RootCommand;
 import com.sigpwned.discourse.core.format.VersionFormatter;
 
 /**

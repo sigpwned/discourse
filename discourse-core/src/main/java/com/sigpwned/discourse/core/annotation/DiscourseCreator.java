@@ -22,10 +22,9 @@ package com.sigpwned.discourse.core.annotation;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import com.sigpwned.discourse.core.command.Command;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import com.sigpwned.discourse.core.command.tree.Command;
 
 /**
  * <p>

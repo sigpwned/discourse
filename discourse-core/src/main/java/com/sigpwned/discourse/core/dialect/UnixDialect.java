@@ -20,10 +20,14 @@
 package com.sigpwned.discourse.core.dialect;
 
 import com.sigpwned.discourse.core.Dialect;
-import com.sigpwned.discourse.core.dialect.unix.format.SwitchNameUnixTokenFormatter;
-import com.sigpwned.discourse.core.dialect.unix.format.ValueUnixTokenFormatter;
-import com.sigpwned.discourse.core.dialect.unix.tokenize.LongSwitchArgTokenizer;
-import com.sigpwned.discourse.core.dialect.unix.tokenize.LongSwitchWithAttachedValueArgTokenizer;
+import com.sigpwned.discourse.core.dialect.unix.format.LongFlagUnixArgFormatter;
+import com.sigpwned.discourse.core.dialect.unix.format.LongFlagWithAttachedValueUnixArgFormatter;
+import com.sigpwned.discourse.core.dialect.unix.format.LongOptionUnixArgFormatter;
+import com.sigpwned.discourse.core.dialect.unix.format.LongOptionWithAttachedValueUnixArgFormatter;
+import com.sigpwned.discourse.core.dialect.unix.format.PositionalUnixArgFormatter;
+import com.sigpwned.discourse.core.dialect.unix.format.ShortOptionUnixArgFormatter;
+import com.sigpwned.discourse.core.dialect.unix.tokenize.LongSwitchUnixArgTokenizer;
+import com.sigpwned.discourse.core.dialect.unix.tokenize.LongSwitchWithAttachedValueUnixArgTokenizer;
 import com.sigpwned.discourse.core.dialect.unix.tokenize.SeparatorUnixArgTokenizer;
 import com.sigpwned.discourse.core.dialect.unix.tokenize.ShortSwitchBundleUnixArgTokenizer;
 import com.sigpwned.discourse.core.dialect.unix.tokenize.ShortSwitchPrefixUnixArgTokenizer;
@@ -38,8 +42,8 @@ public final class UnixDialect implements Dialect {
     ArgTokenizerChain result = new ArgTokenizerChain();
     result.addLast(new SeparatorUnixArgTokenizer());
     result.addLast(new ShortSwitchPrefixUnixArgTokenizer());
-    result.addLast(new LongSwitchWithAttachedValueArgTokenizer());
-    result.addLast(new LongSwitchArgTokenizer());
+    result.addLast(new LongSwitchWithAttachedValueUnixArgTokenizer());
+    result.addLast(new LongSwitchUnixArgTokenizer());
     result.addLast(new ShortSwitchUnixArgTokenizer());
     result.addLast(new ShortSwitchBundleUnixArgTokenizer());
     result.addLast(new ValueUnixArgTokenizer());
@@ -47,10 +51,14 @@ public final class UnixDialect implements Dialect {
   }
 
   @Override
-  public TokenFormatter newTokenFormatter() {
-    TokenFormatterChain result = new TokenFormatterChain();
-    result.addLast(new SwitchNameUnixTokenFormatter());
-    result.addLast(new ValueUnixTokenFormatter());
+  public ArgFormatter newArgFormatter() {
+    ArgFormatterChain result = new ArgFormatterChain();
+    result.addLast(new LongFlagUnixArgFormatter());
+    result.addLast(new LongFlagWithAttachedValueUnixArgFormatter());
+    result.addLast(new LongOptionUnixArgFormatter());
+    result.addLast(new LongOptionWithAttachedValueUnixArgFormatter());
+    result.addLast(new PositionalUnixArgFormatter());
+    result.addLast(new ShortOptionUnixArgFormatter());
     return result;
   }
 }

@@ -23,11 +23,11 @@ import com.sigpwned.discourse.core.annotation.DiscourseDescription;
 import com.sigpwned.discourse.core.annotation.DiscourseExampleValue;
 import com.sigpwned.discourse.core.annotation.DiscourseRequired;
 import com.sigpwned.discourse.core.args.Coordinate;
-import com.sigpwned.discourse.core.command.Command;
 import com.sigpwned.discourse.core.command.Discriminator;
-import com.sigpwned.discourse.core.command.LeafCommand;
-import com.sigpwned.discourse.core.command.LeafCommandProperty;
-import com.sigpwned.discourse.core.command.RootCommand;
+import com.sigpwned.discourse.core.command.tree.Command;
+import com.sigpwned.discourse.core.command.tree.LeafCommand;
+import com.sigpwned.discourse.core.command.tree.LeafCommandProperty;
+import com.sigpwned.discourse.core.command.tree.RootCommand;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.CommandBody;
@@ -711,7 +711,7 @@ public class ScanStep extends InvocationPipelineStepBase {
         command = new LeafCommand<>(description, immutablePropertiesCopy,
             toReactor(reactor, body.getRules()), toConstructor(preparedClass.clazz()));
       } else {
-        command = new com.sigpwned.discourse.core.command.SuperCommand(description, subs);
+        command = new com.sigpwned.discourse.core.command.tree.SuperCommand(description, subs);
       }
 
       if (preparedClass.supercommand().isPresent()) {

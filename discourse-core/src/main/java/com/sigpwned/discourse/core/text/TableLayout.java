@@ -205,7 +205,7 @@ public class TableLayout {
         for (int li = 0; li < c.size(); li++) {
           String line = c.get(li);
 
-          List<String> wrappedLine = List.of(Text.wrap(line, columnWidths[ci]).split("\n"));
+          List<String> wrappedLine = Text.wrap(line, columnWidths[ci]);
 
           List<String> wrappedAndPaddedLine = new ArrayList<>();
           for (int wli = 0; wli < wrappedLine.size(); wli++)

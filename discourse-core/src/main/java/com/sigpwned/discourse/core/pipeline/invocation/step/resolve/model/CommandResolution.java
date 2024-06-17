@@ -3,7 +3,7 @@ package com.sigpwned.discourse.core.pipeline.invocation.step.resolve.model;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 import java.util.List;
-import com.sigpwned.discourse.core.command.ResolvedCommand;
+import com.sigpwned.discourse.core.command.resolved.ResolvedCommand;
 
 public class CommandResolution<T> {
   private final ResolvedCommand<T> command;

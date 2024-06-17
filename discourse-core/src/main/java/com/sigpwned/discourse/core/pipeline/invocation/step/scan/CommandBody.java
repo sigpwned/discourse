@@ -21,7 +21,7 @@ package com.sigpwned.discourse.core.pipeline.invocation.step.scan;
 
 import static java.util.Collections.unmodifiableList;
 import java.util.List;
-import com.sigpwned.discourse.core.command.LeafCommandProperty;
+import com.sigpwned.discourse.core.command.tree.LeafCommandProperty;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedRule;
 
 

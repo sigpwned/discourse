@@ -2,7 +2,7 @@ package com.sigpwned.discourse.core.pipeline.invocation.step.resolve.exception;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import com.sigpwned.discourse.core.command.SuperCommand;
+import com.sigpwned.discourse.core.command.tree.SuperCommand;
 import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.ResolveException;
 
 @SuppressWarnings("serial")

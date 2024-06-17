@@ -18,31 +18,31 @@ import com.sigpwned.discourse.core.annotation.FlagParameter;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.annotation.Undocumented;
-import com.sigpwned.discourse.core.command.LeafCommand;
-import com.sigpwned.discourse.core.command.ResolvedCommand;
+import com.sigpwned.discourse.core.command.resolved.ResolvedCommand;
+import com.sigpwned.discourse.core.command.tree.LeafCommand;
 import com.sigpwned.discourse.core.dialect.UnixDialect;
 import com.sigpwned.discourse.core.format.HelpFormatter;
 import com.sigpwned.discourse.core.format.help.CommandPropertyDescriberChain;
 import com.sigpwned.discourse.core.format.help.CommandPropertySyntaxFormatterChain;
+import com.sigpwned.discourse.core.format.help.CommandSynopsisComposer;
+import com.sigpwned.discourse.core.format.help.CommandSynopsisComposerChain;
 import com.sigpwned.discourse.core.format.help.DefaultHelpFormatter;
 import com.sigpwned.discourse.core.format.help.MessageLocalizerChain;
-import com.sigpwned.discourse.core.format.help.SynopsisEditor;
-import com.sigpwned.discourse.core.format.help.SynopsisEditorChain;
 import com.sigpwned.discourse.core.format.help.SynopsisFormatter;
 import com.sigpwned.discourse.core.format.help.TextFormatterChain;
+import com.sigpwned.discourse.core.format.help.compose.UndocumentedCommandPropertyDescriber;
+import com.sigpwned.discourse.core.format.help.compose.property.DefaultValueCommandPropertyHelpDocumentCompser;
+import com.sigpwned.discourse.core.format.help.compose.property.DescriptionCommandPropertyDescriber;
+import com.sigpwned.discourse.core.format.help.compose.property.ExampleCommandPropertyDescriber;
+import com.sigpwned.discourse.core.format.help.compose.property.RequiredCommandPropertyDescriber;
 import com.sigpwned.discourse.core.format.help.coordinate.FlagParameterCoordinateFormatter;
 import com.sigpwned.discourse.core.format.help.coordinate.OptionParameterCoordinateFormatter;
 import com.sigpwned.discourse.core.format.help.coordinate.PositionalParameterCoordinateFormatter;
-import com.sigpwned.discourse.core.format.help.describe.property.DefaultValueCommandPropertyDescriber;
-import com.sigpwned.discourse.core.format.help.describe.property.DescriptionCommandPropertyDescriber;
-import com.sigpwned.discourse.core.format.help.describe.property.ExampleCommandPropertyDescriber;
-import com.sigpwned.discourse.core.format.help.describe.property.RequiredCommandPropertyDescriber;
-import com.sigpwned.discourse.core.format.help.describe.property.UndocumentedCommandPropertyDescriber;
 import com.sigpwned.discourse.core.format.help.localize.message.AnnotationBundleMessageLocalizer;
 import com.sigpwned.discourse.core.format.help.localize.message.ApplicationBundleMessageLocalizer;
-import com.sigpwned.discourse.core.format.help.synopsis.editor.CommandNameAndDiscriminatorsSynopsisEditor;
-import com.sigpwned.discourse.core.format.help.synopsis.editor.OptionsPlaceholderSynopsisEditor;
-import com.sigpwned.discourse.core.format.help.synopsis.editor.PositionalArgumentsSynopsisEditor;
+import com.sigpwned.discourse.core.format.help.synopsis.compose.CommandNameAndDiscriminatorsSynopsisComposer;
+import com.sigpwned.discourse.core.format.help.synopsis.compose.OptionsPlaceholderSynopsisComposer;
+import com.sigpwned.discourse.core.format.help.synopsis.compose.PositionalArgumentsSynopsisComposer;
 import com.sigpwned.discourse.core.format.help.synopsis.format.DefaultSynopsisFormatter;
 import com.sigpwned.discourse.core.format.help.text.console.ConsoleBoldTextFormatter;
 import com.sigpwned.discourse.core.format.help.text.console.ConsoleItalicTextFormatter;
@@ -209,7 +209,7 @@ public class DefaultHelpFormatterTest {
     CommandPropertyDescriberChain describerChain = new CommandPropertyDescriberChain();
     describerChain.addLast(DescriptionCommandPropertyDescriber.INSTANCE);
     describerChain.addLast(RequiredCommandPropertyDescriber.INSTANCE);
-    describerChain.addLast(DefaultValueCommandPropertyDescriber.INSTANCE);
+    describerChain.addLast(DefaultValueCommandPropertyHelpDocumentCompser.INSTANCE);
 
     MessageLocalizerChain localizer = new MessageLocalizerChain();
     localizer.addLast(AnnotationBundleMessageLocalizer.INSTANCE);
@@ -270,7 +270,7 @@ public class DefaultHelpFormatterTest {
     CommandPropertyDescriberChain describerChain = new CommandPropertyDescriberChain();
     describerChain.addLast(DescriptionCommandPropertyDescriber.INSTANCE);
     describerChain.addLast(RequiredCommandPropertyDescriber.INSTANCE);
-    describerChain.addLast(DefaultValueCommandPropertyDescriber.INSTANCE);
+    describerChain.addLast(DefaultValueCommandPropertyHelpDocumentCompser.INSTANCE);
 
     MessageLocalizerChain localizer = new MessageLocalizerChain();
     localizer.addLast(AnnotationBundleMessageLocalizer.INSTANCE);
@@ -332,7 +332,7 @@ public class DefaultHelpFormatterTest {
     CommandPropertyDescriberChain describerChain = new CommandPropertyDescriberChain();
     describerChain.addLast(DescriptionCommandPropertyDescriber.INSTANCE);
     describerChain.addLast(RequiredCommandPropertyDescriber.INSTANCE);
-    describerChain.addLast(DefaultValueCommandPropertyDescriber.INSTANCE);
+    describerChain.addLast(DefaultValueCommandPropertyHelpDocumentCompser.INSTANCE);
 
     MessageLocalizerChain localizer = new MessageLocalizerChain();
     localizer.addLast(AnnotationBundleMessageLocalizer.INSTANCE);
@@ -417,7 +417,7 @@ public class DefaultHelpFormatterTest {
     describerChain.addLast(DescriptionCommandPropertyDescriber.INSTANCE);
     describerChain.addLast(RequiredCommandPropertyDescriber.INSTANCE);
     describerChain.addLast(ExampleCommandPropertyDescriber.INSTANCE);
-    describerChain.addLast(DefaultValueCommandPropertyDescriber.INSTANCE);
+    describerChain.addLast(DefaultValueCommandPropertyHelpDocumentCompser.INSTANCE);
 
     MessageLocalizerChain localizer = new MessageLocalizerChain();
     localizer.addLast(AnnotationBundleMessageLocalizer.INSTANCE);
@@ -436,10 +436,10 @@ public class DefaultHelpFormatterTest {
     deserializerFactory.addLast(StringValueDeserializerFactory.INSTANCE);
     deserializerFactory.addLast(BooleanValueDeserializerFactory.INSTANCE);
 
-    SynopsisEditorChain synopsisFactory = new SynopsisEditorChain();
-    synopsisFactory.addLast(new CommandNameAndDiscriminatorsSynopsisEditor());
-    synopsisFactory.addLast(new OptionsPlaceholderSynopsisEditor());
-    synopsisFactory.addLast(new PositionalArgumentsSynopsisEditor());
+    CommandSynopsisComposerChain synopsisFactory = new CommandSynopsisComposerChain();
+    synopsisFactory.addLast(new CommandNameAndDiscriminatorsSynopsisComposer());
+    synopsisFactory.addLast(new OptionsPlaceholderSynopsisComposer());
+    synopsisFactory.addLast(new PositionalArgumentsSynopsisComposer());
 
     SynopsisFormatter synopsisFormatter = new DefaultSynopsisFormatter();
 
@@ -449,8 +449,8 @@ public class DefaultHelpFormatterTest {
     ResolvedCommand<? extends TestConfigurable6> resolved = resolution.getCommand();
 
     InvocationContext context = mock(InvocationContext.class);
-    when(context.get(SynopsisEditor.class)).thenReturn(OptionalInvocationContextProperty
-        .of(InvocationContext.Key.of(SynopsisEditor.class), synopsisFactory));
+    when(context.get(CommandSynopsisComposer.class)).thenReturn(OptionalInvocationContextProperty
+        .of(InvocationContext.Key.of(CommandSynopsisComposer.class), synopsisFactory));
     when(context.get(SynopsisFormatter.class)).thenReturn(OptionalInvocationContextProperty
         .of(InvocationContext.Key.of(SynopsisFormatter.class), synopsisFormatter));
     when(context.get(InvocationPipelineStep.DIALECT_KEY))

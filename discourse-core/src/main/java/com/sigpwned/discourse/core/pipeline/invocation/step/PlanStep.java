@@ -2,12 +2,12 @@ package com.sigpwned.discourse.core.pipeline.invocation.step;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.sigpwned.discourse.core.command.LeafCommand;
-import com.sigpwned.discourse.core.command.LeafCommandProperty;
-import com.sigpwned.discourse.core.command.ParentCommand;
-import com.sigpwned.discourse.core.command.PlannedCommand;
-import com.sigpwned.discourse.core.command.PlannedCommandProperty;
-import com.sigpwned.discourse.core.command.ResolvedCommand;
+import com.sigpwned.discourse.core.command.planned.ParentCommand;
+import com.sigpwned.discourse.core.command.planned.PlannedCommand;
+import com.sigpwned.discourse.core.command.planned.PlannedCommandProperty;
+import com.sigpwned.discourse.core.command.resolved.ResolvedCommand;
+import com.sigpwned.discourse.core.command.tree.LeafCommand;
+import com.sigpwned.discourse.core.command.tree.LeafCommandProperty;
 import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDeserializer;
 import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDeserializerFactory;
 import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSink;
@@ -96,7 +96,7 @@ public class PlanStep extends InvocationPipelineStepBase {
 
       properties.add(new PlannedCommandProperty(property.getName(),
           property.getDescription().orElse(null), property.isRequired(), defaultValue, exampleValue,
-          property.getCoordinates(), sink, deserializer));
+          property.getAnnotations(), property.getCoordinates(), sink, deserializer));
     }
 
     return new PlannedCommand<>(resolvedCommand.getParents(),

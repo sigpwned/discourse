@@ -5,10 +5,11 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Objects;
 import java.util.Optional;
-import com.sigpwned.discourse.core.document.Doc;
-import com.sigpwned.discourse.core.document.DocumentSection;
+import com.sigpwned.discourse.core.document.Block;
+import com.sigpwned.discourse.core.document.Document;
 import com.sigpwned.discourse.core.document.Node;
-import com.sigpwned.discourse.core.document.NodeRenderer;
+import com.sigpwned.discourse.core.document.render.DocumentSection;
+import com.sigpwned.discourse.core.document.render.NodeRenderer;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 
 public abstract class TextNodeRendererBase implements NodeRenderer {
@@ -63,8 +64,8 @@ public abstract class TextNodeRendererBase implements NodeRenderer {
   }
 
   @Override
-  public boolean renderNode(Doc document, DocumentSection section, Node node, PrintStream output,
-      InvocationContext context) throws IOException {
+  public boolean renderNode(Document document, DocumentSection section, Block block, Node node,
+      PrintStream output, InvocationContext context) throws IOException {
     Bookends bookends = getBookends(node).orElse(null);
     if (bookends == null)
       return false;
@@ -76,7 +77,7 @@ public abstract class TextNodeRendererBase implements NodeRenderer {
     output.write(bookends.getBefore());
 
     for (Node child : node.getChildNodes())
-      renderer.renderNode(document, section, child, output, context);
+      renderer.renderNode(document, section, null, child, output, context);
 
     output.write(bookends.getAfter());
 

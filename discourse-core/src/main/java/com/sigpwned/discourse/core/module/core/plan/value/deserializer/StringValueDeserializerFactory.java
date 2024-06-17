@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
+import com.sigpwned.discourse.core.l11n.UserMessage;
 
 public class StringValueDeserializerFactory implements ValueDeserializerFactory<String> {
   public static final StringValueDeserializerFactory INSTANCE =
@@ -40,13 +41,13 @@ public class StringValueDeserializerFactory implements ValueDeserializerFactory<
       }
 
       @Override
-      public Optional<String> name() {
-        return Optional.of("string");
+      public Optional<UserMessage> name() {
+        return Optional.of(UserMessage.of("string"));
       }
 
       @Override
-      public Optional<String> example() {
-        return Optional.of("foo");
+      public Optional<UserMessage> example() {
+        return Optional.of(UserMessage.of("foo"));
       }
     });
   }
