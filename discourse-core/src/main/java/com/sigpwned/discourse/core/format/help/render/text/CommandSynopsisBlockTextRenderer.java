@@ -12,11 +12,12 @@ import com.sigpwned.discourse.core.document.Document;
 import com.sigpwned.discourse.core.document.render.BlockRenderer;
 import com.sigpwned.discourse.core.document.render.DocumentSection;
 import com.sigpwned.discourse.core.document.render.text.TextViewport;
+import com.sigpwned.discourse.core.exception.InternalDiscourseException;
 import com.sigpwned.discourse.core.format.help.SynopsisEntryFormatter;
 import com.sigpwned.discourse.core.format.help.model.CommandSynopsis;
 import com.sigpwned.discourse.core.format.help.model.synopsis.CommandNameCommandSynopsisEntry;
-import com.sigpwned.discourse.core.format.help.model.synopsis.DiscriminatorCommandSynopsisEntry;
 import com.sigpwned.discourse.core.format.help.model.synopsis.CommandSynopsisEntry;
+import com.sigpwned.discourse.core.format.help.model.synopsis.DiscriminatorCommandSynopsisEntry;
 import com.sigpwned.discourse.core.format.help.synopsis.CommandSynopsisBlock;
 import com.sigpwned.discourse.core.l11n.UserMessageLocalizer;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
@@ -49,19 +50,18 @@ public class CommandSynopsisBlockTextRenderer implements BlockRenderer {
         .findFirst().orElse(synopsis.getEntries().size());
 
     List<CommandSynopsisEntry> head = synopsis.getEntries().subList(0, index);
-    List<CommandSynopsisEntry> tail = synopsis.getEntries().subList(index, synopsis.getEntries().size());
+    List<CommandSynopsisEntry> tail =
+        synopsis.getEntries().subList(index, synopsis.getEntries().size());
 
     String headText = head.stream()
         .map(e -> formatter.formatSynopsisEntry(command, e, context).orElseThrow(() -> {
-          // TODO better exception
-          return new IllegalArgumentException("Unable to format synopsis entry: " + e);
+          throw new InternalDiscourseException("Failed to format synopsis entry " + e);
         })).collect(joining(" "));
 
 
     String tailText = tail.stream()
         .map(e -> formatter.formatSynopsisEntry(command, e, context).orElseThrow(() -> {
-          // TODO better exception
-          return new IllegalArgumentException("Unable to format synopsis entry: " + e);
+          throw new InternalDiscourseException("Failed to format synopsis entry " + e);
         })).collect(joining(" "));
 
     int headWidth = headText.length();

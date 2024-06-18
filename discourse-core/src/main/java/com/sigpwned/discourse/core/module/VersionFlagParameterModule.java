@@ -36,6 +36,7 @@ import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetector;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.NoAnnotationCoordinatesScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.CandidateSyntax;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.SyntaxDetection;
 import com.sigpwned.discourse.core.util.Maybe;
@@ -56,17 +57,13 @@ public class VersionFlagParameterModule extends Module {
           return Maybe.maybe();
 
         Set<Coordinate> coordinates = new HashSet<>(2);
-        if (!flag.longName().equals("")) {
+        if (!flag.longName().equals(""))
           coordinates.add(new VersionFlagCoordinate(SwitchName.fromString(flag.longName())));
-        }
-        if (!flag.shortName().equals("")) {
+        if (!flag.shortName().equals(""))
           coordinates.add(new VersionFlagCoordinate(SwitchName.fromString(flag.shortName())));
-        }
-        if (coordinates.isEmpty()) {
-          // TODO better exception
-          throw new IllegalArgumentException(
-              "@VersionFlagParameter must have at least one of longName or shortName");
-        }
+        
+        if (coordinates.isEmpty())
+          throw new NoAnnotationCoordinatesScanException(clazz, candidate.humanFacingName(), flag);
 
         return Maybe.yes(new SyntaxDetection(coordinates));
       }

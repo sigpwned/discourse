@@ -19,7 +19,6 @@
  */
 package com.sigpwned.discourse.core.optional;
 
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -28,6 +27,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import com.sigpwned.discourse.core.exception.InternalDiscourseException;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 
 /**
@@ -140,8 +140,7 @@ public class OptionalInvocationContextProperty<K, V> {
   }
 
   public <E extends Exception> V orElseThrow() throws E {
-    // TODO better exception
-    return orElseThrow(key -> new NoSuchElementException("No value for key " + key));
+    return orElseThrow(key -> new InternalDiscourseException("No value for key " + key));
   }
 
   public V get() {

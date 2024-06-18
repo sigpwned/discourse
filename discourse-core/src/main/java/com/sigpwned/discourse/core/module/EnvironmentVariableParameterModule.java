@@ -35,6 +35,7 @@ import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener;
 import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.coordinates.CoordinatesPreprocessor;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetector;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.NoAnnotationCoordinatesScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.CandidateSyntax;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.SyntaxDetection;
 import com.sigpwned.discourse.core.util.Maybe;
@@ -55,10 +56,10 @@ public class EnvironmentVariableParameterModule extends Module {
         if (variable == null)
           return Maybe.maybe();
 
-        if (variable.variable().equals("")) {
-          // TODO better exception
-          throw new IllegalArgumentException("Environment variable name must not be empty");
-        }
+        if (variable.variable().equals(""))
+          throw new NoAnnotationCoordinatesScanException(clazz, candidate.humanFacingName(),
+              variable);
+
         Set<Coordinate> coordinates =
             Set.of(new EnvironmentVariableCoordinate(variable.variable()));
 

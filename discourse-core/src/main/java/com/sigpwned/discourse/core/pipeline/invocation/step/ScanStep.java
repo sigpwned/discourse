@@ -569,13 +569,11 @@ public class ScanStep extends InvocationPipelineStepBase {
 
           if (!reaction.consumed().containsAll(availableNames)) {
             // Oops. Not all required properties are consumed. That's not good.
-            // TODO better exception
             throw new InsufficientRulesScanException(clazz, availableNames,
                 MoreSets.difference(availableNames, reaction.consumed()));
           }
           if (!reaction.produced().contains("")) {
             // Welp, we didn't create our instance. That's bad.
-            // TODO better exception
             throw new InsufficientRulesScanException(clazz, availableNames, Set.of("<instance>"));
           }
         }

@@ -35,6 +35,7 @@ import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener;
 import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.coordinates.CoordinatesPreprocessor;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetector;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.NoAnnotationCoordinatesScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.CandidateSyntax;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.SyntaxDetection;
 import com.sigpwned.discourse.core.util.Maybe;
@@ -55,10 +56,10 @@ public class SystemPropertyParameterModule extends Module {
         if (property == null)
           return Maybe.maybe();
 
-        if (property.property().equals("")) {
-          // TODO better exception
-          throw new IllegalArgumentException("System property name must not be empty");
-        }
+        if (property.property().equals(""))
+          throw new NoAnnotationCoordinatesScanException(clazz, candidate.humanFacingName(),
+              property);
+
         Set<Coordinate> coordinates = Set.of(new SystemPropertyCoordinate(property.property()));
 
         return Maybe.yes(new SyntaxDetection(coordinates));
