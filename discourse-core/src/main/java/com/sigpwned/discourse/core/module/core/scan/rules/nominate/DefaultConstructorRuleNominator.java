@@ -44,6 +44,7 @@ public class DefaultConstructorRuleNominator implements RuleNominator {
     }
     if (constructor == null)
       return emptyList();
-    return List.of(new CandidateRule(constructor, clazz, List.of(constructor.getAnnotations())));
+    return List.of(new CandidateRule("constructor", constructor, clazz,
+        List.of(constructor.getAnnotations())));
   }
 }

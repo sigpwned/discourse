@@ -23,6 +23,16 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public record CandidateSyntax(Object nominated, Type genericType, List<Annotation> annotations) {
+/**
+ * Represents a candidate syntax element that might generate new syntax.
+ * 
+ * @param humanFacingName The human-facing name of the candidate. This is purely for user feedback
+ *        and is not used in the actual syntax generation.
+ * @param nominated The nominated object that might generate new syntax.
+ * @param genericType The generic type of the nominated object.
+ * @param annotations The annotations of the nominated object.
+ */
+public record CandidateSyntax(String humanFacingName, Object nominated, Type genericType,
+    List<Annotation> annotations) {
 
 }

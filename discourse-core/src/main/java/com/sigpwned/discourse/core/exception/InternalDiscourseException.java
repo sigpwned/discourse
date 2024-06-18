@@ -20,17 +20,19 @@
 package com.sigpwned.discourse.core.exception;
 
 /**
- * An exception that indicates a problem with the internal state of the Discourse library. This is
- * typically used to indicate a bug in the library. As such, this exception and its subclasses
- * should not be caught by client code, but should be reported to the library developers.
+ * An exception that indicates a problem with the internal state of the Discourse framework. This is
+ * typically used to indicate a bug in the library or a third-party module. As such, this exception
+ * and its subclasses generally should not be caught by client code, but should be reported to the
+ * library and/or module developers. We don't localize these exceptions, since they're for the
+ * developer team that works in English, and not the end users who may work in other languages.
  */
 @SuppressWarnings("serial")
-public abstract class InternalDiscourseException extends DiscourseException {
-  protected InternalDiscourseException(String message) {
+public class InternalDiscourseException extends DiscourseException {
+  public InternalDiscourseException(String message) {
     super(message);
   }
 
-  protected InternalDiscourseException(String message, Throwable cause) {
+  public InternalDiscourseException(String message, Throwable cause) {
     super(message, cause);
   }
 }

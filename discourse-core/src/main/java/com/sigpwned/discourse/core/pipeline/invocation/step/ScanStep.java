@@ -1,5 +1,6 @@
 package com.sigpwned.discourse.core.pipeline.invocation.step;
 
+import static com.sigpwned.discourse.core.util.MoreCollectors.duplicates;
 import static java.util.stream.Collectors.toSet;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -22,44 +23,52 @@ import com.sigpwned.discourse.core.annotation.DiscourseDefaultValue;
 import com.sigpwned.discourse.core.annotation.DiscourseDescription;
 import com.sigpwned.discourse.core.annotation.DiscourseExampleValue;
 import com.sigpwned.discourse.core.annotation.DiscourseRequired;
-import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.command.Discriminator;
 import com.sigpwned.discourse.core.command.tree.Command;
 import com.sigpwned.discourse.core.command.tree.LeafCommand;
 import com.sigpwned.discourse.core.command.tree.LeafCommandProperty;
 import com.sigpwned.discourse.core.command.tree.RootCommand;
+import com.sigpwned.discourse.core.exception.InternalDiscourseException;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
-import com.sigpwned.discourse.core.pipeline.invocation.step.scan.CommandBody;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.NamingScheme;
-import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleDetection;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleDetector;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleEvaluator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleNominator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RulesEngine;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SubCommandScanner;
-import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetection;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetector;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxNominator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.DiscriminatorMismatchScanException;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.DivergentRulesScanException;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.DuplicateCoordinatesScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.DuplicateDiscriminatorsScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.DuplicatePropertyNamesScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.DuplicateRuleNomineesScanException;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.DuplicateSyntaxNamesScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.DuplicateSyntaxNomineesScanException;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.InsufficientRulesScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.InvalidDiscriminatorScanException;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.LeafCommandAbstractScanException;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.LeafCommandMissingBodyScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.NoDiscriminatorScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.NotConfigurableScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.SubCommandDoesNotExtendSuperCommandScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.SuperCommandNotAbstractScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.UnexpectedDiscriminatorScanException;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.UnnamedRuleConsequentScanException;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.UnnamedSyntaxScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.CandidateRule;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.CandidateSyntax;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.CommandBody;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.DetectedRule;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.DetectedSyntax;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedRule;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedSyntax;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.PreparedClass;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.RuleDetection;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.SuperCommand;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.SyntaxDetection;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.WalkedClass;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.util.MoreRules;
 import com.sigpwned.discourse.core.util.Graphs;
@@ -200,17 +209,12 @@ public class ScanStep extends InvocationPipelineStepBase {
       // A Command with SubCommands (i.e., a SuperCommand) has some special requirements. A Command
       // with no SubCommands has some special requirements, too. Let's enforce them both here.
       if (subcommands.isEmpty()) {
-        // This is a leaf command.
-
-        // Leaf commands must not be abstract.
+        // This is a leaf command. Leaf commands must not be abstract.
         if (Modifier.isAbstract(currentClazz.getModifiers())) {
-          // TODO better exception
-          throw new IllegalArgumentException("leaf node must not be abstract");
+          throw new LeafCommandAbstractScanException(currentClazz);
         }
       } else {
-        // This is a super command.
-
-        // Super commands must be abstract.
+        // This is a super command. Super commands must be abstract.
         if (!Modifier.isAbstract(currentClazz.getModifiers())) {
           throw new SuperCommandNotAbstractScanException(currentClazz);
         }
@@ -251,13 +255,10 @@ public class ScanStep extends InvocationPipelineStepBase {
               .filter(wc -> wc.supercommand().orElseThrow().clazz() == superclazz).toList();
 
       // Are there any duplicate discriminators?
-      Set<Discriminator> duplicateDiscriminators = Streams
-          .duplicates(
-              subcommands.stream().map(sc -> sc.supercommand().orElseThrow().discriminator()))
-          .collect(toSet());
-      if (!duplicateDiscriminators.isEmpty()) {
-        throw new DuplicateDiscriminatorsScanException(superclazz, duplicateDiscriminators);
-      }
+      subcommands.stream().map(sc -> sc.supercommand().orElseThrow().discriminator())
+          .collect(duplicates()).ifPresent(duplicateDiscriminators -> {
+            throw new DuplicateDiscriminatorsScanException(superclazz, duplicateDiscriminators);
+          });
     }
 
     return walkedClasses;
@@ -331,11 +332,10 @@ public class ScanStep extends InvocationPipelineStepBase {
 
         // If we still have duplicates at the nominee level after removing duplicates at the record
         // level, then we have a problem.
-        Set<Object> duplicateSyntaxNominees = Streams
-            .duplicates(candidateSyntax.stream().map(CandidateSyntax::nominated)).collect(toSet());
-        if (!duplicateSyntaxNominees.isEmpty()) {
-          throw new DuplicateSyntaxNomineesScanException(clazz, duplicateSyntaxNominees);
-        }
+        candidateSyntax.stream().map(CandidateSyntax::nominated).collect(duplicates())
+            .ifPresent(duplicateSyntaxNominees -> {
+              throw new DuplicateSyntaxNomineesScanException(clazz, duplicateSyntaxNominees);
+            });
 
         // Detect all the syntax. That is, we want to identify all the syntax-bearing class members
         // from among the candidates that are actually syntax. The detector must preserve the
@@ -359,21 +359,22 @@ public class ScanStep extends InvocationPipelineStepBase {
           Maybe<String> maybeName = naming.name(dsi.nominated());
           if (maybeName.isYes()) {
             syntax.add(NamedSyntax.fromDetectedSyntax(dsi, maybeName.orElseThrow()));
+          } else if (maybeName.isNo()) {
+            // It's hard to think of a situation where a syntax element would be rejected at the
+            // naming stage, but if it happens, we should log it and carry on.
+            if (LOGGER.isDebugEnabled())
+              LOGGER.debug("Ignoring syntax nominee {} due to naming rejection", dsi.nominated());
           } else {
             // This is not OK. Everything has to be named.
-            // TODO better exception
-            throw new IllegalStateException("No name for " + dsi.nominated());
+            throw new UnnamedSyntaxScanException(clazz, dsi.nominated());
           }
         }
 
         // Did we end up with any duplicate names?
-        Set<String> duplicateSyntaxNames =
-            Streams.duplicates(syntax.stream().map(NamedSyntax::name)).collect(toSet());
-        if (!duplicateSyntaxNames.isEmpty()) {
-          throw new IllegalArgumentException("Duplicate syntax names: " + duplicateSyntaxNames);
-          // TODO better exception
-          // throw new DuplicateSyntaxNamesScanException(clazz, duplicateSyntaxNames);
-        }
+        syntax.stream().map(NamedSyntax::name).collect(duplicates())
+            .ifPresent(duplicateSyntaxNames -> {
+              throw new DuplicateSyntaxNamesScanException(clazz, duplicateSyntaxNames);
+            });
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // RULES //////////////////////////////////////////////////////////////////////////////////
@@ -397,11 +398,10 @@ public class ScanStep extends InvocationPipelineStepBase {
 
         // If we still have duplicates at the nominee level after removing duplicates at the record
         // level, then we have a problem.
-        Set<Object> duplicateRuleNominees = Streams
-            .duplicates(candidateRules.stream().map(CandidateRule::nominated)).collect(toSet());
-        if (!duplicateRuleNominees.isEmpty()) {
-          throw new DuplicateRuleNomineesScanException(clazz, duplicateRuleNominees);
-        }
+        candidateRules.stream().map(CandidateRule::nominated).collect(duplicates())
+            .ifPresent(duplicateRuleNominees -> {
+              throw new DuplicateRuleNomineesScanException(clazz, duplicateRuleNominees);
+            });
 
         // Detect all the rules. That is, we want to identify all the rule-bearing class members
         // from among the candidates that are actually rules.
@@ -425,17 +425,22 @@ public class ScanStep extends InvocationPipelineStepBase {
             // rule if it has a consequent.
             Maybe<String> maybeName = naming.name(dri.nominated());
             if (maybeName.isYes()) {
-              rules.add(new NamedRule(dri.nominated(), dri.genericType(), dri.annotations(),
-                  dri.antecedents(), dri.conditions(), Optional.of(maybeName.orElseThrow())));
+              rules.add(new NamedRule(dri.humanReadableName(), dri.nominated(), dri.genericType(),
+                  dri.annotations(), dri.antecedents(), dri.conditions(),
+                  Optional.of(maybeName.orElseThrow())));
+            } else if (maybeName.isNo()) {
+              // It's hard to think of a situation where a rule would be rejected at the naming
+              // stage, but if it happens, we should log it and carry on.
+              if (LOGGER.isDebugEnabled())
+                LOGGER.debug("Ignoring rule nominee {} due to naming rejection", dri.nominated());
             } else {
               // This is not OK. Everything has to be named.
-              // TODO better exception
-              throw new IllegalStateException("No name for " + dri.nominated());
+              throw new UnnamedRuleConsequentScanException(clazz, dri.nominated());
             }
           } else {
             // No consequent, no name.
-            rules.add(new NamedRule(dri.nominated(), dri.genericType(), dri.annotations(),
-                dri.antecedents(), dri.conditions(), Optional.empty()));
+            rules.add(new NamedRule(dri.humanReadableName(), dri.nominated(), dri.genericType(),
+                dri.annotations(), dri.antecedents(), dri.conditions(), Optional.empty()));
           }
         }
 
@@ -483,8 +488,8 @@ public class ScanStep extends InvocationPipelineStepBase {
             .toList();
         if (reactions.isEmpty()) {
           // I'm not even sure how this would happen. A class with no fields and no default
-          // constructor? We should catch that earlier.
-          throw new AssertionError("Failed to test rules");
+          // constructor? We should catch that earlier. But better safe...
+          throw new InternalDiscourseException("Failed to test rules");
         }
         boolean alternativeReactionExists = false;
         MoreRules.Reaction bestReaction = reactions.get(0);
@@ -492,9 +497,8 @@ public class ScanStep extends InvocationPipelineStepBase {
           MoreRules.Reaction ri = reactions.get(i);
           if (!bestReaction.consumed().containsAll(ri.consumed())) {
             // Oops. Different sets of rules do different work. That's not good.
-            // TODO better exception
-            throw new IllegalArgumentException("Not all rules are reachable: "
-                + MoreSets.difference(ri.consumed(), bestReaction.consumed()));
+            throw new DivergentRulesScanException(clazz,
+                MoreSets.difference(ri.consumed(), bestReaction.consumed()));
           }
           if (ri.consumed().size() == bestReaction.consumed().size()
               && ri.evaluated().size() == bestReaction.evaluated().size()) {
@@ -503,9 +507,8 @@ public class ScanStep extends InvocationPipelineStepBase {
         }
         if (!bestReaction.consumed().containsAll(allPropertyNames)) {
           // Oops. Not all properties are consumed. That's not good.
-          // TODO better exception
-          throw new IllegalArgumentException("Not all properties are consumed: "
-              + MoreSets.difference(allPropertyNames, bestReaction.consumed()));
+          throw new InsufficientRulesScanException(clazz, allPropertyNames,
+              MoreSets.difference(allPropertyNames, bestReaction.consumed()));
         }
         if (alternativeReactionExists) {
           // Oops. There are multiple ways to evaluate and construct the command. That's not good.
@@ -529,7 +532,7 @@ public class ScanStep extends InvocationPipelineStepBase {
                 .toList();
         if (guaranteedReactions.isEmpty()) {
           // Is this even possible?
-          throw new AssertionError("Failed to test guaranteed rules");
+          throw new InternalDiscourseException("Failed to test guaranteed rules");
         }
         MoreRules.Reaction bestGuaranteedReaction = guaranteedReactions.get(0);
 
@@ -540,14 +543,14 @@ public class ScanStep extends InvocationPipelineStepBase {
         // If we have just the required syntax, then can we create all the required fields?
         if (!bestGuaranteedReaction.consumed().containsAll(guaranteedPropertyNames)) {
           // Oops. Not all required properties are consumed. That's not good.
-          // TODO better exception
-          throw new IllegalArgumentException("Not all required properties are consumed: "
-              + MoreSets.difference(guaranteedPropertyNames, bestGuaranteedReaction.consumed()));
+          throw new InsufficientRulesScanException(clazz, guaranteedPropertyNames,
+              MoreSets.difference(guaranteedPropertyNames, bestGuaranteedReaction.consumed()));
         }
         if (!bestGuaranteedReaction.produced().contains("")) {
           // Welp, we didn't create our instance. That's bad.
-          // TODO better exception
-          throw new IllegalArgumentException("Instance not created");
+          // TODO We could be clearer in how we "phrase" <instance> here
+          throw new InsufficientRulesScanException(clazz, guaranteedPropertyNames,
+              Set.of("<instance>"));
         }
 
         // What about all the other property names? If we have the guaranteed property names PLUS
@@ -567,13 +570,13 @@ public class ScanStep extends InvocationPipelineStepBase {
           if (!reaction.consumed().containsAll(availableNames)) {
             // Oops. Not all required properties are consumed. That's not good.
             // TODO better exception
-            throw new IllegalArgumentException("Not all required properties are consumed: "
-                + MoreSets.difference(availableNames, reaction.consumed()));
+            throw new InsufficientRulesScanException(clazz, availableNames,
+                MoreSets.difference(availableNames, reaction.consumed()));
           }
           if (!reaction.produced().contains("")) {
             // Welp, we didn't create our instance. That's bad.
             // TODO better exception
-            throw new IllegalArgumentException("Instance not created");
+            throw new InsufficientRulesScanException(clazz, availableNames, Set.of("<instance>"));
           }
         }
 
@@ -585,26 +588,21 @@ public class ScanStep extends InvocationPipelineStepBase {
           walkedClass.configurable(), Optional.ofNullable(body)));
     }
 
-    // Do we have any duplicate usage of coordinates?
+    // Make sure our prepared classes have unique coordinates
     for (PreparedClass<? extends T> preparedClass : preparedClasses) {
-      Set<Coordinate> duplicateCoordinates =
-          Streams.duplicates(preparedClass.body().stream().flatMap(b -> b.getProperties().stream())
-              .flatMap(p -> p.getCoordinates().stream())).collect(toSet());
-      if (!duplicateCoordinates.isEmpty()) {
-        throw new IllegalArgumentException("Duplicate coordinates: " + duplicateCoordinates);
-        // TODO better exception
-        // throw new DuplicateCoordinatesScanException(preparedClass.clazz(), duplicateCoordinates);
-      }
-    }
+      // Do we have any duplicate usage of coordinates?
+      preparedClass.body().stream().flatMap(b -> b.getProperties().stream())
+          .flatMap(p -> p.getCoordinates().stream()).collect(duplicates())
+          .ifPresent(duplicateCoordinates -> {
+            throw new DuplicateCoordinatesScanException(preparedClass.clazz(),
+                duplicateCoordinates);
+          });
 
-    // Do we have any duplicate usage of property names?
-    for (PreparedClass<? extends T> preparedClass : preparedClasses) {
-      Set<String> duplicatePropertyNames = Streams.duplicates(preparedClass.body().stream()
-          .flatMap(b -> b.getProperties().stream()).map(p -> p.getName())).collect(toSet());
-      if (!duplicatePropertyNames.isEmpty()) {
-        throw new DuplicatePropertyNamesScanException(preparedClass.clazz(),
-            duplicatePropertyNames);
-      }
+      // Do we have any duplicate usage of property names?
+      preparedClass.body().stream().flatMap(b -> b.getProperties().stream())
+          .map(LeafCommandProperty::getName).collect(duplicates()).ifPresent(duplicateNames -> {
+            throw new DuplicatePropertyNamesScanException(preparedClass.clazz(), duplicateNames);
+          });
     }
 
     return preparedClasses;
@@ -702,8 +700,7 @@ public class ScanStep extends InvocationPipelineStepBase {
       Command<?> command;
       if (subs.isEmpty()) {
         CommandBody body = preparedClass.body().orElseThrow(() -> {
-          // TODO better exception
-          throw new IllegalArgumentException("leaf command has no body");
+          throw new LeafCommandMissingBodyScanException(preparedClass.clazz());
         });
         // We want the leaf command to be immutable by default. If anyone wants to make it mutable
         // down the line, they can always make a copy.

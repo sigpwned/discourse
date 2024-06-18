@@ -1,5 +1,6 @@
 package com.sigpwned.discourse.core.pipeline.invocation;
 
+import static java.lang.String.format;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.groupingBy;
@@ -22,6 +23,8 @@ import com.sigpwned.discourse.core.command.tree.Command;
 import com.sigpwned.discourse.core.command.tree.LeafCommand;
 import com.sigpwned.discourse.core.command.tree.RootCommand;
 import com.sigpwned.discourse.core.command.tree.SuperCommand;
+import com.sigpwned.discourse.core.exception.InternalDiscourseException;
+import com.sigpwned.discourse.core.exception.internal.IllegalArgumentInternalDiscourseException;
 import com.sigpwned.discourse.core.module.CoreModule;
 import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSink;
 import com.sigpwned.discourse.core.pipeline.invocation.step.AttributeStep;
@@ -254,8 +257,9 @@ public class InvocationPipeline {
         .flatMap(p -> p.getCoordinates().stream().map(c -> Map.entry(c, p)))
         .collect(groupingBy(Map.Entry::getKey, Collectors.collectingAndThen(toList(), xs -> {
           if (xs.size() != 1) {
-            // TODO better exception
-            throw new IllegalArgumentException("duplicate property for " + xs.get(0).getKey());
+            // TODO command name
+            throw new IllegalArgumentInternalDiscourseException(format(
+                "Planned command %s has multiple properties with name %s", xs.get(0).getKey()));
           }
           return xs.get(0).getValue().getName();
         })));
@@ -285,12 +289,13 @@ public class InvocationPipeline {
         plannedCommand.getProperties().stream().collect(toMap(p -> p.getName(), p -> {
           final ValueSink sink = p.getSink();
           return xs -> {
-            for (Object x : xs) {
+            for (Object x : xs)
               sink.put(x);
-            }
             return sink.get().orElseThrow(() -> {
-              // TODO better exception
-              return new IllegalStateException("no values");
+              // Given how we got here, there must be values in xs. Therefore, if sink.get() is
+              // empty, there is a bug in the framework. A sink must return a value if it has
+              // received at least one value.
+              throw new InternalDiscourseException("sink returned empty");
             });
           };
         }));

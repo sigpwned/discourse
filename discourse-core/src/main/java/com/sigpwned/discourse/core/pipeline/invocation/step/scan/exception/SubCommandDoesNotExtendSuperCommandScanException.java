@@ -4,6 +4,9 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.ScanException;
 
+/**
+ * Used when a subcommand class does not extend the supercommand class.
+ */
 @SuppressWarnings("serial")
 public class SubCommandDoesNotExtendSuperCommandScanException extends ScanException {
   /**

@@ -20,7 +20,6 @@
 package com.sigpwned.discourse.core.util;
 
 import static java.util.stream.Collectors.groupingBy;
-
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -30,14 +29,13 @@ import java.util.stream.Stream;
 
 public class Streams {
 
-  private Streams() {
-  }
+  private Streams() {}
 
   /**
    * Returns a stream that concatenates the given stream.
    *
    * @param only the stream to concatenate
-   * @param <T>  the type of the elements in the stream
+   * @param <T> the type of the elements in the stream
    * @return a stream that concatenates the input stream
    */
   public static <T> Stream<T> concat(Stream<T> only) {
@@ -47,9 +45,9 @@ public class Streams {
   /**
    * Returns a stream that concatenates the given streams.
    *
-   * @param first  the first stream
+   * @param first the first stream
    * @param second the second stream
-   * @param <T>    the type of the elements in the streams
+   * @param <T> the type of the elements in the streams
    * @return a stream that concatenates the input streams
    */
   public static <T> Stream<T> concat(Stream<? extends T> first, Stream<? extends T> second) {
@@ -59,10 +57,10 @@ public class Streams {
   /**
    * Returns a stream that concatenates the given streams.
    *
-   * @param first  the first stream
+   * @param first the first stream
    * @param second the second stream
-   * @param more   additional streams
-   * @param <T>    the type of the elements in the streams
+   * @param more additional streams
+   * @param <T> the type of the elements in the streams
    * @return a stream that concatenates the input streams
    */
   public static <T> Stream<T> concat(Stream<? extends T> first, Stream<? extends T> second,
@@ -78,7 +76,7 @@ public class Streams {
    * Returns a stream of entries representing the occurrences of each element in the input stream.
    *
    * @param stream the input stream
-   * @param <T>    the type of the elements in the input stream
+   * @param <T> the type of the elements in the input stream
    * @return a stream of entries representing the occurrences of each element in the input stream
    */
   public static <T> Stream<Map.Entry<T, Long>> occurrences(Stream<T> stream) {
@@ -90,9 +88,10 @@ public class Streams {
    * Returns a stream of elements that occur more than once in the input stream.
    *
    * @param stream the input stream
-   * @param <T>    the type of the elements in the input stream
+   * @param <T> the type of the elements in the input stream
    * @return a stream of elements that occur more than once in the input stream
    */
+  @Deprecated
   public static <T> Stream<T> duplicates(Stream<T> stream) {
     return occurrences(stream).filter(e -> e.getValue() > 1).map(Map.Entry::getKey);
   }
@@ -102,9 +101,9 @@ public class Streams {
    * the specified class and casts the elements to that class in one step.
    *
    * @param clazz the class to filter and cast elements to
-   * @param <U>   the type to filter and cast elements to
+   * @param <U> the type to filter and cast elements to
    * @return a {@link Stream#mapMulti(BiConsumer)} operator that filters elements of the stream to
-   * the specified class and casts the elements to that class in one step
+   *         the specified class and casts the elements to that class in one step
    */
   public static <T, U extends T> BiConsumer<T, Consumer<U>> filterAndCast(Class<U> clazz) {
     return (x, d) -> {

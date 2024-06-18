@@ -19,17 +19,17 @@ import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDese
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.step.ScanStep;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.NamingScheme;
-import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleDetection;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleDetector;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleEvaluator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleNominator;
-import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetection;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetector;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxNominator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.CandidateRule;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.CandidateSyntax;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedRule;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedSyntax;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.RuleDetection;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.SyntaxDetection;
 import com.sigpwned.discourse.core.util.JodaBeanUtils;
 import com.sigpwned.discourse.core.util.Maybe;
 

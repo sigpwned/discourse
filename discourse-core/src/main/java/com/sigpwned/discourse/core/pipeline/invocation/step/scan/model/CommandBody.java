@@ -17,12 +17,12 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.pipeline.invocation.step.scan;
+package com.sigpwned.discourse.core.pipeline.invocation.step.scan.model;
 
 import static java.util.Collections.unmodifiableList;
 import java.util.List;
 import com.sigpwned.discourse.core.command.tree.LeafCommandProperty;
-import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedRule;
+import com.sigpwned.discourse.core.util.MoreCollectors;
 
 
 public class CommandBody {
@@ -33,6 +33,17 @@ public class CommandBody {
   public CommandBody(List<LeafCommandProperty> properties, List<NamedRule> rules) {
     this.properties = unmodifiableList(properties);
     this.rules = unmodifiableList(rules);
+
+    getProperties().stream().flatMap(p -> p.getCoordinates().stream())
+        .collect(MoreCollectors.duplicates()).ifPresent(duplicateCoordinates -> {
+          throw new IllegalArgumentException("Duplicate coordinates: " + duplicateCoordinates);
+        });
+
+    // Do we have any duplicate usage of property names?
+    getProperties().stream().map(LeafCommandProperty::getName).collect(MoreCollectors.duplicates())
+        .ifPresent(duplicatePropertyNames -> {
+          throw new IllegalArgumentException("Duplicate property names: " + duplicatePropertyNames);
+        });
   }
 
   public List<LeafCommandProperty> getProperties() {

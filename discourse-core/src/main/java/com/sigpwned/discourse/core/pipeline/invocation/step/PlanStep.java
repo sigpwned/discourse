@@ -14,6 +14,8 @@ import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSink;
 import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSinkFactory;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
+import com.sigpwned.discourse.core.pipeline.invocation.step.plan.exception.InvalidDefaultValuePlanException;
+import com.sigpwned.discourse.core.pipeline.invocation.step.plan.exception.InvalidExampleValuePlanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.plan.exception.NoDeserializerAvailablePlanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.plan.exception.NoSinkAvailablePlanException;
 
@@ -38,7 +40,6 @@ public class PlanStep extends InvocationPipelineStepBase {
       getListener(context).beforePlanStep(mutableResolvedCommand, context);
 
       ResolvedCommand<T> immutableResolvedCommand = immutableCopyOf(mutableResolvedCommand);
-
 
       plannedCommand = doPlan(immutableResolvedCommand.getCommand(), sinkFactory,
           deserializerFactory, resolvedCommand, context);
@@ -72,11 +73,12 @@ public class PlanStep extends InvocationPipelineStepBase {
 
       Object defaultValue;
       if (property.getDefaultValue().isPresent()) {
+        String defaultValueString = property.getDefaultValue().orElseThrow();
         try {
-          defaultValue = deserializer.deserialize(property.getDefaultValue().orElseThrow());
+          defaultValue = deserializer.deserialize(defaultValueString);
         } catch (Exception e) {
-          // TODO better exception
-          throw new IllegalArgumentException("invalid default value", e);
+          throw new InvalidDefaultValuePlanException(leaf, property.getName(), defaultValueString,
+              e);
         }
       } else {
         defaultValue = null;
@@ -84,11 +86,12 @@ public class PlanStep extends InvocationPipelineStepBase {
 
       Object exampleValue;
       if (property.getExampleValue().isPresent()) {
+        String exampleValueString = property.getExampleValue().orElseThrow();
         try {
-          exampleValue = deserializer.deserialize(property.getExampleValue().orElseThrow());
+          exampleValue = deserializer.deserialize(exampleValueString);
         } catch (Exception e) {
-          // TODO better exception
-          throw new IllegalArgumentException("invalid example value", e);
+          throw new InvalidExampleValuePlanException(leaf, property.getName(), exampleValueString,
+              e);
         }
       } else {
         exampleValue = null;

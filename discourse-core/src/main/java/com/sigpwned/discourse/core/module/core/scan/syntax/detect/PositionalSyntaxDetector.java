@@ -24,9 +24,9 @@ import com.sigpwned.discourse.core.annotation.PositionalParameter;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.args.coordinate.PositionalCoordinate;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
-import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetection;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetector;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.CandidateSyntax;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.SyntaxDetection;
 import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Streams;
 

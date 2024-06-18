@@ -19,21 +19,43 @@
  */
 package com.sigpwned.discourse.core.util;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public final class MoreCollectors {
 
-  private MoreCollectors() {
-  }
+  private MoreCollectors() {}
 
   public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> mapFromEntries() {
     return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
   }
 
-  private static IllegalStateException duplicateKeyException(Object k, Object u, Object v) {
-    return new IllegalStateException(
-        String.format("Duplicate key %s (attempted merging values %s and %s)", k, u, v));
+  /**
+   * Returns a {@link Collector} that accumulates elements
+   * 
+   * @param <T>
+   * @return
+   */
+  public static <T> Collector<T, ?, Optional<Set<T>>> duplicates() {
+    return Collector.of(() -> {
+      return (Map<T, Boolean>) new HashMap<T, Boolean>();
+    }, (xs, x) -> {
+      xs.merge(x, false, (a, b) -> true);
+    }, (xs, ys) -> {
+      for (Map.Entry<T, Boolean> ye : ys.entrySet())
+        xs.merge(ye.getKey(), ye.getValue(), (a, b) -> true);
+      return xs;
+    }, xs -> {
+      Set<T> duplicates = new HashSet<>();
+      for (Map.Entry<T, Boolean> xe : xs.entrySet())
+        if (xe.getValue())
+          duplicates.add(xe.getKey());
+      return duplicates.isEmpty() ? Optional.empty() : Optional.of(duplicates);
+    });
   }
 }

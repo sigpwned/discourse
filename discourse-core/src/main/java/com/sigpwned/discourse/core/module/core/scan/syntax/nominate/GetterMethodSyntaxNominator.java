@@ -45,7 +45,7 @@ public class GetterMethodSyntaxNominator implements SyntaxNominator {
     for (Class<?> ancestor = clazz; ancestor != null; ancestor = ancestor.getSuperclass()) {
       for (Method method : ancestor.getDeclaredMethods()) {
         if (Reflection.hasInstanceGetterSignature(method)) {
-          result.add(new CandidateSyntax(method, method.getGenericReturnType(),
+          result.add(new CandidateSyntax(method.getName(), method, method.getGenericReturnType(),
               List.of(method.getAnnotations())));
         }
       }

@@ -26,7 +26,9 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Optional;
 import com.sigpwned.discourse.core.annotation.DiscourseCreator;
+import com.sigpwned.discourse.core.exception.InternalDiscourseException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleEvaluator;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.RuleEvaluationFailureScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedRule;
 import com.sigpwned.discourse.core.util.Reflection;
 
@@ -48,19 +50,15 @@ public class CreatorCallRuleEvaluator implements RuleEvaluator {
       Object instance;
       try {
         instance = constructor.newInstance(args);
-      } catch (IllegalArgumentException e) {
-        // TODO better exception
-        throw e;
-      } catch (IllegalAccessException e) {
-        // We check public, so this shouldn't happen
-        throw new AssertionError(e);
-      } catch (InstantiationException e) {
-        // Welp, that's no good. The underlying code threw an exception.
-        // TODO better exception
-        throw new RuntimeException(e);
-      } catch (InvocationTargetException e) {
-        // TODO Auto-generated catch block
-        throw new RuntimeException(e);
+      } catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
+        // These are all strange. We run checks so they shouldn't happen. However, clearly it did
+        // happen here, so there's a bug in the framework.
+        throw new InternalDiscourseException("Failed to instantiate object", e);
+      } catch (InvocationTargetException | ExceptionInInitializerError e) {
+        // Welp, that's no good. The underlying code threw an exception. That's an application
+        // problem.
+        // TODO Should we catch ExceptionInInitializerError? It's an error...
+        throw new RuleEvaluationFailureScanException(null, rule.humanReadableName(), e);
       }
 
       return Optional.of(Optional.of(instance));
@@ -79,12 +77,14 @@ public class CreatorCallRuleEvaluator implements RuleEvaluator {
       Object instance;
       try {
         instance = method.invoke(null, args);
-      } catch (IllegalAccessException e) {
-        // We check public, so this shouldn't happen
-        throw new AssertionError(e);
-      } catch (InvocationTargetException e) {
-        // TODO Auto-generated catch block
-        throw new RuntimeException(e);
+      } catch (IllegalArgumentException | IllegalAccessException e) {
+        // These are all strange. We run checks so they shouldn't happen. However, clearly it did
+        // happen here, so there's a bug in the framework.
+        throw new InternalDiscourseException("Failed to instantiate object", e);
+      } catch (InvocationTargetException | ExceptionInInitializerError e) {
+        // Welp, that's no good. The underlying code threw an exception. That's an application
+        // problem.
+        throw new RuleEvaluationFailureScanException(null, rule.humanReadableName(), e);
       }
 
       return Optional.of(Optional.of(instance));

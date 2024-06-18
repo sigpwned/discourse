@@ -9,6 +9,7 @@ import com.sigpwned.discourse.core.dialect.ArgTokenizer;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
+import com.sigpwned.discourse.core.pipeline.invocation.step.parse.exception.InvalidSyntaxParseException;
 
 public class TokenizeStep extends InvocationPipelineStepBase {
   public static final InvocationContext.Key<Dialect> SYNTAX_KEY =
@@ -40,8 +41,12 @@ public class TokenizeStep extends InvocationPipelineStepBase {
     ArgTokenizer tokenizer = dialect.newTokenizer();
     for (String arg : args) {
       result.addAll(tokenizer.tokenize(arg).orElseThrow(() -> {
-        // TODO better exception
-        return new IllegalArgumentException("Failed to tokenize: " + arg);
+        // This is ticklish. This could be considered invalid user input, which would obviously be a
+        // user error, or it could be considered missing required syntax support, which would be
+        // an application error. We'll treat it as a user error for now, since this is one of the
+        // few parts of the application that actually deals with user input directly, but we might
+        // need to revisit this later.
+        return new InvalidSyntaxParseException(arg);
       }));
     }
 

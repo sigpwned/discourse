@@ -8,6 +8,9 @@ import java.util.Set;
 import com.sigpwned.discourse.core.command.Discriminator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.ScanException;
 
+/**
+ * Used when a super command has more than one subcommand with the same discriminator.
+ */
 @SuppressWarnings("serial")
 public class DuplicateDiscriminatorsScanException extends ScanException {
   private final Set<Discriminator> duplicatedDiscriminators;

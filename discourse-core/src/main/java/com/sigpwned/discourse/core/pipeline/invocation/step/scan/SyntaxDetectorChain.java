@@ -22,6 +22,7 @@ package com.sigpwned.discourse.core.pipeline.invocation.step.scan;
 import com.sigpwned.discourse.core.Chain;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.CandidateSyntax;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.SyntaxDetection;
 import com.sigpwned.discourse.core.util.Maybe;
 
 public class SyntaxDetectorChain extends Chain<SyntaxDetector> implements SyntaxDetector {

@@ -7,6 +7,9 @@ import java.util.Objects;
 import java.util.Set;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.ScanException;
 
+/**
+ * Used when one object is nominated for rule consideration more than once
+ */
 @SuppressWarnings("serial")
 public class DuplicateRuleNomineesScanException extends ScanException {
   private final Set<Object> duplicatedNominees;

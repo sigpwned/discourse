@@ -2,10 +2,10 @@ package com.sigpwned.discourse.core.pipeline.invocation.step.plan;
 
 import static java.util.Objects.requireNonNull;
 import com.sigpwned.discourse.core.command.tree.Command;
-import com.sigpwned.discourse.core.exception.DiscourseException;
+import com.sigpwned.discourse.core.exception.ApplicationDiscourseException;
 
 @SuppressWarnings("serial")
-public abstract class PlanException extends DiscourseException {
+public abstract class PlanException extends ApplicationDiscourseException {
   private final Command<?> command;
 
   protected PlanException(Command<?> command, String message) {

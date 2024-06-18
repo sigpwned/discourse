@@ -17,11 +17,10 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.pipeline.invocation.step.scan;
+package com.sigpwned.discourse.core.pipeline.invocation.step.scan.model;
 
 import java.util.Set;
+import com.sigpwned.discourse.core.args.Coordinate;
 
-public record RuleDetection(Set<String> antecedents, Set<Set<String>> conditions,
-    boolean hasConsequent) {
-
+public record SyntaxDetection(Set<Coordinate> coordinates) {
 }

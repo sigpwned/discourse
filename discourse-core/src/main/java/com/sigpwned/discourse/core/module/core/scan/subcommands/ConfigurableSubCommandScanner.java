@@ -28,7 +28,7 @@ import com.sigpwned.discourse.core.annotation.Configurable;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SubCommandScanner;
 import com.sigpwned.discourse.core.util.Discriminators;
 import com.sigpwned.discourse.core.util.Maybe;
-import com.sigpwned.discourse.core.util.Streams;
+import com.sigpwned.discourse.core.util.MoreCollectors;
 
 /**
  * Scans a class for subcommands. This implementation uses the
@@ -67,9 +67,10 @@ public class ConfigurableSubCommandScanner implements SubCommandScanner {
               (Class<? extends T>) subcommand.configurable());
         }).toList();
 
-    if (Streams.duplicates(subcommands.stream().map(Map.Entry::getKey)).findAny().isPresent()) {
-      throw new IllegalArgumentException("Duplicate discriminator");
-    }
+    subcommands.stream().map(Map.Entry::getKey).collect(MoreCollectors.duplicates())
+        .ifPresent(duplicates -> {
+          throw new IllegalArgumentException("Duplicate discriminator: " + duplicates);
+        });
 
     return Maybe.yes(unmodifiableList(subcommands));
   }

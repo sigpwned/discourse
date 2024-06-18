@@ -31,7 +31,7 @@ public class CreatorSyntaxNominator implements SyntaxNominator {
 
       for (int i = 0; i < constructor.getParameterCount(); i++) {
         Parameter parameter = constructor.getParameters()[i];
-        result.add(new CandidateSyntax(parameter, parameter.getParameterizedType(),
+        result.add(new CandidateSyntax("constructor", parameter, parameter.getParameterizedType(),
             List.of(parameter.getAnnotations())));
       }
     }
@@ -52,8 +52,8 @@ public class CreatorSyntaxNominator implements SyntaxNominator {
 
         for (int i = 0; i < method.getParameterCount(); i++) {
           Parameter parameter = method.getParameters()[i];
-          result.add(new CandidateSyntax(parameter, parameter.getParameterizedType(),
-              List.of(parameter.getAnnotations())));
+          result.add(new CandidateSyntax(method.getName(), parameter,
+              parameter.getParameterizedType(), List.of(parameter.getAnnotations())));
         }
       }
     }

@@ -2,8 +2,14 @@ package com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
+import com.sigpwned.discourse.core.command.Discriminator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.ScanException;
 
+/**
+ * Thrown when a class has a discriminator that is not valid.
+ * 
+ * @see Discriminator#PATTERN
+ */
 @SuppressWarnings("serial")
 public class InvalidDiscriminatorScanException extends ScanException {
   private final String invalidDiscriminator;

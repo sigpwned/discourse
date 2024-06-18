@@ -26,10 +26,12 @@ import java.util.List;
 /**
  * Definition of a configurable rule.
  *
+ * @param humanReadableName A human-readable name for the rule. This is only used in user feedback.
  * @param nominated
  * @param genericType
  * @param annotations
  */
-public record CandidateRule(Object nominated, Type genericType, List<Annotation> annotations) {
+public record CandidateRule(String humanReadableName, Object nominated, Type genericType,
+    List<Annotation> annotations) {
 
 }

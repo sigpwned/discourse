@@ -28,17 +28,19 @@ import java.util.Set;
 /**
  * Definition of a configurable rule.
  *
+ * @param humanReadableName A human-readable name for the rule. Used only for user feedback.
  * @param nominated
  * @param genericType
  * @param annotations
  * @param antecedents
  * @param consequent
  */
-public record NamedRule(Object nominated, Type genericType, List<Annotation> annotations,
-    Set<String> antecedents, Set<Set<String>> conditions, Optional<String> consequent) {
+public record NamedRule(String humanReadableName, Object nominated, Type genericType,
+    List<Annotation> annotations, Set<String> antecedents, Set<Set<String>> conditions,
+    Optional<String> consequent) {
 
   public static NamedRule fromDetectedRule(DetectedRule rule, String name) {
-    return new NamedRule(rule.nominated(), rule.genericType(), rule.annotations(),
-        rule.antecedents(), rule.conditions(), Optional.ofNullable(name));
+    return new NamedRule(rule.humanReadableName(), rule.nominated(), rule.genericType(),
+        rule.annotations(), rule.antecedents(), rule.conditions(), Optional.ofNullable(name));
   }
 }

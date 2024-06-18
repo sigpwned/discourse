@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import com.sigpwned.discourse.core.args.Coordinate;
+import com.sigpwned.discourse.core.exception.InternalDiscourseException;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
 
@@ -35,9 +36,12 @@ public class AttributeStep extends InvocationPipelineStepBase {
       Coordinate coordinate = parsedArg.getKey();
       String propertyName = propertyNames.get(coordinate);
       if (propertyName == null) {
-        // This means we have an argument that we don't know what to do with.
-        // TODO better exception
-        throw new IllegalArgumentException("no property name for " + coordinate);
+        // This means we have an argument that we don't know what to do with. This is technically a
+        // framework exception, in that the problem is happening in the framework and it's (likely)
+        // not the application developer's direct fault, but the error probably likes in a third-
+        // party module that the user has included. We'll treat this as a framework exception here,
+        // but maybe we should hint at a module problem in the message.
+        throw new InternalDiscourseException("no property name for " + coordinate);
       }
       result.add(Map.entry(propertyName, parsedArg.getValue()));
     }

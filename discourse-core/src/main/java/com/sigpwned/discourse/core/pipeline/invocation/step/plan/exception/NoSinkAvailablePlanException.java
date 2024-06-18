@@ -4,8 +4,14 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import com.sigpwned.discourse.core.command.tree.LeafCommand;
 import com.sigpwned.discourse.core.command.tree.LeafCommandProperty;
+import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSink;
+import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSinkFactory;
 import com.sigpwned.discourse.core.pipeline.invocation.step.plan.PlanException;
 
+/**
+ * Used when a command property has no {@link ValueSink sink} available. This can easily be fixed by
+ * adding a {@link ValueSinkFactory sink factory} to handle the type of the property.
+ */
 @SuppressWarnings("serial")
 public class NoSinkAvailablePlanException extends PlanException {
   private final LeafCommandProperty property;

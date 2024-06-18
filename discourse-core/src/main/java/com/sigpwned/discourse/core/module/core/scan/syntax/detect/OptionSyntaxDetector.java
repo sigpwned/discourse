@@ -26,9 +26,10 @@ import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.args.SwitchName;
 import com.sigpwned.discourse.core.args.coordinate.OptionCoordinate;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
-import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetection;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetector;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.NoAnnotationCoordinatesScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.CandidateSyntax;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.SyntaxDetection;
 import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Streams;
 
@@ -54,8 +55,7 @@ public class OptionSyntaxDetector implements SyntaxDetector {
     }
 
     if (coordinates.isEmpty()) {
-      // TODO better exception
-      throw new IllegalArgumentException("option must have a long or short name");
+      throw new NoAnnotationCoordinatesScanException(clazz, candidate.humanFacingName(), option);
     }
 
     return Maybe.yes(new SyntaxDetection(coordinates));

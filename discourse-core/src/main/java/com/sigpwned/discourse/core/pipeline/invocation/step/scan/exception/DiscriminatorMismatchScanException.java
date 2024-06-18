@@ -5,6 +5,10 @@ import static java.util.Objects.requireNonNull;
 import com.sigpwned.discourse.core.command.Discriminator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.ScanException;
 
+/**
+ * Thrown when a class has a discriminator that does not match the expected discriminator from its
+ * super command.
+ */
 @SuppressWarnings("serial")
 public class DiscriminatorMismatchScanException extends ScanException {
   private final Discriminator expectedDiscriminator;

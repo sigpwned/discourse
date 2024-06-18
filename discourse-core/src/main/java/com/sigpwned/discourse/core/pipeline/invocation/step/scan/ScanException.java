@@ -20,10 +20,15 @@
 package com.sigpwned.discourse.core.pipeline.invocation.step.scan;
 
 import static java.util.Objects.requireNonNull;
-import com.sigpwned.discourse.core.exception.InternalDiscourseException;
+import com.sigpwned.discourse.core.exception.ApplicationDiscourseException;
 
+/**
+ * Exceptions in this phase are typically due to problems in the client code, such as invalid
+ * configuration or a bug in the client code. Hence, we use {@link ApplicationDiscourseException} as
+ * the base class for exceptions in this package.
+ */
 @SuppressWarnings("serial")
-public abstract class ScanException extends InternalDiscourseException {
+public abstract class ScanException extends ApplicationDiscourseException {
   private final Class<?> clazz;
 
   protected ScanException(Class<?> clazz, String message) {

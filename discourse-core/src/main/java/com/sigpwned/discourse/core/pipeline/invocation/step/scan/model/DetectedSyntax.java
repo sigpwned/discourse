@@ -24,7 +24,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
 import com.sigpwned.discourse.core.args.Coordinate;
-import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetection;
 
 public record DetectedSyntax(Object nominated, Type genericType, List<Annotation> annotations,
     Set<Coordinate> coordinates) {

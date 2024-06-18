@@ -49,7 +49,8 @@ public class CreatorRuleNominator implements RuleNominator {
       if (Reflection.hasDefaultConstructorSignature(constructor))
         continue;
 
-      result.add(new CandidateRule(constructor, clazz, List.of(constructor.getAnnotations())));
+      result.add(new CandidateRule("constructor", constructor, clazz,
+          List.of(constructor.getAnnotations())));
     }
 
     for (Class<?> ancestor = clazz; ancestor != null; ancestor = ancestor.getSuperclass()) {
@@ -64,7 +65,7 @@ public class CreatorRuleNominator implements RuleNominator {
         if (!Modifier.isPublic(method.getModifiers()))
           continue;
 
-        result.add(new CandidateRule(method, method.getGenericReturnType(),
+        result.add(new CandidateRule(method.getName(), method, method.getGenericReturnType(),
             List.of(method.getAnnotations())));
       }
     }

@@ -44,8 +44,8 @@ public class SetterMethodSyntaxNominator implements SyntaxNominator {
     for (Class<?> ancestor = clazz; ancestor != null; ancestor = ancestor.getSuperclass()) {
       for (Method method : ancestor.getDeclaredMethods()) {
         if (Reflection.hasInstanceSetterSignature(method)) {
-          result.add(new CandidateSyntax(method, method.getGenericParameterTypes()[0],
-              List.of(method.getAnnotations())));
+          result.add(new CandidateSyntax(method.getName(), method,
+              method.getGenericParameterTypes()[0], List.of(method.getAnnotations())));
         }
       }
     }

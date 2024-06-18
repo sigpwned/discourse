@@ -25,10 +25,10 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Set;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
-import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleDetection;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleDetector;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.CandidateRule;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedSyntax;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.RuleDetection;
 import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.Reflection;
 

@@ -3,7 +3,6 @@ package com.sigpwned.discourse.core.pipeline.invocation.step.scan.model;
 import static java.util.Objects.requireNonNull;
 import java.util.Map;
 import com.sigpwned.discourse.core.command.Discriminator;
-import com.sigpwned.discourse.core.pipeline.invocation.step.scan.CommandBody;
 
 public class SubCommand<T> {
   private final Class<T> clazz;

@@ -10,6 +10,7 @@ import com.sigpwned.discourse.core.args.coordinate.OptionCoordinate;
 import com.sigpwned.discourse.core.args.coordinate.PositionalCoordinate;
 import com.sigpwned.discourse.core.args.token.SwitchNameToken;
 import com.sigpwned.discourse.core.args.token.ValueToken;
+import com.sigpwned.discourse.core.exception.internal.IllegalArgumentInternalDiscourseException;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListener;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
@@ -42,7 +43,6 @@ public class ParseStep extends InvocationPipelineStepBase {
     while (index < tokens.size()) {
       Token token = tokens.get(index);
       if (token instanceof SwitchNameToken nameToken) {
-        // TODO better exception? EOF Exception?
         if (index + 1 >= tokens.size())
           throw new MissingOptionValueParseException(nameToken.getName());
 
@@ -57,9 +57,11 @@ public class ParseStep extends InvocationPipelineStepBase {
         result.add(Map.entry(position, valueToken.getValue()));
         index = index + 1;
       } else {
-        // This is an internal error
-        // TODO better exception
-        throw new IllegalArgumentException("Invalid token type: " + token.getClass().getName());
+        // In order for this to happen, the user must have registered a module that introduces a
+        // new token type, but doesn't handle it properly. This is a framework error, but the
+        // underlying cause probably lives in a third-party module.
+        throw new IllegalArgumentInternalDiscourseException(
+            "Invalid token type: " + token.getClass().getName());
       }
     }
 

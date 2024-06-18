@@ -40,8 +40,8 @@ public class FieldRuleNominator implements RuleNominator {
     for (Class<?> ancestor = clazz; ancestor != null; ancestor = ancestor.getSuperclass()) {
       for (Field field : ancestor.getDeclaredFields()) {
         if (Modifier.isPublic(field.getModifiers()) && Reflection.isMutableInstanceField(field)) {
-          result.add(
-              new CandidateRule(field, field.getGenericType(), List.of(field.getAnnotations())));
+          result.add(new CandidateRule(field.getName(), field, field.getGenericType(),
+              List.of(field.getAnnotations())));
         }
       }
     }

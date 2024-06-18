@@ -27,7 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import com.sigpwned.discourse.core.exception.InternalDiscourseException;
+import com.sigpwned.discourse.core.exception.internal.IllegalArgumentInternalDiscourseException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleEvaluator;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.RuleEvaluationFailureScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedRule;
 import com.sigpwned.discourse.core.util.Reflection;
 
@@ -45,8 +48,7 @@ public class FieldAssignmentRuleEvaluator implements RuleEvaluator {
     }
 
     if (rule.antecedents().size() != 2) {
-      // TODO better exception
-      throw new IllegalArgumentException(
+      throw new IllegalArgumentInternalDiscourseException(
           "Field assignment rules must have exactly two antecedents");
     }
 
@@ -57,8 +59,7 @@ public class FieldAssignmentRuleEvaluator implements RuleEvaluator {
     String valueName = antecedentsList.get(1);
 
     if (!valueName.startsWith(instanceName)) {
-      // TODO better exception
-      throw new IllegalArgumentException(
+      throw new IllegalArgumentInternalDiscourseException(
           "Cannot assign value to field of instance: " + antecedentsList);
     }
 
@@ -67,12 +68,15 @@ public class FieldAssignmentRuleEvaluator implements RuleEvaluator {
 
     try {
       field.set(instance, value);
-    } catch (IllegalArgumentException e) {
-      // TODO better exception
-      throw e;
-    } catch (IllegalAccessException e) {
-      // We check public, so this shouldn't happen
-      throw new AssertionError(e);
+    } catch (IllegalArgumentException | IllegalAccessException e) {
+      // These are all strange. We run checks so they shouldn't happen. However, clearly it did
+      // happen here, so there's a bug in the framework.
+      throw new InternalDiscourseException("Failed to instantiate object", e);
+    } catch (ExceptionInInitializerError e) {
+      // Welp, that's no good. The underlying code threw an exception. That's an application
+      // problem.
+      // TODO Should we catch ExceptionInInitializerError? It's an error...
+      throw new RuleEvaluationFailureScanException(null, rule.humanReadableName(), e);
     }
 
     return Optional.of(Optional.empty());

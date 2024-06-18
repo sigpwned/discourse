@@ -41,8 +41,8 @@ public class SetterMethodRuleNominator implements RuleNominator {
       for (Method method : ancestor.getDeclaredMethods()) {
         if (Modifier.isPublic(method.getModifiers())
             && Reflection.hasInstanceSetterSignature(method)) {
-          result.add(new CandidateRule(method, method.getGenericParameterTypes()[0],
-              List.of(method.getAnnotations())));
+          result.add(new CandidateRule(method.getName(), method,
+              method.getGenericParameterTypes()[0], List.of(method.getAnnotations())));
         }
       }
     }

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import com.sigpwned.discourse.core.exception.InternalDiscourseException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedRule;
 
 
@@ -55,8 +56,10 @@ public class RulesEngine {
 
           Optional<Optional<Object>> maybeEvaluated = getEvaluator().run(input, rule);
           if (maybeEvaluated.isEmpty()) {
-            // TODO better exception
-            throw new IllegalArgumentException("Rule evaluation failed");
+            // This is a framework exception, in that it's not the application developer's (direct)
+            // fault, but the error is likely to be in a module. We'll treat this as a framework
+            // exception here, but maybe we should hint at a module problem in the message.
+            throw new InternalDiscourseException("Failed to evaluate rule " + rule);
           }
 
           Optional<Object> maybeConsequent = maybeEvaluated.get();

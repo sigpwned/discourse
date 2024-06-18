@@ -41,8 +41,8 @@ public class FieldSyntaxNominator implements SyntaxNominator {
     for (Class<?> ancestor = clazz; ancestor != null; ancestor = ancestor.getSuperclass()) {
       for (Field field : ancestor.getDeclaredFields()) {
         if (!Modifier.isStatic(field.getModifiers())) {
-          result.add(
-              new CandidateSyntax(field, field.getGenericType(), List.of(field.getAnnotations())));
+          result.add(new CandidateSyntax(field.getName(), field, field.getGenericType(),
+              List.of(field.getAnnotations())));
         }
       }
     }
