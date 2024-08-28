@@ -47,6 +47,48 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.CommandResol
 import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.exception.PartialCommandResolutionResolveException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.model.CommandResolution;
 
+/**
+ * <p>
+ * The "core" of a command line invocation. This class is responsible for orchestrating the steps
+ * necessary to take a command line invocation from raw input to a fully constructed object.
+ * </p>
+ * 
+ * <p>
+ * The steps are as follows:
+ * </p>
+ * 
+ * <ol>
+ * <li>Scan: Scan the class for {@link Command}s.</li>
+ * <li>Resolve: Resolve the command and its arguments. This involves preprocessing the arguments to
+ * determine which command in the command tree is being invoked.</li>
+ * <li>Plan: Plan the command and its arguments. This involves determining how the given arguments
+ * will be used to construct and populate the command.</li>
+ * <li>PreprocessCoordinates: Preprocess the coordinates of the command. This allows customizations
+ * to preview or change coordinates, for example allowing novel argument types to prepare for later
+ * command population (e.g., environment variables).</li>
+ * <li>PreprocessArgs: Preprocess the arguments. This allows customizations to preview or change
+ * application arguments programmatically, e.g., adding standard help flags.</li>
+ * <li>Tokenize: Tokenize the program arguments. This involves breaking the arguments into tokens
+ * according to the selected dialect.</li>
+ * <li>PreprocessTokens: Preprocess the tokens. This allows customizations early access to the
+ * invocation tokens, for example allowing syntax customization (e.g., flag parameters inject
+ * "true").</li>
+ * <li>Parse: Parse the tokens. This involves converting the tokens into a form that can be analyzed
+ * for semantic.</li>
+ * <li>Attribute: Attribute the parsed arguments. This involves associating the parsed arguments
+ * with the appropriate command properties.</li>
+ * <li>Group: Group the attributed arguments. This involves grouping the attributed arguments by
+ * property name.</li>
+ * <li>Map: Map the grouped arguments. This involves mapping the string representations of the
+ * command arguments to their respective data types, i.e., deserialization.</li>
+ * <li>Reduce: Reduce the mapped arguments. This involves reducing the mapped arguments to a single
+ * value for each property, e.g., choosing the first value or creating a list.</li>
+ * <li>PostprocessArgs: Postprocess the reduced arguments. This allows customizations late access to
+ * the reduced arguments, for example for validation.</li>
+ * <li>Finish: Finish the command invocation. This involves constructing the command object and
+ * populating it with the reduced arguments.</li>
+ * </ol>
+ */
 public class InvocationPipeline {
   public static InvocationPipelineBuilder builder() {
     return new InvocationPipelineBuilder().register(new CoreModule());
@@ -258,8 +300,9 @@ public class InvocationPipeline {
         .collect(groupingBy(Map.Entry::getKey, Collectors.collectingAndThen(toList(), xs -> {
           if (xs.size() != 1) {
             // TODO command name
-            throw new IllegalArgumentInternalDiscourseException(format(
-                "Planned command %s has multiple properties with name %s", xs.get(0).getKey()));
+            throw new IllegalArgumentInternalDiscourseException(
+                format("Planned command %s has multiple properties with name %s", "commandname",
+                    xs.get(0).getKey()));
           }
           return xs.get(0).getValue().getName();
         })));
@@ -280,6 +323,7 @@ public class InvocationPipeline {
 
     Map<String, List<String>> groupedArgs = group.group(attributedArgs, context);
 
+    // TODO Is this where we should be throwing deserialization exceptions?
     Map<String, Function<String, Object>> mappers = plannedCommand.getProperties().stream()
         .collect(toMap(p -> p.getName(), p -> p.getDeserializer()::deserialize));
 

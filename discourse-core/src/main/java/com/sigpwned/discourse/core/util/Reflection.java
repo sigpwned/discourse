@@ -24,30 +24,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-// TODO Delete me?
 public final class Reflection {
 
   private Reflection() {}
-
-  /**
-   * <p>
-   * Returns {@code true} if the given constructor is a default constructor. That is:
-   * </p>
-   *
-   * <ul>
-   * <li>It has no parameters</li>
-   * </ul>
-   *
-   * <p>
-   * This method does not check the visibility of the constructor.
-   * </p>
-   *
-   * @param constructor the constructor to check
-   * @return {@code true} if the given constructor is a default constructor, {@code false} otherwise
-   */
-  public static boolean isDefaultConstructor(Constructor<?> constructor) {
-    return constructor.getParameterCount() == 0;
-  }
 
   /**
    * <p>

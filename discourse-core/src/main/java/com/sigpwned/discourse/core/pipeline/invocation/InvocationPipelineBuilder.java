@@ -43,8 +43,12 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleDetectorCha
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleEvaluatorChain;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleNominatorChain;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SubCommandScannerChain;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDefaultValueExtractorChain;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDescriberChain;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetectorChain;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxExampleValueExtractorChain;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxNominatorChain;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxRequiredCheckerChain;
 
 public class InvocationPipelineBuilder {
   private static final Logger LOGGER = LoggerFactory.getLogger(InvocationPipelineBuilder.class);
@@ -88,6 +92,12 @@ public class InvocationPipelineBuilder {
       context.set(ScanStep.RULE_DETECTOR_KEY, new RuleDetectorChain());
       context.set(ScanStep.RULE_EVALUATOR_KEY, new RuleEvaluatorChain());
       context.set(ScanStep.SUB_COMMAND_SCANNER_KEY, new SubCommandScannerChain());
+      context.set(ScanStep.SYNTAX_DESCRIBER_KEY, new SyntaxDescriberChain());
+      context.set(ScanStep.SYNTAX_DEFAULT_VALUE_EXTRACTOR_KEY,
+          new SyntaxDefaultValueExtractorChain());
+      context.set(ScanStep.SYNTAX_EXAMPLE_VALUE_EXTRACTOR_KEY,
+          new SyntaxExampleValueExtractorChain());
+      context.set(ScanStep.SYNTAX_REQUIRED_CHECKER_KEY, new SyntaxRequiredCheckerChain());
       context.set(PlanStep.VALUE_SINK_FACTORY_KEY, new ValueSinkFactoryChain());
       context.set(PlanStep.VALUE_DESERIALIZER_FACTORY_KEY, new ValueDeserializerFactoryChain());
       context.set(PreprocessCoordinatesStep.COORDINATES_PREPROCESSOR_KEY,
@@ -179,6 +189,16 @@ public class InvocationPipelineBuilder {
             .map(SyntaxNominatorChain.class::cast).orElseThrow());
         module.registerSyntaxDetectors(context.get(ScanStep.SYNTAX_DETECTOR_KEY)
             .map(SyntaxDetectorChain.class::cast).orElseThrow());
+        module.registerSyntaxDescriber(context.get(ScanStep.SYNTAX_DESCRIBER_KEY)
+            .map(SyntaxDescriberChain.class::cast).orElseThrow());
+        module.registerSyntaxDefaultValueExtractor(
+            context.get(ScanStep.SYNTAX_DEFAULT_VALUE_EXTRACTOR_KEY)
+                .map(SyntaxDefaultValueExtractorChain.class::cast).orElseThrow());
+        module.registerSyntaxExampleValueExtractor(
+            context.get(ScanStep.SYNTAX_EXAMPLE_VALUE_EXTRACTOR_KEY)
+                .map(SyntaxExampleValueExtractorChain.class::cast).orElseThrow());
+        module.registerSyntaxRequiredChecker(context.get(ScanStep.SYNTAX_REQUIRED_CHECKER_KEY)
+            .map(SyntaxRequiredCheckerChain.class::cast).orElseThrow());
         module.registerRuleNominators(context.get(ScanStep.RULE_NOMINATOR_KEY)
             .map(RuleNominatorChain.class::cast).orElseThrow());
         module.registerRuleDetectors(context.get(ScanStep.RULE_DETECTOR_KEY)

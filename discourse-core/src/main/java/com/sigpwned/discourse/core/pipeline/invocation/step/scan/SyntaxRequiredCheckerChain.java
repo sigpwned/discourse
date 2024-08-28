@@ -2,7 +2,7 @@
  * =================================LICENSE_START==================================
  * discourse-core
  * ====================================SECTION=====================================
- * Copyright (C) 2022 Andy Boothe
+ * Copyright (C) 2022 - 2024 Andy Boothe
  * ====================================SECTION=====================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,23 @@
  * limitations under the License.
  * ==================================LICENSE_END===================================
  */
-package com.sigpwned.discourse.core.module.core.plan.value.deserializer;
+package com.sigpwned.discourse.core.pipeline.invocation.step.scan;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.List;
 import java.util.Optional;
+import com.sigpwned.discourse.core.Chain;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.NamedSyntax;
 
-public class CharValueDeserializerFactory implements ValueDeserializerFactory<Character> {
-  public static final CharValueDeserializerFactory INSTANCE = new CharValueDeserializerFactory();
 
+public class SyntaxRequiredCheckerChain extends Chain<SyntaxRequiredChecker>
+    implements SyntaxRequiredChecker {
   @Override
-  public Optional<ValueDeserializer<? extends Character>> getDeserializer(Type genericType,
-      List<Annotation> annotations) {
-    if (genericType != char.class && genericType != Character.class)
-      return Optional.empty();
-    return Optional.of(value -> {
-      if (value.length() == 0)
-        throw new IllegalArgumentException("no character");
-      if (value.length() != 1)
-        throw new IllegalArgumentException("too many characters");
-      return Character.valueOf(value.charAt(0));
-    });
+  public Optional<Boolean> checkSyntaxRequired(NamedSyntax syntax) {
+    for (SyntaxRequiredChecker checker : this) {
+      Optional<Boolean> maybeResult = checker.checkSyntaxRequired(syntax);
+      if (maybeResult.isPresent()) {
+        return maybeResult;
+      }
+    }
+    return Optional.empty();
   }
 }

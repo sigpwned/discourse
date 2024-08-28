@@ -47,12 +47,10 @@ public class EnumValueDeserializerFactory implements ValueDeserializerFactory<En
 
     final List<Enum<?>> constants = cs;
     return Optional.of(s -> {
-      for (Enum<?> constant : constants) {
+      for (Enum<?> constant : constants)
         if (constant.name().equals(s))
           return constant;
-      }
-      // TODO better exception?
-      throw new IllegalArgumentException("No such enum value: " + s);
+      throw new IllegalArgumentException(s);
     });
   }
 }

@@ -1,12 +1,21 @@
 package com.sigpwned.discourse.core.pipeline.invocation.step;
 
 import java.util.List;
+import com.sigpwned.discourse.core.command.tree.RootCommand;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipeline;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStep;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
 import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.CommandResolver;
 import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.exception.FailedCommandResolutionResolveException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.resolve.model.CommandResolution;
 
+/**
+ * A {@link InvocationPipelineStep invocation pipeline step} that scans the command line arguments
+ * to resolve the exact command from the {@link RootCommand command tree} to execute.
+ * 
+ * @see InvocationPipeline
+ */
 public class ResolveStep extends InvocationPipelineStepBase {
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static final InvocationContext.Key<CommandResolver<?>> COMMAND_RESOLVER_KEY =

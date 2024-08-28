@@ -11,14 +11,9 @@ public class PartialCommandResolutionResolveException extends ResolveException {
 
   public PartialCommandResolutionResolveException(SuperCommand<?> supercommand) {
     // TODO We need a better way to resolve the supercommand class name..
-    super(format("Partial command resolution for supercommand %s",
-        supercommand.getClass().getName()));
+    super(
+        format("Partial command resolution to supercommand %s", supercommand.getClass().getName()));
     this.supercommand = requireNonNull(supercommand);
-  }
-
-  @Override
-  protected Object[] getLocalizedMessageArguments() {
-    return new Object[] {getSupercommand().getClass().getName()};
   }
 
   public SuperCommand<?> getSupercommand() {

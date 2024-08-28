@@ -45,10 +45,18 @@ public final class MoreLists {
   public static <E> List<List<E>> cartesianProduct(List<? extends List<? extends E>> lists) {
     return CartesianList.of(lists);
   }
+  
+  private static final List<?>[] NO_LISTS = new List<?>[0];
 
-  public static <E> List<E> concat(List<? extends E> firstList, List<? extends E>... moreLists) {
+  @SuppressWarnings("unchecked")
+  public static <E> List<E> concat(List<? extends E> firstList, List<? extends E> secondList) {
+    return concat(firstList, secondList, (List<? extends E>[]) NO_LISTS);
+  }
+
+  public static <E> List<E> concat(List<? extends E> firstList, List<? extends E> secondList, List<? extends E>... moreLists) {
     List<E> result = new ArrayList<>();
     result.addAll(firstList);
+    result.addAll(secondList);
     for (List<? extends E> moreList : moreLists) {
       result.addAll(moreList);
     }

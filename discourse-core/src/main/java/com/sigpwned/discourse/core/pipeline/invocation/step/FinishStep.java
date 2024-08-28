@@ -3,8 +3,15 @@ package com.sigpwned.discourse.core.pipeline.invocation.step;
 import java.util.Map;
 import java.util.function.Function;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipeline;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStep;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
 
+/**
+ * A {@link InvocationPipelineStep} that creates the final result of the invocation pipeline.
+ * 
+ * @see InvocationPipeline
+ */
 public class FinishStep extends InvocationPipelineStepBase {
   public <T> T finish(Function<Map<String, Object>, T> finisher, Map<String, Object> reducedArgs,
       InvocationContext context) {

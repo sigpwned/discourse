@@ -34,8 +34,12 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleDetector;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleEvaluator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleNominator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SubCommandScanner;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDefaultValueExtractor;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDescriber;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetector;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxExampleValueExtractor;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxNominator;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxRequiredChecker;
 
 /**
  * Container for registering various components of a Discourse application.
@@ -47,6 +51,14 @@ public abstract class Module {
   public void registerSyntaxNominators(Chain<SyntaxNominator> chain) {}
 
   public void registerSyntaxDetectors(Chain<SyntaxDetector> chain) {}
+
+  public void registerSyntaxDefaultValueExtractor(Chain<SyntaxDefaultValueExtractor> chain) {}
+
+  public void registerSyntaxExampleValueExtractor(Chain<SyntaxExampleValueExtractor> chain) {}
+
+  public void registerSyntaxDescriber(Chain<SyntaxDescriber> chain) {}
+  
+  public void registerSyntaxRequiredChecker(Chain<SyntaxRequiredChecker> chain) {}
 
   public void registerRuleNominators(Chain<RuleNominator> chain) {}
 

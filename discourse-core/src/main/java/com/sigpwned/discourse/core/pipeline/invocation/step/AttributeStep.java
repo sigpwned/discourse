@@ -7,8 +7,15 @@ import java.util.Map;
 import com.sigpwned.discourse.core.args.Coordinate;
 import com.sigpwned.discourse.core.exception.InternalDiscourseException;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStep;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
 
+/**
+ * A {@link InvocationPipelineStep invocation pipeline step} that attributes the parsed arguments to
+ * the appropriate property names.
+ * 
+ * @link InvocationPipeline
+ */
 public class AttributeStep extends InvocationPipelineStepBase {
   public List<Map.Entry<String, String>> attribute(Map<Coordinate, String> propertyNames,
       List<Map.Entry<Coordinate, String>> parsedArgs, InvocationContext context) {

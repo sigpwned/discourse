@@ -9,9 +9,4 @@ public class FailedCommandResolutionResolveException extends ResolveException {
     // TODO We need a better way to resolve the supercommand class name..
     super(format("Failed to resolve command"));
   }
-
-  @Override
-  protected Object[] getLocalizedMessageArguments() {
-    return new Object[] {};
-  }
 }

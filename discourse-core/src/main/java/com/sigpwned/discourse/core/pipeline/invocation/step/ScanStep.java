@@ -19,10 +19,7 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.sigpwned.discourse.core.annotation.Configurable;
-import com.sigpwned.discourse.core.annotation.DiscourseDefaultValue;
 import com.sigpwned.discourse.core.annotation.DiscourseDescription;
-import com.sigpwned.discourse.core.annotation.DiscourseExampleValue;
-import com.sigpwned.discourse.core.annotation.DiscourseRequired;
 import com.sigpwned.discourse.core.command.Discriminator;
 import com.sigpwned.discourse.core.command.tree.Command;
 import com.sigpwned.discourse.core.command.tree.LeafCommand;
@@ -30,6 +27,8 @@ import com.sigpwned.discourse.core.command.tree.LeafCommandProperty;
 import com.sigpwned.discourse.core.command.tree.RootCommand;
 import com.sigpwned.discourse.core.exception.InternalDiscourseException;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipeline;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStep;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.NamingScheme;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleDetector;
@@ -37,8 +36,12 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleEvaluator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleNominator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RulesEngine;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SubCommandScanner;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDefaultValueExtractor;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDescriber;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetector;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxExampleValueExtractor;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxNominator;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxRequiredChecker;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.DiscriminatorMismatchScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.DivergentRulesScanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception.DuplicateCoordinatesScanException;
@@ -76,6 +79,12 @@ import com.sigpwned.discourse.core.util.Maybe;
 import com.sigpwned.discourse.core.util.MoreSets;
 import com.sigpwned.discourse.core.util.Streams;
 
+/**
+ * A {@link InvocationPipelineStep invocation pipeline step} that scans a class for command-related
+ * metadata and constructs a command tree.
+ * 
+ * @see InvocationPipeline
+ */
 public class ScanStep extends InvocationPipelineStepBase {
   private static final Logger LOGGER = LoggerFactory.getLogger(ScanStep.class);
 
@@ -99,6 +108,18 @@ public class ScanStep extends InvocationPipelineStepBase {
 
   public static final InvocationContext.Key<RuleEvaluator> RULE_EVALUATOR_KEY =
       InvocationContext.Key.of(RuleEvaluator.class);
+
+  public static final InvocationContext.Key<SyntaxDefaultValueExtractor> SYNTAX_DEFAULT_VALUE_EXTRACTOR_KEY =
+      InvocationContext.Key.of(SyntaxDefaultValueExtractor.class);
+
+  public static final InvocationContext.Key<SyntaxExampleValueExtractor> SYNTAX_EXAMPLE_VALUE_EXTRACTOR_KEY =
+      InvocationContext.Key.of(SyntaxExampleValueExtractor.class);
+
+  public static final InvocationContext.Key<SyntaxRequiredChecker> SYNTAX_REQUIRED_CHECKER_KEY =
+      InvocationContext.Key.of(SyntaxRequiredChecker.class);
+
+  public static final InvocationContext.Key<SyntaxDescriber> SYNTAX_DESCRIBER_KEY =
+      InvocationContext.Key.of(SyntaxDescriber.class);
 
   public final <T> RootCommand<T> scan(Class<T> clazz, InvocationContext context) {
     RootCommand<T> tree;
@@ -445,27 +466,41 @@ public class ScanStep extends InvocationPipelineStepBase {
         }
 
         // Duplicate rules are fine. We let the reactor sort it out.
+        SyntaxDescriber describer = context.get(SyntaxDescriber.class).orElseThrow();
+
+        SyntaxDefaultValueExtractor defaultValueExtractor =
+            context.get(SyntaxDefaultValueExtractor.class).orElseThrow();
+
+        SyntaxExampleValueExtractor exampleValueExtractor =
+            context.get(SyntaxExampleValueExtractor.class).orElseThrow();
+
+        SyntaxRequiredChecker requiredChecker =
+            context.get(SyntaxRequiredChecker.class).orElseThrow();
 
         // TODO Where does the description come from?
         List<LeafCommandProperty> properties = new ArrayList<>();
         for (NamedSyntax namedSyntax : syntax) {
-          // TODO Should this be a pluggable implementation?
-          String description = namedSyntax.annotations().stream()
-              .mapMulti(Streams.filterAndCast(DiscourseDescription.class)).findFirst()
-              .map(DiscourseDescription::value).orElse(null);
+          // String description = namedSyntax.annotations().stream()
+          // .mapMulti(Streams.filterAndCast(DiscourseDescription.class)).findFirst()
+          // .map(DiscourseDescription::value).orElse(null);
+
+          String description = describer.describeSyntax(namedSyntax).orElse(null);
+
           // TODO Should this be a pluggable implementation? For example, @NonNull?
-          boolean required = namedSyntax.annotations().stream()
-              .mapMulti(Streams.filterAndCast(DiscourseRequired.class)).findFirst().isPresent();
+          // boolean required = namedSyntax.annotations().stream()
+          // .mapMulti(Streams.filterAndCast(DiscourseRequired.class)).findFirst().isPresent();
+          boolean required = requiredChecker.checkSyntaxRequired(namedSyntax).orElse(false);
 
-          // TODO Should this be a pluggable implementation?
-          String defaultValue = namedSyntax.annotations().stream()
-              .mapMulti(Streams.filterAndCast(DiscourseDefaultValue.class)).findFirst()
-              .map(DiscourseDefaultValue::value).orElse(null);
+          // String defaultValue = namedSyntax.annotations().stream()
+          // .mapMulti(Streams.filterAndCast(DiscourseDefaultValue.class)).findFirst()
+          // .map(DiscourseDefaultValue::value).orElse(null);
 
-          // TODO Should this be a pluggable implementation?
-          String exampleValue = namedSyntax.annotations().stream()
-              .mapMulti(Streams.filterAndCast(DiscourseExampleValue.class)).findFirst()
-              .map(DiscourseExampleValue::value).orElse(null);
+          String defaultValue = defaultValueExtractor.extractDefaultValue(namedSyntax).orElse(null);
+
+          // String exampleValue = namedSyntax.annotations().stream()
+          // .mapMulti(Streams.filterAndCast(DiscourseExampleValue.class)).findFirst()
+          // .map(DiscourseExampleValue::value).orElse(null);
+          String exampleValue = exampleValueExtractor.extractExampleValue(namedSyntax).orElse(null);
           if (exampleValue == null)
             exampleValue = defaultValue;
 

@@ -32,6 +32,7 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.RuleDetec
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.model.SyntaxDetection;
 import com.sigpwned.discourse.core.util.JodaBeanUtils;
 import com.sigpwned.discourse.core.util.Maybe;
+import com.sigpwned.discourse.core.util.MoreLists;
 
 public class MixinModule extends Module {
   // TODO what if someone annotations the field with @DiscourseMixin, but we have to use a setter?
@@ -66,26 +67,12 @@ public class MixinModule extends Module {
   }
 
   private static class MixinCoordinate extends Coordinate {
-    private final String prefix;
-    private final String name;
+    public final String prefix;
+    public final String name;
 
     public MixinCoordinate(String prefix, String name) {
       this.prefix = requireNonNull(prefix);
       this.name = requireNonNull(name);
-    }
-
-    /**
-     * @return the prefix
-     */
-    public String getPrefix() {
-      return prefix;
-    }
-
-    /**
-     * @return the name
-     */
-    public String getName() {
-      return name;
     }
 
     @Override
@@ -156,9 +143,10 @@ public class MixinModule extends Module {
             String name = maybeName.orElseThrow();
 
             if (candidate.annotations().stream().anyMatch(a -> a instanceof DiscourseMixin)) {
-              result.add(new CandidateSyntax(
-                  new MixinNomination(String.join(".", lineage), name, candidate.nominated()),
-                  candidate.genericType(), candidate.annotations()));
+              result.add(
+                  new CandidateSyntax(String.join(".", MoreLists.concat(lineage, List.of(name))),
+                      new MixinNomination(String.join(".", lineage), name, candidate.nominated()),
+                      candidate.genericType(), candidate.annotations()));
 
               mixinTypes.add(JodaBeanUtils.eraseToClass(candidate.genericType()));
 
@@ -172,9 +160,10 @@ public class MixinModule extends Module {
                 lineage.remove(lineage.size() - 1);
               }
             } else if (!lineage.isEmpty()) {
-              result.add(new CandidateSyntax(
-                  new MixinNomination(String.join(".", lineage), name, candidate.nominated()),
-                  candidate.genericType(), candidate.annotations()));
+              result.add(
+                  new CandidateSyntax(String.join(".", MoreLists.concat(lineage, List.of(name))),
+                      new MixinNomination(String.join(".", lineage), name, candidate.nominated()),
+                      candidate.genericType(), candidate.annotations()));
             }
           }
         }
@@ -203,7 +192,7 @@ public class MixinModule extends Module {
           if (detector == this)
             continue;
           Maybe<SyntaxDetection> result =
-              detector.detectSyntax(clazz, new CandidateSyntax(mixin.nominated,
+              detector.detectSyntax(clazz, new CandidateSyntax(mixin.name, mixin.nominated,
                   candidate.genericType(), candidate.annotations()), context);
           if (result.isDecided()) {
             return result;
@@ -259,9 +248,10 @@ public class MixinModule extends Module {
             String name = maybeName.orElseThrow();
 
             if (candidate.annotations().stream().anyMatch(a -> a instanceof DiscourseMixin)) {
-              result.add(new CandidateRule(
-                  new MixinNomination(String.join(".", lineage), name, candidate.nominated()),
-                  candidate.genericType(), candidate.annotations()));
+              result
+                  .add(new CandidateRule(String.join(".", MoreLists.concat(lineage, List.of(name))),
+                      new MixinNomination(String.join(".", lineage), name, candidate.nominated()),
+                      candidate.genericType(), candidate.annotations()));
               walking.add(clazz);
               lineage.add(name);
               try {
@@ -272,9 +262,10 @@ public class MixinModule extends Module {
                 lineage.remove(lineage.size() - 1);
               }
             } else if (!lineage.isEmpty()) {
-              result.add(new CandidateRule(
-                  new MixinNomination(String.join(".", lineage), name, candidate.nominated()),
-                  candidate.genericType(), candidate.annotations()));
+              result
+                  .add(new CandidateRule(String.join(".", MoreLists.concat(lineage, List.of(name))),
+                      new MixinNomination(String.join(".", lineage), name, candidate.nominated()),
+                      candidate.genericType(), candidate.annotations()));
             }
           }
         }
@@ -305,9 +296,9 @@ public class MixinModule extends Module {
         for (RuleDetector detector : ruleDetectorChain) {
           if (detector == this)
             continue;
-          Maybe<RuleDetection> result = detector.detectRule(clazz, mixinSyntax,
-              new CandidateRule(mixin.nominated, candidate.genericType(), candidate.annotations()),
-              context);
+          Maybe<RuleDetection> result =
+              detector.detectRule(clazz, mixinSyntax, new CandidateRule(mixin.name, mixin.nominated,
+                  candidate.genericType(), candidate.annotations()), context);
           if (result.isNo()) {
             return Maybe.no();
           }
@@ -352,7 +343,7 @@ public class MixinModule extends Module {
             continue;
 
           Optional<Optional<Object>> result =
-              evaluator.run(input, new NamedRule(mixin.nominated, rule.genericType(),
+              evaluator.run(input, new NamedRule(mixin.name, mixin.nominated, rule.genericType(),
                   rule.annotations(), rule.antecedents(), rule.conditions(), rule.consequent()));
 
           if (result.isPresent())

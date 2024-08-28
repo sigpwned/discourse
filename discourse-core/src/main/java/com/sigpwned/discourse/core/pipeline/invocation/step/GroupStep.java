@@ -7,8 +7,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStep;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
 
+/**
+ * A {@link InvocationPipelineStep invocation pipeline step} that groups the command line arguments
+ * by their property names.
+ * 
+ * @link InvocationPipeline
+ */
 public class GroupStep extends InvocationPipelineStepBase {
   public Map<String, List<String>> group(List<Map.Entry<String, String>> attributedArgs,
       InvocationContext context) {

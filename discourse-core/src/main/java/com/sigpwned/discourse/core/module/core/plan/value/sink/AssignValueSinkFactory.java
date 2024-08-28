@@ -51,11 +51,8 @@ public class AssignValueSinkFactory implements ValueSinkFactory {
 
       @Override
       public void put(Object value) {
-        if (value == null) {
-          // TODO better exception
-          throw new IllegalArgumentException("Cannot assign null to property");
-        }
-        this.currentValue = value;
+        // TODO It's strange, but legal to assign null to the property, right?
+        this.currentValue = null;
       }
 
       @Override

@@ -3,9 +3,17 @@ package com.sigpwned.discourse.core.pipeline.invocation.step;
 import java.util.List;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext.Key;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipeline;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStep;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
 import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.args.ArgsPreprocessor;
 
+/**
+ * A {@link InvocationPipelineStep invocation pipeline step} that allows customizations to preview
+ * and manipulate the arguments that will be used to create and populate the command.
+ * 
+ * @see InvocationPipeline
+ */
 public class PreprocessArgsStep extends InvocationPipelineStepBase {
   public static final Key<ArgsPreprocessor> ARGS_PREPROCESSOR_KEY = Key.of(ArgsPreprocessor.class);
 

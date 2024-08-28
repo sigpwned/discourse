@@ -7,7 +7,6 @@ import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineListene
 public class ExceptionHandlingInvocationPipelineListener implements InvocationPipelineListener {
   @Override
   public void catchPipeline(Throwable t, InvocationContext context) {
-    // TODO Auto-generated method stub
     ExceptionFormatter formatter = null;
     formatter.formatException(null, t, null);
   }

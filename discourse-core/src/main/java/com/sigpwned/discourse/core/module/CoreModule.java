@@ -77,6 +77,10 @@ import com.sigpwned.discourse.core.module.core.scan.rules.nominate.DefaultConstr
 import com.sigpwned.discourse.core.module.core.scan.rules.nominate.FieldRuleNominator;
 import com.sigpwned.discourse.core.module.core.scan.rules.nominate.SetterMethodRuleNominator;
 import com.sigpwned.discourse.core.module.core.scan.subcommands.ConfigurableSubCommandScanner;
+import com.sigpwned.discourse.core.module.core.scan.syntax.AnnotationSyntaxDefaultValueExtractor;
+import com.sigpwned.discourse.core.module.core.scan.syntax.AnnotationSyntaxDescriber;
+import com.sigpwned.discourse.core.module.core.scan.syntax.AnnotationSyntaxExampleValueExtractor;
+import com.sigpwned.discourse.core.module.core.scan.syntax.AnnotationSyntaxRequiredChecker;
 import com.sigpwned.discourse.core.module.core.scan.syntax.detect.DiscourseIgnoreSyntaxDetector;
 import com.sigpwned.discourse.core.module.core.scan.syntax.detect.OptionSyntaxDetector;
 import com.sigpwned.discourse.core.module.core.scan.syntax.detect.PositionalSyntaxDetector;
@@ -90,8 +94,12 @@ import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleDetector;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleEvaluator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.RuleNominator;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SubCommandScanner;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDefaultValueExtractor;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDescriber;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxDetector;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxExampleValueExtractor;
 import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxNominator;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.SyntaxRequiredChecker;
 
 /**
  * The default module for the core library. Any new functionality that is added to the core library
@@ -290,6 +298,26 @@ public class CoreModule extends Module {
     chain.addLast(ConfigurableSubCommandScanner.INSTANCE);
   }
 
+  @Override
+  public void registerSyntaxDefaultValueExtractor(Chain<SyntaxDefaultValueExtractor> chain) {
+    chain.addLast(AnnotationSyntaxDefaultValueExtractor.INSTANCE);
+  }
+
+  @Override
+  public void registerSyntaxExampleValueExtractor(Chain<SyntaxExampleValueExtractor> chain) {
+    chain.addLast(AnnotationSyntaxExampleValueExtractor.INSTANCE);
+  }
+
+  @Override
+  public void registerSyntaxDescriber(Chain<SyntaxDescriber> chain) {
+    chain.addLast(AnnotationSyntaxDescriber.INSTANCE);
+  }
+
+  @Override
+  public void registerSyntaxRequiredChecker(Chain<SyntaxRequiredChecker> chain) {
+    chain.addLast(AnnotationSyntaxRequiredChecker.INSTANCE);
+  }
+
   /**
    * <p>
    * Registers the default discourse listeners.
@@ -306,15 +334,11 @@ public class CoreModule extends Module {
 
   }
 
-
-
   @Override
   public List<Module> getDependencies() {
     return List.of(new EnvironmentVariableParameterModule(), new SystemPropertyParameterModule(),
-        new FlagParameterModule(), new StandardHelpAndVersionFlagsModule(),
-        new DefaultParameterValueModule(), new RequiredParameterModule(), new MixinModule(),
-        new HelpFlagParameterModule(), new VersionFlagParameterModule(),
-        new StandardHelpAndVersionFlagsModule());
+        new FlagParameterModule(), new DefaultParameterValueModule(), new RequiredParameterModule(),
+        new MixinModule(), new HelpFlagParameterModule(), new VersionFlagParameterModule());
 
   }
 }

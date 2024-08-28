@@ -13,12 +13,20 @@ import com.sigpwned.discourse.core.module.core.plan.value.deserializer.ValueDese
 import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSink;
 import com.sigpwned.discourse.core.module.core.plan.value.sink.ValueSinkFactory;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipeline;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStep;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
 import com.sigpwned.discourse.core.pipeline.invocation.step.plan.exception.InvalidDefaultValuePlanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.plan.exception.InvalidExampleValuePlanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.plan.exception.NoDeserializerAvailablePlanException;
 import com.sigpwned.discourse.core.pipeline.invocation.step.plan.exception.NoSinkAvailablePlanException;
 
+/**
+ * A {@link InvocationPipelineStep invocation pipeline step} that creates a plan to create and
+ * populate the resolved command object using application arguments.
+ * 
+ * @see InvocationPipeline
+ */
 public class PlanStep extends InvocationPipelineStepBase {
   @SuppressWarnings({"unchecked", "rawtypes"})
   public static final InvocationContext.Key<ValueDeserializerFactory<?>> VALUE_DESERIALIZER_FACTORY_KEY =

@@ -19,11 +19,13 @@
  */
 package com.sigpwned.discourse.core.module.core.plan.value.deserializer;
 
+import static java.lang.String.format;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import com.sigpwned.discourse.core.annotation.DiscourseDeserialize;
+import com.sigpwned.discourse.core.exception.InternalDiscourseException;
 import com.sigpwned.discourse.core.util.Streams;
 
 public class DiscourseDeserializeValueSerializerFactory
@@ -47,8 +49,8 @@ public class DiscourseDeserializeValueSerializerFactory
     try {
       deserializer = deserializeUsing.getConstructor().newInstance();
     } catch (Exception e) {
-      // TODO better exception
-      throw new RuntimeException(e);
+      throw new InternalDiscourseException(
+          format("Failed to instantiate deserializer %s", deserializeUsing.getName()), e);
     }
 
     return Optional.of(deserializer);

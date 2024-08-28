@@ -4,9 +4,18 @@ import java.util.List;
 import com.sigpwned.discourse.core.args.Token;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationContext.Key;
+import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStep;
 import com.sigpwned.discourse.core.pipeline.invocation.InvocationPipelineStepBase;
 import com.sigpwned.discourse.core.pipeline.invocation.step.preprocess.tokens.TokensPreprocessor;
 
+/**
+ * A {@link InvocationPipelineStep invocation pipeline step} that preprocesses the command line
+ * {@link Token tokens} before they are parsed and used to resolve the exact command to execute.
+ * This allows customizations to perform syntax modification, e.g., allowing flag parameters to
+ * inject "true" or "false" values into the token stream.
+ * 
+ * @link InvocationPipeline
+ */
 public class PreprocessTokensStep extends InvocationPipelineStepBase {
   public static final Key<TokensPreprocessor> TOKENS_PREPROCESSOR_KEY =
       Key.of(TokensPreprocessor.class);
