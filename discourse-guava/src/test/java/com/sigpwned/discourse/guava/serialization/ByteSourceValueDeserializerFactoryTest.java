@@ -42,7 +42,7 @@ public class ByteSourceValueDeserializerFactoryTest {
   public void urlTest() throws IOException {
     URL url = Resources.getResource("bytes.txt");
     ByteSource bytes = ByteSourceValueDeserializerFactory.INSTANCE
-        .getDeserializer(ByteSource.class, emptyList()).deserialize(url.toString());
+        .getDeserializer(ByteSource.class, emptyList()).get().deserialize(url.toString());
     assertThat(bytes.read(), is(BYTES));
   }
 
@@ -53,12 +53,12 @@ public class ByteSourceValueDeserializerFactoryTest {
   public void fileTest() throws IOException {
     File tmp = File.createTempFile("bytes.", ".txt");
     try {
-      try (OutputStream out=new FileOutputStream(tmp)) {
+      try (OutputStream out = new FileOutputStream(tmp)) {
         out.write(BYTES);
       }
-      
+
       ByteSource bytes = ByteSourceValueDeserializerFactory.INSTANCE
-          .getDeserializer(ByteSource.class, emptyList()).deserialize(tmp.getAbsolutePath());
+          .getDeserializer(ByteSource.class, emptyList()).get().deserialize(tmp.getAbsolutePath());
       assertThat(bytes.read(), is(BYTES));
     } finally {
       tmp.delete();
