@@ -1,22 +1,3 @@
-/*-
- * =================================LICENSE_START==================================
- * discourse-core
- * ====================================SECTION=====================================
- * Copyright (C) 2022 - 2024 Andy Boothe
- * ====================================SECTION=====================================
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ==================================LICENSE_END===================================
- */
 package com.sigpwned.discourse.core.optional;
 
 import java.util.NoSuchElementException;
@@ -36,29 +17,8 @@ import java.util.stream.Stream;
  */
 public class OptionalSystemProperty<T> {
 
-  /**
-   * Get an optional system property with the given name. If the system property is not set, the
-   * optional will be empty. Otherwise, it will be present.
-   *
-   * @param name the name of the system property
-   * @return an optional system property
-   */
   public static OptionalSystemProperty<String> getProperty(String name) {
     return new OptionalSystemProperty<String>(name, System.getProperty(name));
-  }
-
-  /**
-   * Create an optional system property with the given name and value. If the value is null, the
-   * optional will be empty. Otherwise, it will be present. This method is intended primarily for
-   * use in testing.
-   *
-   * @param name the name of the system property
-   * @param value the value of the system property
-   * @param <T> the type of the system property
-   * @return an optional system property
-   */
-  public static <T> OptionalSystemProperty<T> of(String name, T value) {
-    return new OptionalSystemProperty<>(name, value);
   }
 
   private final String name;
@@ -118,8 +78,7 @@ public class OptionalSystemProperty<T> {
     if (isPresent()) {
       return this;
     } else {
-      @SuppressWarnings("unchecked")
-      Optional<T> r = (Optional<T>) supplier.get();
+      @SuppressWarnings("unchecked") Optional<T> r = (Optional<T>) supplier.get();
       return new OptionalSystemProperty<>(getName(), Objects.requireNonNull(r).orElse(null));
     }
   }
@@ -128,7 +87,7 @@ public class OptionalSystemProperty<T> {
     return isPresent() ? value : defaultValue;
   }
 
-  public T orElseGet(Supplier<? extends T> defaultValue) {
+  public T orElseGet(Supplier<T> defaultValue) {
     return isPresent() ? value : defaultValue.get();
   }
 
@@ -145,9 +104,5 @@ public class OptionalSystemProperty<T> {
 
   public T get() {
     return orElseThrow();
-  }
-
-  public Optional<T> toJavaOptional() {
-    return Optional.ofNullable(value);
   }
 }

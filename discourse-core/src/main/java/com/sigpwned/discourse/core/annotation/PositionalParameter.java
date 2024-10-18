@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,35 +21,20 @@ package com.sigpwned.discourse.core.annotation;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * <p>
- * A configuration property that appears positionally after all options and switches in the
- * resolvedCommand line. Parameter positions are zero-based, so position 0 is the first parameter
- * after all options and switches, position 1 is the second, and so on. For example, the following
- * field will be set to {@code foo} if the resolvedCommand line were
- * {@code --flag --option1 value1 foo}:
- * </p>
- *
- * <pre>
- * &#x40;PositionalParameter(position = 0)
- * public String positional;
- * </pre>
+ * A configuration property that appears positionally after all options and switches in the command
+ * line. Parameter positions are zero-based.
  */
 @Retention(RUNTIME)
-@Target({FIELD, METHOD, PARAMETER})
+@Target({FIELD, METHOD})
 public @interface PositionalParameter {
-
-  /**
-   * The position of the parameter in the resolvedCommand line. Positions are zero-based, so
-   * position 0 is the first parameter after all options and switches, position 1 is the second, and
-   * so on.
-   *
-   * @return the position of the parameter in the resolvedCommand line
-   */
   public int position();
+
+  public String description() default "";
+
+  public boolean required() default true;
 }

@@ -1,9 +1,0 @@
-currently working on documentation generation
-negatable arguments. how to provide negation? probably @CliNegatable()
-
-key differences vs picocli
-
-* constructor support (reactor)
-* extensible
-* parent command support -- inheritance
-* better modeling -- abstract types

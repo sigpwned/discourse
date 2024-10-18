@@ -1,22 +1,3 @@
-/*-
- * =================================LICENSE_START==================================
- * discourse-core
- * ====================================SECTION=====================================
- * Copyright (C) 2022 - 2024 Andy Boothe
- * ====================================SECTION=====================================
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ==================================LICENSE_END===================================
- */
 package com.sigpwned.discourse.core.optional;
 
 import java.util.NoSuchElementException;
@@ -36,29 +17,8 @@ import java.util.stream.Stream;
  */
 public class OptionalEnvironmentVariable<T> {
 
-  /**
-   * Get an optional environment variable with the given name. If the environment variable is not
-   * set, the optional will be empty. Otherwise, it will be present.
-   *
-   * @param name the name of the environment variable
-   * @return an optional environment variable
-   */
   public static OptionalEnvironmentVariable<String> getenv(String name) {
     return new OptionalEnvironmentVariable<String>(name, System.getenv(name));
-  }
-
-  /**
-   * Create an optional environment variable with the given name and value. If the value is null,
-   * the optional will be empty. Otherwise, it will be present. This method is intended primarily
-   * for use in testing.
-   *
-   * @param name the name of the environment variable
-   * @param value the value of the environment variable
-   * @param <T> the type of the environment variable
-   * @return an optional environment variable
-   */
-  public static <T> OptionalEnvironmentVariable<T> of(String name, T value) {
-    return new OptionalEnvironmentVariable<>(name, value);
   }
 
   private final String name;
@@ -119,8 +79,7 @@ public class OptionalEnvironmentVariable<T> {
     if (isPresent()) {
       return this;
     } else {
-      @SuppressWarnings("unchecked")
-      Optional<T> r = (Optional<T>) supplier.get();
+      @SuppressWarnings("unchecked") Optional<T> r = (Optional<T>) supplier.get();
       return new OptionalEnvironmentVariable<>(getName(), Objects.requireNonNull(r).orElse(null));
     }
   }
@@ -129,7 +88,7 @@ public class OptionalEnvironmentVariable<T> {
     return isPresent() ? value : defaultValue;
   }
 
-  public T orElseGet(Supplier<? extends T> defaultValue) {
+  public T orElseGet(Supplier<T> defaultValue) {
     return isPresent() ? value : defaultValue.get();
   }
 
@@ -147,9 +106,5 @@ public class OptionalEnvironmentVariable<T> {
 
   public T get() {
     return orElseThrow();
-  }
-
-  public Optional<T> toJavaOptional() {
-    return Optional.ofNullable(value);
   }
 }
