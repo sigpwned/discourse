@@ -20,6 +20,8 @@
 package com.sigpwned.discourse.core.util;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntUnaryOperator;
 import java.util.function.UnaryOperator;
@@ -33,7 +35,7 @@ public final class Text {
   /**
    * Apply word wrap to the given line width
    */
-  public static String wrap(String s, int width) {
+  public static List<String> wrap(String s, int width) {
     if (s == null)
       throw new NullPointerException();
     if (width <= 0)
@@ -44,14 +46,14 @@ public final class Text {
   /**
    * Apply word wrap to the given length, computed from each line number
    */
-  public static String wrap(String s, IntUnaryOperator widthFunction) {
+  public static List<String> wrap(String s, IntUnaryOperator widthFunction) {
     return wrap(s, widthFunction, line -> line);
   }
 
   /**
    * Apply word wrap to the given length, computed from each line number
    */
-  public static String wrap(String s, IntUnaryOperator widthFunction,
+  public static List<String> wrap(String s, IntUnaryOperator widthFunction,
       UnaryOperator<String> indentFunction) {
     if (s == null)
       throw new NullPointerException();
@@ -61,14 +63,14 @@ public final class Text {
       throw new NullPointerException();
 
     if (s.isBlank())
-      return "";
+      return List.of("");
 
     List<String> tokens = asList(WHITESPACE.split(s.strip()));
 
     int lineNumber = 0;
     Integer width = null;
     StringBuilder line = new StringBuilder();
-    StringBuilder result = new StringBuilder();
+    List<String> result = new ArrayList<>();
     for (String token : tokens) {
       if (width == null) {
         width = widthFunction.applyAsInt(lineNumber);
@@ -82,7 +84,7 @@ public final class Text {
         if (line.length() + token.length() + 1 <= width) {
           line.append(" ").append(token);
         } else {
-          result.append(indentFunction.apply(line.toString())).append("\n");
+          result.add(indentFunction.apply(line.toString()));
           line.setLength(0);
           line.append(token);
           width = null;
@@ -92,9 +94,9 @@ public final class Text {
     }
 
     if (line.length() != 0)
-      result.append(indentFunction.apply(line.toString()));
+      result.add(indentFunction.apply(line.toString()));
 
-    return result.toString();
+    return unmodifiableList(result);
   }
 
   /**
@@ -116,5 +118,38 @@ public final class Text {
       result.append(s);
 
     return result.toString();
+  }
+
+  public static String indent(String s, int width) {
+    return indent(s, width, ' ');
+  }
+
+  public static String indent(String s, int width, char ch) {
+    StringBuilder result = new StringBuilder();
+    result.append(times(String.valueOf(ch), width));
+    result.append(s);
+    return result.toString();
+  }
+
+  public static String rpad(String s, int width) {
+    if (s.length() >= width)
+      return s;
+    return s + times(" ", width - s.length());
+  }
+
+  public static String rstrip(String s) {
+    if (s == null)
+      throw new NullPointerException();
+    if (s.isEmpty())
+      return s;
+    if (!Character.isWhitespace(s.charAt(s.length() - 1)))
+      return s;
+
+    StringBuilder buf = new StringBuilder(s);
+    do {
+      buf.setLength(buf.length() - 1);
+    } while (buf.length() > 0 && Character.isWhitespace(buf.charAt(buf.length() - 1)));
+
+    return buf.toString();
   }
 }

@@ -20,6 +20,7 @@
 package com.sigpwned.discourse.examples.fizzbuzz.simple;
 
 import com.sigpwned.discourse.core.annotation.Configurable;
+import com.sigpwned.discourse.core.annotation.DiscourseRequired;
 import com.sigpwned.discourse.core.annotation.OptionParameter;
 import com.sigpwned.discourse.core.annotation.PositionalParameter;
 
@@ -28,7 +29,8 @@ import com.sigpwned.discourse.core.annotation.PositionalParameter;
  */
 @Configurable
 public class SimpleFizzBuzzConfiguration {
-    @PositionalParameter(position=0, required=true)
+    @DiscourseRequired
+    @PositionalParameter(position=0)
     public int count;
     
     @OptionParameter(shortName="f", longName="fizz")

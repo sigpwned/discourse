@@ -1,0 +1,19 @@
+package com.sigpwned.discourse.core.pipeline.invocation.step.scan.exception;
+
+import static java.lang.String.format;
+import com.sigpwned.discourse.core.pipeline.invocation.step.scan.ScanException;
+
+/**
+ * Used when a super command class is not abstract.
+ */
+@SuppressWarnings("serial")
+public class LeafCommandMissingBodyScanException extends ScanException {
+  public LeafCommandMissingBodyScanException(Class<?> clazz) {
+    super(clazz, format("Leaf command class %s must have body, but doesn't", clazz.getName()));
+  }
+
+  @Override
+  protected Object[] getLocalizedMessageArguments() {
+    return new Object[] {getClazz().getName()};
+  }
+}
